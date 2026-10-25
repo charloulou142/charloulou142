@@ -1,0 +1,6 @@
+Dépose ici les photos du matériel (format .jpg, idéalement en paysage, ~1200 px de large) :
+  partybox-310.jpg
+  partybox-710.jpg
+  partybox-ultimate.jpg
+  machine-fumee.jpg
+Tant qu'une photo manque, le site affiche la zone hachurée à la place.
