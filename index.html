@@ -48,12 +48,48 @@
   .item p{color:var(--muted);font-size:15px;margin:4px 0 10px}
   @media (max-width:860px){.finder{grid-template-columns:1fr}}
   @media (max-width:420px){.choices{grid-template-columns:1fr}}
+
+  /* réservation */
+  .booking{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px}
+  .field{display:grid;gap:6px;margin-bottom:14px}
+  .field label{font-weight:700;font-size:14px;color:var(--muted)}
+  .field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--text);font:inherit;color-scheme:dark}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan);outline:none}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
+  .cal-head b{font-family:"Bebas Neue";font-weight:400;font-size:30px;letter-spacing:.5px;text-transform:capitalize}
+  .cal-nav{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:18px}
+  .cal-nav:hover{border-color:var(--cyan)}
+  .cal-nav:disabled{opacity:.3;cursor:default}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal .dow{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding-bottom:4px}
+  .day{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:700;cursor:pointer;display:grid;place-items:center;font-size:15px;transition:all .15s}
+  .day.libre{border-color:rgba(34,211,238,.55)}
+  .day.a_confirmer{border-color:rgba(139,92,246,.6)}
+  .day.complet{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+  .day.passe{opacity:.2;cursor:not-allowed}
+  .day.sel{background:var(--pink);color:#1A0B00;border-color:var(--pink);box-shadow:0 0 18px rgba(255,122,26,.5)}
+  .day:not(.complet):not(.passe):hover{transform:scale(1.06)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px;border:1px solid}
+  .chosen{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,122,26,.10);border:1px solid rgba(255,122,26,.35);font-weight:700}
+  .consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);margin:6px 0 16px}
+  .consent input{margin-top:4px;width:18px;height:18px;accent-color:var(--pink)}
+  .msg{margin-top:14px;padding:14px;border-radius:12px;font-weight:600}
+  .msg.ok{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5)}
+  .msg.err{background:rgba(255,122,26,.12);border:1px solid rgba(255,122,26,.5)}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  #bk-submit{width:100%}
+  #bk-submit[disabled]{opacity:.6;cursor:wait}
+  @media (max-width:860px){.booking{grid-template-columns:1fr}}
+  @media (max-width:420px){.row2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <nav class="top"><div class="wrap">
   <a class="logo" href="#">AUDIO<span>LOC</span></a>
-  <div class="navlinks"><a href="#trouver">Trouver mon pack</a><a href="#materiel">Matériel</a><a href="#faq">FAQ</a><a class="btn" href="#contact">Réserver</a></div>
+  <div class="navlinks"><a href="#trouver">Trouver mon pack</a><a href="#materiel">Matériel</a><a href="#faq">FAQ</a><a class="btn" href="#reserver">Réserver</a></div>
 </div></nav>
 
 <header class="hero">
@@ -94,8 +130,45 @@
       <p class="why" id="rWhy"></p>
       <ul class="checks" id="rList"></ul>
       <p class="price"><span id="rPrice"></span> / soirée</p>
-      <a class="btn" id="rBook" href="https://wa.me/33622123963" target="_blank" rel="noopener">Réserver ce pack sur WhatsApp</a>
+      <a class="btn" id="rBook" href="#reserver">Choisir ma date et réserver</a>
     </div>
+  </div>
+</div></section>
+
+<section id="reserver"><div class="wrap">
+  <h2>Choisis ta date et réserve</h2>
+  <p class="lead">Les jours disponibles s'affichent selon l'offre choisie. Ta demande nous arrive tout de suite : on te confirme rapidement par téléphone ou WhatsApp.</p>
+  <div class="booking">
+    <div class="panel">
+      <div class="field"><label for="bk-offre">Offre</label>
+        <select id="bk-offre">
+          <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
+          <option>PartyBox compacte</option><option>PartyBox intermédiaire</option><option>PartyBox puissante</option>
+          <option>Machine à fumée 2000 W RGB</option>
+        </select></div>
+      <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
+      <div class="cal" id="cal" aria-live="polite"></div>
+      <div class="legend"><span><i style="border-color:#22D3EE"></i>Disponible</span><span><i style="border-color:#8B5CF6"></i>À confirmer</span><span><i style="border-color:#555;opacity:.4"></i>Complet</span></div>
+      <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
+    </div>
+    <form class="panel" id="bk-form" novalidate>
+      <div class="row2">
+        <div class="field"><label for="bk-nom">Nom et prénom *</label><input id="bk-nom" autocomplete="name" required maxlength="80"></div>
+        <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
+      </div>
+      <div class="field"><label for="bk-email">E-mail (facultatif)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120"></div>
+      <div class="row2">
+        <div class="field"><label for="bk-lieu">Ville / lieu de la fête</label><input id="bk-lieu" maxlength="80" placeholder="ex. Pélissanne"></div>
+        <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
+      </div>
+      <div class="field"><label for="bk-fete">Type de fête</label>
+        <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
+      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="3" maxlength="500" placeholder="Horaires, accès, questions…"></textarea></div>
+      <div class="hp" aria-hidden="true"><label>Site <input id="bk-site" tabindex="-1" autocomplete="off"></label></div>
+      <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte qu'Audioloc utilise ces informations pour traiter ma demande. <a href="confidentialite.html">Politique de confidentialité</a></span></label>
+      <button class="btn" id="bk-submit" type="submit">Envoyer ma demande de réservation</button>
+      <div class="msg" id="bk-msg" hidden></div>
+    </form>
   </div>
 </div></section>
 
@@ -140,7 +213,7 @@
     <a class="btn ghost" href="mailto:audioloc13@gmail.com?subject=R%C3%A9servation%20Audioloc">audioloc13@gmail.com</a>
   </div>
 </div></section>
-<footer class="end"><div class="wrap"><span>© Audioloc</span><span>Location sono &amp; lumière · Salon-de-Provence</span></div></footer>
+<footer class="end"><div class="wrap"><span>© Audioloc · <a href="confidentialite.html" style="color:inherit">Confidentialité</a></span><span>Location sono &amp; lumière · Salon-de-Provence</span></div></footer>
 
 <script>
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
@@ -160,15 +233,103 @@
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
-    const fete=document.querySelector('.choice[aria-pressed="true"]').textContent.trim();
-    const msg='Bonjour Audioloc, je suis intéressé(e) par le '+p.name+'.\nFête : '+fete+'\nInvités : environ '+gOut.textContent+'\nDate : ';
-    document.getElementById('rBook').href='https://wa.me/33622123963?text='+encodeURIComponent(msg);
+    window.packChoisi=p.name;
+    if (window.bkSync) window.bkSync();
   }
   function update(){gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
   document.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed',x===c));kind=c.dataset.k;update();}));
   g.addEventListener('input',update);
   document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.pack,b.dataset.pack===recommend())));
   update();
+</script>
+<script>
+  // Adresse du script Google (Application Web) qui relie le site au CRM et à l'agenda
+  const API = 'https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec';
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const pad = n => String(n).padStart(2,'0');
+  const isoJ = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  const auj = new Date(); auj.setHours(0,0,0,0);
+  let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), choix = null, cache = {};
+  const $ = id => document.getElementById(id);
+  const offreSel = $('bk-offre');
+
+  async function dispoMois(cle){
+    if (cache[cle]) return cache[cle];
+    if (!API.startsWith('https://')) return (cache[cle] = null);
+    try { const r = await fetch(API+'?action=dispo&mois='+cle); const j = await r.json(); return (cache[cle] = j.ok ? j.offres : null); }
+    catch(e){ return (cache[cle] = null); }
+  }
+
+  async function dessiner(){
+    const cle = vue.getFullYear()+'-'+pad(vue.getMonth()+1);
+    $('cal-titre').textContent = MOIS[vue.getMonth()]+' '+vue.getFullYear();
+    $('cal-prev').disabled = vue <= new Date(auj.getFullYear(), auj.getMonth(), 1);
+    const cal = $('cal'); cal.innerHTML = ['L','M','M','J','V','S','D'].map(d=>'<div class="dow">'+d+'</div>').join('');
+    const premier = (new Date(vue.getFullYear(), vue.getMonth(), 1).getDay()+6)%7;
+    for (let i=0;i<premier;i++) cal.insertAdjacentHTML('beforeend','<div></div>');
+    const nb = new Date(vue.getFullYear(), vue.getMonth()+1, 0).getDate();
+    const boutons = [];
+    for (let j=1;j<=nb;j++){
+      const d = new Date(vue.getFullYear(), vue.getMonth(), j), k = isoJ(d);
+      const b = document.createElement('button'); b.type='button'; b.className='day'; b.textContent=j; b.dataset.k=k;
+      if (d < auj) { b.classList.add('passe'); b.disabled = true; }
+      if (choix === k) b.classList.add('sel');
+      b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; choix=k; maj(); dessiner(); });
+      cal.appendChild(b); boutons.push(b);
+    }
+    const data = await dispoMois(cle);
+    const statuts = data && data[offreSel.value];
+    boutons.forEach(b=>{
+      if (b.disabled) return;
+      const s = statuts ? statuts[b.dataset.k] : 'a_confirmer';
+      b.classList.add(s);
+      b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
+      if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); } }
+    });
+  }
+
+  function maj(){
+    $('bk-date-txt').textContent = choix
+      ? 'Date choisie : '+new Date(choix+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · '+offreSel.value
+      : 'Clique sur une date du calendrier.';
+  }
+
+  window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
+  offreSel.addEventListener('change', ()=>{ maj(); dessiner(); });
+  $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
+  $('cal-next').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()+1, 1); dessiner(); });
+  // reprend le type de fête et les invités choisis dans « Trouve ton pack »
+  document.getElementById('rBook').addEventListener('click', ()=>{
+    const f = document.querySelector('.choice[aria-pressed="true"]'); if (f) $('bk-fete').value = f.textContent.trim().replace('Autre événement','Autre');
+    const g = document.getElementById('g'); if (g) $('bk-invites').value = g.value;
+  });
+
+  function message(txt, ok){ const m=$('bk-msg'); m.hidden=false; m.className='msg '+(ok?'ok':'err'); m.innerHTML=txt; }
+
+  $('bk-form').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim();
+    if (!choix) return message('Choisis d\'abord une date dans le calendrier.');
+    if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
+    if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
+    const data = { nom, tel, email:$('bk-email').value.trim(), lieu:$('bk-lieu').value.trim(), invites:$('bk-invites').value,
+                   fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:choix, offre:offreSel.value,
+                   consentement:true, site:$('bk-site').value };
+    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Audioloc, je voudrais réserver le '+data.offre+' pour le '+new Date(choix+'T12:00').toLocaleDateString('fr-FR')+'. '+nom);
+    if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
+    const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
+    try {
+      const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(data) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.erreur||'erreur');
+      $('bk-form').reset(); choix=null; maj(); cache={}; dessiner();
+      message('✅ Demande envoyée ! On te recontacte très vite au '+tel.replace(/</g,'')+' pour confirmer.', true);
+    } catch(err){
+      message('Oups, l\'envoi n\'a pas marché. <a href="'+wa+'" target="_blank" rel="noopener">Envoie ta demande sur WhatsApp</a> ou appelle le 06 22 12 39 63.');
+    } finally { btn.disabled=false; btn.textContent='Envoyer ma demande de réservation'; }
+  });
+
+  maj(); dessiner();
 </script>
 </body>
 </html>
