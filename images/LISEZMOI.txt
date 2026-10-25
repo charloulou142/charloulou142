@@ -1,6 +1,6 @@
-Dépose ici les photos du matériel (format .jpg, idéalement en paysage, ~1200 px de large) :
-  partybox-310.jpg
-  partybox-710.jpg
-  partybox-ultimate.jpg
+Dépose ici les photos du matériel (format .webp pour les enceintes, .jpg pour la machine à fumée, idéalement en paysage, ~1200 px de large) :
+  partybox-310.webp
+  partybox-710.webp
+  partybox-ultimate.webp
   machine-fumee.jpg
 Tant qu'une photo manque, le site affiche la zone hachurée à la place.

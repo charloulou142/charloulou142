@@ -42,8 +42,9 @@
   .switch button[aria-pressed="true"]{background:var(--violet);color:#fff;box-shadow:0 0 16px rgba(139,92,246,.6)}
   .cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
   .item{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
-  .ph{position:relative;height:200px;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:14px;background:radial-gradient(60% 80% at 50% 110%,rgba(139,92,246,.35),transparent 70%),repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
-  .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ph{position:relative;height:240px;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:14px;background:radial-gradient(60% 80% at 50% 110%,rgba(139,92,246,.35),transparent 70%),repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
+  .ph img{position:absolute;inset:14px 0 12px;width:100%;height:calc(100% - 26px);object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.5))}
+  .ph:has(img){font-size:0;background:radial-gradient(60% 70% at 50% 100%,rgba(139,92,246,.45),transparent 70%),#191130}
   .item .in{padding:20px}
   .item h3{font-size:20px}
   .item p{color:var(--muted);font-size:15px;margin:4px 0 10px}
@@ -177,9 +178,9 @@
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="cat">
-    <article class="item"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.jpg" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>45 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.jpg" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>75 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.jpg" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>99 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>45 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>75 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>99 € / soirée</b></div></article>
     <article class="item"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.jpg" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b>20 € / soirée</b></div></article>
   </div>
 </div></section>
