@@ -1,0 +1,85 @@
+/* Base commune : thème néon de la proposition 1 */
+:root{
+  --bg:#0B0714; --bg2:#140C24; --card:#1B1230; --line:rgba(255,255,255,.10);
+  --text:#F4EEFF; --muted:#B9AED3;
+  --violet:#8B5CF6; --pink:#FF2E88; --cyan:#22D3EE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:400 17px/1.6 "Source Sans 3",system-ui,sans-serif;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.todo{background:rgba(255,46,136,.16);border:1px dashed var(--pink);color:#FFC2DD;padding:0 6px;border-radius:4px;font-weight:600;white-space:nowrap}
+
+nav.top{position:sticky;top:0;z-index:20;background:rgba(11,7,20,.78);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:"Bebas Neue";font-size:30px;letter-spacing:1px;text-decoration:none}
+.logo span{color:var(--pink);text-shadow:0 0 12px var(--pink)}
+.navlinks{display:flex;gap:28px;align-items:center}
+.navlinks a{text-decoration:none;color:var(--muted);font-weight:600}
+.navlinks a:hover{color:var(--text)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pink);color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:999px;box-shadow:0 0 24px rgba(255,46,136,.45);transition:transform .2s,box-shadow .2s;cursor:pointer;border:0}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,46,136,.7)}
+.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:var(--cyan)}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+.hero{position:relative;min-height:min(80vh,720px);display:grid;place-items:center;text-align:center;overflow:hidden;padding:80px 0 110px}
+.beams{position:absolute;inset:0;pointer-events:none}
+.beam{position:absolute;bottom:-10%;width:220px;height:130%;transform-origin:50% 100%;filter:blur(6px);opacity:.55;mix-blend-mode:screen;clip-path:polygon(45% 100%,55% 100%,100% 0,0 0)}
+.beam.b1{left:12%;background:linear-gradient(to top,var(--violet),transparent 75%);animation:sweep 7s ease-in-out infinite}
+.beam.b2{left:44%;background:linear-gradient(to top,var(--cyan),transparent 75%);animation:sweep 9s ease-in-out infinite reverse}
+.beam.b3{right:12%;background:linear-gradient(to top,var(--pink),transparent 75%);animation:sweep 8s ease-in-out infinite;animation-delay:-3s}
+@keyframes sweep{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(24deg)}}
+.smoke{position:absolute;left:-10%;right:-10%;bottom:-40px;height:260px;background:radial-gradient(60% 100% at 50% 100%,rgba(185,174,211,.22),transparent 70%);filter:blur(20px)}
+.hero h1{font-family:"Bebas Neue";font-weight:400;font-size:clamp(56px,11vw,124px);line-height:.9;letter-spacing:1px}
+.hero h1 em{font-style:normal;color:var(--cyan);text-shadow:0 0 18px var(--cyan),0 0 42px rgba(34,211,238,.5)}
+.hero p{max-width:560px;margin:22px auto 30px;color:var(--muted);font-size:19px}
+.ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.eyebrow{display:inline-block;margin-bottom:18px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+.trust{display:flex;gap:10px 22px;justify-content:center;flex-wrap:wrap;margin-top:26px;color:var(--muted);font-weight:600;font-size:15px}
+.trust span{display:flex;gap:8px;align-items:center}
+.trust svg{width:18px;height:18px;stroke:var(--cyan)}
+
+section{padding:92px 0}
+section.alt{background:var(--bg2)}
+h2{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,6vw,62px);line-height:1;margin-bottom:12px}
+.lead{color:var(--muted);max-width:620px;margin-bottom:40px}
+.center{text-align:center}.center .lead{margin-left:auto;margin-right:auto}
+
+/* étapes en cartes (inspiré de la proposition 2) */
+.easy{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.easy > div{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:20px;padding:26px}
+.easy b{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;font-family:"Bebas Neue";font-size:26px;font-weight:400;margin-bottom:14px;background:var(--pink);box-shadow:0 0 18px rgba(255,46,136,.5)}
+.easy > div:nth-child(2) b{background:var(--violet);box-shadow:0 0 18px rgba(139,92,246,.5)}
+.easy > div:nth-child(3) b{background:var(--cyan);color:#062028;box-shadow:0 0 18px rgba(34,211,238,.5)}
+.easy > div:nth-child(4) b{background:#F4EEFF;color:var(--bg)}
+.easy h3{font-size:20px;margin-bottom:4px}
+.easy p{color:var(--muted)}
+
+/* liste à coches (inspirée de la proposition 2) */
+.checks{list-style:none;display:grid;gap:10px}
+.checks li{padding-left:30px;position:relative}
+.checks li::before{content:"";position:absolute;left:0;top:4px;width:20px;height:20px;border-radius:6px;background:var(--cyan) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23062028' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/14px no-repeat;box-shadow:0 0 10px rgba(34,211,238,.6)}
+
+/* FAQ en boîtes (inspirée de la proposition 2) */
+.faq{max-width:800px;margin:0 auto}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:12px}
+.faq details[open]{border-color:rgba(139,92,246,.6)}
+.faq summary{cursor:pointer;font-weight:700;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::after{content:"+";color:var(--cyan);font-size:24px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq details p{color:var(--muted);margin-top:8px}
+
+.contact{background:radial-gradient(70% 120% at 50% 0%,rgba(139,92,246,.35),transparent 70%)}
+footer.end{border-top:1px solid var(--line);padding:30px 0;color:var(--muted);font-size:15px}
+footer.end .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media (max-width:720px){
+  .navlinks a:not(.btn){display:none}
+  section{padding:70px 0}
+  .beam{width:140px}
+}
+@media (prefers-reduced-motion:reduce){.beam{animation:none}*{transition:none!important}}
