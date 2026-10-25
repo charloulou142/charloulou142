@@ -84,6 +84,14 @@
   #bk-submit[disabled]{opacity:.6;cursor:wait}
   @media (max-width:860px){.booking{grid-template-columns:1fr}}
   @media (max-width:420px){.row2{grid-template-columns:1fr}}
+
+  /* photos et pause, pilotées depuis l'espace admin */
+  .ph.photo{height:200px;background:none}
+  .ph.photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .pause{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px 16px;text-align:center;background:radial-gradient(70% 60% at 50% 30%,rgba(139,92,246,.35),transparent 70%),var(--bg)}
+  .pause .box{max-width:520px}
+  .pause .logo{font-size:52px;display:block;margin-bottom:18px}
+  .pause p{color:var(--muted);font-size:19px;margin-bottom:26px;white-space:pre-line}
 </style>
 </head>
 <body>
@@ -176,10 +184,10 @@
   <h2>Le matériel</h2>
   <p class="lead">Les zones hachurées accueilleront tes photos.</p>
   <div class="cat">
-    <article class="item"><div class="ph">Photo JBL PartyBox 310</div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>45 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo JBL PartyBox 710</div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>75 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo JBL PartyBox Ultimate</div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>99 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo machine à fumée</div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b>20 € / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310</div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">45 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710</div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">75 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate</div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">99 €</span> / soirée</b></div></article>
+    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée</div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">20 €</span> / soirée</b></div></article>
   </div>
 </div></section>
 
@@ -322,6 +330,7 @@
     try {
       const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(data) });
       const j = await r.json();
+      if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); choix=null; maj(); cache={}; dessiner();
       message('✅ Demande envoyée ! On te recontacte très vite au '+tel.replace(/</g,'')+' pour confirmer.', true);
@@ -331,6 +340,34 @@
   });
 
   maj(); dessiner();
+
+  // Réglages gérés depuis l'espace admin (pause, prix, photos). Si le serveur ne répond pas, la page garde ses valeurs par défaut.
+  const euros = v => (Math.round(v * 100) / 100).toString().replace('.', ',') + ' €';
+  const PACK_CLE = { apero: 'Pack Apéro', soiree: 'Pack Soirée', club: 'Pack Club' };
+  fetch(API + '?action=config').then(r => r.json()).then(c => {
+    if (!c || !c.ok) return;
+    if (c.pause) {
+      const d = document.createElement('div'); d.className = 'pause'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Site en pause');
+      d.innerHTML = '<div class="box"><span class="logo">AUDIO<span>LOC</span></span><p></p>' +
+        '<a class="btn" href="https://wa.me/33622123963" target="_blank" rel="noopener">WhatsApp · 06 22 12 39 63</a></div>';
+      d.querySelector('p').textContent = c.message || 'Audioloc fait une petite pause.';
+      document.body.appendChild(d); document.body.style.overflow = 'hidden';
+      $('bk-submit').disabled = true;
+    }
+    const prix = c.prix || {}, photos = c.photos || {};
+    document.querySelectorAll('.item[data-article]').forEach(it => {
+      const a = it.dataset.article;
+      if (prix[a] != null) it.querySelector('.prix').textContent = euros(prix[a]);
+      if (photos[a]) {
+        const ph = it.querySelector('.ph'), img = new Image();
+        img.alt = a; img.loading = 'lazy'; img.src = photos[a];
+        img.onload = () => { ph.textContent = ''; ph.classList.add('photo'); ph.appendChild(img); };
+      }
+    });
+    let change = false;
+    Object.keys(PACK_CLE).forEach(k => { if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; } });
+    if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; }
+  }).catch(() => {});
 </script>
 </body>
 </html>
