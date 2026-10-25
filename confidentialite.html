@@ -27,7 +27,7 @@
 </div></nav>
 <main>
   <h1>Politique de confidentialité</h1>
-  <p class="maj">Dernière mise à jour : 25 octobre 2026</p>
+  <p class="maj">Dernière mise à jour : 26 octobre 2026</p>
 
   <h2>Qui est responsable de tes données ?</h2>
   <p>Audioloc, location d'enceintes de soirée à Salon-de-Provence. Contact : <a href="mailto:audioloc13@gmail.com">audioloc13@gmail.com</a> · 06 22 12 39 63.</p>
@@ -39,7 +39,10 @@
     <li>date, lieu et type de fête, nombre d'invités, offre choisie ;</li>
     <li>ton message éventuel.</li>
   </ul>
-  <p>Le site ne crée pas de compte client et n'utilise pas de cookie publicitaire ni de mesure d'audience.</p>
+  <p>Le site ne crée pas de compte client et n'utilise ni cookie ni publicité.</p>
+
+  <h2>Mesure d'audience</h2>
+  <p>Pour savoir combien de personnes visitent le site, nous comptons de façon anonyme, sans cookie : la page ouverte, le jour, et le site d'où tu arrives (par exemple « Instagram » ou « Google »). Ton adresse IP et ton appareil ne sont pas enregistrés. Un simple repère est gardé dans ton navigateur le temps de l'onglet ouvert, pour ne compter ta visite qu'une fois ; il s'efface quand tu fermes l'onglet. Ces chiffres servent uniquement à suivre la fréquentation du site.</p>
 
   <h2>Pourquoi ?</h2>
   <p>Pour traiter ta demande de réservation : te recontacter, vérifier la disponibilité du matériel, organiser la livraison et la location, puis assurer le suivi (caution, facturation, éventuelle demande d'avis). Base légale : l'exécution de mesures précontractuelles et du contrat de location que tu demandes.</p>
@@ -65,5 +68,14 @@
   <p style="margin-top:40px"><a href="./">← Retour au site</a></p>
 </main>
 <footer class="end"><div class="wrap"><span>© Audioloc</span><span><a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
+<script>
+  // Compteur de visites anonyme (sans cookie) — voir « Mesure d'audience » ci-dessus
+  (() => {
+    try { if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}
+    let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
+    let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+    fetch('https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec?action=visite&p=confidentialite&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
+  })();
+</script>
 </body>
 </html>
