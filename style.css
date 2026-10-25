@@ -2,7 +2,7 @@
 :root{
   --bg:#0B0714; --bg2:#140C24; --card:#1B1230; --line:rgba(255,255,255,.10);
   --text:#F4EEFF; --muted:#B9AED3;
-  --violet:#8B5CF6; --pink:#FF2E88; --cyan:#22D3EE;
+  --violet:#8B5CF6; --pink:#FF7A1A; --cyan:#22D3EE;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -10,7 +10,7 @@ body{background:var(--bg);color:var(--text);font:400 17px/1.6 "Source Sans 3",sy
 a{color:inherit}
 button{font:inherit;color:inherit}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
-.todo{background:rgba(255,46,136,.16);border:1px dashed var(--pink);color:#FFC2DD;padding:0 6px;border-radius:4px;font-weight:600;white-space:nowrap}
+.todo{background:rgba(255,122,26,.16);border:1px dashed var(--pink);color:#FFD2B0;padding:0 6px;border-radius:4px;font-weight:600;white-space:nowrap}
 
 nav.top{position:sticky;top:0;z-index:20;background:rgba(11,7,20,.78);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 nav.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
@@ -20,9 +20,10 @@ nav.top .wrap{display:flex;align-items:center;justify-content:space-between;heig
 .navlinks a{text-decoration:none;color:var(--muted);font-weight:600}
 .navlinks a:hover{color:var(--text)}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pink);color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:999px;box-shadow:0 0 24px rgba(255,46,136,.45);transition:transform .2s,box-shadow .2s;cursor:pointer;border:0}
-.btn:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,46,136,.7)}
-.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pink);color:#1A0B00;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:999px;box-shadow:0 0 24px rgba(255,122,26,.45);transition:transform .2s,box-shadow .2s;cursor:pointer;border:0}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,122,26,.7)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none}
+.navlinks a.btn,.navlinks a.btn:hover{color:#1A0B00}
 .btn.ghost:hover{border-color:var(--cyan)}
 :focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
 
@@ -52,7 +53,7 @@ h2{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,6vw,62px);line-
 /* étapes en cartes (inspiré de la proposition 2) */
 .easy{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
 .easy > div{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:20px;padding:26px}
-.easy b{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;font-family:"Bebas Neue";font-size:26px;font-weight:400;margin-bottom:14px;background:var(--pink);box-shadow:0 0 18px rgba(255,46,136,.5)}
+.easy b{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;font-family:"Bebas Neue";font-size:26px;font-weight:400;margin-bottom:14px;background:var(--pink);box-shadow:0 0 18px rgba(255,122,26,.5)}
 .easy > div:nth-child(2) b{background:var(--violet);box-shadow:0 0 18px rgba(139,92,246,.5)}
 .easy > div:nth-child(3) b{background:var(--cyan);color:#062028;box-shadow:0 0 18px rgba(34,211,238,.5)}
 .easy > div:nth-child(4) b{background:#F4EEFF;color:var(--bg)}
