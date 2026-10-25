@@ -48,7 +48,7 @@
   .result.swap h3{animation-delay:.04s}.result.swap .why{animation-delay:.08s}.result.swap .price{animation-delay:.2s}
   .result.swap .checks li:nth-child(1){animation-delay:.1s}.result.swap .checks li:nth-child(2){animation-delay:.14s}.result.swap .checks li:nth-child(3){animation-delay:.18s}
   @keyframes glisse{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
-  @media (prefers-reduced-motion:reduce){.result.swap *{animation:none!important}}
+  @media (prefers-reduced-motion:reduce){.switch .pill{transition:transform .3s ease,width .3s ease,height .3s ease,opacity .2s!important}.result{--dx:12px}}
   .cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
   .item{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
   .ph{position:relative;height:240px;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:14px;background:radial-gradient(60% 80% at 50% 110%,rgba(139,92,246,.35),transparent 70%),repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
