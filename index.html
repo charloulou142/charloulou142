@@ -143,7 +143,7 @@
       <div class="field"><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
-          <option>PartyBox compacte</option><option>PartyBox intermédiaire</option><option>PartyBox puissante</option>
+          <option>JBL PartyBox 310</option><option>JBL PartyBox 710</option><option>JBL PartyBox Ultimate</option>
           <option>Machine à fumée 2000 W RGB</option>
         </select></div>
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
@@ -176,10 +176,10 @@
   <h2>Le matériel</h2>
   <p class="lead">Les zones hachurées accueilleront tes photos.</p>
   <div class="cat">
-    <article class="item"><div class="ph">Photo PartyBox compacte</div><div class="in"><h3>PartyBox compacte</h3><p>Petit comité, apéro, anniversaire à la maison. Bluetooth et lumières intégrées.</p><b>À partir de 35 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo PartyBox intermédiaire</div><div class="in"><h3>PartyBox intermédiaire</h3><p>La polyvalente : assez de puissance pour faire danser une vraie soirée.</p><b>À partir de 50 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo PartyBox puissante</div><div class="in"><h3>PartyBox puissante</h3><p>Grosse fête, mariage, extérieur : le son qui remplit tout l'espace.</p><b>À partir de 75 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo machine à fumée</div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Fumée éclairée en couleurs : l'effet boîte de nuit garanti.</p><b>20 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo JBL PartyBox 310</div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>45 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo JBL PartyBox 710</div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>75 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo JBL PartyBox Ultimate</div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>99 € / soirée</b></div></article>
+    <article class="item"><div class="ph">Photo machine à fumée</div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b>20 € / soirée</b></div></article>
   </div>
 </div></section>
 
@@ -218,9 +218,9 @@
 <script>
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
   const PACKS={
-    apero:{name:'Pack Apéro',price:'35 €',items:['1 JBL PartyBox compacte','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, sans encombrement.'},
-    soiree:{name:'Pack Soirée',price:'89 €',items:['1 JBL PartyBox puissante','1 machine à fumée 2000 W RGB'],why:'La vraie ambiance de soirée : gros son, lumières et fumée colorée.'},
-    club:{name:'Pack Club',price:'149 €',items:['2 JBL PartyBox puissantes','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'}
+    apero:{name:'Pack Apéro',price:'45 €',items:['1 JBL PartyBox 310 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
+    soiree:{name:'Pack Soirée',price:'89 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB'],why:'La vraie ambiance de soirée : gros son, lumières et fumée colorée.'},
+    club:{name:'Pack Club',price:'149 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'}
   };
   let kind='anniv', manual=null;
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
