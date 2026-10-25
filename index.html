@@ -40,7 +40,15 @@
   .switch{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:4px;margin-bottom:16px;align-self:flex-start;flex-wrap:wrap}
   .swl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
   .switch button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;cursor:pointer;color:var(--muted)}
-  .switch button[aria-pressed="true"]{background:var(--violet);color:#fff;box-shadow:0 0 16px rgba(139,92,246,.6)}
+  .switch{position:relative}
+  .switch button{position:relative;z-index:1;transition:color .3s}
+  .switch button[aria-pressed="true"]{color:#fff}
+  .switch .pill{position:absolute;left:0;top:0;z-index:0;border-radius:999px;background:var(--violet);box-shadow:0 0 16px rgba(139,92,246,.6);pointer-events:none;opacity:0;transition:transform .45s cubic-bezier(.34,1.35,.5,1),width .45s cubic-bezier(.34,1.35,.5,1),height .3s,opacity .25s}
+  .result.swap .tag,.result.swap h3,.result.swap .why,.result.swap .checks li,.result.swap .price{animation:glisse .5s cubic-bezier(.2,.8,.2,1) both}
+  .result.swap h3{animation-delay:.04s}.result.swap .why{animation-delay:.08s}.result.swap .price{animation-delay:.2s}
+  .result.swap .checks li:nth-child(1){animation-delay:.1s}.result.swap .checks li:nth-child(2){animation-delay:.14s}.result.swap .checks li:nth-child(3){animation-delay:.18s}
+  @keyframes glisse{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.result.swap *{animation:none!important}}
   .cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
   .item{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
   .ph{position:relative;height:240px;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:14px;background:radial-gradient(60% 80% at 50% 110%,rgba(139,92,246,.35),transparent 70%),repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
@@ -234,17 +242,35 @@
     pult:{name:'JBL PartyBox Ultimate',price:'99 €',items:['1100 W, le haut de gamme JBL','Show lumineux intégré','Se branche sur secteur'],why:'Juste l\'enceinte, pour une grosse fête, un mariage ou une grande salle.'},
     fumee:{name:'Machine à fumée 2000 W RGB',price:'20 €',items:['Deux jets de fumée éclairés en couleurs','Télécommande incluse'],why:'À ajouter à ta propre sono pour l\'effet boîte de nuit.'}
   };
-  let kind='anniv', manual=null;
+  let kind='anniv', manual=null, current=null;
+  const ORDRE=['apero','soiree','club','p310','p710','pult','fumee'];
+  const result=document.querySelector('.result');
+  document.querySelectorAll('.switch').forEach(sw=>sw.insertAdjacentHTML('afterbegin','<span class="pill" aria-hidden="true"></span>'));
+  function pills(){
+    document.querySelectorAll('.switch').forEach(sw=>{
+      const pill=sw.querySelector('.pill'), b=sw.querySelector('button[aria-pressed="true"]');
+      if(!b){pill.style.opacity=0;return;}
+      const pos='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';
+      if(pill.style.opacity!=='1'){pill.style.transition='none';pill.style.transform=pos;pill.style.width=b.offsetWidth+'px';pill.style.height=b.offsetHeight+'px';void pill.offsetWidth;pill.style.transition='';}
+      pill.style.transform=pos;pill.style.width=b.offsetWidth+'px';pill.style.height=b.offsetHeight+'px';pill.style.opacity=1;
+    });
+  }
+  addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
   function recommend(){const n=+g.value; if(kind==='mariage'||n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}
   function show(key,isReco){
     const p=PACKS[key];
+    if(key!==current){
+      if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
+      current=key;
+    }
     document.getElementById('rName').textContent=p.name;
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
+    pills();
     window.packChoisi=p.name;
     if (window.bkSync) window.bkSync();
   }
