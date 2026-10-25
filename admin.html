@@ -26,7 +26,24 @@
   .msg{margin:12px 0;padding:12px 14px;border-radius:12px;font-weight:600}
   .msg.ok{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5)}
   .msg.err{background:rgba(255,122,26,.12);border:1px solid rgba(255,122,26,.5)}
-  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px}
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:18px}
+  @media (min-width:600px){.tabs{grid-template-columns:repeat(5,1fr)}}
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .kpi small{display:block;color:var(--muted);font-weight:700;font-size:13px}
+  .kpi b{font-family:"Bebas Neue";font-weight:400;font-size:40px;line-height:1.1;display:block}
+  .kpi span{color:var(--muted);font-size:14px}
+  .graph{display:flex;align-items:flex-end;gap:2px;height:140px;border-bottom:1px solid var(--line);margin-top:10px;position:relative}
+  .graph button{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;background:none;border:0;padding:0;cursor:pointer}
+  .graph i{display:block;width:100%;background:var(--cyan);border-radius:4px 4px 0 0;min-height:2px;opacity:.9}
+  .graph button:hover i,.graph button:focus-visible i,.graph button[aria-pressed="true"] i{opacity:1;box-shadow:0 0 10px rgba(34,211,238,.6)}
+  .graph-axe{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
+  .graph-info{color:var(--text);font-weight:600;min-height:1.6em;margin-top:8px}
+  table.liste{width:100%;border-collapse:collapse;font-size:15px}
+  table.liste td{padding:8px 0;border-bottom:1px solid var(--line)}
+  table.liste td:last-child{text-align:right;font-weight:700}
+  .panel h2{font-family:inherit;font-size:18px;font-weight:700;margin-bottom:6px}
   .tabs button{border:1px solid var(--line);background:var(--bg2);border-radius:999px;padding:9px 4px;font-weight:700;font-size:15px;cursor:pointer;color:var(--muted);min-width:0}
   .tabs button[aria-selected="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
   .top-admin{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
@@ -113,6 +130,7 @@
       <button role="tab" data-t="pause" aria-selected="false">Pause</button>
       <button role="tab" data-t="prix" aria-selected="false">Prix</button>
       <button role="tab" data-t="photos" aria-selected="false">Photos</button>
+      <button role="tab" data-t="visites" aria-selected="false">Visites</button>
     </div>
     <div class="msg" id="m-admin" hidden></div>
 
@@ -144,6 +162,11 @@
       <div class="photos" id="liste-photos"></div>
       <p class="note">Prends la photo à l'horizontale, bien éclairée. Elle est réduite automatiquement avant l'envoi et rangée dans ton Google Drive (dossier « Audioloc – Photos du site »).</p>
     </div>
+
+    <div data-p="visites" hidden>
+      <div id="stats"><div class="panel empty">Chargement…</div></div>
+      <p class="note">Comptage anonyme, sans cookie : une « visite » = une personne qui arrive sur le site (comptée une fois tant qu'elle ne ferme pas l'onglet) ; une « page vue » = chaque page ouverte. Tes propres visites ne sont pas comptées sur les appareils où tu t'es connecté à l'admin.</p>
+    </div>
   </section>
 </main>
 
@@ -166,7 +189,11 @@
   }
   function msg(id, texte, ok) { const m = $(id); m.hidden = !texte; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = texte || ''; }
   function vue(nom) { ['charge', 'login', 'setup', 'admin'].forEach(v => $('v-' + v).hidden = v !== nom); window.scrollTo(0, 0); }
-  function garder(t) { token = t; try { t ? sessionStorage.setItem('audioloc_admin', t) : sessionStorage.removeItem('audioloc_admin'); } catch (e) {} }
+  function garder(t) {
+    token = t;
+    try { t ? sessionStorage.setItem('audioloc_admin', t) : sessionStorage.removeItem('audioloc_admin'); } catch (e) {}
+    try { if (t) localStorage.setItem('audioloc_moi', '1'); } catch (e) {}   // ne pas compter mes propres visites sur cet appareil
+  }
   function deconnecte() { garder(null); vue('login'); }
   async function occupe(btn, f) { const t = btn.textContent; btn.disabled = true; btn.textContent = 'Patiente…'; try { await f(); } finally { btn.disabled = false; btn.textContent = t; } }
 
@@ -221,7 +248,41 @@
     document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
     document.querySelectorAll('[data-p]').forEach(p => p.hidden = p.dataset.p !== b.dataset.t);
     msg('m-admin', '');
+    if (b.dataset.t === 'visites') chargerVisites();
   }));
+
+  /* ----- visites ----- */
+  const nb = n => Number(n).toLocaleString('fr-FR');
+  async function chargerVisites() {
+    try {
+      const s = await appel('admin_visites');
+      if (!s.ok) throw new Error(s.erreur);
+      afficherVisites(s);
+    } catch (err) { $('stats').innerHTML = '<div class="msg err">Statistiques indisponibles : ' + esc(err.message || 'erreur') + '.</div>'; }
+  }
+  function afficherVisites(s) {
+    const t = s.totaux;
+    const kpi = (titre, o) => '<div class="kpi"><small>' + titre + '</small><b>' + nb(o.visites) + '</b><span>visites · ' + nb(o.vues) + ' pages vues</span></div>';
+    const max = Math.max(1, ...s.jours.map(j => j.visites));
+    const jourFr = iso => new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const barres = s.jours.map(j => '<button type="button" data-info="' + esc(jourFr(j.jour) + ' : ' + nb(j.visites) + ' visite' + (j.visites > 1 ? 's' : '') + ', ' + nb(j.vues) + ' page' + (j.vues > 1 ? 's' : '') + ' vue' + (j.vues > 1 ? 's' : '')) +
+      '" aria-label="' + esc(jourFr(j.jour) + ' : ' + j.visites + ' visites') + '"><i style="height:' + (j.visites ? Math.max(3, Math.round(j.visites / max * 100)) : 0) + '%"></i></button>').join('');
+    const tableau = (titre, l, vide) => '<div class="panel"><h2>' + titre + '</h2>' + (l.length
+      ? '<table class="liste">' + l.map(x => '<tr><td>' + esc(x.nom) + '</td><td>' + nb(x.nombre) + '</td></tr>').join('') + '</table>'
+      : '<p class="note">' + vide + '</p>') + '</div>';
+    $('stats').innerHTML =
+      '<div class="kpis">' + kpi('Aujourd\'hui', t.aujourdhui) + kpi('7 derniers jours', t.semaine) + kpi('30 derniers jours', t.mois) + kpi('Depuis le début', t.total) + '</div>' +
+      '<div class="panel"><h2>Visites par jour (30 derniers jours)</h2><div class="graph" id="graph">' + barres + '</div>' +
+      '<div class="graph-axe"><span>' + esc(jourFr(s.jours[0].jour)) + '</span><span>aujourd\'hui</span></div>' +
+      '<div class="graph-info" id="graph-info" aria-live="polite">Touche une barre pour voir le détail du jour.</div></div>' +
+      tableau('Pages vues par page (30 jours)', s.pages, 'Aucune page vue pour le moment.') +
+      tableau('D\'où viennent les visiteurs (30 jours)', s.sources, 'Pas encore de visite.');
+    const g = $('graph');
+    const montrer = b => { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); $('graph-info').textContent = b.dataset.info; };
+    g.addEventListener('click', e => { const b = e.target.closest('button'); if (b) montrer(b); });
+    g.addEventListener('mouseover', e => { const b = e.target.closest('button'); if (b) montrer(b); });
+    g.addEventListener('focusin', e => { const b = e.target.closest('button'); if (b) montrer(b); });
+  }
   $('b-logout').addEventListener('click', async () => { try { await appel('admin_logout'); } catch (e) {} deconnecte(); });
 
   function dateFr(iso) { return iso ? new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'date à définir'; }
