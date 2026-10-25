@@ -368,6 +368,14 @@
     Object.keys(PACK_CLE).forEach(k => { if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; } });
     if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; }
   }).catch(() => {});
+
+  // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
+  (() => {
+    try { if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}
+    let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
+    let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+    fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
+  })();
 </script>
 </body>
 </html>
