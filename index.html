@@ -302,7 +302,7 @@
       <div class="field heure"><label for="bk-lieu">Ville de livraison *</label>
         <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne" autocomplete="address-level2">
         <datalist id="bk-villes"></datalist>
-        <small id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km depuis Salon.</small></div>
+        <small id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu'à 25 km de Salon.</small></div>
       <div class="devis" id="bk-devis" hidden></div>
     </div>
     <form class="panel" id="bk-form" novalidate>
@@ -350,7 +350,7 @@
   <div class="faq" style="text-align:left;margin-top:30px">
     <details><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
     <details><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
-    <details><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs (par exemple 15 € à Pélissanne, 47 € à Aix). Le prix exact s'affiche quand tu choisis ta ville. Au-delà de 50 km, sur devis.</p></details>
+    <details><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville.</p></details>
     <details><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée : la soirée la plus chère est au prix plein, toutes les autres à −20 %. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
   </div>
@@ -488,7 +488,7 @@
   const auj = new Date(); auj.setHours(0,0,0,0);
   let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), cache = {};
   let debut = null, fin = null;             // première et dernière soirée de la fête (aaaa-mm-jj)
-  let LIVR = { base: 5, km: 1.2, maxKm: 50 }, REMISE = 0.2;   // remplacés par les réglages du script au chargement
+  let LIVR = { base: 5, km: 1.2, maxKm: 25 }, REMISE = 0.2;   // remplacés par les réglages du script au chargement
   const NUITS_MAX = 7;
   const $ = id => document.getElementById(id);
   const offreSel = $('bk-offre');
@@ -604,14 +604,14 @@
   const norme = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\bste\b/g, 'sainte').replace(/\bst\b/g, 'saint').replace(/[^a-z]/g, '');
   const ALIAS = { salon: 'Salon-de-Provence', aix: 'Aix-en-Provence', lancon: 'Lançon-Provence', berre: 'Berre-l\'Étang', isle: 'L\'Isle-sur-la-Sorgue' };
   const INDEX = {}; Object.keys(VILLES).forEach(v => { INDEX[norme(v)] = v; });
-  $('bk-villes').innerHTML = Object.keys(VILLES).map(v => '<option value="' + v.replace(/"/g, '&quot;') + '">').join('');
+  $('bk-villes').innerHTML = Object.keys(VILLES).filter(v => VILLES[v] <= LIVR.maxKm).map(v => '<option value="' + v.replace(/"/g, '&quot;') + '">').join('');
   const villeDe = txt => INDEX[norme(txt)] || ALIAS[norme(txt)] || null;
   function livraison(){
     const txt = $('bk-lieu').value.trim(), v = villeDe(txt);
     if (!txt) return { etat: 'vide' };
     if (!v) return { etat: 'devis', nom: txt };
     const km = VILLES[v];
-    if (km > LIVR.maxKm) return { etat: 'devis', nom: v, km };
+    if (km > LIVR.maxKm) return { etat: 'loin', nom: v, km };   // on ne livre pas au-delà de 25 km
     return { etat: 'ok', nom: v, km, prix: km === 0 ? LIVR.base : Math.round(LIVR.base + LIVR.km * km) };
   }
 
@@ -644,14 +644,16 @@
     // livraison + total
     const l = livraison(), t = $('bk-livr-txt');
     t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
-                  : l.etat === 'devis' ? (l.km ? l.nom + ' est à ' + l.km + ' km : livraison sur devis, on te donne le prix au téléphone.' : 'Ville pas dans notre liste : livraison sur devis, on te donne le prix au téléphone.')
-                  : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km depuis Salon.';
+                  : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
+                  : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
+                  : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu\'à 25 km de Salon.';
+    t.style.color = l.etat === 'loin' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' ? '700' : '';
     const loc = prixLocation(p), box = $('bk-devis');
     box.hidden = !p || loc == null;
     if (!box.hidden) {
       const ligne = (a, b, cl) => '<div class="l' + (cl ? ' ' + cl : '') + '"><span>' + a + '</span><b>' + b + '</b></div>';
       box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc)) +
-        ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'sur devis' : 'choisis ta ville') +
+        ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville') +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
@@ -693,6 +695,7 @@
     const heure = $('bk-heure').value;
     if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de livraison (sous le calendrier).'); }
     if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique la ville de livraison (sous le calendrier).'); }
+    if (l.etat === 'loin') { $('bk-lieu').focus(); return message('On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
     const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, invites:$('bk-invites').value,
@@ -705,6 +708,7 @@
       const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(data) });
       const j = await r.json();
       if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
+      if (!j.ok && j.erreur === 'hors zone') { message('On livre seulement jusqu\'à 25 km de Salon-de-Provence. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a> si tu as une question.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
       const suivi = /^https:\/\/mistraloc\.fr\/suivi\?t=[a-f0-9]{24}$/.test(j.suivi||'') ? j.suivi : '';
