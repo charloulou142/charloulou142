@@ -295,11 +295,16 @@
     $('liste-resa').innerHTML = l.map(r => {
       const tel = String(r.tel).replace(/[^\d+]/g, '');
       const wa = tel.replace(/^0/, '33').replace(/^\+/, '');
+      // message WhatsApp pré-rempli avec le lien de suivi (pour les clients sans e-mail) : il reste à appuyer sur Envoyer dans WhatsApp
+      const prenom = String(r.client).trim().split(/\s+/)[0];
+      const texteWa = 'Bonjour ' + prenom + ', ici Mistraloc 👋 Ta réservation du ' + dateFr(r.date) + ' (' + r.offre + ') : ' + (r.statut || 'en cours').toLowerCase() + '. Tu peux la suivre ici : ' + (r.suivi || 'https://mistraloc.fr');
       const options = etat.statuts.map(s => '<option' + (s === r.statut ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
       return '<article class="resa" data-ligne="' + r.ligne + '">' +
         '<span class="badge ' + esc(r.statut.split(' ')[0]) + '">' + esc(r.statut || 'Sans statut') + '</span>' +
         '<h3>' + esc(dateFr(r.date)) + ' · ' + esc(r.offre) + '</h3>' +
-        '<div class="meta">' + esc(r.client) + (tel ? ' · <a href="tel:' + esc(tel) + '">' + esc(r.tel) + '</a> · <a href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +
+        '<div class="meta">' + esc(r.client) + (tel ? ' · <a href="tel:' + esc(tel) + '">' + esc(r.tel) + '</a> · <a href="https://wa.me/' + esc(wa) + '?text=' + encodeURIComponent(texteWa) + '" target="_blank" rel="noopener">WhatsApp + lien de suivi</a>' : '') +
+        (r.email ? '<br>📧 ' + esc(r.email) + (r.dernierMail ? ' · dernier e-mail : ' + esc(r.dernierMail) : '') : '<br><small>Pas d\'e-mail : envoie le suivi par WhatsApp.</small>') +
+        (r.suivi ? ' · <a href="' + esc(r.suivi) + '" target="_blank" rel="noopener">voir son suivi</a>' : '') +
         (r.lieu ? '<br>📍 ' + esc(r.lieu) : '') + (r.invites ? ' · ' + esc(r.invites) + ' invités' : '') + (r.fete ? ' · ' + esc(r.fete) : '') +
         (r.prix !== '' && r.prix != null ? '<br>💶 ' + esc(r.prix) + ' €' : '') + (r.notes ? '<br><small>' + esc(r.notes) + '</small>' : '') + '</div>' +
         '<div class="actions">' +
@@ -314,7 +319,8 @@
     try {
       const j = await appel('admin_statut', { ligne: Number(art.dataset.ligne), statut });
       if (!j.ok) throw new Error(j.erreur);
-      await charger(); msg('m-admin', 'Statut mis à jour : ' + statut + '.', true);
+      const info = j.mail === 'envoyé' ? ' E-mail envoyé au client.' : j.mail === 'pas d\'e-mail' ? ' Pas d\'e-mail pour ce client : pense au bouton WhatsApp.' : j.mail === 'erreur' ? ' ⚠ L\'e-mail au client n\'est pas parti.' : '';
+      await charger(); msg('m-admin', 'Statut mis à jour : ' + statut + '.' + info, true);
     } catch (err) { art.style.opacity = 1; msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }
   $('liste-resa').addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (b) changerStatut(b.closest('.resa'), b.dataset.s, b); });
