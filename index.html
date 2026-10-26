@@ -86,6 +86,7 @@
   .rImg img{height:100%;width:auto;max-width:46%;object-fit:contain;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45));animation:flotte 4s ease-in-out infinite}
   .rImg img.fm{height:62%;max-width:50%}
   .rImg img + img{margin-left:-14px}
+  .rImg.n4 img{height:74%;min-width:0}.rImg.n4 img.fm{height:46%}.rImg.n4 img + img{margin-left:-24px}
   .rImg img:nth-child(2){animation-delay:-1.3s}.rImg img:nth-child(3){animation-delay:-2.6s}
   .result.swap .rImg img{animation:pop .6s cubic-bezier(.34,1.4,.5,1) both,flotte 4s ease-in-out .6s infinite}
   .result.swap .rImg img:nth-child(2){animation-delay:.08s,.68s}.result.swap .rImg img:nth-child(3){animation-delay:.16s,.76s}
@@ -328,7 +329,7 @@
   let kind='anniv', manual=null, current=null;
   const IMAGES={apero:['partybox-310'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-310'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee']};
   // Panier personnalisé : nombre maximum de chaque appareil (stock)
-  const STOCK={p310:1,p710:2,pult:1,fumee:1};
+  const STOCK={p310:2,p710:2,pult:1,fumee:1}; // valeurs de secours : remplacées par le stock de l'espace admin au chargement
   const panier={p310:0,p710:0,pult:0,fumee:0};
   const IMG1={p310:'partybox-310',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee'};
   PACKS.perso={name:'Mon panier',price:'0 €',items:[],why:'Choisis tes appareils : le total se calcule tout seul.'};
@@ -341,8 +342,11 @@
     const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
     PACKS.perso.price=enEuros(total);
     document.getElementById('rPrice').textContent=PACKS.perso.price;
-    const imgs=[];Object.keys(panier).forEach(k=>{for(let i=0;i<panier[k];i++)imgs.push(IMG1[k]);});
-    if(anim!==false) document.getElementById('rImg').innerHTML=imgs.slice(0,4).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
+    // une image par appareil, 6 au maximum, mais chaque type choisi apparaît toujours au moins une fois
+    const types=Object.keys(panier).filter(k=>panier[k]), imgs=types.slice();
+    for(let n=2;imgs.length<6&&types.some(k=>panier[k]>=n);n++) types.forEach(k=>{if(panier[k]>=n&&imgs.length<6)imgs.push(k);});
+    imgs.sort((a,b)=>types.indexOf(a)-types.indexOf(b));
+    if(anim!==false){const ri=document.getElementById('rImg');ri.classList.toggle('n4',imgs.length>3);ri.innerHTML=imgs.map(k=>IMG1[k]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');}
     const COMPO={apero:{p310:1,p710:0,pult:0,fumee:0},soiree:{p310:0,p710:1,pult:0,fumee:1},club:{p310:0,p710:2,pult:0,fumee:1}};
     const pk=Object.keys(COMPO).find(c=>Object.keys(panier).every(k=>panier[k]===COMPO[c][k]));
     const astuce=pk&&prixNum(pk)<total?'<p class="astuce">💡 Le même matériel existe en <b>'+PACKS[pk].name+'</b> à '+PACKS[pk].price+' au lieu de '+enEuros(total)+'. <button type="button" data-pack-go="'+pk+'">Voir le pack</button></p>':'';
@@ -386,6 +390,7 @@
     if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
     current=key;
     document.getElementById('rName').textContent=p.name;
+    document.getElementById('rImg').classList.remove('n4');
     document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
@@ -421,7 +426,7 @@
   async function dispoMois(cle){
     if (cache[cle]) return cache[cle];
     if (!API.startsWith('https://')) return (cache[cle] = null);
-    try { const r = await fetch(API+'?action=dispo&mois='+cle); const j = await r.json(); return (cache[cle] = j.ok ? j.offres : null); }
+    try { const r = await fetch(API+'?action=dispo&mois='+cle); const j = await r.json(); return (cache[cle] = j.ok ? j : null); }
     catch(e){ return (cache[cle] = null); }
   }
 
@@ -443,10 +448,23 @@
       cal.appendChild(b); boutons.push(b);
     }
     const data = await dispoMois(cle);
-    const statuts = data && data[offreSel.value];
+    const statuts = data && data.offres && data.offres[offreSel.value];
+    const perso = !statuts && data && data.reste && offreSel.value.indexOf('Panier perso : ') === 0;
+    // panier perso : on compare chaque appareil choisi aux unités encore libres ce jour-là
+    const statutPerso = k => {
+      const r = data.reste[k]; if (!r) return 'a_confirmer';
+      let inconnu = false;
+      for (const a in panier) {
+        if (!panier[a]) continue;
+        const v = r[PACK_CLE[a]];
+        if (v == null) { inconnu = true; continue; }
+        if (v < panier[a]) return 'complet';
+      }
+      return inconnu ? 'a_confirmer' : 'libre';
+    };
     boutons.forEach(b=>{
       if (b.disabled) return;
-      const s = statuts ? statuts[b.dataset.k] : 'a_confirmer';
+      const s = statuts ? statuts[b.dataset.k] : perso ? statutPerso(b.dataset.k) : 'a_confirmer';
       b.classList.add(s);
       b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
       if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); } }
@@ -524,7 +542,13 @@
     let change = false;
     Object.keys(PACK_CLE).forEach(k => { if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; } });
     if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; }
-    if (change && !document.getElementById('rPanier').hidden) majPanier(false);
+    // stock réglé dans l'espace admin (onglet « Matériel ») : nombre maximum de chaque appareil dans « Mon panier »
+    const stock = c.stock || {};
+    Object.keys(STOCK).forEach(k => {
+      const v = Number(stock[PACK_CLE[k]]);
+      if (stock[PACK_CLE[k]] != null && !isNaN(v)) { STOCK[k] = Math.max(0, Math.floor(v)); if (panier[k] > STOCK[k]) { panier[k] = STOCK[k]; change = true; } }
+    });
+    if (!document.getElementById('rPanier').hidden) majPanier(false);
   }).catch(() => {});
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
