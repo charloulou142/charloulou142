@@ -218,39 +218,58 @@
   #reserver .msg{margin-top:10px}
   @media (max-width:420px){ #reserver .row2{grid-template-columns:1fr 1fr;gap:8px} #reserver .panel{padding:16px} #reserver .day{height:36px} }
   @media (max-width:330px){ #reserver .row2{grid-template-columns:1fr} }
-  /* compactage n°2 (26/10) : titre sur 1 ligne, récap en simple ligne, aide affichée seulement si besoin,
-     option « journée » visible après le choix d'une date, champs facultatifs repliés */
-  section#reserver{padding:56px 0}
-  #reserver .bk-choix{display:none}   /* rangée de packs retirée (demande du 26/10) : on change via « Changer » */
-  #reserver h2{font-size:clamp(28px,7.4vw,48px);margin-bottom:4px}
-  #reserver .lead{margin-bottom:14px;font-size:15px}
-  #reserver .booking{gap:12px}
-  #reserver .recap-offre{border:0;padding:0;margin:0 0 6px;font-size:13px;line-height:1.4}
-  #reserver .cal-head{margin:2px 0 4px}
-  #reserver .cal-head b{font-size:22px}
-  #reserver .cal-nav{width:30px;height:30px}
-  #reserver .cal{gap:3px}
-  #reserver .day{height:34px}
-  #reserver .legend{margin-top:6px;font-size:12px}
-  #reserver .cal-aide:empty{display:none}
-  #reserver .chosen{margin-top:6px;padding:7px 10px;font-size:14px;line-height:1.35}
-  #reserver .veille[hidden]{display:none}
-  #reserver .veille{margin-top:6px}
-  #reserver .row2.livr{margin-top:8px}
-  #reserver .field label{margin-bottom:4px;font-size:13px}
-  #reserver .field{margin-bottom:8px}
-  #reserver .plus{margin:0 0 8px}
-  #reserver .plus summary{cursor:pointer;color:var(--cyan);font-size:14px;font-weight:600;padding:4px 0;list-style:none}
-  #reserver .plus summary::-webkit-details-marker{display:none}
-  #reserver .plus[open] summary{margin-bottom:8px}
-  #reserver .consent{margin:2px 0 10px;font-size:12px;gap:8px}
-  #reserver .devis{margin-top:8px;padding:8px 12px;font-size:14px}
-  #reserver .devis .l{padding:1px 0}
-  #reserver .devis .tot{margin-top:4px;padding-top:6px;font-size:16px}
-  #reserver .devis small{margin-top:4px;font-size:11px;line-height:1.35}
-  #reserver .livr-txt{font-size:11.5px;line-height:1.35}
-  #reserver #bk-submit{padding:12px 18px}
-  @media (max-width:420px){ #reserver .panel{padding:12px} #reserver .day{height:32px} #reserver .row2{gap:6px} }
+  /* ===== réservation en étapes (26/10) : un écran par étape, tout le contenu est revenu ===== */
+  section#reserver{padding:64px 0}
+  .wiz{max-width:760px;margin:0 auto}
+  .wiz-carte{position:relative;min-width:0;overflow:hidden}
+  /* fil d'étapes : 1 Matériel & date · 2 Livraison · 3 Tes infos · 4 Récap */
+  .wiz-etapes{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:0 0 14px;padding:0;position:relative}
+  .wiz-etapes::before,.wiz-etapes::after{content:"";position:absolute;top:17px;left:12.5%;height:3px;border-radius:3px;background:var(--line);width:75%}
+  .wiz-etapes::after{background:linear-gradient(90deg,var(--pink),var(--violet),var(--cyan));width:calc(75% * var(--av,0));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .wiz-etapes li{position:relative;z-index:1;text-align:center}
+  .wiz-etapes button{all:unset;cursor:default;display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;font-size:12px;font-weight:600;color:var(--muted)}
+  .wiz-etapes b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--card);border:2px solid var(--line);font-size:14px;color:var(--muted);transition:all .35s}
+  .wiz-etapes .fait button{cursor:pointer}
+  .wiz-etapes .fait b{background:var(--cyan);border-color:var(--cyan);color:#062028;font-size:0}
+  .wiz-etapes .fait b::before{content:"✓";font-size:16px;animation:coche .4s cubic-bezier(.3,1.6,.5,1)}
+  .wiz-etapes .actif b{background:var(--pink);border-color:var(--pink);color:#1A0B00;box-shadow:0 0 0 6px rgba(255,122,26,.18),0 0 22px rgba(255,122,26,.55);animation:pulse 2.4s ease-in-out infinite}
+  .wiz-etapes .actif button{color:var(--text)}
+  @keyframes coche{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 6px rgba(255,122,26,.18),0 0 22px rgba(255,122,26,.45)}50%{box-shadow:0 0 0 10px rgba(255,122,26,.08),0 0 30px rgba(255,122,26,.65)}}
+  .wiz-pas[hidden]{display:none}
+  .wiz-pas h3{font-family:"Bebas Neue";font-weight:400;font-size:30px;letter-spacing:.5px;margin:0 0 4px}
+  .wiz-pas .sous{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .wiz-nav{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:18px}
+  .wiz-nav .btn{flex:1 1 auto}
+  .wiz-nav .retour{flex:none;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer}
+  .wiz-nav .retour:hover{border-color:var(--cyan)}
+  .wiz-nav [hidden]{display:none}
+  .wiz-carte.secoue{animation:secoue .4s}
+  @keyframes secoue{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+  .day.sel{animation:choisi .35s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes choisi{from{transform:scale(.7)}to{transform:none}}
+  .devis .tot b.bump{animation:bump .45s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes bump{40%{transform:scale(1.18);color:var(--pink)}}
+  /* récap (étape 4) */
+  .resume{display:grid;gap:10px;margin-bottom:14px}
+  .resume .bloc{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;gap:12px;justify-content:space-between;align-items:flex-start;animation:glisse .45s both;animation-delay:calc(var(--i,0) * 70ms)}
+  .resume .bloc span{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+  .resume .bloc p{margin:0;line-height:1.45}
+  .resume .bloc button{all:unset;cursor:pointer;color:var(--cyan);font-size:14px;font-weight:600;white-space:nowrap}
+  .resume .devis{margin-top:0;animation:glisse .45s both;animation-delay:.3s}
+  /* écran « demande envoyée » (étape 5) */
+  .merci{text-align:center;padding:10px 0 6px}
+  .merci svg{width:96px;height:96px;margin:0 auto 10px;display:block}
+  .merci circle{stroke:var(--cyan);stroke-width:4;fill:none;stroke-dasharray:283;stroke-dashoffset:283;animation:trace .7s ease-out forwards}
+  .merci path{stroke:var(--cyan);stroke-width:6;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:70;stroke-dashoffset:70;animation:trace .45s .55s ease-out forwards}
+  @keyframes trace{to{stroke-dashoffset:0}}
+  .merci h3{font-size:40px}
+  .merci p{color:var(--muted);max-width:460px;margin:0 auto 14px}
+  .merci .btn{margin:4px}
+  .confetti{position:absolute;top:30%;left:50%;width:9px;height:14px;border-radius:2px;pointer-events:none;z-index:5}
+  #reserver .chosen{line-height:1.4}
+  @media (max-width:520px){ .wiz-etapes button{font-size:11px} .wiz-pas h3{font-size:26px} #reserver .panel{padding:16px} #reserver .day{height:36px} }
+  @media (prefers-reduced-motion:reduce){ .wiz-etapes::after,.wiz-etapes b{transition:none} .wiz-etapes .actif b,.day.sel,.devis .tot b.bump,.resume .bloc,.resume .devis,.wiz-carte.secoue{animation:none} .merci circle,.merci path{animation:none;stroke-dashoffset:0} }
   .bk-choix button{flex:none;scroll-snap-align:start;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
   .bk-choix button:hover{border-color:var(--pink)}
   .bk-choix button[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#1A0B00}
@@ -344,13 +363,21 @@
 
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
-  <p class="lead">Livré chez toi, prix total affiché tout de suite, confirmation rapide.</p>
-  <div class="booking">
-    <div class="panel">
+  <p class="lead">Une ou plusieurs soirées, livrées chez toi : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
+  <div class="wiz" id="wiz">
+    <ol class="wiz-etapes" id="wiz-etapes" aria-label="Étapes de la réservation">
+      <li data-pas="1"><button type="button"><b>1</b>Matériel &amp; date</button></li>
+      <li data-pas="2"><button type="button"><b>2</b>Livraison</button></li>
+      <li data-pas="3"><button type="button"><b>3</b>Tes infos</button></li>
+      <li data-pas="4"><button type="button"><b>4</b>Récap</button></li>
+    </ol>
+    <form class="panel wiz-carte" id="bk-form" novalidate>
+     <div class="wiz-pas" data-pas="1">
+      <h3>Ton matériel et ta date</h3>
       <div class="bk-choix" id="bk-choix" role="group" aria-label="Changer de pack ou d'appareil">
         <button type="button" data-pack="apero">Apéro</button><button type="button" data-pack="soiree">Soirée</button><button type="button" data-pack="club">Club</button><button type="button" data-pack="p310">310</button><button type="button" data-pack="p710">710</button><button type="button" data-pack="pult">Ultimate</button><button type="button" data-pack="fumee">Fumée</button><button type="button" data-pack="perso">Mon panier</button>
       </div>
-      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Changer</a></div>
+      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Détails</a></div>
       <div class="field" hidden><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
@@ -361,35 +388,55 @@
       <div class="cal" id="cal" aria-live="polite"></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <p class="cal-aide" id="bk-cal-aide"></p>
-      <div class="chosen" id="bk-date-txt">Touche ta date. Plusieurs soirées : la 1re puis la dernière (7 max).</div>
-      <label class="veille" hidden><input type="checkbox" id="bk-veille"> <span>Fête <b>en journée</b> ? Livraison la veille au soir (soirée en plus à −20 %).</span></label>
-      <div class="row2 livr">
-        <div class="field"><label for="bk-heure">Heure de livraison *</label>
-          <select id="bk-heure" disabled><option value="">Date d'abord</option></select></div>
-        <div class="field"><label for="bk-lieu">Ville ou code postal *</label>
-          <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="Pélissanne, 13330…" autocomplete="address-level2">
-          <datalist id="bk-villes"></datalist></div>
-      </div>
-      <small class="livr-txt" id="bk-livr-txt">Livraison 17h00–19h30, reprise le lendemain avant 12h00 · Salon 5 €, ailleurs 5 € + 1,20 €/km (25 km max).</small>
+      <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
+      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, à −20 %).</span></label>
+     </div>
+     <div class="wiz-pas" data-pas="2" hidden>
+      <h3>La livraison</h3>
+      <p class="sous" id="bk-pas2-date"></p>
+      <div class="field"><label for="bk-heure">Heure de livraison *</label>
+        <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
+        <small class="livr-txt">On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.</small></div>
+      <div class="field"><label for="bk-lieu">Ville ou code postal de livraison *</label>
+        <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne ou 13330" autocomplete="address-level2">
+        <datalist id="bk-villes"></datalist>
+        <small class="livr-txt" id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu'à 25 km de Salon.</small></div>
       <div class="devis" id="bk-devis" hidden></div>
-    </div>
-    <form class="panel" id="bk-form" novalidate>
+     </div>
+     <div class="wiz-pas" data-pas="3" hidden>
+      <h3>Tes infos</h3>
+      <p class="sous">Pour qu'on puisse te rappeler et confirmer.</p>
       <div class="row2">
         <div class="field"><label for="bk-nom">Nom et prénom *</label><input id="bk-nom" autocomplete="name" required maxlength="80"></div>
         <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
       </div>
-      <details class="plus" id="bk-plus"><summary>+ E-mail, type de fête, invités, message (facultatif)</summary>
-      <div class="field"><label for="bk-email">E-mail</label><input id="bk-email" type="email" autocomplete="email" maxlength="120" placeholder="pour recevoir la confirmation"></div>
+      <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120"></div>
       <div class="row2">
         <div class="field"><label for="bk-fete">Type de fête</label>
           <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
         <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
       </div>
-      <div class="field"><label for="bk-message">Message</label><textarea id="bk-message" rows="2" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
-      </details>
+      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="3" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
       <div class="hp" aria-hidden="true"><label>Site <input id="bk-site" tabindex="-1" autocomplete="off"></label></div>
-      <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces infos pour traiter ma demande (<a href="confidentialite.html">confidentialité</a>).</span></label>
-      <button class="btn" id="bk-submit" type="submit">Envoyer ma demande</button>
+     </div>
+     <div class="wiz-pas" data-pas="4" hidden>
+      <h3>On vérifie ensemble</h3>
+      <p class="sous">Relis ta demande : tu peux encore tout modifier.</p>
+      <div class="resume" id="bk-resume"></div>
+      <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces informations pour traiter ma demande. <a href="confidentialite.html">Politique de confidentialité</a></span></label>
+     </div>
+     <div class="wiz-pas merci" data-pas="5" hidden>
+      <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><path d="M30 52l13 13 27-29"/></svg>
+      <h3>Demande envoyée !</h3>
+      <p id="bk-merci-txt"></p>
+      <a class="btn" id="bk-merci-suivi" href="#" hidden>Suivre ma réservation</a>
+      <button class="btn ghost" type="button" id="bk-encore">Faire une autre réservation</button>
+     </div>
+      <div class="wiz-nav" id="wiz-nav">
+        <button class="retour" type="button" id="wiz-prec" hidden>← Retour</button>
+        <button class="btn" type="button" id="wiz-suiv">Continuer →</button>
+        <button class="btn" id="bk-submit" type="submit" hidden>Envoyer ma demande de réservation</button>
+      </div>
       <div class="msg" id="bk-msg" hidden></div>
     </form>
   </div>
@@ -613,7 +660,7 @@
   const passe = k => k < isoJ(auj) || (k === isoJ(auj) && !heuresPossibles(k).length);
   async function statutK(k){ return passe(k) ? 'complet' : statutDe(await dispoMois(k.slice(0, 7)), k); }
   async function periodeLibre(start, n){ for (let i = 0; i < n; i++) if (await statutK(plusJ(start, i)) === 'complet') return false; return true; }
-  function aide(txt){ const a = $('bk-cal-aide'); a.textContent = txt || ''; a.style.color = txt ? 'var(--pink)' : ''; a.style.fontWeight = txt ? '700' : ''; }
+  function aide(txt){ const a = $('bk-cal-aide'); a.textContent = txt || 'Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu\'à 7).'; a.style.color = txt ? 'var(--pink)' : ''; a.style.fontWeight = txt ? '700' : ''; }
 
   // 1er clic = première soirée ; 2e clic plus tard dans le calendrier = dernière soirée
   async function cliquer(k){
@@ -738,8 +785,8 @@
     $('bk-date-txt').textContent = p
       ? 'Livraison le ' + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
         ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
-      : 'Touche ta date. Plusieurs soirées : la 1re puis la dernière (7 max).';
-    $('bk-veille').closest('.veille').hidden = !p;
+      : 'Clique sur une date du calendrier.';
+    $('bk-pas2-date').textContent = p ? $('bk-date-txt').textContent : '';
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
     const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
     $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
@@ -755,7 +802,7 @@
                   : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
                   : l.etat === 'choix' ? 'Le ' + l.cp + ' correspond à : ' + l.liste.join(', ') + '. Choisis ta commune dans la liste.'
                   : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
-                  : 'Livraison 17h00–19h30, reprise le lendemain avant 12h00 · Salon 5 €, ailleurs 5 € + 1,20 €/km (25 km max).';
+                  : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu\'à 25 km de Salon.';
     t.style.color = l.etat === 'loin' || l.etat === 'choix' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' || l.etat === 'choix' ? '700' : '';
     const loc = prixLocation(p), box = $('bk-devis');
     box.hidden = !p || loc == null;
@@ -764,22 +811,105 @@
       box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc)) +
         ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville') +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
-        '<small>' + (p.nuits > 1 ? 'La soirée la plus chère au prix plein, les autres −20 %. ' : '') +
-        'Ven./sam. : tarif week-end, dim.→jeu. : tarif semaine. Hors caution, prix confirmé par téléphone.</small>';
+        '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
+        'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
+      // le total « saute » quand il change
+      const tb = box.querySelector('.tot b');
+      if (tb && box.dataset.total && box.dataset.total !== tb.textContent) { tb.classList.remove('bump'); void tb.offsetWidth; tb.classList.add('bump'); }
+      if (tb) box.dataset.total = tb.textContent;
     }
     majBarre();
   }
 
   // ---- sous-total accroché en bas de l'écran : ce que tu réserves, le prix, et le bouton de l'étape suivante ----
+  // ===== étapes : 1 matériel & date · 2 livraison · 3 tes infos · 4 récap · 5 demande envoyée =====
+  let pas = 1;
+  const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   function etapeSuivante(){
-    const p = periode(), l = livraison();
-    if (!p) return { txt: 'Choisir ma date', el: $('cal') };
-    if (!$('bk-heure').value) return { txt: 'Continuer', el: $('bk-heure') };
-    if (l.etat === 'vide' || l.etat === 'loin' || l.etat === 'choix') return { txt: 'Continuer', el: $('bk-lieu') };
-    const vide = ['bk-nom', 'bk-tel'].map($).find(i => !i.value.trim());
-    if (vide) return { txt: 'Continuer', el: vide };
-    if (!$('bk-ok').checked) return { txt: 'Continuer', el: $('bk-ok') };
-    return { txt: 'Envoyer ma demande', envoyer: true };
+    if (pas === 1) return { txt: periode() ? 'Continuer' : 'Choisir ma date' };
+    if (pas === 3) return { txt: 'Voir le récap' };
+    if (pas === 4) return { txt: 'Envoyer ma demande', envoyer: true };
+    return { txt: 'Continuer' };
+  }
+  // ce qui manque pour quitter une étape (null = tout est bon)
+  function manque(n){
+    const l = livraison();
+    if (n === 1 && !periode()) return { el: $('cal'), txt: 'Choisis d\'abord ta date dans le calendrier.' };
+    if (n === 2) {
+      if (!$('bk-heure').value) return { el: $('bk-heure'), txt: 'Choisis l\'heure de livraison.' };
+      if (l.etat === 'vide') return { el: $('bk-lieu'), txt: 'Indique la ville ou le code postal de livraison.' };
+      if (l.etat === 'choix') return { el: $('bk-lieu'), txt: 'Le ' + l.cp + ' correspond à plusieurs communes (' + l.liste.join(', ') + ') : écris ou choisis la tienne.' };
+      if (l.etat === 'loin') return { el: $('bk-lieu'), txt: 'On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.' };
+    }
+    if (n === 3) {
+      if (!$('bk-nom').value.trim()) return { el: $('bk-nom'), txt: 'Indique ton nom et ton prénom.' };
+      if (!$('bk-tel').value.trim()) return { el: $('bk-tel'), txt: 'Indique ton téléphone.' };
+    }
+    return null;
+  }
+  function allerA(n, focus){
+    const carte = $('bk-form'), avant = carte.querySelector('.wiz-pas[data-pas="' + pas + '"]'), apres = carte.querySelector('.wiz-pas[data-pas="' + n + '"]');
+    const sens = n > pas ? 1 : -1;
+    $('bk-msg').hidden = true;
+    if (n === 4) resume();
+    avant.hidden = true; apres.hidden = false; pas = n;
+    if (!reduit && avant !== apres) apres.animate([{ opacity: 0, transform: 'translateX(' + (40 * sens) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    // fil d'étapes
+    $('wiz-etapes').style.setProperty('--av', Math.min(n - 1, 3) / 3);
+    $('wiz-etapes').querySelectorAll('li').forEach(li => { const k = +li.dataset.pas; li.classList.toggle('fait', k < n); li.classList.toggle('actif', k === n); li.querySelector('button').setAttribute('aria-current', k === n ? 'step' : 'false'); });
+    $('wiz-prec').hidden = n === 1 || n === 5;
+    $('wiz-suiv').hidden = n >= 4;
+    $('bk-submit').hidden = n !== 4;
+    $('wiz-nav').hidden = n === 5;
+    $('wiz-suiv').textContent = etapeSuivante().txt + ' →';
+    // garder le haut de la carte à l'écran (sous le menu)
+    const haut = $('wiz').getBoundingClientRect().top;
+    if (avant !== apres && (haut < 70 || haut > innerHeight * .5)) window.scrollTo({ top: haut + scrollY - 84, behavior: reduit ? 'auto' : 'smooth' });
+    if (focus) { const f = apres.querySelector('input:not([type=checkbox]):not([tabindex="-1"]), select'); if (f && !f.disabled) setTimeout(() => f.focus({ preventScroll: true }), 400); }
+    majBarre();
+  }
+  function wizSuivant(){
+    const m = manque(pas);
+    if (m) {
+      message(m.txt);
+      const c = $('bk-form'); c.classList.remove('secoue'); void c.offsetWidth; c.classList.add('secoue');
+      if (m.el.focus && m.el.id !== 'cal') m.el.focus();
+      return false;
+    }
+    if (pas < 4) allerA(pas + 1, true);
+    return true;
+  }
+  // récap de l'étape 4, avec « Modifier » pour revenir à la bonne étape
+  function resume(){
+    const p = periode(), l = livraison(), h = $('bk-heure').value;
+    const blocs = [
+      ['Matériel', esc($('bk-recap-nom').textContent), 1],
+      ['Dates', p ? esc('Livraison le ' + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
+      ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
+      ['Tes infos', [$('bk-nom').value.trim(), $('bk-tel').value.trim(), $('bk-email').value.trim(), $('bk-fete').value + ($('bk-invites').value ? ' · ' + $('bk-invites').value + ' invités' : '')].filter(Boolean).map(esc).join('<br>') +
+        ($('bk-message').value.trim() ? '<br><i>« ' + esc($('bk-message').value.trim()) + ' »</i>' : ''), 3]
+    ];
+    $('bk-resume').innerHTML = blocs.map((b, i) => '<div class="bloc" style="--i:' + i + '"><div><span>' + b[0] + '</span><p>' + b[1] + '</p></div><button type="button" data-aller="' + b[2] + '">Modifier</button></div>').join('') +
+      '<div class="devis">' + $('bk-devis').innerHTML + '</div>';
+  }
+  $('bk-resume').addEventListener('click', e => { const b = e.target.closest('[data-aller]'); if (b) allerA(+b.dataset.aller, true); });
+  $('wiz-suiv').addEventListener('click', wizSuivant);
+  $('wiz-prec').addEventListener('click', () => allerA(pas - 1));
+  // fil d'étapes : on peut revenir sur une étape déjà faite
+  $('wiz-etapes').addEventListener('click', e => { const li = e.target.closest('li.fait'); if (li) allerA(+li.dataset.pas); });
+  $('bk-encore').addEventListener('click', () => allerA(1));
+  window.wizAller = n => { if (pas !== n && pas !== 5) allerA(n); };
+  // confettis aux couleurs du site
+  function confettis(){
+    if (reduit) return;
+    const c = $('bk-form'), coul = ['#FF7A1A', '#8B5CF6', '#22D3EE', '#F4EEFF'];
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('i'); s.className = 'confetti'; s.style.background = coul[i % 4]; c.appendChild(s);
+      const a = Math.random() * Math.PI * 2, d = 120 + Math.random() * 220;
+      s.animate([{ transform: 'translate(-50%,0) rotate(0)', opacity: 1 }, { transform: 'translate(' + (Math.cos(a) * d - 4) + 'px,' + (Math.sin(a) * d * .7 + 160) + 'px) rotate(' + (Math.random() * 720) + 'deg)', opacity: 0 }],
+        { duration: 1100 + Math.random() * 700, easing: 'cubic-bezier(.15,.7,.3,1)', fill: 'forwards' }).onfinish = () => s.remove();
+    }
   }
   function majBarre(){
     const barre = $('barre-total'); if (!barre) return;
@@ -790,21 +920,22 @@
       ? (l.etat === 'ok' ? 'Total ' + enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'vide' || l.etat === 'devis' || l.etat === 'choix' ? ' + livraison' : ''))
       : k && PACKS[k] && prixNum(k) > 0 ? 'dès ' + (PACKS[k].sem && semNum(k) < prixNum(k) ? PACKS[k].sem : PACKS[k].price) + ' / soirée' : 'Compose ton panier';
     $('bt-btn').textContent = etapeSuivante().txt;
+    $('wiz-suiv').textContent = etapeSuivante().txt + ' →';
     visibiliteBarre();
   }
   // visible une fois le haut de page passé, cachée quand le vrai bouton « Envoyer » est déjà à l'écran
   let boutonVisible = false;
   function visibiliteBarre(){
-    const barre = $('barre-total'), montrer = scrollY > 500 && !boutonVisible && !document.querySelector('.pause');
+    const barre = $('barre-total'), montrer = scrollY > 500 && !boutonVisible && pas < 5 && !document.querySelector('.pause');
     barre.hidden = !montrer; barre.inert = !montrer; document.body.classList.toggle('avec-barre', montrer);
   }
-  if ('IntersectionObserver' in window) new IntersectionObserver(e => { boutonVisible = e[0].isIntersecting; visibiliteBarre(); }).observe($('bk-submit'));
+  if ('IntersectionObserver' in window) new IntersectionObserver(e => { boutonVisible = e[0].isIntersecting; visibiliteBarre(); }).observe($('wiz-nav'));
   addEventListener('scroll', () => requestAnimationFrame(visibiliteBarre), { passive: true });
+  // le bouton de la barre fait comme le bouton de l'étape
   $('bt-btn').addEventListener('click', () => {
-    const s = etapeSuivante();
-    if (s.envoyer) { $('bk-form').requestSubmit ? $('bk-form').requestSubmit() : $('bk-submit').click(); return; }
-    s.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    if (s.el.focus && s.el.id !== 'cal') setTimeout(() => s.el.focus({ preventScroll: true }), 450);
+    if (etapeSuivante().envoyer) { $('bk-form').requestSubmit ? $('bk-form').requestSubmit() : $('bk-submit').click(); return; }
+    const avant = pas;
+    if (!wizSuivant() || avant === pas) $('wiz').scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' });
   });
   ['bk-nom', 'bk-tel'].forEach(id => $(id).addEventListener('input', majBarre));
   $('bk-ok').addEventListener('change', majBarre);
@@ -839,6 +970,9 @@
 
   $('bk-form').addEventListener('submit', async e=>{
     e.preventDefault();
+    if (pas < 4) { wizSuivant(); return; }   // Entrée dans un champ = étape suivante
+    if (pas !== 4) return;
+    for (let n = 1; n <= 3; n++) { const m = manque(n); if (m) { allerA(n, true); message(m.txt); return; } }
     const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim(), p = periode(), l = livraison();
     if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
@@ -862,14 +996,15 @@
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
       const suivi = /^https:\/\/mistraloc\.fr\/suivi\?t=[a-f0-9]{24}$/.test(j.suivi||'') ? j.suivi : '';
-      message('✅ Demande envoyée ! On te recontacte très vite au '+tel.replace(/[<>&"]/g,'')+' pour confirmer.'+(data.email?' Un e-mail de confirmation part à l\'instant.':'')+
-        (suivi?'<br><a href="'+suivi+'">Suivre ma réservation</a> (garde ce lien).':''), true);
+      $('bk-merci-txt').textContent = 'On te recontacte très vite au ' + tel + ' pour confirmer.' + (data.email ? ' Un e-mail de confirmation part à l\'instant.' : '') + (suivi ? ' Garde le lien de suivi ci-dessous : il te montre où en est ta réservation.' : '');
+      $('bk-merci-suivi').hidden = !suivi; if (suivi) $('bk-merci-suivi').href = suivi;
+      allerA(5); confettis();
     } catch(err){
       message('Oups, l\'envoi n\'a pas marché. <a href="'+wa+'" target="_blank" rel="noopener">Envoie ta demande sur WhatsApp</a> ou appelle le 06 22 12 39 63.');
-    } finally { btn.disabled=false; btn.textContent='Envoyer ma demande'; }
+    } finally { btn.disabled=false; btn.textContent='Envoyer ma demande de réservation'; }
   });
 
-  maj(); dessiner();
+  maj(); dessiner(); aide(''); allerA(1);
 
   // Réglages gérés depuis l'espace admin (pause, prix, photos). Si le serveur ne répond pas, la page garde ses valeurs par défaut.
   const euros = enEuros;
@@ -931,7 +1066,8 @@
         e.preventDefault();
         show(r.dataset.reserver, false);                       // choisit l'appareil (et l'offre du calendrier)
         $('reserver').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setTimeout(() => briller($('bk-offre')), 500);
+        if (window.wizAller) window.wizAller(1);              // revient à l'étape « Matériel & date »
+        setTimeout(() => briller($('bk-recap')), 500);
       }
       if (p) {
         const k = p.dataset.panier;
