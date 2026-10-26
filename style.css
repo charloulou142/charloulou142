@@ -117,3 +117,24 @@ footer.end .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:w
 .theme-anim,.theme-anim *,.theme-anim *::before,.theme-anim *::after{transition:background-color .45s ease,color .45s ease,border-color .45s ease,fill .45s ease!important}
 .theme-btn svg{animation:tb-in .5s cubic-bezier(.34,1.4,.5,1)}
 @keyframes tb-in{from{transform:rotate(-120deg) scale(.3);opacity:0}to{transform:none;opacity:1}}
+
+/* En-tête : ne déborde jamais sur téléphone (26/10) — le logo rétrécit, les boutons gardent leur taille */
+nav.top .wrap{gap:10px}
+.logo{display:block;flex:0 1 188px;min-width:0}
+.logo svg{width:100%!important;height:auto!important;max-width:188px}
+.navlinks{flex:0 0 auto}
+.navlinks>*{flex-shrink:0}
+.navlinks a.btn{white-space:nowrap;width:auto}
+@media (max-width:720px){
+  nav.top .wrap{height:60px;padding:0 16px}
+  .navlinks{gap:8px}
+  .navlinks a.btn{padding:10px 16px;font-size:15px}
+  .theme-btn,.navlinks a.compte-btn{width:38px!important;height:38px!important}
+}
+@media (max-width:350px){
+  nav.top .wrap{padding:0 12px;gap:8px}
+  .navlinks{gap:6px}
+  .navlinks a.btn{padding:9px 13px;font-size:14px;box-shadow:0 0 14px rgba(255,122,26,.4)}
+  .theme-btn,.navlinks a.compte-btn{width:34px!important;height:34px!important}
+  .theme-btn svg,.compte-btn svg{width:18px;height:18px}
+}
