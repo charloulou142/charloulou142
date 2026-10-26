@@ -236,7 +236,7 @@
   .wiz-etapes .actif button{color:var(--text)}
   @keyframes coche{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 6px rgba(255,122,26,.18),0 0 22px rgba(255,122,26,.45)}50%{box-shadow:0 0 0 10px rgba(255,122,26,.08),0 0 30px rgba(255,122,26,.65)}}
-  .wiz-pas[hidden]{display:none}
+  .wiz-pas[hidden],.wiz-pas .row2[hidden]{display:none}
   .wiz-pas h3{font-family:"Bebas Neue";font-weight:400;font-size:30px;letter-spacing:.5px;margin:0 0 4px}
   .wiz-pas .sous{color:var(--muted);font-size:14px;margin:0 0 14px}
   .wiz-nav{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:18px}
@@ -291,6 +291,23 @@
   .result .price small{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-top:2px}
   .eco{font-size:14px;color:var(--cyan);font-weight:700;margin:-8px 0 14px}
   .eco[hidden]{display:none}
+  /* « Trouve ton pack » : prix à côté des packs, bouton à côté de « Mon panier » (26/10) */
+  .r-haut{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;grid-template-areas:"a prix" "b b" "c c";margin-bottom:4px}
+  .r-a{grid-area:a}.r-b{grid-area:b}.r-c{grid-area:c}
+  .r-haut .switch{align-self:auto;justify-self:start}
+  .r-prix{grid-area:prix;align-self:center;text-align:right;padding-top:16px;min-width:0}
+  .result .r-prix .price{margin:0;font-size:24px;line-height:1.1}
+  .r-prix #rPrice{white-space:nowrap}
+  .r-prix .price i{display:block;font-style:normal;font-size:12px;font-weight:600;color:var(--muted)}
+  .result .r-prix .price small{font-size:12px;color:var(--cyan);margin-top:3px;line-height:1.3}
+  .r-prix .eco{margin:5px 0 0;font-size:12px;line-height:1.3;white-space:normal}
+  .r-ligne{display:flex;gap:10px;align-items:flex-start}
+  .r-ligne .switch{flex:none}
+  .r-ligne .btn{flex:1 1 auto;white-space:nowrap;padding:13px 16px;margin-top:0}
+  @media (max-width:430px){ .r-haut .switch button{padding:8px 12px;font-size:15px} .result{padding:22px 18px} }
+  /* petits téléphones : le prix passe sur une ligne juste sous les packs (toujours en haut) */
+  @media (max-width:385px){ .r-haut{grid-template-areas:"a a" "prix prix" "b b" "c c"} .r-prix{text-align:left;padding:0 0 14px;margin-top:-6px}
+    .result .r-prix .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:22px} .r-prix .price i,.result .r-prix .price small{display:inline;margin:0} .r-prix .eco{margin-top:2px} }
   .item .in small{font-weight:600;color:var(--muted)}
   /* « en grand. » : le dégradé glisse lentement en boucle (lumière de scène), sans clignoter */
   @keyframes flux{from{background-position:0% 50%}to{background-position:-200% 50%}}
@@ -336,17 +353,27 @@
       </div>
     </div>
     <div class="result" aria-live="polite">
-      <p class="swl">Les packs</p>
-      <div class="switch" role="group" aria-label="Voir un pack">
-        <button data-pack="apero" aria-pressed="false">Apéro</button><button data-pack="soiree" aria-pressed="true">Soirée</button><button data-pack="club" aria-pressed="false">Club</button>
-      </div>
-      <p class="swl">Ou à l'unité</p>
-      <div class="switch" role="group" aria-label="Louer un appareil seul">
-        <button data-pack="p310" aria-pressed="false">PartyBox 310</button><button data-pack="p710" aria-pressed="false">PartyBox 710</button><button data-pack="pult" aria-pressed="false">Ultimate</button><button data-pack="fumee" aria-pressed="false">Fumée</button>
-      </div>
-      <p class="swl">Ou compose ton panier</p>
-      <div class="switch" role="group" aria-label="Panier personnalisé">
-        <button data-pack="perso" aria-pressed="false">Mon panier</button>
+      <!-- haut de la carte : choix + prix + bouton, visibles sans faire défiler -->
+      <div class="r-haut">
+        <div class="r-a"><p class="swl">Les packs</p>
+          <div class="switch" role="group" aria-label="Voir un pack">
+            <button data-pack="apero" aria-pressed="false">Apéro</button><button data-pack="soiree" aria-pressed="true">Soirée</button><button data-pack="club" aria-pressed="false">Club</button>
+          </div></div>
+        <div class="r-prix">
+          <p class="price"><span id="rPrice"></span><i>/ soirée week-end</i><small id="rSem"></small></p>
+          <p class="eco" id="rEco" hidden></p>
+        </div>
+        <div class="r-b"><p class="swl">Ou à l'unité</p>
+          <div class="switch" role="group" aria-label="Louer un appareil seul">
+            <button data-pack="p310" aria-pressed="false">PartyBox 310</button><button data-pack="p710" aria-pressed="false">PartyBox 710</button><button data-pack="pult" aria-pressed="false">Ultimate</button><button data-pack="fumee" aria-pressed="false">Fumée</button>
+          </div></div>
+        <div class="r-c"><p class="swl">Ou compose ton panier</p>
+          <div class="r-ligne">
+            <div class="switch" role="group" aria-label="Panier personnalisé">
+              <button data-pack="perso" aria-pressed="false">Mon panier</button>
+            </div>
+            <a class="btn" id="rBook" href="#reserver">Choisir ma date →</a>
+          </div></div>
       </div>
       <div class="rImg" id="rImg" aria-hidden="true"></div>
       <span class="tag" id="rTag">Recommandé pour toi</span>
@@ -354,9 +381,6 @@
       <p class="why" id="rWhy"></p>
       <ul class="checks" id="rList"></ul>
       <div class="panier" id="rPanier" hidden></div>
-      <p class="price"><span id="rPrice"></span> / soirée le week-end<small id="rSem"></small></p>
-      <p class="eco" id="rEco" hidden></p>
-      <a class="btn" id="rBook" href="#reserver">Choisir ma date et réserver</a>
     </div>
   </div>
 </div></section>
@@ -411,7 +435,7 @@
         <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
       </div>
       <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120"></div>
-      <div class="row2">
+      <div class="row2" hidden><!-- rempli tout seul depuis « Trouve ton pack » -->
         <div class="field"><label for="bk-fete">Type de fête</label>
           <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
         <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
@@ -526,10 +550,10 @@
   // sous le prix : tarif semaine + économie d'un pack par rapport aux mêmes appareils à l'unité
   const PACK_COMPO={soiree:{p710:1,fumee:1},club:{p710:2,fumee:1}};
   function majPrixPack(key){
-    document.getElementById('rSem').textContent=PACKS[key].sem&&semNum(key)>0?semNum(key)<prixNum(key)?PACKS[key].sem+' / soirée en semaine (dim → jeu)':'':'';
+    document.getElementById('rSem').textContent=PACKS[key].sem&&semNum(key)>0?semNum(key)<prixNum(key)?PACKS[key].sem+' en semaine':'':''; document.getElementById('rSem').title='Du dimanche au jeudi soir';
     const c=PACK_COMPO[key], eco=document.getElementById('rEco');
     if(c){const unite=Object.keys(c).reduce((t,k)=>t+c[k]*prixNum(k),0), gain=unite-prixNum(key);
-      eco.hidden=!(gain>0); eco.textContent='Tu économises '+enEuros(gain)+' par rapport aux mêmes appareils loués à l\'unité.';}
+      eco.hidden=!(gain>0); eco.textContent='−'+enEuros(gain)+' vs à l\'unité'; eco.title='Par rapport aux mêmes appareils loués à l\'unité';}
     else eco.hidden=true;
   }
   function panierTexte(){ return Object.keys(panier).filter(k=>panier[k]).map(k=>panier[k]+'× '+PACKS[k].name).join(' + '); }
@@ -552,7 +576,7 @@
     document.getElementById('rPanier').insertAdjacentHTML('beforeend',astuce);
     const vide=!total;
     document.getElementById('rBook').classList.toggle('off',vide);
-    document.getElementById('rBook').textContent=vide?'Ajoute au moins un appareil':'Choisir ma date et réserver';
+    document.getElementById('rBook').textContent=vide?'Ajoute un appareil ↓':'Choisir ma date →';
     let opt=document.getElementById('opt-perso');
     if(!opt){opt=document.createElement('option');opt.id='opt-perso';offreSelect().appendChild(opt);}
     opt.textContent=opt.value=vide?'Panier personnalisé':'Panier perso : '+panierTexte();
@@ -602,7 +626,7 @@
     document.getElementById('rList').hidden=perso;
     if(perso){ document.getElementById('rTag').textContent='Sur mesure'; majPanier(); return; }
     document.getElementById('rBook').classList.remove('off');
-    document.getElementById('rBook').textContent='Choisir ma date et réserver';
+    document.getElementById('rBook').textContent='Choisir ma date →';
     window.packChoisi=p.name;
     if (window.bkSync) window.bkSync();
   }
@@ -887,7 +911,7 @@
       ['Matériel', esc($('bk-recap-nom').textContent), 1],
       ['Dates', p ? esc('Livraison le ' + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
       ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
-      ['Tes infos', [$('bk-nom').value.trim(), $('bk-tel').value.trim(), $('bk-email').value.trim(), $('bk-fete').value + ($('bk-invites').value ? ' · ' + $('bk-invites').value + ' invités' : '')].filter(Boolean).map(esc).join('<br>') +
+      ['Tes infos', [$('bk-nom').value.trim(), $('bk-tel').value.trim(), $('bk-email').value.trim(), $('bk-fete').value + ($('bk-invites').value ? ' · ' + ($('bk-invites').value >= 200 ? '200+' : $('bk-invites').value) + ' invités' : '')].filter(Boolean).map(esc).join('<br>') +
         ($('bk-message').value.trim() ? '<br><i>« ' + esc($('bk-message').value.trim()) + ' »</i>' : ''), 3]
     ];
     $('bk-resume').innerHTML = blocs.map((b, i) => '<div class="bloc" style="--i:' + i + '"><div><span>' + b[0] + '</span><p>' + b[1] + '</p></div><button type="button" data-aller="' + b[2] + '">Modifier</button></div>').join('') +
@@ -960,11 +984,15 @@
   $('bk-veille').addEventListener('change', async () => { aide(''); await verifVeille(); maj(); dessiner(); majHeures(); });
   $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
   $('cal-next').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()+1, 1); dessiner(); });
-  // reprend le type de fête et les invités choisis dans « Trouve ton pack »
-  document.getElementById('rBook').addEventListener('click', ()=>{
+  // type de fête et invités : repris automatiquement de « Trouve ton pack » (plus demandés à l'étape 3)
+  function syncFete(){
     const f = document.querySelector('.choice[aria-pressed="true"]'); if (f) $('bk-fete').value = f.textContent.trim().replace('Autre événement','Autre');
     const g = document.getElementById('g'); if (g) $('bk-invites').value = g.value;
-  });
+  }
+  document.querySelectorAll('.choice').forEach(c => c.addEventListener('click', syncFete));
+  document.getElementById('g').addEventListener('input', syncFete);
+  document.getElementById('rBook').addEventListener('click', syncFete);
+  syncFete();
 
   function message(txt, ok){ const m=$('bk-msg'); m.hidden=false; m.className='msg '+(ok?'ok':'err'); m.innerHTML=txt; }
 
@@ -994,7 +1022,7 @@
       if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok && j.erreur === 'hors zone') { message('On livre seulement jusqu\'à 25 km de Salon-de-Provence. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a> si tu as une question.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
-      $('bk-form').reset(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
+      $('bk-form').reset(); syncFete(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
       const suivi = /^https:\/\/mistraloc\.fr\/suivi\?t=[a-f0-9]{24}$/.test(j.suivi||'') ? j.suivi : '';
       $('bk-merci-txt').textContent = 'On te recontacte très vite au ' + tel + ' pour confirmer.' + (data.email ? ' Un e-mail de confirmation part à l\'instant.' : '') + (suivi ? ' Garde le lien de suivi ci-dessous : il te montre où en est ta réservation.' : '');
       $('bk-merci-suivi').hidden = !suivi; if (suivi) $('bk-merci-suivi').href = suivi;
