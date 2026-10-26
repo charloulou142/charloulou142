@@ -103,7 +103,7 @@ footer.end .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:w
 :root[data-theme=light] .todo{color:#9A3F00}
 
 /* Bouton clair / sombre */
-.theme-btn{display:grid;place-items:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;transition:background .2s,transform .3s}
+.theme-btn{-webkit-appearance:none;appearance:none;padding:0;display:grid;place-items:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;transition:background .2s,transform .3s}
 .theme-btn:hover{background:var(--card)}
 .theme-btn:active{transform:rotate(30deg) scale(.92)}
 .theme-btn svg{width:20px;height:20px}
