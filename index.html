@@ -140,14 +140,17 @@
   .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
   .cal .dow{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding-bottom:4px}
   .day{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:700;cursor:pointer;display:grid;place-items:center;font-size:15px;transition:all .15s}
-  .day.libre{border-color:rgba(34,211,238,.55)}
-  .day.a_confirmer{border-color:rgba(139,92,246,.6)}
-  .day.complet{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+  .day.libre{border:2px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 16%,var(--bg));color:var(--text)}
+  .day.a_confirmer{border:2px dashed #A78BFA;background:color-mix(in srgb,#A78BFA 16%,var(--bg))}
+  .day.complet{border:1px solid rgba(248,113,113,.55);background:repeating-linear-gradient(135deg,rgba(248,113,113,.22) 0 6px,transparent 6px 12px),var(--bg);color:var(--muted);text-decoration:line-through;opacity:.85;cursor:not-allowed}
   .day.passe{opacity:.2;cursor:not-allowed}
   .day.sel{background:var(--pink);color:#1A0B00;border-color:var(--pink);box-shadow:0 0 18px rgba(255,122,26,.5)}
   .day:not(.complet):not(.passe):hover{transform:scale(1.06)}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
-  .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px;border:1px solid}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--text)}
+  .legend i{display:inline-block;width:18px;height:18px;border-radius:5px;margin-right:7px;vertical-align:-4px;border:1px solid}
+  .legend i.lg-libre{border:2px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 16%,var(--bg))}
+  .legend i.lg-conf{border:2px dashed #A78BFA;background:color-mix(in srgb,#A78BFA 16%,var(--bg))}
+  .legend i.lg-complet{border:1px solid rgba(248,113,113,.45);background:repeating-linear-gradient(135deg,rgba(248,113,113,.25) 0 3px,transparent 3px 6px),var(--bg)}
   .chosen{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,122,26,.10);border:1px solid rgba(255,122,26,.35);font-weight:700}
   .consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);margin:6px 0 16px}
   .consent input{margin-top:4px;width:18px;height:18px;accent-color:var(--pink)}
@@ -177,6 +180,16 @@
   :root[data-theme=light] .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#EEE9F5}
   :root[data-theme=light] .result{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
   :root[data-theme=light] .field input,:root[data-theme=light] .field select,:root[data-theme=light] .field textarea{color-scheme:light}
+  .recap-offre{padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin-bottom:16px;line-height:1.5}
+  .recap-offre b{color:var(--text)} .recap-offre span{color:var(--muted)} .recap-offre a{color:var(--cyan);margin-left:6px;white-space:nowrap}
+  .field[hidden]{display:none}
+  .field.heure{margin-top:16px} .field.heure small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  /* « en grand. » : le dégradé glisse lentement en boucle (lumière de scène), sans clignoter */
+  @keyframes flux{from{background-position:0% 50%}to{background-position:-200% 50%}}
+  .hero h1 em{background-image:linear-gradient(90deg,#A78BFA,#F472B6,#FB923C,#F472B6,#A78BFA);background-size:200% 100%;animation:flux 9s linear infinite}
+  @media (prefers-color-scheme:light){:root:not([data-theme=dark]) .hero h1 em{background-image:linear-gradient(90deg,#7C3AED,#DB2777,#F26A0A,#DB2777,#7C3AED);background-size:200% 100%}}
+  :root[data-theme=light] .hero h1 em{background-image:linear-gradient(90deg,#7C3AED,#DB2777,#F26A0A,#DB2777,#7C3AED);background-size:200% 100%}
+  @media (prefers-reduced-motion:reduce){.hero h1 em{animation:none}}
 </style>
 </head>
 <body>
@@ -244,7 +257,8 @@
   <p class="lead">Les jours disponibles s'affichent selon l'offre choisie. Ta demande nous arrive tout de suite : on te confirme rapidement par téléphone ou WhatsApp.</p>
   <div class="booking">
     <div class="panel">
-      <div class="field"><label for="bk-offre">Offre</label>
+      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Changer</a></div>
+      <div class="field" hidden><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
           <option>JBL PartyBox 310</option><option>JBL PartyBox 710</option><option>JBL PartyBox Ultimate</option>
@@ -252,8 +266,11 @@
         </select></div>
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
       <div class="cal" id="cal" aria-live="polite"></div>
-      <div class="legend"><span><i style="border-color:#22D3EE"></i>Disponible</span><span><i style="border-color:#8B5CF6"></i>À confirmer</span><span><i style="border-color:#555;opacity:.4"></i>Complet</span></div>
+      <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
+      <div class="field heure"><label for="bk-heure">Heure de retrait et de retour *</label>
+        <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
+        <small>Tu récupères le matériel à cette heure-là, et tu le rends le lendemain à la même heure.</small></div>
     </div>
     <form class="panel" id="bk-form" novalidate>
       <div class="row2">
@@ -449,10 +466,23 @@
       const b = document.createElement('button'); b.type='button'; b.className='day'; b.textContent=j; b.dataset.k=k;
       if (d < auj) { b.classList.add('passe'); b.disabled = true; }
       if (choix === k) b.classList.add('sel');
-      b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; choix=k; maj(); dessiner(); });
+      b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; choix=k; maj(); dessiner(); majHeures(); });
       cal.appendChild(b); boutons.push(b);
     }
     const data = await dispoMois(cle);
+    // nouveau calcul par créneaux horaires (location de 24 h + battement) quand le script le permet
+    const compo = compoCourante(data);
+    if (data && data.locs && data.creneaux && compo) {
+      boutons.forEach(b=>{
+        if (b.disabled) return;
+        const s = statutJour(heuresDuJour(data, compo, b.dataset.k));
+        b.classList.add(s);
+        b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
+        if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); } }
+      });
+      majHeures();
+      return;
+    }
     const statuts = data && data.offres && data.offres[offreSel.value];
     const perso = !statuts && data && data.reste && offreSel.value.indexOf('Panier perso : ') === 0;
     // panier perso : on compare chaque appareil choisi aux unités encore libres ce jour-là
@@ -476,14 +506,68 @@
     });
   }
 
+  // ---- créneaux horaires : même règle que le script (location de 24 h + battement, stock par appareil) ----
+  const jourNum = iso => { const p = iso.split('-').map(Number); return Math.round(Date.UTC(p[0], p[1]-1, p[2]) / 86400000); };
+  const hTexte = m => pad(Math.floor(m/60)) + 'h' + pad(m%60);
+  function compoCourante(data){
+    const o = offreSel.value;
+    if (data && data.compos && data.compos[o]) return data.compos[o];
+    if (o.indexOf('Panier perso : ') === 0) { const c = {}; for (const a in panier) if (panier[a]) c[PACK_CLE[a]] = panier[a]; return Object.keys(c).length ? c : null; }
+    return null;
+  }
+  function statutCreneau(data, compo, iso, m){
+    const duree = data.duree || 1440, bat = data.battement || 0;
+    const s = jourNum(iso)*1440 + m, e = s + duree + bat;
+    const iv = data.locs.map(o => { const a = jourNum(o.j)*1440 + o.m; return { s:a, e:a+duree+bat, compo:o.compo }; }).filter(o => o.s < e && s < o.e);
+    let inconnu = false;
+    for (const a in compo){
+      const q = data.stock ? data.stock[a] : null;
+      if (q == null || isNaN(q)) { inconnu = true; continue; }
+      const miens = iv.filter(o => o.compo[a]);
+      const points = [s].concat(miens.map(o => o.s).filter(p => p > s && p < e));
+      const max = points.reduce((mx, p) => Math.max(mx, miens.reduce((t, o) => t + (o.s <= p && p < o.e ? o.compo[a] : 0), 0)), 0);
+      if (q - max < compo[a]) return 'complet';
+    }
+    return inconnu ? 'a_confirmer' : 'libre';
+  }
+  function heuresDuJour(data, compo, iso){
+    const maintenant = new Date(), auj = isoJ(maintenant), mNow = maintenant.getHours()*60 + maintenant.getMinutes() + 60;   // aujourd'hui : au moins 1 h à l'avance
+    return data.creneaux.map(m => [m, iso === auj && m < mNow ? 'complet' : statutCreneau(data, compo, iso, m)]);
+  }
+  const statutJour = h => h.some(x => x[1]==='libre') ? 'libre' : h.some(x => x[1]==='a_confirmer') ? 'a_confirmer' : 'complet';
+  // liste des heures pour la date choisie (les heures prises sont grisées)
+  async function majHeures(){
+    const sel = $('bk-heure'), avant = sel.value;
+    if (!choix) { sel.innerHTML = '<option value="">Choisis d\'abord une date</option>'; sel.disabled = true; maj(); return; }
+    const data = await dispoMois(choix.slice(0, 7)), compo = compoCourante(data);
+    if (!data || !data.creneaux || !compo) {   // ancien script ou pas de connexion : heures libres, on confirmera par téléphone
+      const l = []; for (let m = 480; m <= 1260; m += 30) l.push([m, 'a_confirmer']);
+      remplir(l); return;
+    }
+    remplir(heuresDuJour(data, compo, choix));
+    function remplir(h){
+      sel.innerHTML = '<option value="">Choisis une heure</option>' + h.map(([m, s]) => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(s==='complet'?' disabled':'')+'>'+hTexte(m)+(s==='complet'?' · pris':'')+'</option>').join('');
+      sel.disabled = false;
+      if (avant && [...sel.options].some(o => o.value === avant && !o.disabled)) sel.value = avant;
+      maj();
+    }
+  }
+
   function maj(){
+    const h = $('bk-heure') && $('bk-heure').value;
     $('bk-date-txt').textContent = choix
-      ? 'Date choisie : '+new Date(choix+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · '+offreSel.value
+      ? 'Date choisie : '+new Date(choix+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(h?' à '+h.replace(':','h'):'')
       : 'Clique sur une date du calendrier.';
+    // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
+    const o = offreSel.value, perso = o.indexOf('Panier perso') === 0;
+    const k = perso ? 'perso' : Object.keys(PACKS).find(c => PACKS[c].name === o);
+    $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
+    $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + ' / soirée' : '';
   }
 
   window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
   offreSel.addEventListener('change', ()=>{ maj(); dessiner(); });
+  $('bk-heure').addEventListener('change', maj);
   $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
   $('cal-next').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()+1, 1); dessiner(); });
   // reprend le type de fête et les invités choisis dans « Trouve ton pack »
@@ -498,12 +582,14 @@
     e.preventDefault();
     const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim();
     if (!choix) return message('Choisis d\'abord une date dans le calendrier.');
+    const heure = $('bk-heure').value;
+    if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de retrait (sous le calendrier).'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
     const data = { nom, tel, email:$('bk-email').value.trim(), lieu:$('bk-lieu').value.trim(), invites:$('bk-invites').value,
-                   fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:choix, offre:offreSel.value,
+                   fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:choix, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value };
-    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' pour le '+new Date(choix+'T12:00').toLocaleDateString('fr-FR')+'. '+nom);
+    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' pour le '+new Date(choix+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
     try {
