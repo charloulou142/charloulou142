@@ -221,6 +221,7 @@
   /* compactage n°2 (26/10) : titre sur 1 ligne, récap en simple ligne, aide affichée seulement si besoin,
      option « journée » visible après le choix d'une date, champs facultatifs repliés */
   section#reserver{padding:56px 0}
+  #reserver .bk-choix{display:none}   /* rangée de packs retirée (demande du 26/10) : on change via « Changer » */
   #reserver h2{font-size:clamp(28px,7.4vw,48px);margin-bottom:4px}
   #reserver .lead{margin-bottom:14px;font-size:15px}
   #reserver .booking{gap:12px}
@@ -349,7 +350,7 @@
       <div class="bk-choix" id="bk-choix" role="group" aria-label="Changer de pack ou d'appareil">
         <button type="button" data-pack="apero">Apéro</button><button type="button" data-pack="soiree">Soirée</button><button type="button" data-pack="club">Club</button><button type="button" data-pack="p310">310</button><button type="button" data-pack="p710">710</button><button type="button" data-pack="pult">Ultimate</button><button type="button" data-pack="fumee">Fumée</button><button type="button" data-pack="perso">Mon panier</button>
       </div>
-      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Détails</a></div>
+      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Changer</a></div>
       <div class="field" hidden><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
