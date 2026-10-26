@@ -19,13 +19,24 @@
     if(t) document.addEventListener('DOMContentLoaded',barre);
     document.addEventListener('click',function(e){
       if(!e.target.closest('.theme-btn')) return;
-      d.dataset.theme = sombre() ? 'light' : 'dark';
-      try{ localStorage.setItem('audioloc_theme', d.dataset.theme); }catch(e){}
-      barre();
+      var nouveau = sombre() ? 'light' : 'dark';
+      function appliquer(){ d.dataset.theme = nouveau; barre(); }
+      try{ localStorage.setItem('audioloc_theme', nouveau); }catch(e){}
+      var b = e.target.closest('.theme-btn').getBoundingClientRect(), x = b.left + b.width/2, y = b.top + b.height/2;
+      if (document.startViewTransition) {
+        var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        document.startViewTransition(appliquer).ready.then(function(){
+          d.animate({ clipPath: ['circle(0px at '+x+'px '+y+'px)', 'circle('+r+'px at '+x+'px '+y+'px)'] },
+                    { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' });
+        });
+      } else {
+        d.classList.add('theme-anim'); appliquer();
+        setTimeout(function(){ d.classList.remove('theme-anim'); }, 500);
+      }
     });
   })();
 </script>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://audioloc.fr/">
 <meta name="theme-color" content="#0B0714" media="(prefers-color-scheme: dark)">
