@@ -45,7 +45,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mistraloc.fr/">
 <meta property="og:title" content="Mistraloc · Location d'enceintes de soirée">
-<meta property="og:description" content="Location d'enceintes JBL PartyBox et de machine à fumée RGB à Salon-de-Provence. Réservation sur WhatsApp.">
+<meta property="og:description" content="Location d'enceintes JBL PartyBox et de machine à fumée RGB à Salon-de-Provence et alentours. Réservation sur WhatsApp.">
 <meta property="og:locale" content="fr_FR">
 <style>
   .finder{display:grid;grid-template-columns:1fr 1.1fr;gap:26px;align-items:stretch}
@@ -290,7 +290,7 @@
 <header class="hero">
   <div class="beams" aria-hidden="true"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="smoke"></div></div>
   <div class="wrap" style="position:relative">
-    <span class="eyebrow">Location sono &amp; lumière · <span style="white-space:nowrap">Salon-de-Provence</span></span>
+    <span class="eyebrow">Location sono &amp; lumière · <span style="white-space:nowrap">Salon-de-Provence</span> <span style="white-space:nowrap">et alentours</span></span>
     <h1>Ta fête,<br><em>en grand.</em></h1>
     <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn" href="#trouver">Trouver mon pack en 10 s</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
@@ -366,8 +366,8 @@
       <div class="row2 livr">
         <div class="field"><label for="bk-heure">Heure de livraison *</label>
           <select id="bk-heure" disabled><option value="">Date d'abord</option></select></div>
-        <div class="field"><label for="bk-lieu">Ville de livraison *</label>
-          <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne" autocomplete="address-level2">
+        <div class="field"><label for="bk-lieu">Ville ou code postal *</label>
+          <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="Pélissanne, 13330…" autocomplete="address-level2">
           <datalist id="bk-villes"></datalist></div>
       </div>
       <small class="livr-txt" id="bk-livr-txt">Livraison 17h00–19h30, reprise le lendemain avant 12h00 · Salon 5 €, ailleurs 5 € + 1,20 €/km (25 km max).</small>
@@ -690,15 +690,32 @@
 
   // ---- livraison : distance par la route depuis Salon-de-Provence (km, aller simple) ----
   const VILLES = {"Aix-en-Provence":35,"Alleins":13,"Althen-des-Paluds":54,"Ansouis":43,"Apt":56,"Aramon":60,"Arles":45,"Aureille":16,"Auribeau":55,"Aurons":8,"Avignon":46,"Barbentane":55,"Beaucaire":60,"Beaumettes":41,"Beaurecueil":48,"Berre-l'Étang":22,"Bonnieux":47,"Bouc-Bel-Air":46,"Buoux":46,"Cabannes":31,"Cabrières-d'Aigues":47,"Cabrières-d'Avignon":39,"Cabriès":46,"Cadenet":35,"Cadolive":60,"Carry-le-Rouet":48,"Castellet-en-Luberon":59,"Caumont-sur-Durance":41,"Cavaillon":29,"Charleval":22,"Cheval-Blanc":30,"Châteauneuf-de-Gadagne":45,"Châteauneuf-le-Rouge":47,"Châteauneuf-les-Martigues":45,"Châteaurenard":45,"Cornillon-Confoux":9,"Coudoux":28,"Cucuron":42,"Ensuès-la-Redonne":45,"Entraigues-sur-la-Sorgue":51,"Eygalières":33,"Eyguières":12,"Eyragues":40,"Fontaine-de-Vaucluse":40,"Fontvieille":43,"Fos-sur-Mer":37,"Fuveau":48,"Gardanne":47,"Gargas":54,"Gignac-la-Nerthe":39,"Gordes":43,"Goult":45,"Grans":6,"Graveson":53,"Gréasque":52,"Istres":23,"Jonquerettes":47,"Joucas":47,"L'Isle-sur-la-Sorgue":38,"La Barben":12,"La Fare-les-Oliviers":17,"La Motte-d'Aigues":51,"La Roque-d'Anthéron":28,"La Roque-sur-Pernes":47,"Lacoste":49,"Lagnes":37,"Lamanon":9,"Lambesc":18,"Lançon-Provence":13,"Lauris":30,"Le Beaucet":49,"Le Pontet":50,"Le Puy-Sainte-Réparade":34,"Le Rove":48,"Le Tholonet":42,"Le Thor":40,"Les Angles":60,"Les Baux-de-Provence":42,"Les Pennes-Mirabeau":41,"Lourmarin":37,"Maillane":54,"Malemort-du-Comtat":59,"Mallemort":16,"Marignane":36,"Marseille":51,"Martigues":44,"Mas-Blanc-des-Alpilles":46,"Maubec":34,"Maussane-les-Alpilles":38,"Meyrargues":52,"Meyreuil":46,"Mimet":56,"Miramas":12,"Mollégès":31,"Monteux":57,"Morières-lès-Avignon":42,"Mouriès":27,"Murs":52,"Ménerbes":43,"Mérindol":19,"Noves":41,"Oppède":38,"Orgon":29,"Paradou":37,"Pernes-les-Fontaines":49,"Pertuis":59,"Peypin-d'Aigues":57,"Peyrolles-en-Provence":57,"Plan-d'Orgon":26,"Plan-de-Cuques":59,"Port-Saint-Louis-du-Rhône":46,"Port-de-Bouc":35,"Puget":26,"Puyvert":31,"Pélissanne":8,"Robion":31,"Rognac":25,"Rognes":25,"Rognonas":49,"Roussillon":50,"Saignon":56,"Saint-Andiol":30,"Saint-Antonin-sur-Bayon":53,"Saint-Cannat":19,"Saint-Chamas":13,"Saint-Didier":50,"Saint-Estève-Janson":35,"Saint-Marc-Jaumegarde":45,"Saint-Martin-de-Crau":21,"Saint-Martin-de-la-Brasque":52,"Saint-Mitre-les-Remparts":30,"Saint-Pantaléon":42,"Saint-Rémy-de-Provence":39,"Saint-Saturnin-lès-Avignon":53,"Saint-Savournin":60,"Saint-Victoret":35,"Saint-Étienne-du-Grès":49,"Salon-de-Provence":0,"Sannes":47,"Saumane-de-Vaucluse":41,"Sausset-les-Pins":54,"Septèmes-les-Vallons":49,"Simiane-Collongue":51,"Sivergues":54,"Sénas":15,"Taillades":31,"Vaugines":39,"Vauvenargues":54,"Vedène":49,"Velaux":24,"Velleron":43,"Venasque":57,"Venelles":45,"Ventabren":30,"Vernègues":16,"Verquières":33,"Villelaure":39,"Villeneuve-lès-Avignon":59,"Vitrolles":35,"Éguilles":29};
+  // codes postaux → commune(s) (source geo.api.gouv.fr, marque/codes_postaux.py) ; « | » = code partagé par plusieurs communes
+  const CP = {"13001":"Marseille","13002":"Marseille","13003":"Marseille","13004":"Marseille","13005":"Marseille","13006":"Marseille","13007":"Marseille","13008":"Marseille","13009":"Marseille","13010":"Marseille","13011":"Marseille","13012":"Marseille","13013":"Marseille","13014":"Marseille","13015":"Marseille","13016":"Marseille","13080":"Aix-en-Provence","13090":"Aix-en-Provence","13100":"Aix-en-Provence|Beaurecueil|Le Tholonet|Saint-Antonin-sur-Bayon|Saint-Marc-Jaumegarde","13103":"Mas-Blanc-des-Alpilles|Saint-Étienne-du-Grès","13104":"Arles","13105":"Mimet","13109":"Simiane-Collongue","13110":"Port-de-Bouc","13111":"Coudoux","13113":"Lamanon","13116":"Vernègues","13117":"Martigues","13118":"Istres","13119":"Saint-Savournin","13120":"Gardanne","13121":"Aurons","13122":"Ventabren","13123":"Arles","13126":"Vauvenargues","13127":"Vitrolles","13129":"Arles","13130":"Berre-l'Étang","13140":"Miramas","13160":"Châteaurenard","13170":"Les Pennes-Mirabeau","13180":"Gignac-la-Nerthe","13200":"Arles","13210":"Saint-Rémy-de-Provence","13220":"Châteauneuf-les-Martigues","13230":"Port-Saint-Louis-du-Rhône","13240":"Septèmes-les-Vallons","13250":"Cornillon-Confoux|Saint-Chamas","13270":"Fos-sur-Mer","13280":"Arles","13290":"Aix-en-Provence","13300":"Salon-de-Provence","13310":"Saint-Martin-de-Crau","13320":"Bouc-Bel-Air","13330":"La Barben|Pélissanne","13340":"Rognac","13350":"Charleval","13370":"Mallemort","13380":"Plan-de-Cuques","13410":"Lambesc","13430":"Eyguières","13440":"Cabannes","13450":"Grans","13480":"Cabriès","13500":"Martigues","13510":"Éguilles","13520":"Les Baux-de-Provence|Maussane-les-Alpilles|Paradou","13540":"Aix-en-Provence","13550":"Noves","13560":"Sénas","13570":"Barbentane","13580":"La Fare-les-Oliviers","13590":"Meyreuil","13610":"Le Puy-Sainte-Réparade|Saint-Estève-Janson","13620":"Carry-le-Rouet","13630":"Eyragues","13640":"La Roque-d'Anthéron","13650":"Meyrargues","13660":"Orgon","13670":"Saint-Andiol|Verquières","13680":"Lançon-Provence","13690":"Graveson","13700":"Marignane","13710":"Fuveau","13730":"Saint-Victoret","13740":"Le Rove","13750":"Plan-d'Orgon","13760":"Saint-Cannat","13770":"Venelles","13790":"Châteauneuf-le-Rouge","13800":"Istres","13810":"Eygalières","13820":"Ensuès-la-Redonne","13840":"Rognes","13850":"Gréasque","13860":"Peyrolles-en-Provence","13870":"Rognonas","13880":"Velaux","13890":"Mouriès","13910":"Maillane","13920":"Saint-Mitre-les-Remparts","13930":"Aureille","13940":"Mollégès","13950":"Cadolive","13960":"Sausset-les-Pins","13980":"Alleins","13990":"Fontvieille","30133":"Les Angles","30300":"Beaucaire","30390":"Aramon","30400":"Villeneuve-lès-Avignon","84000":"Avignon","84120":"Pertuis","84130":"Le Pontet","84140":"Avignon","84160":"Cadenet|Cucuron|Lourmarin|Puyvert|Vaugines","84170":"Monteux","84210":"Althen-des-Paluds|La Roque-sur-Pernes|Le Beaucet|Pernes-les-Fontaines|Saint-Didier|Venasque","84220":"Beaumettes|Cabrières-d'Avignon|Gordes|Goult|Joucas|Murs|Roussillon|Saint-Pantaléon","84240":"Ansouis|Cabrières-d'Aigues|La Motte-d'Aigues|Peypin-d'Aigues|Sannes","84250":"Le Thor","84270":"Vedène","84300":"Cavaillon|Taillades","84310":"Morières-lès-Avignon","84320":"Entraigues-sur-la-Sorgue","84360":"Lauris|Mérindol|Puget","84400":"Apt|Auribeau|Castellet-en-Luberon|Gargas|Saignon|Sivergues","84440":"Robion","84450":"Jonquerettes|Saint-Saturnin-lès-Avignon","84460":"Cheval-Blanc","84470":"Châteauneuf-de-Gadagne","84480":"Bonnieux|Buoux|Lacoste","84510":"Caumont-sur-Durance","84530":"Villelaure","84560":"Ménerbes","84570":"Malemort-du-Comtat","84580":"Oppède","84660":"Maubec","84740":"Velleron","84760":"Saint-Martin-de-la-Brasque","84800":"Fontaine-de-Vaucluse|L'Isle-sur-la-Sorgue|Lagnes|Saumane-de-Vaucluse"};
+  const CODES = {}; Object.keys(CP).forEach(c => CP[c].split('|').forEach(v => { (CODES[v] = CODES[v] || []).push(c); }));
   // « pelissanne », « Pélissanne », « PELISSANNE » → même ville ; « St Chamas » → Saint-Chamas
   const norme = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\bste\b/g, 'sainte').replace(/\bst\b/g, 'saint').replace(/[^a-z]/g, '');
   const ALIAS = { salon: 'Salon-de-Provence', aix: 'Aix-en-Provence', lancon: 'Lançon-Provence', berre: 'Berre-l\'Étang', isle: 'L\'Isle-sur-la-Sorgue' };
   const INDEX = {}; Object.keys(VILLES).forEach(v => { INDEX[norme(v)] = v; });
-  $('bk-villes').innerHTML = Object.keys(VILLES).filter(v => VILLES[v] <= LIVR.maxKm).map(v => '<option value="' + v.replace(/"/g, '&quot;') + '">').join('');
-  const villeDe = txt => INDEX[norme(txt)] || ALIAS[norme(txt)] || null;
+  // suggestions « Pélissanne (13330) » : taper le nom OU le code postal les fait apparaître
+  $('bk-villes').innerHTML = Object.keys(VILLES).filter(v => VILLES[v] <= LIVR.maxKm).map(v => '<option value="' + (v + (CODES[v] ? ' (' + CODES[v].join(', ') + ')' : '')).replace(/"/g, '&quot;') + '">').join('');
+  // nom de commune → nom ; code postal → nom (ou liste si le code est partagé) ; sinon null
+  function chercheVille(txt){
+    const v = INDEX[norme(txt)] || ALIAS[norme(txt)];
+    if (v) return v;
+    const m = String(txt || '').match(/\b(\d{5})\b/);
+    if (m && CP[m[1]]) { const l = CP[m[1]].split('|'); return l.length === 1 ? l[0] : l; }
+    return null;
+  }
+  const villeDe = txt => { const r = chercheVille(txt); return typeof r === 'string' ? r : null; };
   function livraison(){
-    const txt = $('bk-lieu').value.trim(), v = villeDe(txt);
+    const txt = $('bk-lieu').value.trim(), r = chercheVille(txt), v = typeof r === 'string' ? r : null;
     if (!txt) return { etat: 'vide' };
+    if (Array.isArray(r)) {
+      const dedans = r.filter(n => VILLES[n] <= LIVR.maxKm);
+      if (!dedans.length) { const n = r.slice().sort((a, b) => VILLES[a] - VILLES[b])[0]; return { etat: 'loin', nom: n, km: VILLES[n] }; }
+      return { etat: 'choix', nom: txt, liste: dedans, cp: txt.match(/\d{5}/)[0] };
+    }
     if (!v) return { etat: 'devis', nom: txt };
     const km = VILLES[v];
     if (km > LIVR.maxKm) return { etat: 'loin', nom: v, km };   // on ne livre pas au-delà de 25 km
@@ -736,9 +753,10 @@
     const l = livraison(), t = $('bk-livr-txt');
     t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
                   : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
+                  : l.etat === 'choix' ? 'Le ' + l.cp + ' correspond à : ' + l.liste.join(', ') + '. Choisis ta commune dans la liste.'
                   : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
                   : 'Livraison 17h00–19h30, reprise le lendemain avant 12h00 · Salon 5 €, ailleurs 5 € + 1,20 €/km (25 km max).';
-    t.style.color = l.etat === 'loin' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' ? '700' : '';
+    t.style.color = l.etat === 'loin' || l.etat === 'choix' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' || l.etat === 'choix' ? '700' : '';
     const loc = prixLocation(p), box = $('bk-devis');
     box.hidden = !p || loc == null;
     if (!box.hidden) {
@@ -757,7 +775,7 @@
     const p = periode(), l = livraison();
     if (!p) return { txt: 'Choisir ma date', el: $('cal') };
     if (!$('bk-heure').value) return { txt: 'Continuer', el: $('bk-heure') };
-    if (l.etat === 'vide' || l.etat === 'loin') return { txt: 'Continuer', el: $('bk-lieu') };
+    if (l.etat === 'vide' || l.etat === 'loin' || l.etat === 'choix') return { txt: 'Continuer', el: $('bk-lieu') };
     const vide = ['bk-nom', 'bk-tel'].map($).find(i => !i.value.trim());
     if (vide) return { txt: 'Continuer', el: vide };
     if (!$('bk-ok').checked) return { txt: 'Continuer', el: $('bk-ok') };
@@ -769,7 +787,7 @@
     const nom = $('bk-recap-nom').textContent;
     $('bt-quoi').textContent = nom + (p ? ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') : '');
     $('bt-prix').textContent = p && loc != null
-      ? (l.etat === 'ok' ? 'Total ' + enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'vide' || l.etat === 'devis' ? ' + livraison' : ''))
+      ? (l.etat === 'ok' ? 'Total ' + enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'vide' || l.etat === 'devis' || l.etat === 'choix' ? ' + livraison' : ''))
       : k && PACKS[k] && prixNum(k) > 0 ? 'dès ' + (PACKS[k].sem && semNum(k) < prixNum(k) ? PACKS[k].sem : PACKS[k].price) + ' / soirée' : 'Compose ton panier';
     $('bt-btn').textContent = etapeSuivante().txt;
     visibiliteBarre();
@@ -825,7 +843,8 @@
     if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
     if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de livraison (sous le calendrier).'); }
-    if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique la ville de livraison (sous le calendrier).'); }
+    if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique la ville ou le code postal de livraison (sous le calendrier).'); }
+    if (l.etat === 'choix') { $('bk-lieu').focus(); return message('Le ' + l.cp + ' correspond à plusieurs communes (' + l.liste.join(', ') + ') : écris ou choisis la tienne.'); }
     if (l.etat === 'loin') { $('bk-lieu').focus(); return message('On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
