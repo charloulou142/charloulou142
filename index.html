@@ -116,6 +116,11 @@
   .item .in{padding:20px}
   .item h3{font-size:20px}
   .item p{color:var(--muted);font-size:15px;margin:4px 0 10px}
+  .item{display:flex;flex-direction:column}.item .in{flex:1;display:flex;flex-direction:column}
+  .item-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:16px}
+  .item-actions .btn{padding:10px 16px;font-size:15px;flex:1 1 auto}
+  @keyframes surbrille{0%,100%{box-shadow:0 0 0 0 rgba(255,122,26,0)}30%{box-shadow:0 0 0 4px rgba(255,122,26,.75)}}
+  .surbrille{animation:surbrille 1.4s ease 2;border-radius:12px}
   @media (max-width:860px){.finder{grid-template-columns:1fr}}
   @media (max-width:420px){.choices{grid-template-columns:1fr}}
 
@@ -552,6 +557,35 @@
     });
     if (!document.getElementById('rPanier').hidden) majPanier(false);
   }).catch(() => {});
+
+  // Catalogue « Le matériel » : boutons « Réserver » (va au calendrier avec l'appareil choisi) et « + Ajouter au panier »
+  (() => {
+    const CLE = { 'JBL PartyBox 310': 'p310', 'JBL PartyBox 710': 'p710', 'JBL PartyBox Ultimate': 'pult', 'Machine à fumée 2000 W RGB': 'fumee' };
+    const zone = document.getElementById('materiel'); if (!zone) return;
+    zone.querySelectorAll('.item[data-article]').forEach(it => {
+      const k = CLE[it.dataset.article]; if (!k) return;
+      it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions">' +
+        '<a class="btn" href="#reserver" data-reserver="' + k + '">Réserver ' + (k === 'fumee' ? 'cette machine' : 'cette enceinte') + '</a>' +
+        '<button type="button" class="btn ghost" data-panier="' + k + '">+ Ajouter au panier</button></div>');
+    });
+    const briller = el => { if (!el) return; el.classList.remove('surbrille'); void el.offsetWidth; el.classList.add('surbrille'); };
+    zone.addEventListener('click', e => {
+      const r = e.target.closest('[data-reserver]'), p = e.target.closest('[data-panier]');
+      if (r) {
+        e.preventDefault();
+        show(r.dataset.reserver, false);                       // choisit l'appareil (et l'offre du calendrier)
+        $('reserver').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => briller($('bk-offre')), 500);
+      }
+      if (p) {
+        const k = p.dataset.panier;
+        panier[k] = Math.min(STOCK[k], panier[k] + 1);
+        if (current === 'perso') majPanier(); else show('perso', false);
+        $('trouver').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => briller($('rPanier')), 500);
+      }
+    });
+  })();
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
   (() => {
