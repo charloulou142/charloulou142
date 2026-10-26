@@ -302,7 +302,8 @@
       const options = etat.statuts.map(s => '<option' + (s === r.statut ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
       return '<article class="resa" data-ligne="' + r.ligne + '">' +
         '<span class="badge ' + esc(r.statut.split(' ')[0]) + '">' + esc(r.statut || 'Sans statut') + '</span>' +
-        '<h3>' + esc(dateFr(r.date)) + ' · ' + esc(r.offre) + '</h3>' +
+        '<h3>' + esc(dateFr(r.date)) + (r.heure ? ' à ' + esc(r.heure) : '') + ' · ' + esc(r.offre) + '</h3>' +
+        (r.heure ? '<div class="meta">Retrait ' + esc(r.heure) + ' · retour le lendemain à ' + esc(r.heure) + '</div>' : '') +
         '<div class="meta">' + esc(r.client) + (tel ? ' · <a href="tel:' + esc(tel) + '">' + esc(r.tel) + '</a> · <a href="https://wa.me/' + esc(wa) + '?text=' + encodeURIComponent(texteWa) + '" target="_blank" rel="noopener">WhatsApp + lien de suivi</a>' : '') +
         (r.email ? '<br>📧 ' + esc(r.email) + (r.dernierMail ? ' · dernier e-mail : ' + esc(r.dernierMail) : '') : '<br><small>Pas d\'e-mail : envoie le suivi par WhatsApp.</small>') +
         (r.suivi ? ' · <a href="' + esc(r.suivi) + '" target="_blank" rel="noopener">voir son suivi</a>' : '') +
