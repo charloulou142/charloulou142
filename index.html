@@ -77,6 +77,15 @@
   .result.swap .tag,.result.swap h3,.result.swap .why,.result.swap .checks li,.result.swap .price{animation:glisse .5s cubic-bezier(.2,.8,.2,1) both}
   .result.swap h3{animation-delay:.04s}.result.swap .why{animation-delay:.08s}.result.swap .price{animation-delay:.2s}
   .result.swap .checks li:nth-child(1){animation-delay:.1s}.result.swap .checks li:nth-child(2){animation-delay:.14s}.result.swap .checks li:nth-child(3){animation-delay:.18s}
+  .rImg{height:180px;display:flex;justify-content:center;align-items:flex-end;margin:2px 0 16px;background:radial-gradient(45% 55% at 50% 100%,rgba(139,92,246,.35),transparent 70%)}
+  .rImg img{height:100%;width:auto;max-width:46%;object-fit:contain;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45));animation:flotte 4s ease-in-out infinite}
+  .rImg img.fm{height:62%;max-width:50%}
+  .rImg img + img{margin-left:-14px}
+  .rImg img:nth-child(2){animation-delay:-1.3s}.rImg img:nth-child(3){animation-delay:-2.6s}
+  .result.swap .rImg img{animation:pop .6s cubic-bezier(.34,1.4,.5,1) both,flotte 4s ease-in-out .6s infinite}
+  .result.swap .rImg img:nth-child(2){animation-delay:.08s,.68s}.result.swap .rImg img:nth-child(3){animation-delay:.16s,.76s}
+  @keyframes pop{from{opacity:0;transform:translateX(var(--dx,28px)) scale(.8)}to{opacity:1;transform:none}}
+  @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   @keyframes glisse{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){.switch .pill{transition:transform .3s ease,width .3s ease,height .3s ease,opacity .2s!important}.result{--dx:12px}}
   .cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
@@ -189,6 +198,7 @@
       <div class="switch" role="group" aria-label="Louer un appareil seul">
         <button data-pack="p310" aria-pressed="false">PartyBox 310</button><button data-pack="p710" aria-pressed="false">PartyBox 710</button><button data-pack="pult" aria-pressed="false">Ultimate</button><button data-pack="fumee" aria-pressed="false">Fumée</button>
       </div>
+      <div class="rImg" id="rImg" aria-hidden="true"></div>
       <span class="tag" id="rTag">Recommandé pour toi</span>
       <h3 id="rName">Pack Soirée</h3>
       <p class="why" id="rWhy"></p>
@@ -292,6 +302,7 @@
     fumee:{name:'Machine à fumée 2000 W RGB',price:'20 €',items:['Deux jets de fumée éclairés en couleurs','Télécommande incluse'],why:'À ajouter à ta propre sono pour l\'effet boîte de nuit.'}
   };
   let kind='anniv', manual=null, current=null;
+  const IMAGES={apero:['partybox-310'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-310'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee']};
   const ORDRE=['apero','soiree','club','p310','p710','pult','fumee'];
   const result=document.querySelector('.result');
   document.querySelectorAll('.switch').forEach(sw=>sw.insertAdjacentHTML('afterbegin','<span class="pill" aria-hidden="true"></span>'));
@@ -314,6 +325,7 @@
       current=key;
     }
     document.getElementById('rName').textContent=p.name;
+    document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
