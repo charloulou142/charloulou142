@@ -61,6 +61,21 @@
   .annul button:disabled{opacity:.5;cursor:default}
   .annul p{color:var(--muted);font-size:13px;margin-top:8px}
   .erreur{color:#F87171;font-weight:600}
+  /* écran d'attente (même animation que la réservation) : vague du logo + point cyan */
+  .attente{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fondu .25s both}
+  .attente[hidden]{display:none}
+  .attente-box{text-align:center;display:grid;gap:8px;justify-items:center;max-width:320px}
+  .attente b{font-size:20px}
+  .attente small{color:var(--muted);font-size:14px}
+  .onde{width:110px;height:88px;overflow:visible}
+  .onde path{fill:none;stroke:var(--pink);stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:vague 1.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,122,26,.6))}
+  .onde circle{fill:var(--cyan);transform-origin:92px 30px;animation:point 1.4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(34,211,238,.7))}
+  .charge-ici{display:grid;justify-items:center;gap:6px;padding:26px 10px;color:var(--muted);font-weight:600;text-align:center}
+  .charge-ici .onde{width:72px;height:58px}
+  @keyframes fondu{from{opacity:0}}
+  @keyframes vague{0%{stroke-dashoffset:110}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-110}}
+  @keyframes point{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+  @media (prefers-reduced-motion:reduce){ .onde path{animation:none;stroke-dashoffset:0} .onde circle{animation:none} }
 </style>
 </head>
 <body>
@@ -70,11 +85,15 @@
 </div></nav>
 <main>
   <h1>Suivre ma réservation</h1>
-  <div class="carte" id="carte" aria-live="polite"><p class="chargement">Chargement…</p></div>
+  <div class="carte" id="carte" aria-live="polite"><div class="charge-ici"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement de ta réservation…</span></div></div>
   <p class="aide">Une question ou un changement ? Écris-nous sur <a href="https://wa.me/33622123963" target="_blank" rel="noopener">WhatsApp au 06 22 12 39 63</a> ou à <a href="mailto:contact@mistraloc.fr">contact@mistraloc.fr</a>.</p>
   <p style="margin-top:30px"><a href="./" style="color:var(--cyan)">← Retour au site</a></p>
 </main>
 <footer class="end"><div class="wrap"><span>© Mistraloc</span><span><a href="comment-ca-marche.html" style="color:inherit">Comment ça marche</a> · <a href="conditions.html" style="color:inherit">Conditions de location</a> · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
+<div class="attente" id="attente" role="alertdialog" aria-modal="true" aria-labelledby="attente-txt" tabindex="-1" hidden>
+  <div class="attente-box"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg>
+    <b id="attente-txt">Un instant…</b><small>Ne ferme pas la page, ça ne prend que quelques secondes.</small></div>
+</div>
 <script>
   // Lit le statut de la réservation à partir du lien personnel reçu par e-mail ou WhatsApp (?t=…). Aucune donnée personnelle affichée.
   (async () => {
@@ -83,9 +102,25 @@
     const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const t = new URLSearchParams(location.search).get('t') || '';
     if (!/^[a-f0-9]{24}$/.test(t)) { carte.innerHTML = '<p>Ce lien de suivi est incomplet. Ouvre le lien reçu par e-mail ou WhatsApp, ou contacte-nous.</p>'; return; }
+    // écran d'attente plein écran (page bloquée) si le script Google met plus d'un instant à répondre
+    let nAtt = 0, tAtt = null;
+    function bloquer(on) {
+      const a = document.getElementById('attente'); if (a.hidden === !on) return;
+      a.hidden = !on;
+      document.querySelectorAll('body > *:not(#attente)').forEach(e => { e.inert = on; });
+      document.body.style.overflow = on ? 'hidden' : '';
+      if (on) a.focus();
+    }
+    async function patienter(txt, f) {
+      document.getElementById('attente-txt').textContent = txt;
+      if (nAtt++ === 0) tAtt = setTimeout(() => bloquer(true), 350);
+      try { return await f(); } finally { if (--nAtt === 0) { clearTimeout(tAtt); bloquer(false); } }
+    }
     async function afficher(info) {
       try {
-        const j = await (await fetch(API + '?action=suivi&t=' + t + '&nc=' + Date.now())).json();
+        // 1er affichage : la vague est déjà dans la carte ; après une annulation : écran d'attente
+        const lire = async () => (await fetch(API + '?action=suivi&t=' + t + '&nc=' + Date.now())).json();
+        const j = info ? await patienter('Mise à jour…', lire) : await lire();
         if (!j.ok) throw new Error(j.erreur || 'introuvable');
         const etapes = ['Demande reçue', 'Confirmée', 'Livrée', 'Terminée'];
         carte.innerHTML = (info ? '<p style="margin-bottom:14px;font-weight:600">' + esc(info) + '</p>' : '') +
@@ -104,7 +139,7 @@
           if (!confirm('Annuler ta réservation du ' + j.date + ' ?\nLe matériel ne sera plus réservé pour toi.')) return;
           b.disabled = true; b.textContent = 'Annulation en cours…';
           try {
-            const r = await (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'annuler_client', t }) })).json();
+            const r = await patienter('Annulation de ta réservation…', async () => (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'annuler_client', t }) })).json());
             if (!r.ok) throw new Error(r.erreur || 'erreur');
             afficher('Ta réservation est annulée. On t\'envoie une confirmation par e-mail si tu nous as laissé ton adresse.');
           } catch (err) {
