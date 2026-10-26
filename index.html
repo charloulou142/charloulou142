@@ -252,6 +252,39 @@
   .wiz-nav [hidden]{display:none}
   .wiz-carte.secoue{animation:secoue .4s}
   /* ce qu'il reste à remplir : encadré orange qui « respire » (zoom avant / arrière) */
+  /* bouton « Mon compte » (rond, comme le bouton de thème ; visible aussi sur téléphone) */
+  .navlinks a.compte-btn{display:grid!important;place-items:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--line);color:var(--text);position:relative;transition:background .2s}
+  .navlinks a.compte-btn:hover{background:var(--card)}
+  .compte-btn svg{width:20px;height:20px}
+  .compte-btn.connecte::after{content:"";position:absolute;right:1px;top:1px;width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--bg)}
+  /* offre du moment */
+  .offre-bandeau{background:linear-gradient(90deg,rgba(255,122,26,.22),rgba(139,92,246,.22));border-top:1px solid var(--line);font-size:14px;font-weight:600;animation:fondu .4s both}
+  .offre-bandeau[hidden]{display:none}
+  .offre-bandeau .wrap{display:flex;align-items:center;gap:10px;min-height:40px;padding-top:6px;padding-bottom:6px}
+  .offre-bandeau .wrap>span{flex:1;line-height:1.35}
+  .offre-go{border:0;background:var(--pink);color:#1A0B00;font:inherit;font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+  .offre-x{border:0;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:0 4px}
+  /* code promo + compte (étape 4) */
+  .promo{margin:4px 0 12px}
+  .promo label{font-weight:700;font-size:14px;color:var(--muted)}
+  .promo-ligne{display:flex;gap:8px;margin-top:4px}
+  .promo-ligne input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);font:inherit;text-transform:uppercase;letter-spacing:1px}
+  .promo-ligne input:focus{border-color:var(--cyan);outline:none}
+  .promo-ligne .retour{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+  .devis .l.promo span,.devis .l.promo b{color:#34D399}
+  .consent[hidden]{display:none}
+  .lien-compte{color:var(--cyan);font-weight:600;white-space:nowrap}
+  /* rappel de panier */
+  .reprise{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;max-width:760px;margin:0 auto 14px;padding:12px 16px;border-radius:16px;border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.08);animation:glisse .5s both}
+  .reprise[hidden]{display:none}
+  .reprise>span:first-child{flex:1 1 220px}
+  .reprise-btns{display:flex;gap:8px}
+  .reprise .btn{padding:9px 18px}
+  .reprise .retour{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
+  .verif{display:block;min-height:0;font-size:12.5px;font-weight:600;margin-top:2px}
+  .verif.ok{color:#34D399}
+  .verif.ko{color:var(--pink)}
+  .verif .corrige{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--cyan);text-decoration:underline;cursor:pointer}
   .a-remplir{position:relative;border-radius:14px;outline:2px solid var(--pink);outline-offset:5px;animation:respire 1s ease-in-out 4}
   .consent.a-remplir{padding:6px 4px}
   @keyframes respire{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,122,26,0)}50%{transform:scale(1.035);box-shadow:0 0 26px 4px rgba(255,122,26,.45)}}
@@ -349,8 +382,11 @@
 <body>
 <nav class="top"><div class="wrap">
   <a class="logo" href="./" aria-label="mistraloc · accueil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="26 54 638 102" style="height:30px;width:auto;display:block" role="img" aria-label="mistraloc"><g transform="translate(25.00 12.20) scale(2.0000)"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44" fill="none" stroke="#FF7A1A" stroke-width="10" stroke-linecap="round"/><circle cx="92" cy="30" r="6.5" fill="#22D3EE"/></g><g fill="currentColor"><path transform="translate(263.00 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM380 0V286Q380 334 350.0 360.5Q320 387 276 387Q246 387 222.5 375.0Q199 363 185.0 340.5Q171 318 171 286L128 310Q128 365 152.0 405.0Q176 445 217.0 467.5Q258 490 309 490Q360 490 401.0 468.0Q442 446 466.0 406.0Q490 366 490 310V0ZM699 0V286Q699 334 669.0 360.5Q639 387 595 387Q566 387 542.0 375.0Q518 363 504.0 340.5Q490 318 490 286L428 310Q433 365 460.0 405.0Q487 445 529.5 467.5Q572 490 623 490Q675 490 717.0 468.0Q759 446 784.0 406.0Q809 366 809 310V0Z"/><path transform="translate(346.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0Z"/><path transform="translate(366.30 140.50) scale(0.10000 -0.10000)" d="M218 -10Q178 -10 141.0 0.5Q104 11 73.0 30.5Q42 50 19 78L89 148Q114 119 146.5 104.5Q179 90 220 90Q257 90 276.0 101.0Q295 112 295 133Q295 155 277.0 167.0Q259 179 230.5 187.5Q202 196 170.5 205.0Q139 214 110.5 229.5Q82 245 64.0 272.0Q46 299 46 342Q46 388 67.5 421.0Q89 454 128.5 472.0Q168 490 223 490Q281 490 325.5 469.5Q370 449 400 408L330 338Q309 364 282.0 377.0Q255 390 220 390Q187 390 169.0 380.0Q151 370 151 351Q151 331 169.0 320.0Q187 309 215.5 301.0Q244 293 275.5 283.5Q307 274 335.5 257.5Q364 241 382.0 213.5Q400 186 400 142Q400 72 351.0 31.0Q302 -10 218 -10Z"/><path transform="translate(406.30 140.50) scale(0.10000 -0.10000)" d="M134 0V680H244V0ZM19 380V480H359V380Z"/><path transform="translate(441.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM171 267 133 286Q133 377 173.5 433.5Q214 490 296 490Q332 490 361.0 477.0Q390 464 415 435L343 361Q330 375 314.0 381.0Q298 387 277 387Q231 387 201.0 358.0Q171 329 171 267Z"/><path transform="translate(480.60 140.50) scale(0.10000 -0.10000)" d="M262 -10Q197 -10 144.5 23.0Q92 56 61.5 112.5Q31 169 31 239Q31 310 61.5 366.5Q92 423 144.5 456.5Q197 490 262 490Q317 490 359.5 466.5Q402 443 427.0 402.0Q452 361 452 309V171Q452 119 427.5 78.0Q403 37 360.0 13.5Q317 -10 262 -10ZM280 94Q341 94 378.5 135.0Q416 176 416 240Q416 283 399.0 316.0Q382 349 351.5 367.5Q321 386 280 386Q240 386 209.5 367.5Q179 349 161.5 316.0Q144 283 144 240Q144 197 161.5 164.0Q179 131 209.5 112.5Q240 94 280 94ZM409 0V129L428 246L409 362V480H519V0Z"/><path transform="translate(535.60 140.50) scale(0.10000 -0.10000)" d="M61 0V720H171V0Z"/><path transform="translate(555.80 140.50) scale(0.10000 -0.10000)" d="M281 -10Q211 -10 154.0 23.5Q97 57 63.5 114.0Q30 171 30 241Q30 311 63.5 367.0Q97 423 154.0 456.5Q211 490 281 490Q352 490 409.0 457.0Q466 424 499.5 367.5Q533 311 533 241Q533 171 499.5 114.0Q466 57 409.0 23.5Q352 -10 281 -10ZM281 96Q322 96 353.5 114.5Q385 133 402.5 166.0Q420 199 420 241Q420 283 402.0 315.0Q384 347 353.0 365.5Q322 384 281 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 241Q143 199 160.5 166.0Q178 133 209.5 114.5Q241 96 281 96Z"/><path transform="translate(609.10 140.50) scale(0.10000 -0.10000)" d="M282 -10Q211 -10 153.5 23.0Q96 56 63.0 113.0Q30 170 30 240Q30 311 63.0 367.5Q96 424 153.5 457.0Q211 490 282 490Q338 490 386.5 468.5Q435 447 469 407L397 334Q376 359 346.5 371.5Q317 384 282 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 240Q143 198 160.5 165.5Q178 133 209.5 114.5Q241 96 282 96Q317 96 346.5 108.5Q376 121 397 146L469 73Q435 33 386.5 11.5Q338 -10 282 -10Z"/></g><circle cx="357.80" cy="77.10" r="6.50" fill="#22D3EE"/></svg></a>
-  <div class="navlinks"><a href="#trouver">Trouver mon pack</a><a href="#materiel">Matériel</a><a href="#faq">FAQ</a><button class="theme-btn" type="button" aria-label="Changer de thème (clair / sombre)" title="Clair / sombre"><svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="btn" href="#reserver">Réserver</a></div>
-</div></nav>
+  <div class="navlinks"><a href="#trouver">Trouver mon pack</a><a href="#materiel">Matériel</a><a href="#faq">FAQ</a><a class="compte-btn" id="compte-btn" href="compte.html" aria-label="Mon compte" title="Mon compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg></a><button class="theme-btn" type="button" aria-label="Changer de thème (clair / sombre)" title="Clair / sombre"><svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="btn" href="#reserver">Réserver</a></div>
+</div>
+<!-- offre du moment (réglée dans l'espace admin, onglet « Offres ») -->
+<div class="offre-bandeau" id="offre-bandeau" hidden><div class="wrap"><span>🎁 <span id="offre-txt"></span></span><button type="button" class="offre-go" id="offre-go">J'en profite →</button><button type="button" class="offre-x" id="offre-x" aria-label="Fermer l'offre">×</button></div></div>
+</nav>
 
 <header class="hero">
   <div class="beams" aria-hidden="true"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="smoke"></div></div>
@@ -417,6 +453,10 @@
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
   <p class="lead">Une ou plusieurs soirées, livrées chez toi : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
+  <div class="reprise" id="bk-reprise" hidden>
+    <span>🛒 Tu avais commencé une réservation : <b id="bk-reprise-txt"></b></span>
+    <span class="reprise-btns"><button type="button" class="btn" id="bk-reprise-ok">Reprendre</button><button type="button" class="retour" id="bk-reprise-non">Effacer</button></span>
+  </div>
   <div class="wiz" id="wiz">
     <ol class="wiz-etapes" id="wiz-etapes" aria-label="Étapes de la réservation">
       <li data-pas="1"><button type="button"><b>1</b>Matériel &amp; date</button></li>
@@ -459,12 +499,12 @@
      </div>
      <div class="wiz-pas" data-pas="3" hidden>
       <h3>Tes infos</h3>
-      <p class="sous">Pour qu'on puisse te rappeler et confirmer.</p>
+      <p class="sous" id="bk-infos-sous">Pour qu'on puisse te rappeler et confirmer. <a href="compte.html" class="lien-compte">Déjà client ? Connecte-toi</a></p>
       <div class="row2">
         <div class="field"><label for="bk-nom">Nom et prénom *</label><input id="bk-nom" autocomplete="name" required maxlength="80"></div>
-        <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
+        <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" inputmode="tel" autocomplete="tel" required maxlength="30" placeholder="06 12 34 56 78"><small class="verif" id="bk-tel-verif" aria-live="polite"></small></div>
       </div>
-      <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120"></div>
+      <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="prenom@exemple.fr"><small class="verif" id="bk-email-verif" aria-live="polite"></small></div>
       <div class="row2" hidden><!-- rempli tout seul depuis « Trouve ton pack » -->
         <div class="field"><label for="bk-fete">Type de fête</label>
           <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
@@ -477,6 +517,13 @@
       <h3>On vérifie ensemble</h3>
       <p class="sous">Relis ta demande : tu peux encore tout modifier.</p>
       <div class="resume" id="bk-resume"></div>
+      <div class="promo" id="bk-promo-zone">
+        <label for="bk-promo">Un code promo ?</label>
+        <div class="promo-ligne"><input id="bk-promo" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ex. BIENVENUE10"><button type="button" class="retour" id="bk-promo-ok">Appliquer</button></div>
+        <small class="verif" id="bk-promo-txt" aria-live="polite"></small>
+      </div>
+      <label class="consent" id="bk-compte-zone" hidden><input type="checkbox" id="bk-compte"> <span>Créer mon compte Mistraloc avec <b id="bk-compte-mail"></b> pour retrouver mes réservations (connexion avec un code reçu par e-mail, sans mot de passe).</span></label>
+      <label class="consent" id="bk-offres-zone" hidden><input type="checkbox" id="bk-offres"> <span>Recevoir les offres et codes promo par e-mail (modifiable à tout moment dans mon compte).</span></label>
       <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces informations pour traiter ma demande. <a href="confidentialite.html">Politique de confidentialité</a></span></label>
      </div>
      <div class="wiz-pas merci" data-pas="5" hidden>
@@ -876,11 +923,12 @@
                   : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
                   : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu\'à 25 km de Salon.';
     t.style.color = l.etat === 'loin' || l.etat === 'choix' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' || l.etat === 'choix' ? '700' : '';
-    const loc = prixLocation(p), box = $('bk-devis');
+    const loc0 = prixLocation(p), rem = remiseSur(loc0), loc = loc0 == null ? null : Math.round((loc0 - rem) * 100) / 100, box = $('bk-devis');
     box.hidden = !p || loc == null;
     if (!box.hidden) {
       const ligne = (a, b, cl) => '<div class="l' + (cl ? ' ' + cl : '') + '"><span>' + a + '</span><b>' + b + '</b></div>';
-      box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc)) +
+      box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc0)) +
+        (rem ? ligne('Code ' + esc(promoActif.code) + ' (' + esc(promoActif.libelle) + ')', '−' + enEuros(rem), 'promo') : '') +
         ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville') +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
@@ -891,6 +939,7 @@
       if (tb) box.dataset.total = tb.textContent;
     }
     majBarre();
+    if (typeof sauverResa === 'function') sauverResa();
   }
 
   // ---- sous-total accroché en bas de l'écran : ce que tu réserves, le prix, et le bouton de l'étape suivante ----
@@ -904,6 +953,47 @@
     if (pas === 4) return { txt: 'Envoyer ma demande', envoyer: true };
     return { txt: 'Continuer' };
   }
+  // ---- vérificateur téléphone / e-mail ----
+  // téléphone : 06 12 34 56 78 · +33 6 12 34 56 78 · 0033… ; numéro étranger accepté s'il commence par + (8 à 15 chiffres)
+  function telNorme(v){
+    const s = String(v || '').trim(), d = s.replace(/\D/g, '');
+    if (/^(\+33|0033)/.test(s.replace(/[\s.\-()]/g, ''))) { const r = d.replace(/^(0033|33)/, ''); return /^[1-9]\d{8}$/.test(r) ? '0' + r : null; }
+    if (s.startsWith('+')) return d.length >= 8 && d.length <= 15 ? '+' + d : null;
+    return /^0[1-9]\d{8}$/.test(d) ? d : null;
+  }
+  const telJoli = n => n.startsWith('+') ? n : n.replace(/(\d{2})(?=\d)/g, '$1 ');
+  // fautes de frappe courantes dans les adresses e-mail
+  const DOMAINES = { 'gmail.con': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com', 'gmail.fr': 'gmail.com', 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gnail.com': 'gmail.com', 'gmaill.com': 'gmail.com',
+    'hotmal.fr': 'hotmail.fr', 'hotmial.fr': 'hotmail.fr', 'hotmail.con': 'hotmail.com', 'hotmial.com': 'hotmail.com', 'outlok.fr': 'outlook.fr', 'outlook.con': 'outlook.com', 'yahoo.con': 'yahoo.com', 'yaho.fr': 'yahoo.fr',
+    'icloud.con': 'icloud.com', 'iclound.com': 'icloud.com', 'orange.con': 'orange.fr', 'wanadoo.con': 'wanadoo.fr', 'laposte.fr': 'laposte.net', 'free.con': 'free.fr', 'sfr.con': 'sfr.fr' };
+  const emailOk = v => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v);
+  function indice(id, txt, ok){ const s = $(id); s.textContent = txt || ''; s.className = 'verif' + (txt ? (ok ? ' ok' : ' ko') : ''); }
+  // fort = on montre l'erreur même si le client n'a pas fini de taper (au moment de « Continuer »)
+  function verifTel(fort){
+    const i = $('bk-tel'), v = i.value.trim(), n = telNorme(v);
+    if (!v) { indice('bk-tel-verif', fort ? 'Indique ton numéro pour qu\'on puisse te rappeler.' : ''); return false; }
+    if (n) { if (fort || document.activeElement !== i) i.value = telJoli(n); indice('bk-tel-verif', '✓ Numéro valide', true); return true; }
+    const nb = v.replace(/\D/g, '').length;
+    if (fort || document.activeElement !== i) indice('bk-tel-verif', nb < 10 && !v.startsWith('+') ? 'Il manque ' + (10 - nb) + ' chiffre' + (10 - nb > 1 ? 's' : '') + ' (10 chiffres, ex. 06 12 34 56 78).' : 'Numéro incorrect : 10 chiffres commençant par 0 (ex. 06 12 34 56 78).');
+    else indice('bk-tel-verif', '');
+    return false;
+  }
+  function verifEmail(fort){
+    const i = $('bk-email'), v = i.value.trim().toLowerCase();
+    if (!v) { indice('bk-email-verif', ''); return true; }   // facultatif
+    const dom = v.split('@')[1] || '', bon = DOMAINES[dom];
+    if (bon) { const s = $('bk-email-verif'); s.className = 'verif ko'; s.innerHTML = 'Tu voulais dire <button type="button" class="corrige">' + esc(v.split('@')[0] + '@' + bon) + '</button> ?'; return !fort ? false : false; }
+    if (emailOk(v)) { indice('bk-email-verif', '✓ Adresse valide', true); return true; }
+    if (fort || document.activeElement !== i) indice('bk-email-verif', !v.includes('@') ? 'Il manque le « @ » (ex. prenom@exemple.fr).' : 'Adresse incomplète (ex. prenom@exemple.fr).');
+    else indice('bk-email-verif', '');
+    return false;
+  }
+  $('bk-tel').addEventListener('input', () => verifTel(false));
+  $('bk-tel').addEventListener('blur', () => verifTel(false));
+  $('bk-email').addEventListener('input', () => verifEmail(false));
+  $('bk-email').addEventListener('blur', () => verifEmail(false));
+  $('bk-email-verif').addEventListener('click', e => { const b = e.target.closest('.corrige'); if (b) { $('bk-email').value = b.textContent; verifEmail(true); } });
+
   // ce qui manque pour quitter une étape (null = tout est bon)
   function manque(n){
     const l = livraison();
@@ -916,7 +1006,8 @@
     }
     if (n === 3) {
       if (!$('bk-nom').value.trim()) return { el: $('bk-nom'), txt: 'Indique ton nom et ton prénom.' };
-      if (!$('bk-tel').value.trim()) return { el: $('bk-tel'), txt: 'Indique ton téléphone.' };
+      if (!verifTel(true)) return { el: $('bk-tel'), txt: 'Numéro de téléphone incomplet.' };
+      if (!verifEmail(true)) return { el: $('bk-email'), txt: 'Adresse e-mail incomplète.' };
     }
     return null;
   }
@@ -925,7 +1016,7 @@
     const sens = n > pas ? 1 : -1;
     $('bk-msg').hidden = true;
     document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir'));
-    if (n === 4) resume();
+    if (n === 4) { resume(); majCompteZone(); if ($('bk-promo').value && !promoActif) appliquerCode(); }
     avant.hidden = true; apres.hidden = false; pas = n;
     if (!reduit && avant !== apres) apres.animate([{ opacity: 0, transform: 'translateX(' + (40 * sens) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' });
     // fil d'étapes
@@ -997,7 +1088,7 @@
   }
   function majBarre(){
     const barre = $('barre-total'); if (!barre) return;
-    const k = cleOffre(), p = periode(), l = livraison(), loc = prixLocation(p);
+    const k = cleOffre(), p = periode(), l = livraison(), loc0 = prixLocation(p), loc = loc0 == null ? null : Math.round((loc0 - remiseSur(loc0)) * 100) / 100;
     const nom = $('bk-recap-nom').textContent;
     $('bt-quoi').textContent = nom + (p ? ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') : '');
     $('bt-prix').textContent = p && loc != null
@@ -1075,7 +1166,7 @@
     if (pas !== 4) return;
     for (let n = 1; n <= 3; n++) { const m = manque(n); if (m) { allerA(n); setTimeout(() => wizSuivant(), 450); return; } }
     if (!$('bk-ok').checked) { $('bk-msg').hidden = true; signaler($('bk-ok')); return; }
-    const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim(), p = periode(), l = livraison();
+    const nom=$('bk-nom').value.trim(), tel=telNorme($('bk-tel').value) || $('bk-tel').value.trim(), p = periode(), l = livraison();
     if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
     if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de livraison (sous le calendrier).'); }
@@ -1086,7 +1177,8 @@
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
     const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, invites:$('bk-invites').value,
                    fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
-                   consentement:true, site:$('bk-site').value };
+                   consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
+                   creerCompte: !$('bk-compte-zone').hidden && $('bk-compte').checked, offres: $('bk-offres').checked };
     const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : livraison le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+', à '+l.nom+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
@@ -1101,12 +1193,103 @@
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); syncFete(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
       const suivi = /^https:\/\/mistraloc\.fr\/suivi\?t=[a-f0-9]{24}$/.test(j.suivi||'') ? j.suivi : '';
-      $('bk-merci-txt').textContent = 'On te recontacte très vite au ' + tel + ' pour confirmer.' + (data.email ? ' Un e-mail de confirmation part à l\'instant.' : '') + (suivi ? ' Garde le lien de suivi ci-dessous : il te montre où en est ta réservation.' : '');
+      $('bk-merci-txt').textContent = 'On te recontacte très vite au ' + telJoli(tel) + ' pour confirmer.' + (data.email ? ' Un e-mail de confirmation part à l\'instant.' : '') + (suivi ? ' Garde le lien de suivi ci-dessous : il te montre où en est ta réservation.' : '') +
+        (j.compte ? ' Ton compte Mistraloc est créé : retrouve tes réservations sur mistraloc.fr/compte (connexion avec un code reçu par e-mail).' : '') +
+        (data.code && !j.promo ? ' Le code promo n\'a pas pu être appliqué : on en reparle au téléphone.' : '');
+      oublierResa(); promoActif = null; $('bk-promo').value = ''; indice('bk-promo-txt', '');
       $('bk-merci-suivi').hidden = !suivi; if (suivi) $('bk-merci-suivi').href = suivi;
       allerA(5); confettis();
     } catch(err){
       message('Oups, l\'envoi n\'a pas marché. <a href="'+wa+'" target="_blank" rel="noopener">Envoie ta demande sur WhatsApp</a> ou appelle le 06 22 12 39 63.');
     } finally { attente(false); btn.disabled=false; btn.textContent='Envoyer ma demande ✓'; }
+  });
+
+  // ---- code promo (vérifié par le script ; le script recalcule aussi le prix à l'envoi) ----
+  var promoActif = null;   // { code, type: '%' | '€', valeur, libelle }
+  function remiseSur(loc){
+    if (!promoActif || loc == null) return 0;
+    const r = promoActif.type === '%' ? loc * Math.min(promoActif.valeur, 100) / 100 : Math.min(promoActif.valeur, loc);
+    return Math.max(0, Math.round(r * 100) / 100);
+  }
+  async function appliquerCode(){
+    const v = $('bk-promo').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    $('bk-promo').value = v;
+    if (!v) { promoActif = null; indice('bk-promo-txt', ''); maj(); if (pas === 4) resume(); return; }
+    const loc0 = prixLocation(periode());
+    if (loc0 == null || !API.startsWith('https://')) return;
+    indice('bk-promo-txt', 'Vérification du code…');
+    try {
+      const j = await (await fetch(API + '?action=code&cp=' + encodeURIComponent(v) + '&m=' + loc0)).json();
+      if (j.ok && j.code && (j.type === '%' || j.type === '€') && j.valeur > 0) { promoActif = { code: j.code, type: j.type, valeur: j.valeur, libelle: j.libelle }; indice('bk-promo-txt', '✓ Code ' + j.code + ' appliqué : −' + enEuros(remiseSur(loc0)) + ' sur la location', true); }
+      else { promoActif = null; indice('bk-promo-txt', j.erreur || 'Ce code n\'est pas valable.'); }
+    } catch (e) { indice('bk-promo-txt', 'Impossible de vérifier le code pour l\'instant : réessaie dans un instant.'); }
+    maj(); if (pas === 4) resume();
+  }
+  $('bk-promo-ok').addEventListener('click', appliquerCode);
+  $('bk-promo').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); appliquerCode(); } });
+  $('bk-promo').addEventListener('input', () => { if (promoActif && $('bk-promo').value.toUpperCase() !== promoActif.code) { promoActif = null; indice('bk-promo-txt', ''); maj(); if (pas === 4) resume(); } });
+
+  // ---- compte client : connecté sur cet appareil ? (connexion sur mistraloc.fr/compte) ----
+  var compte = null; try { compte = JSON.parse(localStorage.getItem('mistraloc_compte') || 'null'); } catch (e) {}
+  if (compte && compte.profil && compte.profil.email) {
+    const pf = compte.profil;
+    $('compte-btn').classList.add('connecte'); $('compte-btn').title = 'Mon compte (' + pf.email + ')';
+    if (pf.nom && !$('bk-nom').value) $('bk-nom').value = pf.nom;
+    if (pf.tel && !$('bk-tel').value) $('bk-tel').value = pf.tel;
+    if (!$('bk-email').value) $('bk-email').value = pf.email;
+    $('bk-infos-sous').innerHTML = 'Connecté avec <b>' + esc(pf.email) + '</b> : tes infos sont déjà remplies. <a href="compte.html" class="lien-compte">Mon compte</a>';
+  }
+  // « créer mon compte » proposé au récap si une adresse e-mail valide est donnée (et pas déjà connecté avec elle)
+  function majCompteZone(){
+    const mail = $('bk-email').value.trim().toLowerCase(), ok = emailOk(mail) && !(compte && compte.profil && compte.profil.email === mail);
+    $('bk-compte-zone').hidden = !ok; $('bk-compte-mail').textContent = mail;
+    if (!ok) $('bk-compte').checked = false;
+    $('bk-offres-zone').hidden = !(ok && $('bk-compte').checked);
+    if ($('bk-offres-zone').hidden) $('bk-offres').checked = false;
+  }
+  $('bk-compte').addEventListener('change', majCompteZone);
+
+  // ---- offre du moment (bandeau sous le menu) ----
+  $('offre-x').addEventListener('click', () => { $('offre-bandeau').hidden = true; try { sessionStorage.setItem('mistraloc_offre_x', window.offreTexte || ''); } catch (e) {} });
+  $('offre-go').addEventListener('click', () => {
+    if (window.offreCode) $('bk-promo').value = window.offreCode;   // appliqué tout seul en arrivant au récap
+    document.getElementById('trouver').scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  // ---- rappel de panier : la réservation en cours est gardée 7 jours sur cet appareil ----
+  var CLE_RESA = 'mistraloc_resa', tSauve = null, resaGardee = null;
+  try { resaGardee = JSON.parse(localStorage.getItem(CLE_RESA) || 'null'); } catch (e) {}
+  function sauverResa(){
+    clearTimeout(tSauve);
+    tSauve = setTimeout(() => {
+      if (!debut || pas === 5) return;
+      const k = cleOffre();
+      const s = { k, offre: offreSel.value, panier: k === 'perso' ? Object.assign({}, panier) : null, debut, fin, veille: $('bk-veille').checked,
+                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, pas: Math.min(pas, 3), ts: Date.now() };
+      try { localStorage.setItem(CLE_RESA, JSON.stringify(s)); } catch (e) {}
+    }, 400);
+  }
+  function oublierResa(){ resaGardee = null; try { localStorage.removeItem(CLE_RESA); } catch (e) {} $('bk-reprise').hidden = true; }
+  if (resaGardee && resaGardee.debut && resaGardee.debut >= isoJ(auj) && Date.now() - (resaGardee.ts || 0) < 7 * 864e5) {
+    $('bk-reprise-txt').textContent = String(resaGardee.offre || '').replace('Panier perso : ', 'Mon panier : ') + ' · ' + jourTxt(resaGardee.debut) +
+      (resaGardee.fin && resaGardee.fin !== resaGardee.debut ? ' → ' + jourTxt(resaGardee.fin) : '');
+    $('bk-reprise').hidden = false;
+  } else if (resaGardee) oublierResa();
+  $('bk-reprise-non').addEventListener('click', oublierResa);
+  $('bk-reprise-ok').addEventListener('click', async () => {
+    const s = resaGardee; if (!s) return;
+    $('bk-reprise').hidden = true;
+    if (s.k === 'perso' && s.panier) { Object.keys(panier).forEach(a => { panier[a] = Math.max(0, Math.min(STOCK[a] || 0, Number(s.panier[a]) || 0)); }); current = null; show('perso', false); }
+    else if (s.k && PACKS[s.k]) show(s.k, s.k === recommend());
+    debut = s.debut; fin = s.fin || s.debut; $('bk-veille').checked = !!s.veille;
+    const d = new Date(s.debut + 'T12:00'); vue = new Date(d.getFullYear(), d.getMonth(), 1);
+    await dessiner(); majHeures();
+    if (s.heure && [...$('bk-heure').options].some(o => o.value === s.heure && !o.disabled)) $('bk-heure').value = s.heure;
+    if (s.lieu) $('bk-lieu').value = s.lieu;
+    maj();
+    let n = 1; while (n < (s.pas || 1) && !manque(n)) n++;
+    allerA(n);
+    $('wiz').scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' });
   });
 
   maj(); dessiner(); aide(''); allerA(1);
@@ -1143,6 +1326,12 @@
       if (prixSem[PACK_CLE[k]] != null) { PACKS[k].sem = euros(prixSem[PACK_CLE[k]]); change = true; }
     });
     if (c.livraison) LIVR = c.livraison;
+    // offre du moment (cachée si le visiteur l'a fermée pendant cette visite)
+    if (c.offre && c.offre.texte) {
+      let ferme = false; try { ferme = sessionStorage.getItem('mistraloc_offre_x') === c.offre.texte; } catch (e) {}
+      window.offreTexte = c.offre.texte; window.offreCode = c.offre.code || '';
+      if (!ferme) { $('offre-txt').textContent = c.offre.texte + (c.offre.code ? ' · code ' + c.offre.code : ''); $('offre-bandeau').hidden = false; }
+    }
     if (c.remiseNuit != null) REMISE = c.remiseNuit;
     if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) { document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; majPrixPack(k.dataset.pack); } maj(); }
     // stock réglé dans l'espace admin (onglet « Matériel ») : nombre maximum de chaque appareil dans « Mon panier »
