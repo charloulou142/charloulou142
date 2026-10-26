@@ -93,6 +93,12 @@
   @keyframes pop{from{opacity:0;transform:translateX(var(--dx,28px)) scale(.8)}to{opacity:1;transform:none}}
   @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .panier{display:grid;gap:10px;margin-bottom:22px}
+  .rImg:empty{display:none}   /* panier vide : pas de grand vide à la place des photos */
+  .panier-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,122,26,.45);background:rgba(255,122,26,.08)}
+  .panier-total span{margin-right:auto;font-weight:700;color:var(--muted)}
+  .panier-total b{font-size:24px;display:inline-block}
+  .panier-total b.bump{animation:bump .45s cubic-bezier(.3,1.6,.5,1)}
+  .panier-total small{width:100%;text-align:right;color:var(--muted);font-size:12px}
   .ligne{display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:border-color .2s}
   .ligne.on{border-color:var(--pink)}
   .ligne img{width:38px;height:38px;object-fit:contain;flex:0 0 auto}
@@ -595,7 +601,12 @@
     box.innerHTML=Object.keys(panier).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'"><img src="images/'+IMG1[k]+'.webp" alt=""><span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('');
     const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
     PACKS.perso.price=enEuros(total);
-    PACKS.perso.sem=enEuros(Object.keys(panier).reduce((t,k)=>t+panier[k]*semNum(k),0));
+    const semT=Object.keys(panier).reduce((t,k)=>t+panier[k]*semNum(k),0);
+    PACKS.perso.sem=enEuros(semT);
+    // total à jour, juste au-dessus des appareils (il « saute » quand il change)
+    box.insertAdjacentHTML('afterbegin','<div class="panier-total"><span>Ton total</span><b>'+enEuros(total)+'</b><small>'+(total?'/ soirée le week-end'+(semT<total?' · '+enEuros(semT)+' en semaine':''):'Ajoute un appareil ci-dessous ↓')+'</small></div>');
+    if(majPanier.dernier!=null&&majPanier.dernier!==total){const tb=box.querySelector('.panier-total b');tb.classList.add('bump');}
+    majPanier.dernier=total;
     document.getElementById('rPrice').textContent=PACKS.perso.price;
     majPrixPack('perso');
     // une image par appareil, 6 au maximum, mais chaque type choisi apparaît toujours au moins une fois
