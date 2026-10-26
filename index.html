@@ -218,6 +218,38 @@
   #reserver .msg{margin-top:10px}
   @media (max-width:420px){ #reserver .row2{grid-template-columns:1fr 1fr;gap:8px} #reserver .panel{padding:16px} #reserver .day{height:36px} }
   @media (max-width:330px){ #reserver .row2{grid-template-columns:1fr} }
+  /* compactage n°2 (26/10) : titre sur 1 ligne, récap en simple ligne, aide affichée seulement si besoin,
+     option « journée » visible après le choix d'une date, champs facultatifs repliés */
+  section#reserver{padding:56px 0}
+  #reserver h2{font-size:clamp(28px,7.4vw,48px);margin-bottom:4px}
+  #reserver .lead{margin-bottom:14px;font-size:15px}
+  #reserver .booking{gap:12px}
+  #reserver .recap-offre{border:0;padding:0;margin:0 0 6px;font-size:13px;line-height:1.4}
+  #reserver .cal-head{margin:2px 0 4px}
+  #reserver .cal-head b{font-size:22px}
+  #reserver .cal-nav{width:30px;height:30px}
+  #reserver .cal{gap:3px}
+  #reserver .day{height:34px}
+  #reserver .legend{margin-top:6px;font-size:12px}
+  #reserver .cal-aide:empty{display:none}
+  #reserver .chosen{margin-top:6px;padding:7px 10px;font-size:14px;line-height:1.35}
+  #reserver .veille[hidden]{display:none}
+  #reserver .veille{margin-top:6px}
+  #reserver .row2.livr{margin-top:8px}
+  #reserver .field label{margin-bottom:4px;font-size:13px}
+  #reserver .field{margin-bottom:8px}
+  #reserver .plus{margin:0 0 8px}
+  #reserver .plus summary{cursor:pointer;color:var(--cyan);font-size:14px;font-weight:600;padding:4px 0;list-style:none}
+  #reserver .plus summary::-webkit-details-marker{display:none}
+  #reserver .plus[open] summary{margin-bottom:8px}
+  #reserver .consent{margin:2px 0 10px;font-size:12px;gap:8px}
+  #reserver .devis{margin-top:8px;padding:8px 12px;font-size:14px}
+  #reserver .devis .l{padding:1px 0}
+  #reserver .devis .tot{margin-top:4px;padding-top:6px;font-size:16px}
+  #reserver .devis small{margin-top:4px;font-size:11px;line-height:1.35}
+  #reserver .livr-txt{font-size:11.5px;line-height:1.35}
+  #reserver #bk-submit{padding:12px 18px}
+  @media (max-width:420px){ #reserver .panel{padding:12px} #reserver .day{height:32px} #reserver .row2{gap:6px} }
   .bk-choix button{flex:none;scroll-snap-align:start;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
   .bk-choix button:hover{border-color:var(--pink)}
   .bk-choix button[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#1A0B00}
@@ -311,7 +343,7 @@
 
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
-  <p class="lead">Une ou plusieurs soirées, livrées chez toi, prix total affiché tout de suite. On te confirme vite par téléphone ou WhatsApp.</p>
+  <p class="lead">Livré chez toi, prix total affiché tout de suite, confirmation rapide.</p>
   <div class="booking">
     <div class="panel">
       <div class="bk-choix" id="bk-choix" role="group" aria-label="Changer de pack ou d'appareil">
@@ -327,17 +359,17 @@
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
       <div class="cal" id="cal" aria-live="polite"></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
-      <p class="cal-aide" id="bk-cal-aide">Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu'à 7).</p>
-      <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
-      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Fête <b>en journée</b> ? Livraison la veille au soir (soirée en plus à −20 %).</span></label>
+      <p class="cal-aide" id="bk-cal-aide"></p>
+      <div class="chosen" id="bk-date-txt">Touche ta date. Plusieurs soirées : la 1re puis la dernière (7 max).</div>
+      <label class="veille" hidden><input type="checkbox" id="bk-veille"> <span>Fête <b>en journée</b> ? Livraison la veille au soir (soirée en plus à −20 %).</span></label>
       <div class="row2 livr">
         <div class="field"><label for="bk-heure">Heure de livraison *</label>
-          <select id="bk-heure" disabled><option value="">Choisis une date</option></select></div>
+          <select id="bk-heure" disabled><option value="">Date d'abord</option></select></div>
         <div class="field"><label for="bk-lieu">Ville de livraison *</label>
           <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne" autocomplete="address-level2">
           <datalist id="bk-villes"></datalist></div>
       </div>
-      <small class="livr-txt" id="bk-livr-txt">Livraison entre 17h00 et 19h30, reprise le lendemain de la dernière soirée avant 12h00. Salon-de-Provence : 5 € · ailleurs : 5 € + 1,20 €/km, jusqu'à 25 km.</small>
+      <small class="livr-txt" id="bk-livr-txt">Livraison 17h00–19h30, reprise le lendemain avant 12h00 · Salon 5 €, ailleurs 5 € + 1,20 €/km (25 km max).</small>
       <div class="devis" id="bk-devis" hidden></div>
     </div>
     <form class="panel" id="bk-form" novalidate>
@@ -345,16 +377,18 @@
         <div class="field"><label for="bk-nom">Nom et prénom *</label><input id="bk-nom" autocomplete="name" required maxlength="80"></div>
         <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
       </div>
-      <div class="field"><label for="bk-email">E-mail (facultatif)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120" placeholder="pour recevoir la confirmation"></div>
+      <details class="plus" id="bk-plus"><summary>+ E-mail, type de fête, invités, message (facultatif)</summary>
+      <div class="field"><label for="bk-email">E-mail</label><input id="bk-email" type="email" autocomplete="email" maxlength="120" placeholder="pour recevoir la confirmation"></div>
       <div class="row2">
         <div class="field"><label for="bk-fete">Type de fête</label>
           <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
         <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
       </div>
-      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="2" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
+      <div class="field"><label for="bk-message">Message</label><textarea id="bk-message" rows="2" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
+      </details>
       <div class="hp" aria-hidden="true"><label>Site <input id="bk-site" tabindex="-1" autocomplete="off"></label></div>
-      <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces informations pour traiter ma demande. <a href="confidentialite.html">Politique de confidentialité</a></span></label>
-      <button class="btn" id="bk-submit" type="submit">Envoyer ma demande de réservation</button>
+      <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces infos pour traiter ma demande (<a href="confidentialite.html">confidentialité</a>).</span></label>
+      <button class="btn" id="bk-submit" type="submit">Envoyer ma demande</button>
       <div class="msg" id="bk-msg" hidden></div>
     </form>
   </div>
@@ -578,7 +612,7 @@
   const passe = k => k < isoJ(auj) || (k === isoJ(auj) && !heuresPossibles(k).length);
   async function statutK(k){ return passe(k) ? 'complet' : statutDe(await dispoMois(k.slice(0, 7)), k); }
   async function periodeLibre(start, n){ for (let i = 0; i < n; i++) if (await statutK(plusJ(start, i)) === 'complet') return false; return true; }
-  function aide(txt){ const a = $('bk-cal-aide'); a.textContent = txt || 'Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu\'à 7).'; a.style.color = txt ? 'var(--pink)' : ''; a.style.fontWeight = txt ? '700' : ''; }
+  function aide(txt){ const a = $('bk-cal-aide'); a.textContent = txt || ''; a.style.color = txt ? 'var(--pink)' : ''; a.style.fontWeight = txt ? '700' : ''; }
 
   // 1er clic = première soirée ; 2e clic plus tard dans le calendrier = dernière soirée
   async function cliquer(k){
@@ -607,10 +641,14 @@
     $('cal-prev').disabled = vue <= new Date(auj.getFullYear(), auj.getMonth(), 1);
     const cal = $('cal'); cal.innerHTML = ['L','M','M','J','V','S','D'].map(d=>'<div class="dow">'+d+'</div>').join('');
     const premier = (new Date(vue.getFullYear(), vue.getMonth(), 1).getDay()+6)%7;
-    for (let i=0;i<premier;i++) cal.insertAdjacentHTML('beforeend','<div></div>');
     const nb = new Date(vue.getFullYear(), vue.getMonth()+1, 0).getDate();
+    // les semaines entièrement passées ne sont pas affichées (calendrier moins haut)
+    let r0 = 0;
+    while ((r0+1)*7 - premier < nb && passe(isoJ(new Date(vue.getFullYear(), vue.getMonth(), (r0+1)*7 - premier)))) r0++;
+    if (!r0) for (let i=0;i<premier;i++) cal.insertAdjacentHTML('beforeend','<div></div>');
     const boutons = [], p = periode();
     for (let j=1;j<=nb;j++){
+      if (premier + j - 1 < r0*7) continue;
       const d = new Date(vue.getFullYear(), vue.getMonth(), j), k = isoJ(d);
       const b = document.createElement('button'); b.type='button'; b.className='day'; b.textContent=j; b.dataset.k=k;
       if (passe(k)) { b.classList.add('passe'); b.disabled = true; }
@@ -641,7 +679,7 @@
   }
   function majHeures(){
     const sel = $('bk-heure'), avant = sel.value, p = periode();
-    if (!p) { sel.innerHTML = '<option value="">Choisis une date</option>'; sel.disabled = true; maj(); return; }
+    if (!p) { sel.innerHTML = '<option value="">Date d\'abord</option>'; sel.disabled = true; maj(); return; }
     const ok = heuresPossibles(p.start);
     sel.innerHTML = '<option value="">Choisis une heure</option>' + CRENEAUX.map(m => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(ok.indexOf(m)<0?' disabled':'')+'>'+hTexte(m)+(ok.indexOf(m)<0?' · passé':'')+'</option>').join('');
     sel.disabled = false;
@@ -682,11 +720,12 @@
     $('bk-date-txt').textContent = p
       ? 'Livraison le ' + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
         ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
-      : 'Clique sur une date du calendrier.';
+      : 'Touche ta date. Plusieurs soirées : la 1re puis la dernière (7 max).';
+    $('bk-veille').closest('.veille').hidden = !p;
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
     const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
     $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
-    $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + ' / soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '') : '';
+    $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + '/soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '') : '';
     // rangée de packs : bouton actif + le garder visible dans la ligne (sans faire bouger la page)
     const choix = $('bk-choix');
     choix.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pack === k)));
@@ -697,7 +736,7 @@
     t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
                   : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
                   : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
-                  : 'Livraison entre 17h00 et 19h30, reprise le lendemain de la dernière soirée avant 12h00. Salon-de-Provence : 5 € · ailleurs : 5 € + 1,20 €/km, jusqu\'à 25 km.';
+                  : 'Livraison 17h00–19h30, reprise le lendemain avant 12h00 · Salon 5 €, ailleurs 5 € + 1,20 €/km (25 km max).';
     t.style.color = l.etat === 'loin' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' ? '700' : '';
     const loc = prixLocation(p), box = $('bk-devis');
     box.hidden = !p || loc == null;
@@ -706,8 +745,8 @@
       box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc)) +
         ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville') +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
-        '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
-        'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
+        '<small>' + (p.nuits > 1 ? 'La soirée la plus chère au prix plein, les autres −20 %. ' : '') +
+        'Ven./sam. : tarif week-end, dim.→jeu. : tarif semaine. Hors caution, prix confirmé par téléphone.</small>';
     }
     majBarre();
   }
@@ -807,7 +846,7 @@
         (suivi?'<br><a href="'+suivi+'">Suivre ma réservation</a> (garde ce lien).':''), true);
     } catch(err){
       message('Oups, l\'envoi n\'a pas marché. <a href="'+wa+'" target="_blank" rel="noopener">Envoie ta demande sur WhatsApp</a> ou appelle le 06 22 12 39 63.');
-    } finally { btn.disabled=false; btn.textContent='Envoyer ma demande de réservation'; }
+    } finally { btn.disabled=false; btn.textContent='Envoyer ma demande'; }
   });
 
   maj(); dessiner();
