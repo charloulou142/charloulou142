@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon compte · Mistraloc</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0B0714" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F3EFF8" media="(prefers-color-scheme: light)">
+<script>
+  // Thème choisi par le visiteur (bouton lune / soleil), sinon celui de l'appareil
+  (function(){
+    var d=document.documentElement, t=null;
+    try{ t=localStorage.getItem('audioloc_theme'); }catch(e){}
+    if(t==='light'||t==='dark') d.dataset.theme=t;
+    function sombre(){ return d.dataset.theme ? d.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+    function barre(){ document.querySelectorAll('meta[name=theme-color]').forEach(function(m){ m.removeAttribute('media'); m.content=sombre()?'#0B0714':'#F3EFF8'; }); }
+    if(t) document.addEventListener('DOMContentLoaded',barre);
+    document.addEventListener('click',function(e){
+      if(!e.target.closest('.theme-btn')) return;
+      var nouveau = sombre() ? 'light' : 'dark';
+      function appliquer(){ d.dataset.theme = nouveau; barre(); }
+      try{ localStorage.setItem('audioloc_theme', nouveau); }catch(e){}
+      var b = e.target.closest('.theme-btn').getBoundingClientRect(), x = b.left + b.width/2, y = b.top + b.height/2;
+      if (document.startViewTransition) {
+        var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        document.startViewTransition(appliquer).ready.then(function(){
+          d.animate({ clipPath: ['circle(0px at '+x+'px '+y+'px)', 'circle('+r+'px at '+x+'px '+y+'px)'] },
+                    { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' });
+        });
+      } else {
+        d.classList.add('theme-anim'); appliquer();
+        setTimeout(function(){ d.classList.remove('theme-anim'); }, 500);
+      }
+    });
+  })();
+</script>
+<link rel="stylesheet" href="style.css?v=6">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  main{max-width:640px;margin:0 auto;padding:56px 20px 80px}
+  main h1{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,7vw,60px);line-height:1;margin-bottom:10px}
+  .intro{color:var(--muted);margin-bottom:22px}
+  .carte{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:18px;animation:glisse .45s both}
+  .carte h2{font-family:"Bebas Neue";font-weight:400;font-size:28px;margin:0 0 12px}
+  .field{display:grid;gap:6px;margin-bottom:14px}
+  .field label{font-weight:700;font-size:14px;color:var(--muted)}
+  .field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font:inherit}
+  .field input:focus{border-color:var(--cyan);outline:none}
+  .field input.code{font-size:28px;letter-spacing:10px;text-align:center;font-weight:700}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:420px){.row2{grid-template-columns:1fr}}
+  .case{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);margin:4px 0 16px;cursor:pointer}
+  .case input{width:18px;height:18px;margin-top:2px;accent-color:var(--pink);flex:none}
+  .btn{width:100%}
+  .lien{border:0;background:none;color:var(--cyan);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0}
+  .lien:disabled{color:var(--muted);text-decoration:none;cursor:default}
+  .msg{margin-top:12px;padding:12px 14px;border-radius:12px;font-weight:600}
+  .msg.ok{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5)}
+  .msg.err{background:rgba(255,122,26,.12);border:1px solid rgba(255,122,26,.5)}
+  .petit{font-size:13px;color:var(--muted);margin-top:10px}
+  .resa{display:flex;gap:12px;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+  .resa:first-of-type{border-top:0;padding-top:0}
+  .resa b{display:block}
+  .resa span{color:var(--muted);font-size:14px}
+  .resa .pastille{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--pink);color:var(--pink);margin-top:4px}
+  .resa .pastille.ann{border-color:#F87171;color:#F87171}
+  .resa a{color:var(--cyan);font-weight:600;white-space:nowrap}
+  .vide{color:var(--muted)}
+  .actions{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;margin-top:6px}
+  .danger{color:#F87171}
+  [hidden]{display:none!important}
+  /* écran d'attente (même animation que la réservation) : vague du logo + point cyan */
+  .attente{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fondu .25s both}
+  .attente[hidden]{display:none}
+  .attente-box{text-align:center;display:grid;gap:8px;justify-items:center;max-width:320px}
+  .attente b{font-size:20px}
+  .attente small{color:var(--muted);font-size:14px}
+  .onde{width:110px;height:88px;overflow:visible}
+  .onde path{fill:none;stroke:var(--pink);stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:vague 1.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,122,26,.6))}
+  .onde circle{fill:var(--cyan);transform-origin:92px 30px;animation:point 1.4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(34,211,238,.7))}
+  .charge-ici{display:grid;justify-items:center;gap:6px;padding:26px 10px;color:var(--muted);font-weight:600;text-align:center}
+  .charge-ici .onde{width:72px;height:58px}
+  @keyframes fondu{from{opacity:0}}
+  @keyframes vague{0%{stroke-dashoffset:110}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-110}}
+  @keyframes point{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+  @media (prefers-reduced-motion:reduce){ .onde path{animation:none;stroke-dashoffset:0} .onde circle{animation:none} }
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <a class="logo" href="./" aria-label="mistraloc · accueil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="26 54 638 102" style="height:30px;width:auto;display:block" role="img" aria-label="mistraloc"><g transform="translate(25.00 12.20) scale(2.0000)"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44" fill="none" stroke="#FF7A1A" stroke-width="10" stroke-linecap="round"/><circle cx="92" cy="30" r="6.5" fill="#22D3EE"/></g><g fill="currentColor"><path transform="translate(263.00 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM380 0V286Q380 334 350.0 360.5Q320 387 276 387Q246 387 222.5 375.0Q199 363 185.0 340.5Q171 318 171 286L128 310Q128 365 152.0 405.0Q176 445 217.0 467.5Q258 490 309 490Q360 490 401.0 468.0Q442 446 466.0 406.0Q490 366 490 310V0ZM699 0V286Q699 334 669.0 360.5Q639 387 595 387Q566 387 542.0 375.0Q518 363 504.0 340.5Q490 318 490 286L428 310Q433 365 460.0 405.0Q487 445 529.5 467.5Q572 490 623 490Q675 490 717.0 468.0Q759 446 784.0 406.0Q809 366 809 310V0Z"/><path transform="translate(346.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0Z"/><path transform="translate(366.30 140.50) scale(0.10000 -0.10000)" d="M218 -10Q178 -10 141.0 0.5Q104 11 73.0 30.5Q42 50 19 78L89 148Q114 119 146.5 104.5Q179 90 220 90Q257 90 276.0 101.0Q295 112 295 133Q295 155 277.0 167.0Q259 179 230.5 187.5Q202 196 170.5 205.0Q139 214 110.5 229.5Q82 245 64.0 272.0Q46 299 46 342Q46 388 67.5 421.0Q89 454 128.5 472.0Q168 490 223 490Q281 490 325.5 469.5Q370 449 400 408L330 338Q309 364 282.0 377.0Q255 390 220 390Q187 390 169.0 380.0Q151 370 151 351Q151 331 169.0 320.0Q187 309 215.5 301.0Q244 293 275.5 283.5Q307 274 335.5 257.5Q364 241 382.0 213.5Q400 186 400 142Q400 72 351.0 31.0Q302 -10 218 -10Z"/><path transform="translate(406.30 140.50) scale(0.10000 -0.10000)" d="M134 0V680H244V0ZM19 380V480H359V380Z"/><path transform="translate(441.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM171 267 133 286Q133 377 173.5 433.5Q214 490 296 490Q332 490 361.0 477.0Q390 464 415 435L343 361Q330 375 314.0 381.0Q298 387 277 387Q231 387 201.0 358.0Q171 329 171 267Z"/><path transform="translate(480.60 140.50) scale(0.10000 -0.10000)" d="M262 -10Q197 -10 144.5 23.0Q92 56 61.5 112.5Q31 169 31 239Q31 310 61.5 366.5Q92 423 144.5 456.5Q197 490 262 490Q317 490 359.5 466.5Q402 443 427.0 402.0Q452 361 452 309V171Q452 119 427.5 78.0Q403 37 360.0 13.5Q317 -10 262 -10ZM280 94Q341 94 378.5 135.0Q416 176 416 240Q416 283 399.0 316.0Q382 349 351.5 367.5Q321 386 280 386Q240 386 209.5 367.5Q179 349 161.5 316.0Q144 283 144 240Q144 197 161.5 164.0Q179 131 209.5 112.5Q240 94 280 94ZM409 0V129L428 246L409 362V480H519V0Z"/><path transform="translate(535.60 140.50) scale(0.10000 -0.10000)" d="M61 0V720H171V0Z"/><path transform="translate(555.80 140.50) scale(0.10000 -0.10000)" d="M281 -10Q211 -10 154.0 23.5Q97 57 63.5 114.0Q30 171 30 241Q30 311 63.5 367.0Q97 423 154.0 456.5Q211 490 281 490Q352 490 409.0 457.0Q466 424 499.5 367.5Q533 311 533 241Q533 171 499.5 114.0Q466 57 409.0 23.5Q352 -10 281 -10ZM281 96Q322 96 353.5 114.5Q385 133 402.5 166.0Q420 199 420 241Q420 283 402.0 315.0Q384 347 353.0 365.5Q322 384 281 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 241Q143 199 160.5 166.0Q178 133 209.5 114.5Q241 96 281 96Z"/><path transform="translate(609.10 140.50) scale(0.10000 -0.10000)" d="M282 -10Q211 -10 153.5 23.0Q96 56 63.0 113.0Q30 170 30 240Q30 311 63.0 367.5Q96 424 153.5 457.0Q211 490 282 490Q338 490 386.5 468.5Q435 447 469 407L397 334Q376 359 346.5 371.5Q317 384 282 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 240Q143 198 160.5 165.5Q178 133 209.5 114.5Q241 96 282 96Q317 96 346.5 108.5Q376 121 397 146L469 73Q435 33 386.5 11.5Q338 -10 282 -10Z"/></g><circle cx="357.80" cy="77.10" r="6.50" fill="#22D3EE"/></svg></a>
+  <div class="navlinks"><button class="theme-btn" type="button" aria-label="Changer de thème (clair / sombre)" title="Clair / sombre"><svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="btn" href="./#reserver">Réserver</a></div>
+</div></nav>
+<main>
+  <h1>Mon compte</h1>
+  <div id="v-charge" class="carte"><div class="charge-ici"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement de ton compte…</span></div></div>
+
+  <!-- connexion / création : e-mail puis code -->
+  <section id="v-login" hidden>
+    <p class="intro">Retrouve tes réservations et réserve plus vite. Pas de mot de passe : on t'envoie un code par e-mail.</p>
+    <form class="carte" id="f-mail" novalidate>
+      <div class="field"><label for="c-mail">Ton adresse e-mail</label><input id="c-mail" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="prenom@exemple.fr" required></div>
+      <button class="btn" type="submit">Recevoir mon code</button>
+      <div class="msg" id="m-mail" hidden></div>
+    </form>
+    <form class="carte" id="f-code" novalidate hidden>
+      <p style="margin:0 0 14px">Code envoyé à <b id="c-mail-txt"></b>. Regarde aussi dans les spams.</p>
+      <div class="field"><label for="c-code">Code à 6 chiffres</label><input id="c-code" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" required></div>
+      <div id="c-nouveau" hidden>
+        <p class="petit" style="margin:0 0 12px">Première connexion : ton compte va être créé. Ces infos servent à remplir tes réservations (facultatif).</p>
+        <div class="row2">
+          <div class="field"><label for="c-nom">Nom et prénom</label><input id="c-nom" autocomplete="name" maxlength="80"></div>
+          <div class="field"><label for="c-tel">Téléphone</label><input id="c-tel" type="tel" inputmode="tel" autocomplete="tel" maxlength="30"></div>
+        </div>
+        <label class="case"><input type="checkbox" id="c-offres"> <span>Recevoir les offres et codes promo par e-mail (modifiable à tout moment).</span></label>
+      </div>
+      <button class="btn" type="submit">Me connecter</button>
+      <p class="petit"><button type="button" class="lien" id="b-renvoi" disabled>Renvoyer un code</button> · <button type="button" class="lien" id="b-autre">Changer d'adresse</button></p>
+      <div class="msg" id="m-code" hidden></div>
+    </form>
+    <p class="petit">En te connectant, tu acceptes que Mistraloc garde ton e-mail, ton nom et ton téléphone pour gérer tes réservations (<a href="confidentialite.html" style="color:var(--cyan)">confidentialité</a>). Tu peux supprimer ton compte à tout moment.</p>
+  </section>
+
+  <!-- connecté -->
+  <section id="v-compte" hidden>
+    <p class="intro" id="c-bonjour"></p>
+    <div class="carte">
+      <h2>Mes réservations</h2>
+      <div id="c-resas"></div>
+      <a class="btn" href="./#reserver" style="margin-top:16px">Réserver du matériel</a>
+    </div>
+    <form class="carte" id="f-profil" novalidate>
+      <h2>Mes infos</h2>
+      <div class="field"><label>E-mail</label><input id="p-mail" disabled></div>
+      <div class="row2">
+        <div class="field"><label for="p-nom">Nom et prénom</label><input id="p-nom" autocomplete="name" maxlength="80"></div>
+        <div class="field"><label for="p-tel">Téléphone</label><input id="p-tel" type="tel" inputmode="tel" autocomplete="tel" maxlength="30"></div>
+      </div>
+      <label class="case"><input type="checkbox" id="p-offres"> <span>Recevoir les offres et codes promo par e-mail.</span></label>
+      <button class="btn" type="submit">Enregistrer</button>
+      <div class="msg" id="m-profil" hidden></div>
+    </form>
+    <div class="actions"><button type="button" class="lien" id="b-logout">Me déconnecter</button><button type="button" class="lien danger" id="b-suppr">Supprimer mon compte</button></div>
+  </section>
+  <p style="margin-top:30px"><a href="./" style="color:var(--cyan)">← Retour au site</a></p>
+</main>
+<footer class="end"><div class="wrap"><span>© Mistraloc</span><span><a href="comment-ca-marche.html" style="color:inherit">Comment ça marche</a> · <a href="conditions.html" style="color:inherit">Conditions de location</a> · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
+<div class="attente" id="attente" role="alertdialog" aria-modal="true" aria-labelledby="attente-txt" tabindex="-1" hidden>
+  <div class="attente-box"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg>
+    <b id="attente-txt">Un instant…</b><small>Ne ferme pas la page, ça ne prend que quelques secondes.</small></div>
+</div>
+<script>
+(() => {
+  const API = 'https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec';
+  const CLE = 'mistraloc_compte';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let session = null; try { session = JSON.parse(localStorage.getItem(CLE) || 'null'); } catch (e) {}
+  const garder = s => { session = s; try { s ? localStorage.setItem(CLE, JSON.stringify(s)) : localStorage.removeItem(CLE); } catch (e) {} };
+
+  // écran d'attente (page bloquée) si le script met plus d'un instant à répondre
+  let nAtt = 0, tAtt = null;
+  function bloquer(on) {
+    const a = $('attente'); if (a.hidden === !on) return;
+    a.hidden = !on;
+    document.querySelectorAll('body > *:not(#attente)').forEach(e => { e.inert = on; });
+    document.body.style.overflow = on ? 'hidden' : '';
+    if (on) a.focus();
+  }
+  async function patienter(txt, f) {
+    $('attente-txt').textContent = txt;
+    if (nAtt++ === 0) tAtt = setTimeout(() => bloquer(true), 350);
+    try { return await f(); } finally { if (--nAtt === 0) { clearTimeout(tAtt); bloquer(false); } }
+  }
+  async function appel(action, donnees, txt) {
+    const f = async () => (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action, token: session && session.token }, donnees || {})) })).json();
+    return txt ? patienter(txt, f) : f();
+  }
+  function msg(id, texte, ok) { const m = $(id); m.hidden = !texte; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = texte || ''; }
+  function vue(nom) { ['charge', 'login', 'compte'].forEach(v => { $('v-' + v).hidden = v !== nom; }); }
+
+  /* ----- connecté : réservations + infos ----- */
+  function afficher(j) {
+    const p = j.profil;
+    garder({ token: session.token, profil: p });
+    $('c-bonjour').textContent = 'Bonjour' + (p.nom ? ' ' + p.nom.split(/\s+/)[0] : '') + ' ! Connecté avec ' + p.email + '.';
+    $('p-mail').value = p.email; $('p-nom').value = p.nom || ''; $('p-tel').value = p.tel || ''; $('p-offres').checked = !!p.offres;
+    const l = j.reservations || [];
+    $('c-resas').innerHTML = l.length ? l.map(r => '<div class="resa"><div><b>' + esc(r.offre.replace(/^Panier perso : /, '')) + '</b><span>' + esc(r.date) + (r.nuits > 1 ? ' · ' + r.nuits + ' soirées' : '') + (r.total ? ' · ' + esc(r.total) : '') + '</span><br>' +
+        '<span class="pastille' + (r.annulee ? ' ann' : '') + '">' + esc(r.statut) + '</span></div>' + (r.suivi ? '<a href="' + esc(r.suivi) + '">Suivre →</a>' : '') + '</div>').join('')
+      : '<p class="vide">Pas encore de réservation avec cette adresse e-mail. Les demandes envoyées avec ' + esc(p.email) + ' apparaîtront ici.</p>';
+    vue('compte');
+  }
+  async function charger() {
+    try {
+      const j = await appel('compte_moi');
+      if (j.ok) return afficher(j);
+      if (j.erreur === 'session') { garder(null); return vue('login'); }
+      throw new Error(j.erreur);
+    } catch (e) { $('v-charge').innerHTML = '<p class="msg err">Impossible de joindre le serveur. Vérifie ta connexion et recharge la page.</p>'; }
+  }
+
+  /* ----- connexion : e-mail → code ----- */
+  let mail = '', tRenvoi = null;
+  function compteARebours() {
+    let n = 60; const b = $('b-renvoi'); b.disabled = true; clearInterval(tRenvoi);
+    b.textContent = 'Renvoyer un code (' + n + ' s)';
+    tRenvoi = setInterval(() => { n--; if (n <= 0) { clearInterval(tRenvoi); b.disabled = false; b.textContent = 'Renvoyer un code'; } else b.textContent = 'Renvoyer un code (' + n + ' s)'; }, 1000);
+  }
+  async function envoyerCode() {
+    const v = $('c-mail').value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v)) { msg('m-mail', 'Adresse e-mail incomplète (ex. prenom@exemple.fr).'); $('c-mail').focus(); return; }
+    msg('m-mail', ''); msg('m-code', '');
+    try {
+      const j = await appel('compte_code', { email: v }, 'Envoi de ton code…');
+      if (!j.ok) return msg($('f-code').hidden ? 'm-mail' : 'm-code', j.erreur || 'Envoi impossible pour le moment.');
+      mail = v; $('c-mail-txt').textContent = v; $('c-nouveau').hidden = !!j.existe;
+      $('f-mail').hidden = true; $('f-code').hidden = false; $('c-code').value = ''; $('c-code').focus();
+      compteARebours();
+    } catch (e) { msg('m-mail', 'Impossible de joindre le serveur. Réessaie dans un instant.'); }
+  }
+  $('f-mail').addEventListener('submit', e => { e.preventDefault(); envoyerCode(); });
+  $('b-renvoi').addEventListener('click', envoyerCode);
+  $('b-autre').addEventListener('click', () => { $('f-code').hidden = true; $('f-mail').hidden = false; msg('m-code', ''); $('c-mail').focus(); });
+  $('c-code').addEventListener('input', () => { $('c-code').value = $('c-code').value.replace(/\D/g, '').slice(0, 6); if ($('c-code').value.length === 6 && $('c-nouveau').hidden) $('f-code').requestSubmit(); });
+  $('f-code').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = $('c-code').value;
+    if (code.length !== 6) { msg('m-code', 'Le code contient 6 chiffres.'); return; }
+    try {
+      const j = await appel('compte_login', { email: mail, code, nom: $('c-nom').value.trim(), tel: $('c-tel').value.trim(), offres: $('c-offres').checked }, 'Connexion…');
+      if (!j.ok) return msg('m-code', j.erreur || 'Connexion impossible.');
+      garder({ token: j.token, profil: j.profil });
+      afficher(j);
+    } catch (err) { msg('m-code', 'Impossible de joindre le serveur. Réessaie dans un instant.'); }
+  });
+
+  /* ----- infos, déconnexion, suppression ----- */
+  $('f-profil').addEventListener('submit', async e => {
+    e.preventDefault();
+    try {
+      const j = await appel('compte_maj', { nom: $('p-nom').value.trim(), tel: $('p-tel').value.trim(), offres: $('p-offres').checked }, 'Enregistrement…');
+      if (j.erreur === 'session') { garder(null); return vue('login'); }
+      if (!j.ok) return msg('m-profil', j.erreur || 'Enregistrement impossible.');
+      afficher(j); msg('m-profil', 'C\'est enregistré.', true);
+    } catch (err) { msg('m-profil', 'Impossible de joindre le serveur.'); }
+  });
+  $('b-logout').addEventListener('click', async () => {
+    try { await appel('compte_logout', null, 'Déconnexion…'); } catch (e) {}
+    garder(null); location.reload();
+  });
+  $('b-suppr').addEventListener('click', async () => {
+    if (!confirm('Supprimer ton compte Mistraloc ?\nTes réservations en cours ne sont pas annulées : seul ton compte est supprimé.')) return;
+    try {
+      const j = await appel('compte_supprimer', null, 'Suppression du compte…');
+      if (!j.ok && j.erreur !== 'session') return alert('Suppression impossible pour le moment. Écris-nous et on le fait pour toi.');
+    } catch (e) { return alert('Impossible de joindre le serveur.'); }
+    garder(null); alert('Ton compte est supprimé.'); location.href = './';
+  });
+
+  if (session && session.token) charger(); else vue('login');
+})();
+</script>
+</body>
+</html>
