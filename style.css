@@ -28,7 +28,8 @@ nav.top .wrap{display:flex;align-items:center;justify-content:space-between;heig
 :focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
 
 .hero{position:relative;min-height:min(80vh,720px);display:grid;place-items:center;text-align:center;overflow:hidden;padding:80px 0 110px}
-.beams{position:absolute;inset:0;pointer-events:none}
+.beams{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 97%);mask-image:linear-gradient(to bottom,#000 55%,transparent 97%)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--bg2));pointer-events:none}
 .beam{position:absolute;bottom:-10%;width:220px;height:130%;transform-origin:50% 100%;filter:blur(6px);opacity:.55;mix-blend-mode:screen;clip-path:polygon(45% 100%,55% 100%,100% 0,0 0)}
 .beam.b1{left:12%;background:linear-gradient(to top,var(--violet),transparent 75%);animation:sweep 7s ease-in-out infinite}
 .beam.b2{left:44%;background:linear-gradient(to top,var(--cyan),transparent 75%);animation:sweep 9s ease-in-out infinite reverse}
