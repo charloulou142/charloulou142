@@ -403,7 +403,7 @@
   }
   addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
-  function recommend(){const n=+g.value; if(kind==='mariage'||n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}
+  function recommend(){const n=+g.value; if(kind==='mariage') return n<=40?'soiree':'club'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
   function show(key,isReco){
     const p=PACKS[key];
     if(key===current&&key==='perso') return;
