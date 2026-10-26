@@ -184,6 +184,21 @@
   .recap-offre b{color:var(--text)} .recap-offre span{color:var(--muted)} .recap-offre a{color:var(--cyan);margin-left:6px;white-space:nowrap}
   .field[hidden]{display:none}
   .field.heure{margin-top:16px} .field.heure small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  /* plusieurs soirées, livraison, total */
+  .day.plage{background:color-mix(in srgb,var(--pink) 28%,var(--bg));border:2px solid var(--pink);color:var(--text)}
+  .cal-aide{font-size:13px;color:var(--muted);margin-top:10px}
+  .veille{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:14px;cursor:pointer}
+  .veille input{width:18px;height:18px;margin-top:2px;accent-color:var(--pink);flex:none}
+  .devis{margin-top:16px;padding:14px;border-radius:12px;border:1px solid var(--line)}
+  .devis .l{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+  .devis .l span:first-child{color:var(--muted)} .devis .l b{white-space:nowrap}
+  .devis .tot{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-size:18px}
+  .devis .tot span:first-child{color:var(--text);font-weight:700}
+  .devis small{display:block;color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
+  .result .price small{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-top:2px}
+  .eco{font-size:14px;color:var(--cyan);font-weight:700;margin:-8px 0 14px}
+  .eco[hidden]{display:none}
+  .item .in small{font-weight:600;color:var(--muted)}
   /* « en grand. » : le dégradé glisse lentement en boucle (lumière de scène), sans clignoter */
   @keyframes flux{from{background-position:0% 50%}to{background-position:-200% 50%}}
   .hero h1 em{background-image:linear-gradient(90deg,#A78BFA,#F472B6,#FB923C,#F472B6,#A78BFA);background-size:200% 100%;animation:flux 9s linear infinite}
@@ -246,7 +261,8 @@
       <p class="why" id="rWhy"></p>
       <ul class="checks" id="rList"></ul>
       <div class="panier" id="rPanier" hidden></div>
-      <p class="price"><span id="rPrice"></span> / soirée</p>
+      <p class="price"><span id="rPrice"></span> / soirée le week-end<small id="rSem"></small></p>
+      <p class="eco" id="rEco" hidden></p>
       <a class="btn" id="rBook" href="#reserver">Choisir ma date et réserver</a>
     </div>
   </div>
@@ -254,7 +270,7 @@
 
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
-  <p class="lead">Les jours disponibles s'affichent selon l'offre choisie. Ta demande nous arrive tout de suite : on te confirme rapidement par téléphone ou WhatsApp.</p>
+  <p class="lead">Une ou plusieurs soirées, livrées chez toi : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
   <div class="booking">
     <div class="panel">
       <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Changer</a></div>
@@ -267,10 +283,17 @@
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
       <div class="cal" id="cal" aria-live="polite"></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
+      <p class="cal-aide" id="bk-cal-aide">Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu'à 7).</p>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
-      <div class="field heure"><label for="bk-heure">Heure de retrait *</label>
+      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, à −20 %).</span></label>
+      <div class="field heure"><label for="bk-heure">Heure de livraison *</label>
         <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
-        <small>Retrait le jour J entre 17h00 et 19h30, retour le lendemain avant 12h00.</small></div>
+        <small>On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.</small></div>
+      <div class="field heure"><label for="bk-lieu">Ville de livraison *</label>
+        <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne" autocomplete="address-level2">
+        <datalist id="bk-villes"></datalist>
+        <small id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km depuis Salon.</small></div>
+      <div class="devis" id="bk-devis" hidden></div>
     </div>
     <form class="panel" id="bk-form" novalidate>
       <div class="row2">
@@ -278,13 +301,10 @@
         <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
       </div>
       <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120"></div>
-      <div class="row2">
-        <div class="field"><label for="bk-lieu">Ville / lieu de la fête</label><input id="bk-lieu" maxlength="80" placeholder="ex. Pélissanne"></div>
-        <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
-      </div>
+      <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
       <div class="field"><label for="bk-fete">Type de fête</label>
         <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
-      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="3" maxlength="500" placeholder="Horaires, accès, questions…"></textarea></div>
+      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="3" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
       <div class="hp" aria-hidden="true"><label>Site <input id="bk-site" tabindex="-1" autocomplete="off"></label></div>
       <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces informations pour traiter ma demande. <a href="confidentialite.html">Politique de confidentialité</a></span></label>
       <button class="btn" id="bk-submit" type="submit">Envoyer ma demande de réservation</button>
@@ -297,10 +317,10 @@
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="cat">
-    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">45 €</span> / soirée</b></div></article>
-    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">75 €</span> / soirée</b></div></article>
-    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">99 €</span> / soirée</b></div></article>
-    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">20 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">49,90 €</span> / soirée le week-end<br><small><span class="prixsem">39,90 €</span> en semaine</small></b></div></article>
+    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">79,90 €</span> / soirée le week-end<br><small><span class="prixsem">59,90 €</span> en semaine</small></b></div></article>
+    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">109,90 €</span> / soirée le week-end<br><small><span class="prixsem">79,90 €</span> en semaine</small></b></div></article>
+    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">24,90 €</span> / soirée le week-end<br><small><span class="prixsem">19,90 €</span> en semaine</small></b></div></article>
   </div>
 </div></section>
 
@@ -318,9 +338,10 @@
 <section id="faq"><div class="wrap center">
   <h2>Questions fréquentes</h2>
   <div class="faq" style="text-align:left;margin-top:30px">
-    <details><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique au retrait.</p></details>
+    <details><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
     <details><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
-    <details><summary>Vous livrez ?</summary><p>Oui, à Salon-de-Provence et aux alentours. Le prix dépend de la distance : envoie-nous ton adresse sur WhatsApp pour un tarif précis.</p></details>
+    <details><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs (par exemple 15 € à Pélissanne, 47 € à Aix). Le prix exact s'affiche quand tu choisis ta ville. Au-delà de 50 km, sur devis.</p></details>
+    <details><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée : la soirée la plus chère est au prix plein, toutes les autres à −20 %. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
   </div>
 </div></section>
@@ -340,13 +361,13 @@
 <script>
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
   const PACKS={
-    apero:{name:'Pack Apéro',price:'45 €',items:['1 JBL PartyBox 310 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
-    soiree:{name:'Pack Soirée',price:'89 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB'],why:'La vraie ambiance de soirée : gros son, lumières et fumée colorée.'},
-    club:{name:'Pack Club',price:'149 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'},
-    p310:{name:'JBL PartyBox 310',price:'45 €',items:['240 W, lumières intégrées','Batterie jusqu\'à 18 h','Connexion Bluetooth'],why:'Juste l\'enceinte, parfaite pour un apéro ou une fête sans prise.'},
-    p710:{name:'JBL PartyBox 710',price:'75 €',items:['800 W, basses profondes','Lumières intégrées','Se branche sur secteur'],why:'Juste l\'enceinte, pour faire danser une vraie soirée.'},
-    pult:{name:'JBL PartyBox Ultimate',price:'99 €',items:['1100 W, le haut de gamme JBL','Show lumineux intégré','Se branche sur secteur'],why:'Juste l\'enceinte, pour une grosse fête, un mariage ou une grande salle.'},
-    fumee:{name:'Machine à fumée 2000 W RGB',price:'20 €',items:['Deux jets de fumée éclairés en couleurs','Télécommande incluse'],why:'À ajouter à ta propre sono pour l\'effet boîte de nuit.'}
+    apero:{name:'Pack Apéro',price:'49,90 €',sem:'39,90 €',items:['1 JBL PartyBox 310 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
+    soiree:{name:'Pack Soirée',price:'94,90 €',sem:'69,90 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB'],why:'La vraie ambiance de soirée : gros son, lumières et fumée colorée.'},
+    club:{name:'Pack Club',price:'159,90 €',sem:'119,90 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'},
+    p310:{name:'JBL PartyBox 310',price:'49,90 €',sem:'39,90 €',items:['240 W, lumières intégrées','Batterie jusqu\'à 18 h','Connexion Bluetooth'],why:'Juste l\'enceinte, parfaite pour un apéro ou une fête sans prise.'},
+    p710:{name:'JBL PartyBox 710',price:'79,90 €',sem:'59,90 €',items:['800 W, basses profondes','Lumières intégrées','Se branche sur secteur'],why:'Juste l\'enceinte, pour faire danser une vraie soirée.'},
+    pult:{name:'JBL PartyBox Ultimate',price:'109,90 €',sem:'79,90 €',items:['1100 W, le haut de gamme JBL','Show lumineux intégré','Se branche sur secteur'],why:'Juste l\'enceinte, pour une grosse fête, un mariage ou une grande salle.'},
+    fumee:{name:'Machine à fumée 2000 W RGB',price:'24,90 €',sem:'19,90 €',items:['Deux jets de fumée éclairés en couleurs','Télécommande incluse'],why:'À ajouter à ta propre sono pour l\'effet boîte de nuit.'}
   };
   let kind='anniv', manual=null, current=null;
   const IMAGES={apero:['partybox-310'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-310'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee']};
@@ -354,16 +375,29 @@
   const STOCK={p310:2,p710:2,pult:1,fumee:1}; // valeurs de secours : remplacées par le stock de l'espace admin au chargement
   const panier={p310:0,p710:0,pult:0,fumee:0};
   const IMG1={p310:'partybox-310',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee'};
-  PACKS.perso={name:'Mon panier',price:'0 €',items:[],why:'Choisis tes appareils : le total se calcule tout seul.'};
+  PACKS.perso={name:'Mon panier',price:'0 €',sem:'0 €',items:[],why:'Choisis tes appareils : le total se calcule tout seul.'};
   const prixNum=k=>parseFloat(PACKS[k].price.replace(/[^\d,.]/g,'').replace(',','.'))||0;
-  const enEuros=v=>(Math.round(v*100)/100).toString().replace('.',',')+' €';
+  const semNum=k=>parseFloat(String(PACKS[k].sem||PACKS[k].price).replace(/[^\d,.]/g,'').replace(',','.'))||0;
+  // 49 → « 49 € », 49.9 → « 49,90 € »
+  const enEuros=v=>{const x=Math.round(v*100)/100; return (Number.isInteger(x)?String(x):x.toFixed(2).replace('.',','))+' €';};
+  // sous le prix : tarif semaine + économie d'un pack par rapport aux mêmes appareils à l'unité
+  const PACK_COMPO={soiree:{p710:1,fumee:1},club:{p710:2,fumee:1}};
+  function majPrixPack(key){
+    document.getElementById('rSem').textContent=PACKS[key].sem&&semNum(key)>0?semNum(key)<prixNum(key)?PACKS[key].sem+' / soirée en semaine (dim → jeu)':'':'';
+    const c=PACK_COMPO[key], eco=document.getElementById('rEco');
+    if(c){const unite=Object.keys(c).reduce((t,k)=>t+c[k]*prixNum(k),0), gain=unite-prixNum(key);
+      eco.hidden=!(gain>0); eco.textContent='Tu économises '+enEuros(gain)+' par rapport aux mêmes appareils loués à l\'unité.';}
+    else eco.hidden=true;
+  }
   function panierTexte(){ return Object.keys(panier).filter(k=>panier[k]).map(k=>panier[k]+'× '+PACKS[k].name).join(' + '); }
   function majPanier(anim){
     const box=document.getElementById('rPanier');
     box.innerHTML=Object.keys(panier).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'"><img src="images/'+IMG1[k]+'.webp" alt=""><span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('');
     const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
     PACKS.perso.price=enEuros(total);
+    PACKS.perso.sem=enEuros(Object.keys(panier).reduce((t,k)=>t+panier[k]*semNum(k),0));
     document.getElementById('rPrice').textContent=PACKS.perso.price;
+    majPrixPack('perso');
     // une image par appareil, 6 au maximum, mais chaque type choisi apparaît toujours au moins une fois
     const types=Object.keys(panier).filter(k=>panier[k]), imgs=types.slice();
     for(let n=2;imgs.length<6&&types.some(k=>panier[k]>=n);n++) types.forEach(k=>{if(panier[k]>=n&&imgs.length<6)imgs.push(k);});
@@ -416,6 +450,7 @@
     document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
+    majPrixPack(key);
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
     pills();
@@ -441,15 +476,68 @@
   const pad = n => String(n).padStart(2,'0');
   const isoJ = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
   const auj = new Date(); auj.setHours(0,0,0,0);
-  let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), choix = null, cache = {};
+  let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), cache = {};
+  let debut = null, fin = null;             // première et dernière soirée de la fête (aaaa-mm-jj)
+  let LIVR = { base: 5, km: 1.2, maxKm: 50 }, REMISE = 0.2;   // remplacés par les réglages du script au chargement
+  const NUITS_MAX = 7;
   const $ = id => document.getElementById(id);
   const offreSel = $('bk-offre');
+  const plusJ = (iso, n) => { const d = new Date(iso + 'T12:00'); d.setDate(d.getDate() + n); return isoJ(d); };
+  const ecart = (a, b) => Math.round((new Date(b + 'T12:00') - new Date(a + 'T12:00')) / 864e5);
+  const jourTxt = iso => new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  // période louée : la veille en plus si la fête est en journée
+  function periode(){
+    if (!debut) return null;
+    const veille = $('bk-veille').checked, start = veille ? plusJ(debut, -1) : debut;
+    return { start, nuits: ecart(start, fin || debut) + 1, veille };
+  }
 
   async function dispoMois(cle){
     if (cache[cle]) return cache[cle];
     if (!API.startsWith('https://')) return (cache[cle] = null);
     try { const r = await fetch(API+'?action=dispo&mois='+cle); const j = await r.json(); return (cache[cle] = j.ok ? j : null); }
     catch(e){ return (cache[cle] = null); }
+  }
+
+  // disponibilité d'un jour pour l'offre choisie (horaires fixes : un appareil rendu le matin repart le soir même, donc on raisonne par jour)
+  function statutDe(data, k){
+    if (!data) return 'a_confirmer';
+    const statuts = data.offres && data.offres[offreSel.value];
+    if (statuts) return statuts[k] || 'a_confirmer';
+    if (offreSel.value.indexOf('Panier perso : ') !== 0 || !data.reste || !data.reste[k]) return 'a_confirmer';
+    const r = data.reste[k]; let inconnu = false;   // panier perso : chaque appareil choisi comparé aux unités encore libres
+    for (const a in panier) {
+      if (!panier[a]) continue;
+      const v = r[PACK_CLE[a]];
+      if (v == null) { inconnu = true; continue; }
+      if (v < panier[a]) return 'complet';
+    }
+    return inconnu ? 'a_confirmer' : 'libre';
+  }
+  const passe = k => k < isoJ(auj) || (k === isoJ(auj) && !heuresPossibles(k).length);
+  async function statutK(k){ return passe(k) ? 'complet' : statutDe(await dispoMois(k.slice(0, 7)), k); }
+  async function periodeLibre(start, n){ for (let i = 0; i < n; i++) if (await statutK(plusJ(start, i)) === 'complet') return false; return true; }
+  function aide(txt){ const a = $('bk-cal-aide'); a.textContent = txt || 'Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu\'à 7).'; a.style.color = txt ? 'var(--pink)' : ''; a.style.fontWeight = txt ? '700' : ''; }
+
+  // 1er clic = première soirée ; 2e clic plus tard dans le calendrier = dernière soirée
+  async function cliquer(k){
+    aide('');
+    if (debut && fin === debut && k > debut) {
+      const n = ecart(debut, k) + 1 + ($('bk-veille').checked ? 1 : 0);
+      if (n > NUITS_MAX) { aide('7 soirées maximum : on repart de cette date. Pour plus, écris-nous sur WhatsApp.'); debut = fin = k; }
+      else if (!(await periodeLibre(debut, ecart(debut, k) + 1))) { aide('Une des soirées entre les deux est déjà réservée : on repart de cette date.'); debut = fin = k; }
+      else fin = k;
+    } else debut = fin = k;
+    await verifVeille();
+    maj(); dessiner(); majHeures();
+  }
+  // la veille doit être libre et pas déjà passée
+  async function verifVeille(){
+    const c = $('bk-veille');
+    if (!c.checked || !debut) return;
+    const v = plusJ(debut, -1);
+    if (await statutK(v) === 'complet') { c.checked = false; aide('La veille (' + jourTxt(v) + ') n\'est pas disponible : livraison le jour même.'); }
+    else if (ecart(v, fin) + 1 > NUITS_MAX) { c.checked = false; aide('7 soirées maximum.'); }
   }
 
   async function dessiner(){
@@ -460,42 +548,29 @@
     const premier = (new Date(vue.getFullYear(), vue.getMonth(), 1).getDay()+6)%7;
     for (let i=0;i<premier;i++) cal.insertAdjacentHTML('beforeend','<div></div>');
     const nb = new Date(vue.getFullYear(), vue.getMonth()+1, 0).getDate();
-    const boutons = [];
+    const boutons = [], p = periode();
     for (let j=1;j<=nb;j++){
       const d = new Date(vue.getFullYear(), vue.getMonth(), j), k = isoJ(d);
       const b = document.createElement('button'); b.type='button'; b.className='day'; b.textContent=j; b.dataset.k=k;
-      if (d < auj || (k === isoJ(auj) && !heuresPossibles(k).length)) { b.classList.add('passe'); b.disabled = true; }
-      if (choix === k) b.classList.add('sel');
-      b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; choix=k; maj(); dessiner(); majHeures(); });
+      if (passe(k)) { b.classList.add('passe'); b.disabled = true; }
+      if (k === debut || k === fin) b.classList.add('sel');
+      else if (p && k >= p.start && k <= (fin || debut)) b.classList.add('plage');   // soirées entre les deux (et la veille)
+      b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; cliquer(k); });
       cal.appendChild(b); boutons.push(b);
     }
     const data = await dispoMois(cle);
-    // horaires fixes (retour avant 12h, retrait à partir de 17h) : un appareil rendu le matin peut repartir le soir même,
-    // donc la disponibilité se lit simplement jour par jour
-    const statuts = data && data.offres && data.offres[offreSel.value];
-    const perso = !statuts && data && data.reste && offreSel.value.indexOf('Panier perso : ') === 0;
-    // panier perso : on compare chaque appareil choisi aux unités encore libres ce jour-là
-    const statutPerso = k => {
-      const r = data.reste[k]; if (!r) return 'a_confirmer';
-      let inconnu = false;
-      for (const a in panier) {
-        if (!panier[a]) continue;
-        const v = r[PACK_CLE[a]];
-        if (v == null) { inconnu = true; continue; }
-        if (v < panier[a]) return 'complet';
-      }
-      return inconnu ? 'a_confirmer' : 'libre';
-    };
     boutons.forEach(b=>{
       if (b.disabled) return;
-      const s = statuts ? statuts[b.dataset.k] : perso ? statutPerso(b.dataset.k) : 'a_confirmer';
+      const s = statutDe(data, b.dataset.k);
       b.classList.add(s);
       b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
-      if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); majHeures(); } }
+      if (s==='complet') b.disabled = true;
     });
+    // l'offre a changé et une soirée choisie n'est plus libre : on efface la sélection
+    if (p && !(await periodeLibre(p.start, p.nuits))) { debut = fin = null; $('bk-veille').checked = false; aide('Ce matériel n\'est plus libre sur ces dates : choisis une autre date.'); maj(); majHeures(); dessiner(); }
   }
 
-  // ---- heure de retrait : 17h00 → 19h30 par 30 min (retour le lendemain avant 12h00) ----
+  // ---- heure de livraison : 17h00 → 19h30 par 30 min (reprise le lendemain de la dernière soirée avant 12h00) ----
   const CRENEAUX = [1020, 1050, 1080, 1110, 1140, 1170];
   const hTexte = m => pad(Math.floor(m/60)) + 'h' + pad(m%60);
   // aujourd'hui : au moins 1 h à l'avance
@@ -504,32 +579,76 @@
     return iso === isoJ(n) ? CRENEAUX.filter(m => m >= n.getHours()*60 + n.getMinutes() + 60) : CRENEAUX;
   }
   function majHeures(){
-    const sel = $('bk-heure'), avant = sel.value;
-    if (!choix) { sel.innerHTML = '<option value="">Choisis d\'abord une date</option>'; sel.disabled = true; maj(); return; }
-    const ok = heuresPossibles(choix);
+    const sel = $('bk-heure'), avant = sel.value, p = periode();
+    if (!p) { sel.innerHTML = '<option value="">Choisis d\'abord une date</option>'; sel.disabled = true; maj(); return; }
+    const ok = heuresPossibles(p.start);
     sel.innerHTML = '<option value="">Choisis une heure</option>' + CRENEAUX.map(m => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(ok.indexOf(m)<0?' disabled':'')+'>'+hTexte(m)+(ok.indexOf(m)<0?' · passé':'')+'</option>').join('');
     sel.disabled = false;
     if (avant && [...sel.options].some(o => o.value === avant && !o.disabled)) sel.value = avant;
     maj();
   }
 
+  // ---- livraison : distance par la route depuis Salon-de-Provence (km, aller simple) ----
+  const VILLES = {"Aix-en-Provence":35,"Alleins":13,"Althen-des-Paluds":54,"Ansouis":43,"Apt":56,"Aramon":60,"Arles":45,"Aureille":16,"Auribeau":55,"Aurons":8,"Avignon":46,"Barbentane":55,"Beaucaire":60,"Beaumettes":41,"Beaurecueil":48,"Berre-l'Étang":22,"Bonnieux":47,"Bouc-Bel-Air":46,"Buoux":46,"Cabannes":31,"Cabrières-d'Aigues":47,"Cabrières-d'Avignon":39,"Cabriès":46,"Cadenet":35,"Cadolive":60,"Carry-le-Rouet":48,"Castellet-en-Luberon":59,"Caumont-sur-Durance":41,"Cavaillon":29,"Charleval":22,"Cheval-Blanc":30,"Châteauneuf-de-Gadagne":45,"Châteauneuf-le-Rouge":47,"Châteauneuf-les-Martigues":45,"Châteaurenard":45,"Cornillon-Confoux":9,"Coudoux":28,"Cucuron":42,"Ensuès-la-Redonne":45,"Entraigues-sur-la-Sorgue":51,"Eygalières":33,"Eyguières":12,"Eyragues":40,"Fontaine-de-Vaucluse":40,"Fontvieille":43,"Fos-sur-Mer":37,"Fuveau":48,"Gardanne":47,"Gargas":54,"Gignac-la-Nerthe":39,"Gordes":43,"Goult":45,"Grans":6,"Graveson":53,"Gréasque":52,"Istres":23,"Jonquerettes":47,"Joucas":47,"L'Isle-sur-la-Sorgue":38,"La Barben":12,"La Fare-les-Oliviers":17,"La Motte-d'Aigues":51,"La Roque-d'Anthéron":28,"La Roque-sur-Pernes":47,"Lacoste":49,"Lagnes":37,"Lamanon":9,"Lambesc":18,"Lançon-Provence":13,"Lauris":30,"Le Beaucet":49,"Le Pontet":50,"Le Puy-Sainte-Réparade":34,"Le Rove":48,"Le Tholonet":42,"Le Thor":40,"Les Angles":60,"Les Baux-de-Provence":42,"Les Pennes-Mirabeau":41,"Lourmarin":37,"Maillane":54,"Malemort-du-Comtat":59,"Mallemort":16,"Marignane":36,"Marseille":51,"Martigues":44,"Mas-Blanc-des-Alpilles":46,"Maubec":34,"Maussane-les-Alpilles":38,"Meyrargues":52,"Meyreuil":46,"Mimet":56,"Miramas":12,"Mollégès":31,"Monteux":57,"Morières-lès-Avignon":42,"Mouriès":27,"Murs":52,"Ménerbes":43,"Mérindol":19,"Noves":41,"Oppède":38,"Orgon":29,"Paradou":37,"Pernes-les-Fontaines":49,"Pertuis":59,"Peypin-d'Aigues":57,"Peyrolles-en-Provence":57,"Plan-d'Orgon":26,"Plan-de-Cuques":59,"Port-Saint-Louis-du-Rhône":46,"Port-de-Bouc":35,"Puget":26,"Puyvert":31,"Pélissanne":8,"Robion":31,"Rognac":25,"Rognes":25,"Rognonas":49,"Roussillon":50,"Saignon":56,"Saint-Andiol":30,"Saint-Antonin-sur-Bayon":53,"Saint-Cannat":19,"Saint-Chamas":13,"Saint-Didier":50,"Saint-Estève-Janson":35,"Saint-Marc-Jaumegarde":45,"Saint-Martin-de-Crau":21,"Saint-Martin-de-la-Brasque":52,"Saint-Mitre-les-Remparts":30,"Saint-Pantaléon":42,"Saint-Rémy-de-Provence":39,"Saint-Saturnin-lès-Avignon":53,"Saint-Savournin":60,"Saint-Victoret":35,"Saint-Étienne-du-Grès":49,"Salon-de-Provence":0,"Sannes":47,"Saumane-de-Vaucluse":41,"Sausset-les-Pins":54,"Septèmes-les-Vallons":49,"Simiane-Collongue":51,"Sivergues":54,"Sénas":15,"Taillades":31,"Vaugines":39,"Vauvenargues":54,"Vedène":49,"Velaux":24,"Velleron":43,"Venasque":57,"Venelles":45,"Ventabren":30,"Vernègues":16,"Verquières":33,"Villelaure":39,"Villeneuve-lès-Avignon":59,"Vitrolles":35,"Éguilles":29};
+  // « pelissanne », « Pélissanne », « PELISSANNE » → même ville ; « St Chamas » → Saint-Chamas
+  const norme = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\bste\b/g, 'sainte').replace(/\bst\b/g, 'saint').replace(/[^a-z]/g, '');
+  const ALIAS = { salon: 'Salon-de-Provence', aix: 'Aix-en-Provence', lancon: 'Lançon-Provence', berre: 'Berre-l\'Étang', isle: 'L\'Isle-sur-la-Sorgue' };
+  const INDEX = {}; Object.keys(VILLES).forEach(v => { INDEX[norme(v)] = v; });
+  $('bk-villes').innerHTML = Object.keys(VILLES).map(v => '<option value="' + v.replace(/"/g, '&quot;') + '">').join('');
+  const villeDe = txt => INDEX[norme(txt)] || ALIAS[norme(txt)] || null;
+  function livraison(){
+    const txt = $('bk-lieu').value.trim(), v = villeDe(txt);
+    if (!txt) return { etat: 'vide' };
+    if (!v) return { etat: 'devis', nom: txt };
+    const km = VILLES[v];
+    if (km > LIVR.maxKm) return { etat: 'devis', nom: v, km };
+    return { etat: 'ok', nom: v, km, prix: km === 0 ? LIVR.base : Math.round(LIVR.base + LIVR.km * km) };
+  }
+
+  // ---- prix : soirée du vendredi ou du samedi = tarif week-end, sinon tarif semaine ; la plus chère au prix plein, les autres −20 % ----
+  function cleOffre(){ const o = offreSel.value; return o.indexOf('Panier perso') === 0 ? 'perso' : Object.keys(PACKS).find(c => PACKS[c].name === o); }
+  function prixLocation(p){
+    const k = cleOffre(); if (!k || !p) return null;
+    const l = [];
+    for (let i = 0; i < p.nuits; i++) { const j = new Date(plusJ(p.start, i) + 'T12:00').getDay(); l.push(j === 5 || j === 6 ? prixNum(k) : semNum(k)); }
+    if (l.some(v => !(v > 0))) return null;
+    l.sort((a, b) => b - a);
+    return Math.round(l.reduce((t, v, i) => t + (i ? v * (1 - REMISE) : v), 0) * 100) / 100;
+  }
+
   function maj(){
-    const h = $('bk-heure') && $('bk-heure').value;
-    const jour = iso => new Date(iso+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    const lendemain = choix ? isoJ(new Date(new Date(choix+'T12:00').getTime() + 864e5)) : '';
-    $('bk-date-txt').textContent = choix
-      ? 'Retrait le '+jour(choix)+(h?' à '+h.replace(':','h'):' entre 17h00 et 19h30')+' · retour le '+jour(lendemain)+' avant 12h00'
+    const h = $('bk-heure') && $('bk-heure').value, p = periode();
+    $('bk-date-txt').textContent = p
+      ? 'Livraison le ' + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
+        ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
       : 'Clique sur une date du calendrier.';
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
-    const o = offreSel.value, perso = o.indexOf('Panier perso') === 0;
-    const k = perso ? 'perso' : Object.keys(PACKS).find(c => PACKS[c].name === o);
+    const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
     $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
-    $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + ' / soirée' : '';
+    $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + ' / soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '') : '';
+    // livraison + total
+    const l = livraison(), t = $('bk-livr-txt');
+    t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
+                  : l.etat === 'devis' ? (l.km ? l.nom + ' est à ' + l.km + ' km : livraison sur devis, on te donne le prix au téléphone.' : 'Ville pas dans notre liste : livraison sur devis, on te donne le prix au téléphone.')
+                  : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km depuis Salon.';
+    const loc = prixLocation(p), box = $('bk-devis');
+    box.hidden = !p || loc == null;
+    if (!box.hidden) {
+      const ligne = (a, b, cl) => '<div class="l' + (cl ? ' ' + cl : '') + '"><span>' + a + '</span><b>' + b + '</b></div>';
+      box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc)) +
+        ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'sur devis' : 'choisis ta ville') +
+        ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
+        '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
+        'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
+    }
   }
 
   window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
   offreSel.addEventListener('change', ()=>{ maj(); dessiner(); });
   $('bk-heure').addEventListener('change', maj);
+  $('bk-lieu').addEventListener('input', maj);
+  $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
+  $('bk-veille').addEventListener('change', async () => { aide(''); await verifVeille(); maj(); dessiner(); majHeures(); });
   $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
   $('cal-next').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()+1, 1); dessiner(); });
   // reprend le type de fête et les invités choisis dans « Trouve ton pack »
@@ -542,16 +661,17 @@
 
   $('bk-form').addEventListener('submit', async e=>{
     e.preventDefault();
-    const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim();
-    if (!choix) return message('Choisis d\'abord une date dans le calendrier.');
+    const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim(), p = periode(), l = livraison();
+    if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
-    if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de retrait (sous le calendrier).'); }
+    if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de livraison (sous le calendrier).'); }
+    if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique la ville de livraison (sous le calendrier).'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
-    const data = { nom, tel, email:$('bk-email').value.trim(), lieu:$('bk-lieu').value.trim(), invites:$('bk-invites').value,
-                   fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:choix, heure, offre:offreSel.value,
+    const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, invites:$('bk-invites').value,
+                   fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value };
-    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' pour le '+new Date(choix+'T12:00').toLocaleDateString('fr-FR')+' (retrait à '+heure.replace(':','h')+'). '+nom);
+    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : livraison le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+', à '+l.nom+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
     try {
@@ -559,7 +679,7 @@
       const j = await r.json();
       if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
-      $('bk-form').reset(); choix=null; maj(); cache={}; dessiner();
+      $('bk-form').reset(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
       const suivi = /^https:\/\/mistraloc\.fr\/suivi\?t=[a-f0-9]{24}$/.test(j.suivi||'') ? j.suivi : '';
       message('✅ Demande envoyée ! On te recontacte très vite au '+tel.replace(/[<>&"]/g,'')+' pour confirmer.'+(data.email?' Un e-mail de confirmation part à l\'instant.':'')+
         (suivi?'<br><a href="'+suivi+'">Suivre ma réservation</a> (garde ce lien).':''), true);
@@ -571,7 +691,7 @@
   maj(); dessiner();
 
   // Réglages gérés depuis l'espace admin (pause, prix, photos). Si le serveur ne répond pas, la page garde ses valeurs par défaut.
-  const euros = v => (Math.round(v * 100) / 100).toString().replace('.', ',') + ' €';
+  const euros = enEuros;
   const PACK_CLE = { apero: 'Pack Apéro', soiree: 'Pack Soirée', club: 'Pack Club', p310: 'JBL PartyBox 310', p710: 'JBL PartyBox 710', pult: 'JBL PartyBox Ultimate', fumee: 'Machine à fumée 2000 W RGB' };
   fetch(API + '?action=config').then(r => r.json()).then(c => {
     if (!c || !c.ok) return;
@@ -594,9 +714,16 @@
         img.onload = () => { ph.textContent = ''; ph.classList.add('photo'); ph.appendChild(img); };
       }
     });
+    const prixSem = c.prixSem || {};
+    document.querySelectorAll('.item[data-article]').forEach(it => { const v = prixSem[it.dataset.article], s = it.querySelector('.prixsem'); if (v != null && s) s.textContent = euros(v); });
     let change = false;
-    Object.keys(PACK_CLE).forEach(k => { if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; } });
-    if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; }
+    Object.keys(PACK_CLE).forEach(k => {
+      if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; }
+      if (prixSem[PACK_CLE[k]] != null) { PACKS[k].sem = euros(prixSem[PACK_CLE[k]]); change = true; }
+    });
+    if (c.livraison) LIVR = c.livraison;
+    if (c.remiseNuit != null) REMISE = c.remiseNuit;
+    if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) { document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; majPrixPack(k.dataset.pack); } maj(); }
     // stock réglé dans l'espace admin (onglet « Matériel ») : nombre maximum de chaque appareil dans « Mon panier »
     const stock = c.stock || {};
     Object.keys(STOCK).forEach(k => {
