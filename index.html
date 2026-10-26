@@ -180,6 +180,13 @@
   :root[data-theme=light] .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#EEE9F5}
   :root[data-theme=light] .result{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
   :root[data-theme=light] .field input,:root[data-theme=light] .field select,:root[data-theme=light] .field textarea{color-scheme:light}
+  /* changer de pack sans remonter : une seule ligne, qui défile de côté au doigt si elle est trop longue */
+  .bk-choix{position:relative;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;margin:0 0 10px;padding:2px 0 4px}
+  .bk-choix::-webkit-scrollbar{display:none}
+  .booking>.panel{min-width:0}   /* sinon la rangée (sur une ligne) élargit toute la page sur téléphone */
+  .bk-choix button{flex:none;scroll-snap-align:start;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .bk-choix button:hover{border-color:var(--pink)}
+  .bk-choix button[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#1A0B00}
   .recap-offre{padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin-bottom:16px;line-height:1.5}
   .recap-offre b{color:var(--text)} .recap-offre span{color:var(--muted)} .recap-offre a{color:var(--cyan);margin-left:6px;white-space:nowrap}
   .field[hidden]{display:none}
@@ -273,7 +280,10 @@
   <p class="lead">Une ou plusieurs soirées, livrées chez toi : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
   <div class="booking">
     <div class="panel">
-      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Changer</a></div>
+      <div class="bk-choix" id="bk-choix" role="group" aria-label="Changer de pack ou d'appareil">
+        <button type="button" data-pack="apero">Apéro</button><button type="button" data-pack="soiree">Soirée</button><button type="button" data-pack="club">Club</button><button type="button" data-pack="p310">310</button><button type="button" data-pack="p710">710</button><button type="button" data-pack="pult">Ultimate</button><button type="button" data-pack="fumee">Fumée</button><button type="button" data-pack="perso">Mon panier</button>
+      </div>
+      <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Détails</a></div>
       <div class="field" hidden><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
@@ -626,6 +636,11 @@
     const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
     $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
     $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + ' / soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '') : '';
+    // rangée de packs : bouton actif + le garder visible dans la ligne (sans faire bouger la page)
+    const choix = $('bk-choix');
+    choix.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pack === k)));
+    const actif = choix.querySelector('[aria-pressed="true"]');
+    if (actif && (actif.offsetLeft < choix.scrollLeft || actif.offsetLeft + actif.offsetWidth > choix.scrollLeft + choix.clientWidth)) choix.scrollLeft = actif.offsetLeft - 8;
     // livraison + total
     const l = livraison(), t = $('bk-livr-txt');
     t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
@@ -645,6 +660,18 @@
 
   window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
   offreSel.addEventListener('change', ()=>{ maj(); dessiner(); });
+  // changer de pack depuis le calendrier ; « Mon panier » vide : on remonte le composer
+  $('bk-choix').addEventListener('click', e => {
+    const b = e.target.closest('button[data-pack]'); if (!b) return;
+    const k = b.dataset.pack;
+    if (k === 'perso' && !Object.keys(panier).some(a => panier[a])) {
+      show('perso', false);
+      const r = $('rImg') || $('trouver');
+      window.scrollTo({ top: r.getBoundingClientRect().top + scrollY - 80, behavior: 'smooth' });
+      return;
+    }
+    show(k, k === recommend());
+  });
   $('bk-heure').addEventListener('change', maj);
   $('bk-lieu').addEventListener('input', maj);
   $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
