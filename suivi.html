@@ -91,9 +91,13 @@
         carte.innerHTML = (info ? '<p style="margin-bottom:14px;font-weight:600">' + esc(info) + '</p>' : '') +
           '<span class="statut">' + esc(j.statut) + '</span><p class="explic">' + esc(j.explication) + '</p>' +
           '<ol class="etapes' + (j.etape < 0 ? ' annule' : '') + '">' + etapes.map((e, i) => '<li class="' + (j.etape >= i ? 'ok' : '') + '">' + e + '</li>').join('') + '</ol>' +
-          '<dl>' + (j.retour ? '<dt>Retrait</dt><dd>' + esc(j.date) + (j.heure ? ' à ' + esc(j.heure) : ' entre 17h00 et 19h30') + '</dd><dt>Retour</dt><dd>' + esc(j.retour) + ' avant ' + esc(j.retourAvant || '12h00') + '</dd>'
+          '<dl>' + (j.retour ? '<dt>Livraison</dt><dd>' + esc(j.date) + (j.heure ? ' à ' + esc(j.heure) : ' entre 17h00 et 19h30') + '</dd>' +
+                             (j.nuits > 1 ? '<dt>Soirées</dt><dd>' + esc(j.nuits) + ' (jusqu\'au ' + esc(j.fin) + ')</dd>' : '') +
+                             '<dt>Reprise</dt><dd>' + esc(j.retour) + ' avant ' + esc(j.retourAvant || '12h00') + '</dd>'
                             : '<dt>Date</dt><dd>' + esc(j.date) + '</dd>') + '<dt>Matériel</dt><dd>' + esc(j.offre) + '</dd>' +
-          (j.prix ? '<dt>Prix</dt><dd>' + esc(j.prix) + ' <small style="font-weight:400;color:var(--muted)">hors livraison et caution</small></dd>' : '') + '</dl>' +
+          (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>Livraison</dt><dd>' + (j.livraison ? esc(j.livraison) : 'sur devis') + '</dd>' : '') +
+          (j.total ? '<dt>Total</dt><dd>' + esc(j.total) + ' <small style="font-weight:400;color:var(--muted)">hors caution</small></dd>' : '') + '</dl>' +
+          (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
           (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
         const b = document.getElementById('b-annul');
         if (b) b.addEventListener('click', async () => {
