@@ -47,7 +47,24 @@
   .tabs button{border:1px solid var(--line);background:var(--bg2);border-radius:999px;padding:9px 4px;font-weight:700;font-size:15px;cursor:pointer;color:var(--muted);min-width:0}
   .tabs button[aria-selected="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
   .top-admin{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
-  .resa{border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;background:var(--bg2)}
+  .resa{border:1px solid var(--line);border-radius:14px;margin-bottom:8px;background:var(--bg2);overflow:hidden;transition:border-color .2s}
+  .resa[open]{border-color:var(--violet)}
+  .resa.annulee:not([open]){opacity:.6}
+  .resa summary{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;list-style:none}
+  .resa summary::-webkit-details-marker{display:none}
+  .resa[open] .cli-fl{transform:rotate(90deg)}
+  .r-date{flex:0 0 58px;text-align:center;line-height:1.15;border-right:1px solid var(--line);padding-right:8px}
+  .r-date b{display:block;font-size:14px;text-transform:capitalize}
+  .r-date small,.r-fin small{display:block;color:var(--muted);font-size:12px;font-weight:600}
+  .r-txt{flex:1;min-width:0}
+  .r-txt b,.r-txt small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .r-txt small{color:var(--muted);font-size:13px}
+  .r-fin{text-align:right;flex:0 0 auto}
+  .r-fin .badge{margin:0;font-size:11px;padding:2px 8px}
+  .r-x{flex:0 0 30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+  .r-x:hover,.r-x:focus-visible{border-color:#F87171;color:#F87171;background:rgba(248,113,113,.1)}
+  .resa-corps{padding:4px 14px 14px;border-top:1px solid var(--line)}
+  .resa-corps h3{font-size:16px;margin:10px 0 4px}
   .resa h3{font-size:18px;margin-bottom:2px}
   .resa .meta{color:var(--muted);font-size:15px;margin-bottom:10px}
   .resa .meta a{color:var(--cyan)}
@@ -216,7 +233,7 @@
       <div class="cherche"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
         <input type="search" id="r-q" placeholder="Chercher une réservation : nom, tél., ville, pack…" aria-label="Rechercher une réservation" autocomplete="off"></div>
       <div id="liste-resa"></div>
-      <p class="note">Les réservations des 30 derniers jours et à venir. « Confirmer » bloque le matériel sur le site et met l'agenda à jour ; « Annuler » supprime l'événement de l'agenda.</p>
+      <p class="note">Les réservations des 30 derniers jours et à venir : touche une ligne pour voir le détail. La croix × efface une réservation annulée (une copie reste dans l'onglet « Réservations supprimées » du CRM). « Confirmer » bloque le matériel sur le site et met l'agenda à jour ; « Annuler » supprime l'événement de l'agenda.</p>
     </div>
 
     <div data-p="pause" hidden>
@@ -313,7 +330,7 @@
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
-    admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…' };
+    admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
     const a = $('attente'); if (a.hidden === !on) return;
@@ -498,7 +515,7 @@
     document.querySelector('.tabs button[data-t="resa"]').click();
     $('r-q').value = ''; afficherResa();
     const a = document.querySelector('.resa[data-ligne="' + ligne + '"]');
-    if (a) { a.scrollIntoView({ behavior: 'smooth', block: 'center' }); a.classList.remove('eclair'); void a.offsetWidth; a.classList.add('eclair'); }
+    if (a) { a.open = true; a.scrollIntoView({ behavior: 'smooth', block: 'center' }); a.classList.remove('eclair'); void a.offsetWidth; a.classList.add('eclair'); }
   }
   let tCherche = null;
   $('cl-q').addEventListener('input', () => { clearTimeout(tCherche); tCherche = setTimeout(() => { limiteCl = 30; afficherClients(); }, 120); });
@@ -645,8 +662,13 @@
       const prenom = String(r.client).trim().split(/\s+/)[0];
       const texteWa = 'Bonjour ' + prenom + ', ici Mistraloc 👋 Ta réservation du ' + dateFr(r.date) + ' (' + r.offre + ') : ' + (r.statut || 'en cours').toLowerCase() + '. Tu peux la suivre ici : ' + (r.suivi || 'https://mistraloc.fr');
       const options = etat.statuts.map(s => '<option' + (s === r.statut ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
-      return '<article class="resa" data-ligne="' + r.ligne + '">' +
-        '<span class="badge ' + esc(r.statut.split(' ')[0]) + '">' + esc(r.statut || 'Sans statut') + '</span>' +
+      const total = r.prix !== '' && r.prix != null ? Number(r.prix) + (Number(r.livraison) || 0) : null;
+      return '<details class="resa' + (r.statut === 'Annulée' ? ' annulee' : '') + '" data-ligne="' + r.ligne + '"' + (resaOuvertes.has(r.ligne) ? ' open' : '') + '>' +
+        '<summary><span class="r-date"><b>' + esc(jourCourt(r.date)) + '</b><small>' + esc(r.heure || '') + '</small></span>' +
+        '<span class="r-txt"><b>' + esc(r.offre) + (r.nuits > 1 ? ' · ' + esc(r.nuits) + ' soirées' : '') + '</b><small>' + esc([r.client, r.lieu].filter(Boolean).join(' · ')) + '</small></span>' +
+        '<span class="r-fin"><span class="badge ' + esc(r.statut.split(' ')[0]) + '">' + esc(r.statut || 'Sans statut') + '</span><small>' + (total != null ? eur(total) : '') + '</small></span>' +
+        (r.statut === 'Annulée' ? '<button type="button" class="r-x" data-suppr-resa aria-label="Supprimer cette réservation annulée" title="Supprimer">×</button>' : '') +
+        '<span class="cli-fl" aria-hidden="true">›</span></summary><div class="resa-corps">' +
         '<h3>' + esc(dateFr(r.date)) + (r.heure ? ' à ' + esc(r.heure) : '') + (r.nuits > 1 ? ' · ' + esc(r.nuits) + ' soirées' : '') + ' · ' + esc(r.offre) + '</h3>' +
         '<div class="meta">🚚 Livraison ' + (r.heure ? 'à ' + esc(r.heure) : 'entre 17h00 et 19h30') + (r.reprise ? ' · reprise le ' + esc(dateFr(r.reprise)) + ' avant 12h00' : '') + '</div>' +
         '<div class="meta">' + esc(r.client) + (tel ? ' · <a href="tel:' + esc(tel) + '">' + esc(r.tel) + '</a> · <a href="https://wa.me/' + esc(wa) + '?text=' + encodeURIComponent(texteWa) + '" target="_blank" rel="noopener">WhatsApp + lien de suivi</a>' : '') +
@@ -659,8 +681,28 @@
         '<div class="actions">' +
         (r.statut !== 'Confirmée' ? '<button class="btn small" data-s="Confirmée">✅ Confirmer</button>' : '') +
         (r.statut !== 'Annulée' ? '<button class="btn ghost small" data-s="Annulée">❌ Annuler</button>' : '') +
-        '<select aria-label="Changer le statut">' + options + '</select></div></article>';
+        '<select aria-label="Changer le statut">' + options + '</select></div></div></details>';
     }).join('');
+  }
+  const resaOuvertes = new Set();
+  const jourCourt = iso => iso ? new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '') : 'date ?';
+  $('liste-resa').addEventListener('toggle', e => {
+    const d = e.target; if (!d.classList || !d.classList.contains('resa')) return;
+    const l = Number(d.dataset.ligne); d.open ? resaOuvertes.add(l) : resaOuvertes.delete(l);
+  }, true);
+  async function supprimerResa(art) {
+    const ligne = Number(art.dataset.ligne), r = etat.reservations.find(x => x.ligne === ligne);
+    if (!r || r.statut !== 'Annulée') return;
+    if (!confirm('Supprimer la réservation annulée de ' + r.client + ' (' + dateFr(r.date) + ', ' + r.offre + ') ?\n\nElle disparaît de la liste et du CRM. Une copie est gardée dans l\'onglet « Réservations supprimées » du CRM.')) return;
+    try {
+      const j = await appel('admin_suppr_resa', { ligne });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.reservations = etat.reservations.filter(x => x.ligne !== ligne);
+      (etat.clients || []).forEach(c => { c.resa = c.resa.filter(x => x.ligne !== ligne); c.demandes = c.resa.length; c.annulees = c.resa.filter(x => x.statut === 'Annulée').length; });
+      etat.clients = (etat.clients || []).filter(c => c.resa.length || c.compte);
+      resaOuvertes.delete(ligne); prepClients(); afficherResa(); afficherClients();
+      msg('m-admin', 'Réservation supprimée (copie gardée dans l\'onglet « Réservations supprimées » du CRM).', true);
+    } catch (err) { msg('m-admin', 'Pas supprimée : ' + (err.message || 'erreur') + '.'); }
   }
   async function changerStatut(art, statut, btn) {
     if (statut === 'Annulée' && !confirm('Annuler cette réservation ? L\'événement sera supprimé de l\'agenda.')) { afficherResa(); return; }
@@ -686,6 +728,8 @@
     }
   }
   $('liste-resa').addEventListener('click', e => {
+    const x = e.target.closest('button[data-suppr-resa]');
+    if (x) { e.preventDefault(); return supprimerResa(x.closest('.resa')); }
     const f = e.target.closest('button[data-fiche]'); if (f) return ouvrirClient(f.dataset.fiche);
     const b = e.target.closest('button[data-s]'); if (b) changerStatut(b.closest('.resa'), b.dataset.s, b);
   });
