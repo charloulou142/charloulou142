@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zone de livraison · Mistraloc</title>
+<meta name="description" content="Livraison d'enceintes JBL PartyBox autour de Salon-de-Provence (jusqu'à 25 km) : Pélissanne, Grans, Lançon, Miramas, Istres… Prix de la livraison commune par commune.">
+<link rel="canonical" href="https://mistraloc.fr/livraison.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0B0714" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F3EFF8" media="(prefers-color-scheme: light)">
+<script>
+  // Thème choisi par le visiteur (bouton lune / soleil), sinon celui de l'appareil
+  (function(){
+    var d=document.documentElement, t=null;
+    try{ t=localStorage.getItem('audioloc_theme'); }catch(e){}
+    if(t==='light'||t==='dark') d.dataset.theme=t;
+    function sombre(){ return d.dataset.theme ? d.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+    function barre(){ document.querySelectorAll('meta[name=theme-color]').forEach(function(m){ m.removeAttribute('media'); m.content=sombre()?'#0B0714':'#F3EFF8'; }); }
+    if(t) document.addEventListener('DOMContentLoaded',barre);
+    document.addEventListener('click',function(e){
+      if(!e.target.closest('.theme-btn')) return;
+      var nouveau = sombre() ? 'light' : 'dark';
+      function appliquer(){ d.dataset.theme = nouveau; barre(); }
+      try{ localStorage.setItem('audioloc_theme', nouveau); }catch(e){}
+      var b = e.target.closest('.theme-btn').getBoundingClientRect(), x = b.left + b.width/2, y = b.top + b.height/2;
+      if (document.startViewTransition) {
+        var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        document.startViewTransition(appliquer).ready.then(function(){
+          d.animate({ clipPath: ['circle(0px at '+x+'px '+y+'px)', 'circle('+r+'px at '+x+'px '+y+'px)'] },
+                    { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' });
+        });
+      } else {
+        d.classList.add('theme-anim'); appliquer();
+        setTimeout(function(){ d.classList.remove('theme-anim'); }, 500);
+      }
+    });
+  })();
+</script>
+<link rel="stylesheet" href="style.css?v=6">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  main{max-width:860px;margin:0 auto;padding:56px 20px 80px}
+  main h1{font-family:"Bebas Neue";font-weight:400;font-size:clamp(42px,7vw,64px);line-height:1;margin-bottom:12px}
+  main h2{font-size:23px;margin:40px 0 12px;font-family:inherit;font-weight:700}
+  main h3{font-size:18px;margin:0 0 6px}
+  main p,main li{color:var(--muted);margin-bottom:10px;line-height:1.6}
+  main ul{padding-left:22px}
+  main a{color:var(--cyan)}
+  main b{color:var(--text)}
+  .intro{font-size:19px;max-width:640px}
+  .maj{font-size:14px}
+  .etapes{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:14px;counter-reset:e}
+  .etapes li{counter-increment:e;position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px 70px;margin:0}
+  .etapes li::before{content:counter(e);position:absolute;left:18px;top:16px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--pink);color:#1A0B00;font-weight:800}
+  .etapes li p{margin:0}
+  .tab-wrap{overflow-x:auto;margin:14px 0 8px;border:1px solid var(--line);border-radius:16px}
+  table{width:100%;border-collapse:collapse;font-size:16px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--muted);font-weight:600;font-size:14px}
+  td.n,th.n{text-align:right}
+  tr:last-child td{border-bottom:0}
+  .note{font-size:14px}
+  .encadre{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:18px 0}
+  .encadre p:last-child{margin-bottom:0}
+  .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+  .liens-pied a{color:inherit}
+  @media (max-width:520px){ .etapes li{padding-left:62px} th,td{padding:10px} }
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <a class="logo" href="./" aria-label="mistraloc · accueil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="26 54 638 102" style="height:30px;width:auto;display:block" role="img" aria-label="mistraloc"><g transform="translate(25.00 12.20) scale(2.0000)"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44" fill="none" stroke="#FF7A1A" stroke-width="10" stroke-linecap="round"/><circle cx="92" cy="30" r="6.5" fill="#22D3EE"/></g><g fill="currentColor"><path transform="translate(263.00 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM380 0V286Q380 334 350.0 360.5Q320 387 276 387Q246 387 222.5 375.0Q199 363 185.0 340.5Q171 318 171 286L128 310Q128 365 152.0 405.0Q176 445 217.0 467.5Q258 490 309 490Q360 490 401.0 468.0Q442 446 466.0 406.0Q490 366 490 310V0ZM699 0V286Q699 334 669.0 360.5Q639 387 595 387Q566 387 542.0 375.0Q518 363 504.0 340.5Q490 318 490 286L428 310Q433 365 460.0 405.0Q487 445 529.5 467.5Q572 490 623 490Q675 490 717.0 468.0Q759 446 784.0 406.0Q809 366 809 310V0Z"/><path transform="translate(346.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0Z"/><path transform="translate(366.30 140.50) scale(0.10000 -0.10000)" d="M218 -10Q178 -10 141.0 0.5Q104 11 73.0 30.5Q42 50 19 78L89 148Q114 119 146.5 104.5Q179 90 220 90Q257 90 276.0 101.0Q295 112 295 133Q295 155 277.0 167.0Q259 179 230.5 187.5Q202 196 170.5 205.0Q139 214 110.5 229.5Q82 245 64.0 272.0Q46 299 46 342Q46 388 67.5 421.0Q89 454 128.5 472.0Q168 490 223 490Q281 490 325.5 469.5Q370 449 400 408L330 338Q309 364 282.0 377.0Q255 390 220 390Q187 390 169.0 380.0Q151 370 151 351Q151 331 169.0 320.0Q187 309 215.5 301.0Q244 293 275.5 283.5Q307 274 335.5 257.5Q364 241 382.0 213.5Q400 186 400 142Q400 72 351.0 31.0Q302 -10 218 -10Z"/><path transform="translate(406.30 140.50) scale(0.10000 -0.10000)" d="M134 0V680H244V0ZM19 380V480H359V380Z"/><path transform="translate(441.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM171 267 133 286Q133 377 173.5 433.5Q214 490 296 490Q332 490 361.0 477.0Q390 464 415 435L343 361Q330 375 314.0 381.0Q298 387 277 387Q231 387 201.0 358.0Q171 329 171 267Z"/><path transform="translate(480.60 140.50) scale(0.10000 -0.10000)" d="M262 -10Q197 -10 144.5 23.0Q92 56 61.5 112.5Q31 169 31 239Q31 310 61.5 366.5Q92 423 144.5 456.5Q197 490 262 490Q317 490 359.5 466.5Q402 443 427.0 402.0Q452 361 452 309V171Q452 119 427.5 78.0Q403 37 360.0 13.5Q317 -10 262 -10ZM280 94Q341 94 378.5 135.0Q416 176 416 240Q416 283 399.0 316.0Q382 349 351.5 367.5Q321 386 280 386Q240 386 209.5 367.5Q179 349 161.5 316.0Q144 283 144 240Q144 197 161.5 164.0Q179 131 209.5 112.5Q240 94 280 94ZM409 0V129L428 246L409 362V480H519V0Z"/><path transform="translate(535.60 140.50) scale(0.10000 -0.10000)" d="M61 0V720H171V0Z"/><path transform="translate(555.80 140.50) scale(0.10000 -0.10000)" d="M281 -10Q211 -10 154.0 23.5Q97 57 63.5 114.0Q30 171 30 241Q30 311 63.5 367.0Q97 423 154.0 456.5Q211 490 281 490Q352 490 409.0 457.0Q466 424 499.5 367.5Q533 311 533 241Q533 171 499.5 114.0Q466 57 409.0 23.5Q352 -10 281 -10ZM281 96Q322 96 353.5 114.5Q385 133 402.5 166.0Q420 199 420 241Q420 283 402.0 315.0Q384 347 353.0 365.5Q322 384 281 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 241Q143 199 160.5 166.0Q178 133 209.5 114.5Q241 96 281 96Z"/><path transform="translate(609.10 140.50) scale(0.10000 -0.10000)" d="M282 -10Q211 -10 153.5 23.0Q96 56 63.0 113.0Q30 170 30 240Q30 311 63.0 367.5Q96 424 153.5 457.0Q211 490 282 490Q338 490 386.5 468.5Q435 447 469 407L397 334Q376 359 346.5 371.5Q317 384 282 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 240Q143 198 160.5 165.5Q178 133 209.5 114.5Q241 96 282 96Q317 96 346.5 108.5Q376 121 397 146L469 73Q435 33 386.5 11.5Q338 -10 282 -10Z"/></g><circle cx="357.80" cy="77.10" r="6.50" fill="#22D3EE"/></svg></a>
+  <div class="navlinks"><button class="theme-btn" type="button" aria-label="Changer de thème (clair / sombre)" title="Clair / sombre"><svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="btn" href="./#reserver">Réserver</a></div>
+</div></nav>
+<main>
+  <h1>Zone de livraison</h1>
+  <p class="intro">On livre et on reprend le matériel chez toi ou sur le lieu de ta fête, jusqu'à <b>25 km</b> autour de Salon-de-Provence.</p>
+
+  <div class="encadre">
+    <p><b>Salon-de-Provence : 5 €</b> · Ailleurs : 5 € + 1,20 € par km depuis Salon (arrondi à l'euro). Le prix comprend la livraison <b>et</b> la reprise du matériel.</p>
+    <p><b>Livraison</b> le jour J entre 17h00 et 19h30 · <b>Reprise</b> le lendemain de la dernière soirée, avant 12h00.</p>
+  </div>
+
+  <h2>Les 27 communes livrées</h2>
+  <div class="tab-wrap"><table>
+    <thead><tr><th>Commune</th><th class="n">Distance</th><th class="n">Livraison</th></tr></thead>
+    <tbody>
+      <tr><td>Salon-de-Provence</td><td class="n">0 km</td><td class="n">5 €</td></tr>
+      <tr><td>Grans</td><td class="n">6 km</td><td class="n">12 €</td></tr>
+      <tr><td>Aurons</td><td class="n">8 km</td><td class="n">15 €</td></tr>
+      <tr><td>Pélissanne</td><td class="n">8 km</td><td class="n">15 €</td></tr>
+      <tr><td>Cornillon-Confoux</td><td class="n">9 km</td><td class="n">16 €</td></tr>
+      <tr><td>Lamanon</td><td class="n">9 km</td><td class="n">16 €</td></tr>
+      <tr><td>Eyguières</td><td class="n">12 km</td><td class="n">19 €</td></tr>
+      <tr><td>La Barben</td><td class="n">12 km</td><td class="n">19 €</td></tr>
+      <tr><td>Miramas</td><td class="n">12 km</td><td class="n">19 €</td></tr>
+      <tr><td>Alleins</td><td class="n">13 km</td><td class="n">21 €</td></tr>
+      <tr><td>Lançon-Provence</td><td class="n">13 km</td><td class="n">21 €</td></tr>
+      <tr><td>Saint-Chamas</td><td class="n">13 km</td><td class="n">21 €</td></tr>
+      <tr><td>Sénas</td><td class="n">15 km</td><td class="n">23 €</td></tr>
+      <tr><td>Aureille</td><td class="n">16 km</td><td class="n">24 €</td></tr>
+      <tr><td>Mallemort</td><td class="n">16 km</td><td class="n">24 €</td></tr>
+      <tr><td>Vernègues</td><td class="n">16 km</td><td class="n">24 €</td></tr>
+      <tr><td>La Fare-les-Oliviers</td><td class="n">17 km</td><td class="n">25 €</td></tr>
+      <tr><td>Lambesc</td><td class="n">18 km</td><td class="n">27 €</td></tr>
+      <tr><td>Mérindol</td><td class="n">19 km</td><td class="n">28 €</td></tr>
+      <tr><td>Saint-Cannat</td><td class="n">19 km</td><td class="n">28 €</td></tr>
+      <tr><td>Saint-Martin-de-Crau</td><td class="n">21 km</td><td class="n">30 €</td></tr>
+      <tr><td>Berre-l'Étang</td><td class="n">22 km</td><td class="n">31 €</td></tr>
+      <tr><td>Charleval</td><td class="n">22 km</td><td class="n">31 €</td></tr>
+      <tr><td>Istres</td><td class="n">23 km</td><td class="n">33 €</td></tr>
+      <tr><td>Velaux</td><td class="n">24 km</td><td class="n">34 €</td></tr>
+      <tr><td>Rognac</td><td class="n">25 km</td><td class="n">35 €</td></tr>
+      <tr><td>Rognes</td><td class="n">25 km</td><td class="n">35 €</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Distances par la route depuis le centre de Salon-de-Provence, calculées avec OpenStreetMap. Le prix exact s'affiche automatiquement quand tu réserves.</p>
+
+  <h2>Ta commune n'est pas dans la liste ?</h2>
+  <p>Si elle est à moins de 25 km de Salon, réserve quand même : on te confirme la livraison par téléphone. Au-delà de 25 km, on ne livre pas pour l'instant. Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.</p>
+<div class="cta"><a class="btn" href="./#reserver">Choisir ma date et réserver</a><a class="btn ghost" href="https://wa.me/33622123963" target="_blank" rel="noopener">Une question ? WhatsApp</a></div>
+</main>
+<footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span class="liens-pied"><a href="comment-ca-marche.html">Comment ça marche</a> · <a href="livraison.html">Zone de livraison</a> · <a href="conditions.html">Conditions de location</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener">Instagram</a></span></div></footer>
+<script>
+  // Compteur de visites anonyme (sans cookie) — voir la politique de confidentialité
+  (() => {
+    try { if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}
+    let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
+    let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+    fetch('https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec?action=visite&p=livraison&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
+  })();
+</script>
+</body>
+</html>
