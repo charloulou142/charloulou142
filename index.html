@@ -37,12 +37,23 @@
   .result .why{color:var(--muted);margin-bottom:18px}
   .result .checks{margin-bottom:22px}
   .result .price{font-weight:700;font-size:20px;margin-top:auto;margin-bottom:16px}
-  .switch{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:22px;align-self:flex-start;flex-wrap:wrap}
+  .switch{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:4px;margin-bottom:16px;align-self:flex-start;flex-wrap:wrap}
+  .swl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
   .switch button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;cursor:pointer;color:var(--muted)}
-  .switch button[aria-pressed="true"]{background:var(--violet);color:#fff;box-shadow:0 0 16px rgba(139,92,246,.6)}
+  .switch{position:relative}
+  .switch button{position:relative;z-index:1;transition:color .3s}
+  .switch button[aria-pressed="true"]{color:#fff}
+  .switch .pill{position:absolute;left:0;top:0;z-index:0;border-radius:999px;background:var(--violet);box-shadow:0 0 16px rgba(139,92,246,.6);pointer-events:none;opacity:0;transition:transform .45s cubic-bezier(.34,1.35,.5,1),width .45s cubic-bezier(.34,1.35,.5,1),height .3s,opacity .25s}
+  .result.swap .tag,.result.swap h3,.result.swap .why,.result.swap .checks li,.result.swap .price{animation:glisse .5s cubic-bezier(.2,.8,.2,1) both}
+  .result.swap h3{animation-delay:.04s}.result.swap .why{animation-delay:.08s}.result.swap .price{animation-delay:.2s}
+  .result.swap .checks li:nth-child(1){animation-delay:.1s}.result.swap .checks li:nth-child(2){animation-delay:.14s}.result.swap .checks li:nth-child(3){animation-delay:.18s}
+  @keyframes glisse{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.switch .pill{transition:transform .3s ease,width .3s ease,height .3s ease,opacity .2s!important}.result{--dx:12px}}
   .cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
   .item{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
-  .ph{height:150px;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:14px;background:radial-gradient(60% 80% at 50% 110%,rgba(139,92,246,.35),transparent 70%),repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
+  .ph{position:relative;height:240px;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:14px;background:radial-gradient(60% 80% at 50% 110%,rgba(139,92,246,.35),transparent 70%),repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
+  .ph img{position:absolute;inset:14px 0 12px;width:100%;height:calc(100% - 26px);object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.5))}
+  .ph:has(img){font-size:0;background:radial-gradient(60% 70% at 50% 100%,rgba(139,92,246,.45),transparent 70%),#191130}
   .item .in{padding:20px}
   .item h3{font-size:20px}
   .item p{color:var(--muted);font-size:15px;margin:4px 0 10px}
@@ -87,7 +98,7 @@
 
   /* photos et pause, pilotées depuis l'espace admin */
   .ph.photo{height:200px;background:none}
-  .ph.photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .ph.photo img{position:static;width:100%;height:100%;object-fit:cover;display:block;filter:none}
   .pause{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px 16px;text-align:center;background:radial-gradient(70% 60% at 50% 30%,rgba(139,92,246,.35),transparent 70%),var(--bg)}
   .pause .box{max-width:520px}
   .pause .logo{font-size:52px;display:block;margin-bottom:18px}
@@ -96,7 +107,7 @@
 </head>
 <body>
 <nav class="top"><div class="wrap">
-  <a class="logo" href="#">AUDIO<span>LOC</span></a>
+  <a class="logo" href="./">AUDIO<span>LOC</span></a>
   <div class="navlinks"><a href="#trouver">Trouver mon pack</a><a href="#materiel">Matériel</a><a href="#faq">FAQ</a><a class="btn" href="#reserver">Réserver</a></div>
 </div></nav>
 
@@ -130,8 +141,13 @@
       </div>
     </div>
     <div class="result" aria-live="polite">
+      <p class="swl">Les packs</p>
       <div class="switch" role="group" aria-label="Voir un pack">
         <button data-pack="apero" aria-pressed="false">Apéro</button><button data-pack="soiree" aria-pressed="true">Soirée</button><button data-pack="club" aria-pressed="false">Club</button>
+      </div>
+      <p class="swl">Ou à l'unité</p>
+      <div class="switch" role="group" aria-label="Louer un appareil seul">
+        <button data-pack="p310" aria-pressed="false">PartyBox 310</button><button data-pack="p710" aria-pressed="false">PartyBox 710</button><button data-pack="pult" aria-pressed="false">Ultimate</button><button data-pack="fumee" aria-pressed="false">Fumée</button>
       </div>
       <span class="tag" id="rTag">Recommandé pour toi</span>
       <h3 id="rName">Pack Soirée</h3>
@@ -182,12 +198,12 @@
 
 <section id="materiel"><div class="wrap">
   <h2>Le matériel</h2>
-  <p class="lead">Les zones hachurées accueilleront tes photos.</p>
+  <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="cat">
-    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310</div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">45 €</span> / soirée</b></div></article>
-    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710</div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">75 €</span> / soirée</b></div></article>
-    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate</div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">99 €</span> / soirée</b></div></article>
-    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée</div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">20 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">45 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">75 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">99 €</span> / soirée</b></div></article>
+    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">20 €</span> / soirée</b></div></article>
   </div>
 </div></section>
 
@@ -229,19 +245,41 @@
   const PACKS={
     apero:{name:'Pack Apéro',price:'45 €',items:['1 JBL PartyBox 310 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
     soiree:{name:'Pack Soirée',price:'89 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB'],why:'La vraie ambiance de soirée : gros son, lumières et fumée colorée.'},
-    club:{name:'Pack Club',price:'149 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'}
+    club:{name:'Pack Club',price:'149 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'},
+    p310:{name:'JBL PartyBox 310',price:'45 €',items:['240 W, lumières intégrées','Batterie jusqu\'à 18 h','Connexion Bluetooth'],why:'Juste l\'enceinte, parfaite pour un apéro ou une fête sans prise.'},
+    p710:{name:'JBL PartyBox 710',price:'75 €',items:['800 W, basses profondes','Lumières intégrées','Se branche sur secteur'],why:'Juste l\'enceinte, pour faire danser une vraie soirée.'},
+    pult:{name:'JBL PartyBox Ultimate',price:'99 €',items:['1100 W, le haut de gamme JBL','Show lumineux intégré','Se branche sur secteur'],why:'Juste l\'enceinte, pour une grosse fête, un mariage ou une grande salle.'},
+    fumee:{name:'Machine à fumée 2000 W RGB',price:'20 €',items:['Deux jets de fumée éclairés en couleurs','Télécommande incluse'],why:'À ajouter à ta propre sono pour l\'effet boîte de nuit.'}
   };
-  let kind='anniv', manual=null;
+  let kind='anniv', manual=null, current=null;
+  const ORDRE=['apero','soiree','club','p310','p710','pult','fumee'];
+  const result=document.querySelector('.result');
+  document.querySelectorAll('.switch').forEach(sw=>sw.insertAdjacentHTML('afterbegin','<span class="pill" aria-hidden="true"></span>'));
+  function pills(){
+    document.querySelectorAll('.switch').forEach(sw=>{
+      const pill=sw.querySelector('.pill'), b=sw.querySelector('button[aria-pressed="true"]');
+      if(!b){pill.style.opacity=0;return;}
+      const pos='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';
+      if(pill.style.opacity!=='1'){pill.style.transition='none';pill.style.transform=pos;pill.style.width=b.offsetWidth+'px';pill.style.height=b.offsetHeight+'px';void pill.offsetWidth;pill.style.transition='';}
+      pill.style.transform=pos;pill.style.width=b.offsetWidth+'px';pill.style.height=b.offsetHeight+'px';pill.style.opacity=1;
+    });
+  }
+  addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
   function recommend(){const n=+g.value; if(kind==='mariage'||n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}
   function show(key,isReco){
     const p=PACKS[key];
+    if(key!==current){
+      if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
+      current=key;
+    }
     document.getElementById('rName').textContent=p.name;
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
+    pills();
     window.packChoisi=p.name;
     if (window.bkSync) window.bkSync();
   }
@@ -343,7 +381,7 @@
 
   // Réglages gérés depuis l'espace admin (pause, prix, photos). Si le serveur ne répond pas, la page garde ses valeurs par défaut.
   const euros = v => (Math.round(v * 100) / 100).toString().replace('.', ',') + ' €';
-  const PACK_CLE = { apero: 'Pack Apéro', soiree: 'Pack Soirée', club: 'Pack Club' };
+  const PACK_CLE = { apero: 'Pack Apéro', soiree: 'Pack Soirée', club: 'Pack Club', p310: 'JBL PartyBox 310', p710: 'JBL PartyBox 710', pult: 'JBL PartyBox Ultimate', fumee: 'Machine à fumée 2000 W RGB' };
   fetch(API + '?action=config').then(r => r.json()).then(c => {
     if (!c || !c.ok) return;
     if (c.pause) {
