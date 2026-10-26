@@ -245,6 +245,24 @@
   .wiz-nav .retour:hover{border-color:var(--cyan)}
   .wiz-nav [hidden]{display:none}
   .wiz-carte.secoue{animation:secoue .4s}
+  /* ce qu'il reste à remplir : encadré orange qui « respire » (zoom avant / arrière) */
+  .a-remplir{position:relative;border-radius:14px;outline:2px solid var(--pink);outline-offset:5px;animation:respire 1s ease-in-out 4}
+  .consent.a-remplir{padding:6px 4px}
+  @keyframes respire{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,122,26,0)}50%{transform:scale(1.035);box-shadow:0 0 26px 4px rgba(255,122,26,.45)}}
+  @media (prefers-reduced-motion:reduce){ .a-remplir{animation:none} }
+  /* écran d'attente pendant l'envoi */
+  .attente{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fondu .25s both}
+  .attente[hidden]{display:none}
+  .attente-box{text-align:center;display:grid;gap:8px;justify-items:center;max-width:320px}
+  .attente svg{width:110px;height:88px;overflow:visible}
+  .attente path{fill:none;stroke:var(--pink);stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:vague 1.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,122,26,.6))}
+  .attente circle{fill:var(--cyan);transform-origin:92px 30px;animation:point 1.4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(34,211,238,.7))}
+  .attente b{font-size:20px}
+  .attente small{color:var(--muted);font-size:14px}
+  @keyframes fondu{from{opacity:0}}
+  @keyframes vague{0%{stroke-dashoffset:110}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-110}}
+  @keyframes point{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+  @media (prefers-reduced-motion:reduce){ .attente path{animation:none;stroke-dashoffset:0} .attente circle{animation:none} }
   @keyframes secoue{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
   .day.sel{animation:choisi .35s cubic-bezier(.3,1.6,.5,1)}
   @keyframes choisi{from{transform:scale(.7)}to{transform:none}}
@@ -266,6 +284,7 @@
   .merci h3{font-size:40px}
   .merci p{color:var(--muted);max-width:460px;margin:0 auto 14px}
   .merci .btn{margin:4px}
+  .merci .btn[hidden]{display:none}
   .confetti{position:absolute;top:30%;left:50%;width:9px;height:14px;border-radius:2px;pointer-events:none;z-index:5}
   #reserver .chosen{line-height:1.4}
   @media (max-width:520px){ .wiz-etapes button{font-size:11px} .wiz-pas h3{font-size:26px} #reserver .panel{padding:16px} #reserver .day{height:36px} }
@@ -459,12 +478,21 @@
       <div class="wiz-nav" id="wiz-nav">
         <button class="retour" type="button" id="wiz-prec" hidden>← Retour</button>
         <button class="btn" type="button" id="wiz-suiv">Continuer →</button>
-        <button class="btn" id="bk-submit" type="submit" hidden>Envoyer ma demande de réservation</button>
+        <button class="btn" id="bk-submit" type="submit" hidden>Envoyer ma demande ✓</button>
       </div>
       <div class="msg" id="bk-msg" hidden></div>
     </form>
   </div>
 </div></section>
+
+<!-- écran d'attente pendant l'envoi de la réservation : bloque toute la page -->
+<div class="attente" id="bk-attente" role="alertdialog" aria-modal="true" aria-labelledby="bk-attente-txt" tabindex="-1" hidden>
+  <div class="attente-box">
+    <svg viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg>
+    <b id="bk-attente-txt">Envoi de ta demande…</b>
+    <small>Ne ferme pas la page, ça ne prend que quelques secondes.</small>
+  </div>
+</div>
 
 <section id="materiel"><div class="wrap">
   <h2>Le matériel</h2>
@@ -876,6 +904,7 @@
     const carte = $('bk-form'), avant = carte.querySelector('.wiz-pas[data-pas="' + pas + '"]'), apres = carte.querySelector('.wiz-pas[data-pas="' + n + '"]');
     const sens = n > pas ? 1 : -1;
     $('bk-msg').hidden = true;
+    document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir'));
     if (n === 4) resume();
     avant.hidden = true; apres.hidden = false; pas = n;
     if (!reduit && avant !== apres) apres.animate([{ opacity: 0, transform: 'translateX(' + (40 * sens) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' });
@@ -893,12 +922,23 @@
     if (focus) { const f = apres.querySelector('input:not([type=checkbox]):not([tabindex="-1"]), select'); if (f && !f.disabled) setTimeout(() => f.focus({ preventScroll: true }), 400); }
     majBarre();
   }
+  // montre l'endroit à remplir (au lieu d'un message en bas) ; l'encadré part dès que le client agit dessus
+  function signaler(el){
+    document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir'));
+    const c = el.id === 'cal' ? el : (el.closest('.field, .consent') || el);
+    void c.offsetWidth; c.classList.add('a-remplir');
+    const fin = () => c.classList.remove('a-remplir');
+    ['input', 'change', 'click'].forEach(t => c.addEventListener(t, fin, { once: true }));
+    const r = c.getBoundingClientRect();
+    if (r.top < 80 || r.bottom > innerHeight - 90) c.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'center' });
+    if (el.focus && el.id !== 'cal' && el.type !== 'checkbox') setTimeout(() => el.focus({ preventScroll: true }), 300);
+  }
   function wizSuivant(){
     const m = manque(pas);
     if (m) {
-      message(m.txt);
-      const c = $('bk-form'); c.classList.remove('secoue'); void c.offsetWidth; c.classList.add('secoue');
-      if (m.el.focus && m.el.id !== 'cal') m.el.focus();
+      $('bk-msg').hidden = true;
+      if (m.el.id === 'cal') aide(m.txt);
+      signaler(m.el);
       return false;
     }
     if (pas < 4) allerA(pas + 1, true);
@@ -994,13 +1034,27 @@
   document.getElementById('rBook').addEventListener('click', syncFete);
   syncFete();
 
+  // écran d'attente : toute la page est bloquée (clics, clavier, défilement) jusqu'à la réponse
+  const ATT_MSG = ['Envoi de ta demande…', 'On vérifie les disponibilités…', 'On prépare ta réservation…', 'Presque fini…'];
+  let attT = null;
+  function attente(on){
+    const a = $('bk-attente'); if (!a || a.hidden === !on) return;
+    a.hidden = !on;
+    document.querySelectorAll('body > *:not(#bk-attente)').forEach(e => { e.inert = on; });
+    document.body.style.overflow = on ? 'hidden' : '';
+    clearInterval(attT);
+    if (on) { let i = 0; $('bk-attente-txt').textContent = ATT_MSG[0]; attT = setInterval(() => { i = Math.min(i + 1, ATT_MSG.length - 1); $('bk-attente-txt').textContent = ATT_MSG[i]; }, 1600); a.focus(); }
+    else visibiliteBarre();
+  }
+
   function message(txt, ok){ const m=$('bk-msg'); m.hidden=false; m.className='msg '+(ok?'ok':'err'); m.innerHTML=txt; }
 
   $('bk-form').addEventListener('submit', async e=>{
     e.preventDefault();
     if (pas < 4) { wizSuivant(); return; }   // Entrée dans un champ = étape suivante
     if (pas !== 4) return;
-    for (let n = 1; n <= 3; n++) { const m = manque(n); if (m) { allerA(n, true); message(m.txt); return; } }
+    for (let n = 1; n <= 3; n++) { const m = manque(n); if (m) { allerA(n); setTimeout(() => wizSuivant(), 450); return; } }
+    if (!$('bk-ok').checked) { $('bk-msg').hidden = true; signaler($('bk-ok')); return; }
     const nom=$('bk-nom').value.trim(), tel=$('bk-tel').value.trim(), p = periode(), l = livraison();
     if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
@@ -1016,9 +1070,12 @@
     const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : livraison le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+', à '+l.nom+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
+    attente(true); const t0 = Date.now();
     try {
       const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(data) });
       const j = await r.json();
+      const reste = 900 - (Date.now() - t0); if (reste > 0) await new Promise(ok => setTimeout(ok, reste));   // pas de flash trop court
+      attente(false);
       if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok && j.erreur === 'hors zone') { message('On livre seulement jusqu\'à 25 km de Salon-de-Provence. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a> si tu as une question.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
@@ -1029,7 +1086,7 @@
       allerA(5); confettis();
     } catch(err){
       message('Oups, l\'envoi n\'a pas marché. <a href="'+wa+'" target="_blank" rel="noopener">Envoie ta demande sur WhatsApp</a> ou appelle le 06 22 12 39 63.');
-    } finally { btn.disabled=false; btn.textContent='Envoyer ma demande de réservation'; }
+    } finally { attente(false); btn.disabled=false; btn.textContent='Envoyer ma demande ✓'; }
   });
 
   maj(); dessiner(); aide(''); allerA(1);
