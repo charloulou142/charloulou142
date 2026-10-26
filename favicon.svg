@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0B0714"/>
-  <rect x="18" y="8" width="28" height="48" rx="6" fill="#1B1230" stroke="#FF7A1A" stroke-width="3"/>
-  <circle cx="32" cy="40" r="9" fill="none" stroke="#22D3EE" stroke-width="3"/>
-  <circle cx="32" cy="20" r="4" fill="#8B5CF6"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64.00 64.00"><title>mistraloc</title><rect width="64" height="64" rx="14" fill="#0B0714"/><g transform="translate(4.72 7.06) scale(0.5376)"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44" fill="none" stroke="#FF7A1A" stroke-width="17" stroke-linecap="round"/><circle cx="92" cy="30" r="6.5" fill="#22D3EE"/></g></svg>
