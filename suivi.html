@@ -95,7 +95,7 @@
                              (j.nuits > 1 ? '<dt>Soirées</dt><dd>' + esc(j.nuits) + ' (jusqu\'au ' + esc(j.fin) + ')</dd>' : '') +
                              '<dt>Reprise</dt><dd>' + esc(j.retour) + ' avant ' + esc(j.retourAvant || '12h00') + '</dd>'
                             : '<dt>Date</dt><dd>' + esc(j.date) + '</dd>') + '<dt>Matériel</dt><dd>' + esc(j.offre) + '</dd>' +
-          (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>Livraison</dt><dd>' + (j.livraison ? esc(j.livraison) : 'sur devis') + '</dd>' : '') +
+          (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>Livraison</dt><dd>' + (j.livraison ? esc(j.livraison) : 'à confirmer') + '</dd>' : '') +
           (j.total ? '<dt>Total</dt><dd>' + esc(j.total) + ' <small style="font-weight:400;color:var(--muted)">hors caution</small></dd>' : '') + '</dl>' +
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
           (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
