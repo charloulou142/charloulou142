@@ -55,6 +55,12 @@
   .aide{margin-top:22px;color:var(--muted);font-size:15px}
   .aide a{color:var(--cyan)}
   .chargement{color:var(--muted)}
+  .annul{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+  .annul button{background:none;border:1px solid #F87171;color:#F87171;border-radius:999px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
+  .annul button:hover{background:rgba(248,113,113,.12)}
+  .annul button:disabled{opacity:.5;cursor:default}
+  .annul p{color:var(--muted);font-size:13px;margin-top:8px}
+  .erreur{color:#F87171;font-weight:600}
 </style>
 </head>
 <body>
@@ -77,17 +83,36 @@
     const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const t = new URLSearchParams(location.search).get('t') || '';
     if (!/^[a-f0-9]{24}$/.test(t)) { carte.innerHTML = '<p>Ce lien de suivi est incomplet. Ouvre le lien reçu par e-mail ou WhatsApp, ou contacte-nous.</p>'; return; }
-    try {
-      const j = await (await fetch(API + '?action=suivi&t=' + t)).json();
-      if (!j.ok) throw new Error(j.erreur || 'introuvable');
-      const etapes = ['Demande reçue', 'Confirmée', 'Livrée', 'Terminée'];
-      carte.innerHTML = '<span class="statut">' + esc(j.statut) + '</span><p class="explic">' + esc(j.explication) + '</p>' +
-        '<ol class="etapes' + (j.etape < 0 ? ' annule' : '') + '">' + etapes.map((e, i) => '<li class="' + (j.etape >= i ? 'ok' : '') + '">' + e + '</li>').join('') + '</ol>' +
-        '<dl><dt>Date</dt><dd>' + esc(j.date) + '</dd><dt>Matériel</dt><dd>' + esc(j.offre) + '</dd>' +
-        (j.prix ? '<dt>Prix</dt><dd>' + esc(j.prix) + ' <small style="font-weight:400;color:var(--muted)">hors livraison et caution</small></dd>' : '') + '</dl>';
-    } catch (e) {
-      carte.innerHTML = '<p>Réservation introuvable pour ce lien. Contacte-nous et on vérifie tout de suite.</p>';
+    async function afficher(info) {
+      try {
+        const j = await (await fetch(API + '?action=suivi&t=' + t + '&nc=' + Date.now())).json();
+        if (!j.ok) throw new Error(j.erreur || 'introuvable');
+        const etapes = ['Demande reçue', 'Confirmée', 'Livrée', 'Terminée'];
+        carte.innerHTML = (info ? '<p style="margin-bottom:14px;font-weight:600">' + esc(info) + '</p>' : '') +
+          '<span class="statut">' + esc(j.statut) + '</span><p class="explic">' + esc(j.explication) + '</p>' +
+          '<ol class="etapes' + (j.etape < 0 ? ' annule' : '') + '">' + etapes.map((e, i) => '<li class="' + (j.etape >= i ? 'ok' : '') + '">' + e + '</li>').join('') + '</ol>' +
+          '<dl><dt>Date</dt><dd>' + esc(j.date) + '</dd><dt>Matériel</dt><dd>' + esc(j.offre) + '</dd>' +
+          (j.prix ? '<dt>Prix</dt><dd>' + esc(j.prix) + ' <small style="font-weight:400;color:var(--muted)">hors livraison et caution</small></dd>' : '') + '</dl>' +
+          (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
+        const b = document.getElementById('b-annul');
+        if (b) b.addEventListener('click', async () => {
+          if (!confirm('Annuler ta réservation du ' + j.date + ' ?\nLe matériel ne sera plus réservé pour toi.')) return;
+          b.disabled = true; b.textContent = 'Annulation en cours…';
+          try {
+            const r = await (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'annuler_client', t }) })).json();
+            if (!r.ok) throw new Error(r.erreur || 'erreur');
+            afficher('Ta réservation est annulée. On t\'envoie une confirmation par e-mail si tu nous as laissé ton adresse.');
+          } catch (err) {
+            b.disabled = false; b.textContent = 'Annuler ma réservation';
+            const m = document.getElementById('m-annul'); m.hidden = false;
+            m.textContent = 'L\'annulation n\'a pas marché' + (err.message && err.message !== 'erreur' ? ' (' + err.message + ')' : '') + '. Appelle-nous ou écris-nous sur WhatsApp.';
+          }
+        });
+      } catch (e) {
+        carte.innerHTML = '<p>Réservation introuvable pour ce lien. Contacte-nous et on vérifie tout de suite.</p>';
+      }
     }
+    afficher();
   })();
 </script>
 </body>
