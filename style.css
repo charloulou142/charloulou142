@@ -84,3 +84,13 @@ footer.end .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:w
   .beam{width:140px}
 }
 @media (prefers-reduced-motion:reduce){.beam{animation:none}*{transition:none!important}}
+
+/* Thème clair : suit le réglage clair/sombre de l'appareil */
+@media (prefers-color-scheme:light){
+  :root{--bg:#FBF8FF;--bg2:#F2ECFB;--card:#FFFFFF;--line:rgba(40,20,80,.12);--text:#1E1433;--muted:#5F5478;--violet:#7C3AED;--pink:#F26A0A;--cyan:#0891B2}
+  nav.top{background:rgba(251,248,255,.85)}
+  .hero h1 em{background:linear-gradient(90deg,#7C3AED,#DB2777 50%,#F26A0A);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 6px 18px rgba(219,39,119,.35))}
+  .easy > div:nth-child(4) b{background:#1E1433;color:#fff}
+  .smoke{opacity:.5}
+  .todo{color:#9A3F00}
+}
