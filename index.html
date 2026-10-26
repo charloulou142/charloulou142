@@ -268,9 +268,9 @@
       <div class="cal" id="cal" aria-live="polite"></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
-      <div class="field heure"><label for="bk-heure">Heure de retrait et de retour *</label>
+      <div class="field heure"><label for="bk-heure">Heure de retrait *</label>
         <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
-        <small>Tu récupères le matériel à cette heure-là, et tu le rends le lendemain à la même heure.</small></div>
+        <small>Retrait le jour J entre 17h00 et 19h30, retour le lendemain avant 12h00.</small></div>
     </div>
     <form class="panel" id="bk-form" novalidate>
       <div class="row2">
@@ -311,7 +311,7 @@
     <div><b>1</b><h3>Tu choisis</h3><p>Ton pack, en deux questions.</p></div>
     <div><b>2</b><h3>On te livre</h3><p>Chez toi ou sur le lieu de la fête, tarif selon la distance.</p></div>
     <div><b>3</b><h3>Tu branches</h3><p>Une prise, ton téléphone en Bluetooth.</p></div>
-    <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, à l'heure convenue.</p></div>
+    <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, avant midi.</p></div>
   </div>
 </div></section>
 
@@ -464,25 +464,14 @@
     for (let j=1;j<=nb;j++){
       const d = new Date(vue.getFullYear(), vue.getMonth(), j), k = isoJ(d);
       const b = document.createElement('button'); b.type='button'; b.className='day'; b.textContent=j; b.dataset.k=k;
-      if (d < auj) { b.classList.add('passe'); b.disabled = true; }
+      if (d < auj || (k === isoJ(auj) && !heuresPossibles(k).length)) { b.classList.add('passe'); b.disabled = true; }
       if (choix === k) b.classList.add('sel');
       b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; choix=k; maj(); dessiner(); majHeures(); });
       cal.appendChild(b); boutons.push(b);
     }
     const data = await dispoMois(cle);
-    // nouveau calcul par créneaux horaires (location de 24 h + battement) quand le script le permet
-    const compo = compoCourante(data);
-    if (data && data.locs && data.creneaux && compo) {
-      boutons.forEach(b=>{
-        if (b.disabled) return;
-        const s = statutJour(heuresDuJour(data, compo, b.dataset.k));
-        b.classList.add(s);
-        b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
-        if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); } }
-      });
-      majHeures();
-      return;
-    }
+    // horaires fixes (retour avant 12h, retrait à partir de 17h) : un appareil rendu le matin peut repartir le soir même,
+    // donc la disponibilité se lit simplement jour par jour
     const statuts = data && data.offres && data.offres[offreSel.value];
     const perso = !statuts && data && data.reste && offreSel.value.indexOf('Panier perso : ') === 0;
     // panier perso : on compare chaque appareil choisi aux unités encore libres ce jour-là
@@ -502,61 +491,34 @@
       const s = statuts ? statuts[b.dataset.k] : perso ? statutPerso(b.dataset.k) : 'a_confirmer';
       b.classList.add(s);
       b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
-      if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); } }
+      if (s==='complet'){ b.disabled = true; if (choix===b.dataset.k){ choix=null; maj(); majHeures(); } }
     });
   }
 
-  // ---- créneaux horaires : même règle que le script (location de 24 h + battement, stock par appareil) ----
-  const jourNum = iso => { const p = iso.split('-').map(Number); return Math.round(Date.UTC(p[0], p[1]-1, p[2]) / 86400000); };
+  // ---- heure de retrait : 17h00 → 19h30 par 30 min (retour le lendemain avant 12h00) ----
+  const CRENEAUX = [1020, 1050, 1080, 1110, 1140, 1170];
   const hTexte = m => pad(Math.floor(m/60)) + 'h' + pad(m%60);
-  function compoCourante(data){
-    const o = offreSel.value;
-    if (data && data.compos && data.compos[o]) return data.compos[o];
-    if (o.indexOf('Panier perso : ') === 0) { const c = {}; for (const a in panier) if (panier[a]) c[PACK_CLE[a]] = panier[a]; return Object.keys(c).length ? c : null; }
-    return null;
+  // aujourd'hui : au moins 1 h à l'avance
+  function heuresPossibles(iso){
+    const n = new Date();
+    return iso === isoJ(n) ? CRENEAUX.filter(m => m >= n.getHours()*60 + n.getMinutes() + 60) : CRENEAUX;
   }
-  function statutCreneau(data, compo, iso, m){
-    const duree = data.duree || 1440, bat = data.battement || 0;
-    const s = jourNum(iso)*1440 + m, e = s + duree + bat;
-    const iv = data.locs.map(o => { const a = jourNum(o.j)*1440 + o.m; return { s:a, e:a+duree+bat, compo:o.compo }; }).filter(o => o.s < e && s < o.e);
-    let inconnu = false;
-    for (const a in compo){
-      const q = data.stock ? data.stock[a] : null;
-      if (q == null || isNaN(q)) { inconnu = true; continue; }
-      const miens = iv.filter(o => o.compo[a]);
-      const points = [s].concat(miens.map(o => o.s).filter(p => p > s && p < e));
-      const max = points.reduce((mx, p) => Math.max(mx, miens.reduce((t, o) => t + (o.s <= p && p < o.e ? o.compo[a] : 0), 0)), 0);
-      if (q - max < compo[a]) return 'complet';
-    }
-    return inconnu ? 'a_confirmer' : 'libre';
-  }
-  function heuresDuJour(data, compo, iso){
-    const maintenant = new Date(), auj = isoJ(maintenant), mNow = maintenant.getHours()*60 + maintenant.getMinutes() + 60;   // aujourd'hui : au moins 1 h à l'avance
-    return data.creneaux.map(m => [m, iso === auj && m < mNow ? 'complet' : statutCreneau(data, compo, iso, m)]);
-  }
-  const statutJour = h => h.some(x => x[1]==='libre') ? 'libre' : h.some(x => x[1]==='a_confirmer') ? 'a_confirmer' : 'complet';
-  // liste des heures pour la date choisie (les heures prises sont grisées)
-  async function majHeures(){
+  function majHeures(){
     const sel = $('bk-heure'), avant = sel.value;
     if (!choix) { sel.innerHTML = '<option value="">Choisis d\'abord une date</option>'; sel.disabled = true; maj(); return; }
-    const data = await dispoMois(choix.slice(0, 7)), compo = compoCourante(data);
-    if (!data || !data.creneaux || !compo) {   // ancien script ou pas de connexion : heures libres, on confirmera par téléphone
-      const l = []; for (let m = 480; m <= 1260; m += 30) l.push([m, 'a_confirmer']);
-      remplir(l); return;
-    }
-    remplir(heuresDuJour(data, compo, choix));
-    function remplir(h){
-      sel.innerHTML = '<option value="">Choisis une heure</option>' + h.map(([m, s]) => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(s==='complet'?' disabled':'')+'>'+hTexte(m)+(s==='complet'?' · pris':'')+'</option>').join('');
-      sel.disabled = false;
-      if (avant && [...sel.options].some(o => o.value === avant && !o.disabled)) sel.value = avant;
-      maj();
-    }
+    const ok = heuresPossibles(choix);
+    sel.innerHTML = '<option value="">Choisis une heure</option>' + CRENEAUX.map(m => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(ok.indexOf(m)<0?' disabled':'')+'>'+hTexte(m)+(ok.indexOf(m)<0?' · passé':'')+'</option>').join('');
+    sel.disabled = false;
+    if (avant && [...sel.options].some(o => o.value === avant && !o.disabled)) sel.value = avant;
+    maj();
   }
 
   function maj(){
     const h = $('bk-heure') && $('bk-heure').value;
+    const jour = iso => new Date(iso+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    const lendemain = choix ? isoJ(new Date(new Date(choix+'T12:00').getTime() + 864e5)) : '';
     $('bk-date-txt').textContent = choix
-      ? 'Date choisie : '+new Date(choix+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(h?' à '+h.replace(':','h'):'')
+      ? 'Retrait le '+jour(choix)+(h?' à '+h.replace(':','h'):' entre 17h00 et 19h30')+' · retour le '+jour(lendemain)+' avant 12h00'
       : 'Clique sur une date du calendrier.';
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
     const o = offreSel.value, perso = o.indexOf('Panier perso') === 0;
@@ -589,7 +551,7 @@
     const data = { nom, tel, email:$('bk-email').value.trim(), lieu:$('bk-lieu').value.trim(), invites:$('bk-invites').value,
                    fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:choix, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value };
-    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' pour le '+new Date(choix+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+'. '+nom);
+    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' pour le '+new Date(choix+'T12:00').toLocaleDateString('fr-FR')+' (retrait à '+heure.replace(':','h')+'). '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
     try {
