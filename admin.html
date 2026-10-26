@@ -51,6 +51,7 @@
   .resa h3{font-size:18px;margin-bottom:2px}
   .resa .meta{color:var(--muted);font-size:15px;margin-bottom:10px}
   .resa .meta a{color:var(--cyan)}
+  .resa.envoi .badge::after{content:" · enregistrement…";font-weight:400}
   .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--line);margin-bottom:8px}
   .badge.Confirmée,.badge.Livrée{border-color:var(--cyan);color:var(--cyan)}
   .badge.Annulée{opacity:.6;text-decoration:line-through}
@@ -163,7 +164,7 @@
 
     <div data-p="photos" hidden>
       <div class="photos" id="liste-photos"></div>
-      <p class="note">Prends la photo à l'horizontale, bien éclairée. Elle est réduite automatiquement avant l'envoi et rangée dans ton Google Drive (dossier « Audioloc – Photos du site »).</p>
+      <p class="note">Prends la photo à l'horizontale, bien éclairée. Elle est réduite automatiquement avant l'envoi et rangée dans ton Google Drive (dossier « Mistraloc – Photos du site »).</p>
     </div>
 
     <div data-p="visites" hidden>
@@ -315,13 +316,25 @@
   }
   async function changerStatut(art, statut, btn) {
     if (statut === 'Annulée' && !confirm('Annuler cette réservation ? L\'événement sera supprimé de l\'agenda.')) { afficherResa(); return; }
-    art.style.opacity = .5;
+    // affichage immédiat du nouveau statut ; l'enregistrement (CRM, agenda, e-mail) se fait ensuite en arrière-plan
+    const ligne = Number(art.dataset.ligne);
+    const r = etat.reservations.find(x => x.ligne === ligne);
+    if (!r) return;
+    const avant = r.statut;
+    const enCours = () => { const c = document.querySelector('.resa[data-ligne="' + ligne + '"]'); if (c) c.classList.add('envoi'); };
+    r.statut = statut; afficherResa(); enCours();
+    msg('m-admin', 'Enregistrement : ' + statut + '…', true);
     try {
-      const j = await appel('admin_statut', { ligne: Number(art.dataset.ligne), statut });
+      const j = await appel('admin_statut', { ligne, statut });
       if (!j.ok) throw new Error(j.erreur);
+      if (j.resa) Object.assign(r, j.resa);
+      afficherResa();
       const info = j.mail === 'envoyé' ? ' E-mail envoyé au client.' : j.mail === 'pas d\'e-mail' ? ' Pas d\'e-mail pour ce client : pense au bouton WhatsApp.' : j.mail === 'erreur' ? ' ⚠ L\'e-mail au client n\'est pas parti.' : '';
-      await charger(); msg('m-admin', 'Statut mis à jour : ' + statut + '.' + info, true);
-    } catch (err) { art.style.opacity = 1; msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+      msg('m-admin', 'Statut enregistré : ' + statut + '.' + info, true);
+    } catch (err) {
+      r.statut = avant; afficherResa();
+      msg('m-admin', 'Pas enregistré (le statut est revenu à « ' + (avant || 'sans statut') + ' ») : ' + (err.message || 'erreur') + '.');
+    }
   }
   $('liste-resa').addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (b) changerStatut(b.closest('.resa'), b.dataset.s, b); });
   $('liste-resa').addEventListener('change', e => { if (e.target.tagName === 'SELECT') changerStatut(e.target.closest('.resa'), e.target.value); });
