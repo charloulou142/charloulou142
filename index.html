@@ -320,15 +320,14 @@
   function recommend(){const n=+g.value; if(kind==='mariage'||n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}
   function show(key,isReco){
     const p=PACKS[key];
-    if(key!==current){
-      if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
-      current=key;
-    }
+    document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
+    if(key===current) return; // même pack (ex. curseur déplacé sans changer de palier) : on ne relance pas l'animation
+    if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
+    current=key;
     document.getElementById('rName').textContent=p.name;
     document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
-    document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
     pills();
