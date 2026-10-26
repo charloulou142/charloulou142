@@ -95,6 +95,13 @@
   @keyframes vague{0%{stroke-dashoffset:110}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-110}}
   @keyframes point{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1.15);opacity:1}}
   @media (prefers-reduced-motion:reduce){ .onde path{animation:none;stroke-dashoffset:0} .onde circle{animation:none} }
+  .promo-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px;align-items:end}
+  .promo-form .btn{grid-column:1/-1}
+  .code-row{display:flex;gap:12px;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .code-row:first-child{border-top:0}
+  .code-row.off{opacity:.55}
+  .pastille-offres{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--line);color:var(--muted);white-space:nowrap}
+  .pastille-offres.oui{border-color:#34D399;color:#34D399}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -150,6 +157,8 @@
       <button role="tab" data-t="prix" aria-selected="false">Matériel</button>
       <button role="tab" data-t="photos" aria-selected="false">Photos</button>
       <button role="tab" data-t="visites" aria-selected="false">Visites</button>
+      <button role="tab" data-t="offres" aria-selected="false">Offres</button>
+      <button role="tab" data-t="clients" aria-selected="false">Clients</button>
     </div>
     <div class="msg" id="m-admin" hidden></div>
 
@@ -184,7 +193,38 @@
 
     <div data-p="visites" hidden>
       <div id="stats"><div class="panel charge-ici"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement des statistiques…</span></div></div>
-      <p class="note">Comptage anonyme, sans cookie : une « visite » = une personne qui arrive sur le site (comptée une fois tant qu'elle ne ferme pas l'onglet) ; une « page vue » = chaque page ouverte. Tes propres visites ne sont pas comptées sur les appareils où tu t'es connecté à l'admin.</p>
+      <p class="note" data-note-visites>Comptage anonyme, sans cookie : une « visite » = une personne qui arrive sur le site (comptée une fois tant qu'elle ne ferme pas l'onglet) ; une « page vue » = chaque page ouverte. Tes propres visites ne sont pas comptées sur les appareils où tu t'es connecté à l'admin.</p>
+    </div>
+
+    <div data-p="offres" hidden>
+      <form class="panel" id="f-offre">
+        <div class="switch-row">
+          <div><b>Afficher une offre en haut du site</b><div class="note" style="margin:0">Un bandeau sous le menu, avec un bouton « J'en profite » (le code est rempli tout seul au récap).</div></div>
+          <label class="toggle"><input type="checkbox" id="o-on" aria-label="Afficher l'offre"><span></span></label>
+        </div>
+        <div class="field"><label for="o-txt">Texte de l'offre</label><input id="o-txt" maxlength="200" placeholder="ex. −10 % sur ta première location"></div>
+        <div class="field"><label for="o-code">Code promo lié (facultatif)</label><input id="o-code" maxlength="20" placeholder="ex. BIENVENUE10" style="text-transform:uppercase"></div>
+        <button class="btn" type="submit">Enregistrer l'offre</button>
+      </form>
+      <div class="panel" style="margin-top:16px">
+        <b>Codes promo</b>
+        <div id="liste-codes" style="margin:10px 0 16px"></div>
+        <form id="f-promo" class="promo-form">
+          <div class="field"><label for="c-code">Code</label><input id="c-code" maxlength="20" required placeholder="BIENVENUE10" style="text-transform:uppercase"></div>
+          <div class="field"><label for="c-type">Remise</label><select id="c-type"><option value="%">en %</option><option value="€">en €</option></select></div>
+          <div class="field"><label for="c-val">Valeur</label><input id="c-val" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="10"></div>
+          <div class="field"><label for="c-fin">Jusqu'au (facultatif)</label><input id="c-fin" type="date"></div>
+          <div class="field"><label for="c-max">Utilisations max (facultatif)</label><input id="c-max" type="number" min="1" step="1" inputmode="numeric" placeholder="illimité"></div>
+          <div class="field"><label for="c-note">Note (pour toi)</label><input id="c-note" maxlength="200" placeholder="ex. offre Instagram"></div>
+          <button class="btn" type="submit">Créer / modifier le code</button>
+        </form>
+        <p class="note">La remise s'applique à la location, pas à la livraison. Pour modifier un code, retape le même code. Pour l'arrêter, clique « Désactiver » (il reste dans le CRM, onglet « Codes promo »).</p>
+      </div>
+    </div>
+
+    <div data-p="clients" hidden>
+      <div class="panel"><div id="liste-comptes"></div></div>
+      <p class="note">Comptes créés sur mistraloc.fr/compte ou au moment d'une réservation (onglet « Comptes clients » du CRM). <b>Offres : oui</b> = la personne accepte de recevoir tes offres par e-mail : n'envoie des promotions qu'à celles-là.</p>
     </div>
   </section>
 </main>
@@ -210,7 +250,7 @@
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
-    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…' };
+    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
     const a = $('attente'); if (a.hidden === !on) return;
@@ -289,7 +329,55 @@
     if (!j.ok) throw new Error('Chargement impossible.');
     etat = j; afficherAdmin();
   }
-  function afficherAdmin() { vue('admin'); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); }
+  function afficherAdmin() { vue('admin'); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); afficherOffres(); }
+
+  /* ----- offres, codes promo, comptes clients ----- */
+  const jjmm = iso => iso ? iso.split('-').reverse().join('/') : '';
+  function afficherOffres() {
+    const o = etat.offre || {};
+    $('o-on').checked = !!o.affichee; $('o-txt').value = o.texte || ''; $('o-code').value = o.code || '';
+    const codes = etat.codes || [];
+    $('liste-codes').innerHTML = codes.length ? codes.map(c => '<div class="code-row' + (c.actif ? '' : ' off') + '"><div><b>' + esc(c.code) + '</b> · ' +
+        (c.type === '%' ? '−' + esc(c.valeur) + ' %' : '−' + eur(c.valeur)) + (c.fin ? ' · jusqu\'au ' + jjmm(c.fin) : '') +
+        '<div class="note" style="margin:0">Utilisé ' + esc(c.utilisees) + ' fois' + (c.max != null ? ' sur ' + esc(c.max) : '') + (c.note ? ' · ' + esc(c.note) : '') + (c.actif ? '' : ' · désactivé') + '</div></div>' +
+        '<button type="button" class="btn ghost small" data-code="' + esc(c.code) + '">' + (c.actif ? 'Désactiver' : 'Réactiver') + '</button></div>').join('')
+      : '<p class="note" style="margin:0">Aucun code pour l\'instant.</p>';
+    const cpts = etat.comptes || [];
+    $('liste-comptes').innerHTML = cpts.length ? '<p style="margin:0 0 10px"><b>' + cpts.length + '</b> compte' + (cpts.length > 1 ? 's' : '') + ' · <b>' + cpts.filter(c => c.offres).length + '</b> acceptent les offres</p>' +
+        cpts.map(c => '<div class="code-row"><div><b>' + esc(c.nom || c.email) + '</b><div class="note" style="margin:0">' + esc(c.email) + (c.tel ? ' · ' + esc(String(c.tel).replace(/^'/, '')) : '') +
+          ' · créé le ' + jjmm(c.cree) + (c.derniere ? ' · vu le ' + jjmm(c.derniere) : '') + '</div></div><span class="pastille-offres' + (c.offres ? ' oui' : '') + '">Offres : ' + (c.offres ? 'oui' : 'non') + '</span></div>').join('')
+      : '<p class="note" style="margin:0">Aucun compte client pour l\'instant.</p>';
+  }
+  $('f-offre').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    const offre = { affichee: $('o-on').checked, texte: $('o-txt').value.trim(), code: $('o-code').value.trim().toUpperCase() };
+    if (offre.affichee && !offre.texte) return msg('m-admin', 'Écris le texte de l\'offre avant de l\'afficher.');
+    try {
+      const j = await appel('admin_offre', offre);
+      if (!j.ok) throw new Error(j.erreur);
+      etat.offre = offre;
+      msg('m-admin', offre.affichee ? 'L\'offre est en ligne en haut du site.' : 'L\'offre est enregistrée (pas affichée).', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
+  async function envoyerCodePromo(promo, btn) {
+    await occupe(btn, async () => {
+      try {
+        const j = await appel('admin_promo', { promo });
+        if (!j.ok) throw new Error(j.erreur);
+        etat.codes = j.codes; afficherOffres();
+        msg('m-admin', 'Code ' + promo.code.toUpperCase() + (promo.actif === false ? ' désactivé.' : ' enregistré : il marche tout de suite sur le site.'), true);
+      } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+    });
+  }
+  $('f-promo').addEventListener('submit', e => {
+    e.preventDefault();
+    envoyerCodePromo({ code: $('c-code').value.trim(), type: $('c-type').value, valeur: $('c-val').value, fin: $('c-fin').value, max: $('c-max').value, note: $('c-note').value.trim(), actif: true },
+      e.target.querySelector('button[type=submit]')).then(() => { if (!$('m-admin').classList.contains('err')) e.target.reset(); });
+  });
+  $('liste-codes').addEventListener('click', e => {
+    const b = e.target.closest('button[data-code]'); if (!b) return;
+    const c = (etat.codes || []).find(x => x.code === b.dataset.code); if (!c) return;
+    envoyerCodePromo({ code: c.code, type: c.type, valeur: c.valeur, debut: c.debut, fin: c.fin, max: c.max == null ? '' : c.max, note: c.note, actif: !c.actif }, b);
+  });
 
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
