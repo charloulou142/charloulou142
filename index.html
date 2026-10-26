@@ -15,7 +15,7 @@
     try{ t=localStorage.getItem('audioloc_theme'); }catch(e){}
     if(t==='light'||t==='dark') d.dataset.theme=t;
     function sombre(){ return d.dataset.theme ? d.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
-    function barre(){ document.querySelectorAll('meta[name=theme-color]').forEach(function(m){ m.removeAttribute('media'); m.content=sombre()?'#0B0714':'#FBF8FF'; }); }
+    function barre(){ document.querySelectorAll('meta[name=theme-color]').forEach(function(m){ m.removeAttribute('media'); m.content=sombre()?'#0B0714':'#F3EFF8'; }); }
     if(t) document.addEventListener('DOMContentLoaded',barre);
     document.addEventListener('click',function(e){
       if(!e.target.closest('.theme-btn')) return;
@@ -36,11 +36,11 @@
     });
   })();
 </script>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://audioloc.fr/">
 <meta name="theme-color" content="#0B0714" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#FBF8FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#F3EFF8" media="(prefers-color-scheme: light)">
 <meta name="color-scheme" content="dark light">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://audioloc.fr/">
@@ -59,7 +59,12 @@
   .choice svg{width:24px;height:24px;stroke:var(--cyan);flex:0 0 auto}
   .range{display:grid;gap:10px}
   .range output{font-family:"Bebas Neue";font-size:44px;line-height:1;color:var(--cyan);text-shadow:0 0 14px rgba(34,211,238,.6)}
-  input[type=range]{width:100%;accent-color:var(--pink);height:28px;cursor:pointer}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;--p:13%}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(to right,var(--pink) var(--p),var(--line) var(--p))}
+  input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:linear-gradient(to right,var(--pink) var(--p),var(--line) var(--p))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-7px;border-radius:50%;background:var(--pink);border:3px solid var(--card);box-shadow:0 0 0 1px var(--pink),0 0 14px rgba(255,122,26,.6);transition:transform .15s}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--pink);border:3px solid var(--card);box-shadow:0 0 0 1px var(--pink),0 0 14px rgba(255,122,26,.6)}
+  input[type=range]:active::-webkit-slider-thumb{transform:scale(1.15)}
   .scale{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
   .result{border-radius:24px;padding:30px;border:1px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 0 60px rgba(139,92,246,.28);display:flex;flex-direction:column}
   .result .tag{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pink)}
@@ -143,14 +148,14 @@
   .pause .logo{font-size:52px;display:block;margin-bottom:18px}
   .pause p{color:var(--muted);font-size:19px;margin-bottom:26px;white-space:pre-line}
   @media (prefers-color-scheme:light){
-    :root:not([data-theme=dark]) .ph{background:radial-gradient(60% 80% at 50% 110%,rgba(124,58,237,.18),transparent 70%),repeating-linear-gradient(45deg,#EFE8FA 0 12px,#E8DFF7 12px 24px)}
-    :root:not([data-theme=dark]) .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#F4EFFC}
-    :root:not([data-theme=dark]) .result{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
+    :root:not([data-theme=dark]) .ph{background:radial-gradient(60% 80% at 50% 110%,rgba(124,58,237,.18),transparent 70%),repeating-linear-gradient(45deg,#ECE5F5 0 12px,#E5DDF1 12px 24px)}
+    :root:not([data-theme=dark]) .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#EEE9F5}
+    :root:not([data-theme=dark]) .result{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
     :root:not([data-theme=dark]) .field input,:root:not([data-theme=dark]) .field select,:root:not([data-theme=dark]) .field textarea{color-scheme:light}
   }
-  :root[data-theme=light] .ph{background:radial-gradient(60% 80% at 50% 110%,rgba(124,58,237,.18),transparent 70%),repeating-linear-gradient(45deg,#EFE8FA 0 12px,#E8DFF7 12px 24px)}
-  :root[data-theme=light] .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#F4EFFC}
-  :root[data-theme=light] .result{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
+  :root[data-theme=light] .ph{background:radial-gradient(60% 80% at 50% 110%,rgba(124,58,237,.18),transparent 70%),repeating-linear-gradient(45deg,#ECE5F5 0 12px,#E5DDF1 12px 24px)}
+  :root[data-theme=light] .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#EEE9F5}
+  :root[data-theme=light] .result{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
   :root[data-theme=light] .field input,:root[data-theme=light] .field select,:root[data-theme=light] .field textarea{color-scheme:light}
 </style>
 </head>
@@ -334,7 +339,7 @@
     window.packChoisi=p.name;
     if (window.bkSync) window.bkSync();
   }
-  function update(){gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
+  function update(){g.style.setProperty('--p',((g.value-g.min)/(g.max-g.min)*100)+'%');gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
   document.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed',x===c));kind=c.dataset.k;update();}));
   g.addEventListener('input',update);
   document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.pack,b.dataset.pack===recommend())));
