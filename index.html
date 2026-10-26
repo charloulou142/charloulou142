@@ -193,6 +193,31 @@
   .bk-choix{position:relative;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;margin:0 0 10px;padding:2px 0 4px}
   .bk-choix::-webkit-scrollbar{display:none}
   .booking>.panel{min-width:0}   /* sinon la rangée (sur une ligne) élargit toute la page sur téléphone */
+  /* réservation compacte (26/10) : jours moins hauts, champs côte à côte, marges réduites — aucune info retirée */
+  #reserver .lead{margin-bottom:22px}
+  #reserver .panel{padding:20px}
+  #reserver .field{margin-bottom:10px}
+  #reserver .field input,#reserver .field select,#reserver .field textarea{padding:10px 12px}
+  #reserver .cal-head{margin:6px 0 6px}
+  #reserver .cal-head b{font-size:24px}
+  #reserver .cal-nav{width:34px;height:34px}
+  #reserver .cal{gap:4px}
+  #reserver .cal .dow{padding-bottom:0;font-size:11px}
+  #reserver .day{aspect-ratio:auto;height:40px;font-size:14px;border-radius:9px}
+  #reserver .legend{gap:12px;margin-top:8px;font-size:13px}
+  #reserver .legend i{width:14px;height:14px;margin-right:5px;vertical-align:-2px}
+  #reserver .cal-aide{margin-top:6px;font-size:12px}
+  #reserver .chosen{margin-top:8px;padding:9px 12px;font-size:15px}
+  #reserver .veille{margin-top:10px;font-size:13px}
+  #reserver .row2.livr{margin-top:10px}
+  #reserver .livr-txt{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin:-2px 0 0}
+  #reserver .devis{margin-top:12px;padding:12px}
+  #reserver .devis .l{padding:2px 0}
+  #reserver .recap-offre{padding:9px 12px;margin-bottom:10px;font-size:15px}
+  #reserver .consent{margin:4px 0 12px;font-size:13px}
+  #reserver .msg{margin-top:10px}
+  @media (max-width:420px){ #reserver .row2{grid-template-columns:1fr 1fr;gap:8px} #reserver .panel{padding:16px} #reserver .day{height:36px} }
+  @media (max-width:330px){ #reserver .row2{grid-template-columns:1fr} }
   .bk-choix button{flex:none;scroll-snap-align:start;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
   .bk-choix button:hover{border-color:var(--pink)}
   .bk-choix button[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#1A0B00}
@@ -286,7 +311,7 @@
 
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
-  <p class="lead">Une ou plusieurs soirées, livrées chez toi : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
+  <p class="lead">Une ou plusieurs soirées, livrées chez toi, prix total affiché tout de suite. On te confirme vite par téléphone ou WhatsApp.</p>
   <div class="booking">
     <div class="panel">
       <div class="bk-choix" id="bk-choix" role="group" aria-label="Changer de pack ou d'appareil">
@@ -304,14 +329,15 @@
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <p class="cal-aide" id="bk-cal-aide">Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu'à 7).</p>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
-      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, à −20 %).</span></label>
-      <div class="field heure"><label for="bk-heure">Heure de livraison *</label>
-        <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
-        <small>On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.</small></div>
-      <div class="field heure"><label for="bk-lieu">Ville de livraison *</label>
-        <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne" autocomplete="address-level2">
-        <datalist id="bk-villes"></datalist>
-        <small id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu'à 25 km de Salon.</small></div>
+      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Fête <b>en journée</b> ? Livraison la veille au soir (soirée en plus à −20 %).</span></label>
+      <div class="row2 livr">
+        <div class="field"><label for="bk-heure">Heure de livraison *</label>
+          <select id="bk-heure" disabled><option value="">Choisis une date</option></select></div>
+        <div class="field"><label for="bk-lieu">Ville de livraison *</label>
+          <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne" autocomplete="address-level2">
+          <datalist id="bk-villes"></datalist></div>
+      </div>
+      <small class="livr-txt" id="bk-livr-txt">Livraison entre 17h00 et 19h30, reprise le lendemain de la dernière soirée avant 12h00. Salon-de-Provence : 5 € · ailleurs : 5 € + 1,20 €/km, jusqu'à 25 km.</small>
       <div class="devis" id="bk-devis" hidden></div>
     </div>
     <form class="panel" id="bk-form" novalidate>
@@ -319,11 +345,13 @@
         <div class="field"><label for="bk-nom">Nom et prénom *</label><input id="bk-nom" autocomplete="name" required maxlength="80"></div>
         <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" autocomplete="tel" required maxlength="30"></div>
       </div>
-      <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120"></div>
-      <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
-      <div class="field"><label for="bk-fete">Type de fête</label>
-        <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
-      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="3" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
+      <div class="field"><label for="bk-email">E-mail (facultatif)</label><input id="bk-email" type="email" autocomplete="email" maxlength="120" placeholder="pour recevoir la confirmation"></div>
+      <div class="row2">
+        <div class="field"><label for="bk-fete">Type de fête</label>
+          <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
+        <div class="field"><label for="bk-invites">Invités (environ)</label><input id="bk-invites" type="number" min="1" max="1000"></div>
+      </div>
+      <div class="field"><label for="bk-message">Message (facultatif)</label><textarea id="bk-message" rows="2" maxlength="500" placeholder="Adresse de livraison, accès, questions…"></textarea></div>
       <div class="hp" aria-hidden="true"><label>Site <input id="bk-site" tabindex="-1" autocomplete="off"></label></div>
       <label class="consent"><input type="checkbox" id="bk-ok"> <span>J'accepte que Mistraloc utilise ces informations pour traiter ma demande. <a href="confidentialite.html">Politique de confidentialité</a></span></label>
       <button class="btn" id="bk-submit" type="submit">Envoyer ma demande de réservation</button>
@@ -613,7 +641,7 @@
   }
   function majHeures(){
     const sel = $('bk-heure'), avant = sel.value, p = periode();
-    if (!p) { sel.innerHTML = '<option value="">Choisis d\'abord une date</option>'; sel.disabled = true; maj(); return; }
+    if (!p) { sel.innerHTML = '<option value="">Choisis une date</option>'; sel.disabled = true; maj(); return; }
     const ok = heuresPossibles(p.start);
     sel.innerHTML = '<option value="">Choisis une heure</option>' + CRENEAUX.map(m => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(ok.indexOf(m)<0?' disabled':'')+'>'+hTexte(m)+(ok.indexOf(m)<0?' · passé':'')+'</option>').join('');
     sel.disabled = false;
@@ -669,7 +697,7 @@
     t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
                   : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
                   : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
-                  : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu\'à 25 km de Salon.';
+                  : 'Livraison entre 17h00 et 19h30, reprise le lendemain de la dernière soirée avant 12h00. Salon-de-Provence : 5 € · ailleurs : 5 € + 1,20 €/km, jusqu\'à 25 km.';
     t.style.color = l.etat === 'loin' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' ? '700' : '';
     const loc = prixLocation(p), box = $('bk-devis');
     box.hidden = !p || loc == null;
