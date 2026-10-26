@@ -65,8 +65,11 @@
   .toggle input:checked + span{background:var(--pink);border-color:var(--pink)}
   .toggle input:checked + span::after{left:32px;background:#1A0B00}
   .toggle input:focus-visible + span{outline:3px solid var(--cyan);outline-offset:3px}
-  .prix-row{display:grid;grid-template-columns:1fr 120px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-  .prix-row input{text-align:right}
+  .prix-row{display:grid;grid-template-columns:1fr 70px 90px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .prix-row input{text-align:right;padding:10px}
+  .prix-row.tete{color:var(--muted);font-weight:700;font-size:13px;padding-top:0}
+  .prix-row.tete span:not(:first-child){text-align:right}
+  .sans-stock{text-align:center;color:var(--muted)}
   .photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
   .ph-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg2)}
   .ph-card .img{height:150px;display:grid;place-items:center;color:var(--muted);font-size:14px;background:repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
@@ -128,7 +131,7 @@
     <div class="tabs" role="tablist">
       <button role="tab" data-t="resa" aria-selected="true">Réservations</button>
       <button role="tab" data-t="pause" aria-selected="false">Pause</button>
-      <button role="tab" data-t="prix" aria-selected="false">Prix</button>
+      <button role="tab" data-t="prix" aria-selected="false">Matériel</button>
       <button role="tab" data-t="photos" aria-selected="false">Photos</button>
       <button role="tab" data-t="visites" aria-selected="false">Visites</button>
     </div>
@@ -153,8 +156,8 @@
     <div data-p="prix" hidden>
       <form class="panel" id="f-prix">
         <div id="liste-prix"></div>
-        <button class="btn" type="submit" style="margin-top:16px">Enregistrer les prix</button>
-        <p class="note">Prix par soirée, en euros. Ils changent tout de suite sur le site et dans le CRM.</p>
+        <button class="btn" type="submit" style="margin-top:16px">Enregistrer</button>
+        <p class="note"><b>Stock</b> = combien d'exemplaires tu possèdes. Le calendrier du site s'en sert pour savoir si une date est libre ou complète : mets 0 si un appareil est en panne ou prêté. Les packs utilisent le stock de leurs enceintes.<br><b>Prix</b> = prix par soirée, en euros. Tout change tout de suite sur le site et dans le CRM.</p>
       </form>
     </div>
 
@@ -328,17 +331,21 @@
   }); });
 
   function afficherPrix() {
-    $('liste-prix').innerHTML = etat.articles.map((a, i) =>
-      '<div class="prix-row"><label for="px' + i + '">' + esc(a.article) + '</label>' +
-      '<div class="field" style="margin:0"><input id="px' + i + '" data-a="' + esc(a.article) + '" type="number" min="0" step="1" inputmode="decimal" value="' + (a.prix == null ? '' : esc(a.prix)) + '"></div></div>').join('');
+    $('liste-prix').innerHTML = '<div class="prix-row tete"><span>Article</span><span>Stock</span><span>Prix €</span></div>' +
+      etat.articles.map((a, i) =>
+        '<div class="prix-row"><span>' + esc(a.article) + '</span>' +
+        (a.pack ? '<span class="sans-stock" title="Un pack utilise le stock de ses enceintes">—</span>'
+                : '<div class="field" style="margin:0"><input id="qt' + i + '" data-q="' + esc(a.article) + '" aria-label="Stock ' + esc(a.article) + '" type="number" min="0" max="100" step="1" inputmode="numeric" value="' + (a.qte == null ? '' : esc(a.qte)) + '"></div>') +
+        '<div class="field" style="margin:0"><input id="px' + i + '" data-a="' + esc(a.article) + '" aria-label="Prix ' + esc(a.article) + '" type="number" min="0" step="1" inputmode="decimal" value="' + (a.prix == null ? '' : esc(a.prix)) + '"></div></div>').join('');
   }
   $('f-prix').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
-    const prix = {};
-    $('liste-prix').querySelectorAll('input').forEach(i => { if (i.value !== '') prix[i.dataset.a] = i.value; });
+    const prix = {}, qte = {};
+    $('liste-prix').querySelectorAll('input[data-a]').forEach(i => { if (i.value !== '') prix[i.dataset.a] = i.value; });
+    $('liste-prix').querySelectorAll('input[data-q]').forEach(i => { if (i.value !== '') qte[i.dataset.q] = i.value; });
     try {
-      const j = await appel('admin_prix', { prix });
+      const j = await appel('admin_prix', { prix, qte });
       if (!j.ok) throw new Error(j.erreur);
-      await charger(); msg('m-admin', 'Prix enregistrés (' + j.modifies + ').', true);
+      await charger(); msg('m-admin', 'Stock et prix enregistrés. Le calendrier du site est à jour.', true);
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
 
