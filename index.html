@@ -97,6 +97,14 @@
   #bk-submit[disabled]{opacity:.6;cursor:wait}
   @media (max-width:860px){.booking{grid-template-columns:1fr}}
   @media (max-width:420px){.row2{grid-template-columns:1fr}}
+
+  /* photos et pause, pilotées depuis l'espace admin */
+  .ph.photo{height:200px;background:none}
+  .ph.photo img{position:static;width:100%;height:100%;object-fit:cover;display:block;filter:none}
+  .pause{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px 16px;text-align:center;background:radial-gradient(70% 60% at 50% 30%,rgba(139,92,246,.35),transparent 70%),var(--bg)}
+  .pause .box{max-width:520px}
+  .pause .logo{font-size:52px;display:block;margin-bottom:18px}
+  .pause p{color:var(--muted);font-size:19px;margin-bottom:26px;white-space:pre-line}
   @media (prefers-color-scheme:light){
     .ph{background:radial-gradient(60% 80% at 50% 110%,rgba(124,58,237,.18),transparent 70%),repeating-linear-gradient(45deg,#EFE8FA 0 12px,#E8DFF7 12px 24px)}
     .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#F4EFFC}
@@ -200,10 +208,10 @@
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="cat">
-    <article class="item"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>45 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>75 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>99 € / soirée</b></div></article>
-    <article class="item"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b>20 € / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">45 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">75 €</span> / soirée</b></div></article>
+    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">99 €</span> / soirée</b></div></article>
+    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">20 €</span> / soirée</b></div></article>
   </div>
 </div></section>
 
@@ -235,9 +243,10 @@
     <a class="btn" id="waContact" href="https://wa.me/33622123963?text=Bonjour%20Audioloc%2C%20je%20voudrais%20louer%20du%20mat%C3%A9riel%20pour%20une%20soir%C3%A9e." target="_blank" rel="noopener">WhatsApp · 06 22 12 39 63</a>
     <a class="btn ghost" href="tel:+33622123963">Appeler</a>
     <a class="btn ghost" href="mailto:audioloc13@gmail.com?subject=R%C3%A9servation%20Audioloc">audioloc13@gmail.com</a>
+    <a class="btn ghost" href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener">Instagram · @audioloc</a>
   </div>
 </div></section>
-<footer class="end"><div class="wrap"><span>© Audioloc · <a href="confidentialite.html" style="color:inherit">Confidentialité</a></span><span>Location sono &amp; lumière · Salon-de-Provence</span></div></footer>
+<footer class="end"><div class="wrap"><span>© Audioloc · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span><span>Location sono &amp; lumière · Salon-de-Provence</span></div></footer>
 
 <script>
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
@@ -367,6 +376,7 @@
     try {
       const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(data) });
       const j = await r.json();
+      if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); choix=null; maj(); cache={}; dessiner();
       message('✅ Demande envoyée ! On te recontacte très vite au '+tel.replace(/</g,'')+' pour confirmer.', true);
@@ -376,6 +386,42 @@
   });
 
   maj(); dessiner();
+
+  // Réglages gérés depuis l'espace admin (pause, prix, photos). Si le serveur ne répond pas, la page garde ses valeurs par défaut.
+  const euros = v => (Math.round(v * 100) / 100).toString().replace('.', ',') + ' €';
+  const PACK_CLE = { apero: 'Pack Apéro', soiree: 'Pack Soirée', club: 'Pack Club', p310: 'JBL PartyBox 310', p710: 'JBL PartyBox 710', pult: 'JBL PartyBox Ultimate', fumee: 'Machine à fumée 2000 W RGB' };
+  fetch(API + '?action=config').then(r => r.json()).then(c => {
+    if (!c || !c.ok) return;
+    if (c.pause) {
+      const d = document.createElement('div'); d.className = 'pause'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Site en pause');
+      d.innerHTML = '<div class="box"><span class="logo">AUDIO<span>LOC</span></span><p></p>' +
+        '<a class="btn" href="https://wa.me/33622123963" target="_blank" rel="noopener">WhatsApp · 06 22 12 39 63</a></div>';
+      d.querySelector('p').textContent = c.message || 'Audioloc fait une petite pause.';
+      document.body.appendChild(d); document.body.style.overflow = 'hidden';
+      $('bk-submit').disabled = true;
+    }
+    const prix = c.prix || {}, photos = c.photos || {};
+    document.querySelectorAll('.item[data-article]').forEach(it => {
+      const a = it.dataset.article;
+      if (prix[a] != null) it.querySelector('.prix').textContent = euros(prix[a]);
+      if (photos[a]) {
+        const ph = it.querySelector('.ph'), img = new Image();
+        img.alt = a; img.loading = 'lazy'; img.src = photos[a];
+        img.onload = () => { ph.textContent = ''; ph.classList.add('photo'); ph.appendChild(img); };
+      }
+    });
+    let change = false;
+    Object.keys(PACK_CLE).forEach(k => { if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; } });
+    if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; }
+  }).catch(() => {});
+
+  // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
+  (() => {
+    try { if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}
+    let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
+    let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+    fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
+  })();
 </script>
 </body>
 </html>

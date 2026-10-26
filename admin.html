@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace admin · Audioloc</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  main{max-width:760px;margin:0 auto;padding:34px 16px 80px}
+  h1{font-family:"Bebas Neue";font-weight:400;font-size:44px;line-height:1;margin-bottom:6px}
+  .sub{color:var(--muted);margin-bottom:24px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px}
+  .field{display:grid;gap:6px;margin-bottom:14px}
+  .field label{font-weight:700;font-size:14px;color:var(--muted)}
+  .field input,.field textarea,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font:inherit;color-scheme:dark}
+  .field input:focus,.field textarea:focus{border-color:var(--cyan);outline:none}
+  .btn{width:100%}
+  .btn.small{width:auto;padding:9px 16px;font-size:15px}
+  .btn[disabled]{opacity:.55;cursor:wait}
+  .link{background:none;border:0;color:var(--cyan);text-decoration:underline;cursor:pointer;padding:6px 0;font-weight:600}
+  .msg{margin:12px 0;padding:12px 14px;border-radius:12px;font-weight:600}
+  .msg.ok{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5)}
+  .msg.err{background:rgba(255,122,26,.12);border:1px solid rgba(255,122,26,.5)}
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:18px}
+  @media (min-width:600px){.tabs{grid-template-columns:repeat(5,1fr)}}
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .kpi small{display:block;color:var(--muted);font-weight:700;font-size:13px}
+  .kpi b{font-family:"Bebas Neue";font-weight:400;font-size:40px;line-height:1.1;display:block}
+  .kpi span{color:var(--muted);font-size:14px}
+  .graph{display:flex;align-items:flex-end;gap:2px;height:140px;border-bottom:1px solid var(--line);margin-top:10px;position:relative}
+  .graph button{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;background:none;border:0;padding:0;cursor:pointer}
+  .graph i{display:block;width:100%;background:var(--cyan);border-radius:4px 4px 0 0;min-height:2px;opacity:.9}
+  .graph button:hover i,.graph button:focus-visible i,.graph button[aria-pressed="true"] i{opacity:1;box-shadow:0 0 10px rgba(34,211,238,.6)}
+  .graph-axe{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
+  .graph-info{color:var(--text);font-weight:600;min-height:1.6em;margin-top:8px}
+  table.liste{width:100%;border-collapse:collapse;font-size:15px}
+  table.liste td{padding:8px 0;border-bottom:1px solid var(--line)}
+  table.liste td:last-child{text-align:right;font-weight:700}
+  .panel h2{font-family:inherit;font-size:18px;font-weight:700;margin-bottom:6px}
+  .tabs button{border:1px solid var(--line);background:var(--bg2);border-radius:999px;padding:9px 4px;font-weight:700;font-size:15px;cursor:pointer;color:var(--muted);min-width:0}
+  .tabs button[aria-selected="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+  .top-admin{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+  .resa{border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;background:var(--bg2)}
+  .resa h3{font-size:18px;margin-bottom:2px}
+  .resa .meta{color:var(--muted);font-size:15px;margin-bottom:10px}
+  .resa .meta a{color:var(--cyan)}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--line);margin-bottom:8px}
+  .badge.Confirmée,.badge.Livrée{border-color:var(--cyan);color:var(--cyan)}
+  .badge.Annulée{opacity:.6;text-decoration:line-through}
+  .badge.Demande{border-color:var(--pink);color:var(--pink)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .actions select{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--text);font:inherit;color-scheme:dark}
+  .switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .toggle{position:relative;width:62px;height:34px;flex:0 0 auto}
+  .toggle input{opacity:0;width:100%;height:100%;position:absolute;inset:0;margin:0;cursor:pointer;z-index:1}
+  .toggle span{position:absolute;inset:0;border-radius:999px;background:var(--bg);border:1px solid var(--line);transition:.2s}
+  .toggle span::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:var(--muted);transition:.2s}
+  .toggle input:checked + span{background:var(--pink);border-color:var(--pink)}
+  .toggle input:checked + span::after{left:32px;background:#1A0B00}
+  .toggle input:focus-visible + span{outline:3px solid var(--cyan);outline-offset:3px}
+  .prix-row{display:grid;grid-template-columns:1fr 120px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .prix-row input{text-align:right}
+  .photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .ph-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg2)}
+  .ph-card .img{height:150px;display:grid;place-items:center;color:var(--muted);font-size:14px;background:repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
+  .ph-card img{width:100%;height:150px;object-fit:cover;display:block}
+  .ph-card .in{padding:12px;display:grid;gap:8px}
+  .ph-card label.btn{position:relative;overflow:hidden}
+  .ph-card input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .empty{color:var(--muted);text-align:center;padding:20px}
+  .note{color:var(--muted);font-size:14px;margin-top:8px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <a class="logo" href="./">AUDIO<span>LOC</span></a>
+  <div class="navlinks"><a href="./" style="color:var(--muted)">Voir le site</a></div>
+</div></nav>
+<main>
+  <noscript><p class="msg err">Active JavaScript pour utiliser l'espace admin.</p></noscript>
+
+  <!-- chargement -->
+  <section id="v-charge" class="panel"><p>Chargement…</p></section>
+
+  <!-- connexion -->
+  <section id="v-login" hidden>
+    <h1>Espace admin</h1>
+    <p class="sub">Connecte-toi pour gérer ton site.</p>
+    <form class="panel" id="f-login">
+      <div class="field"><label for="l-id">Identifiant</label><input id="l-id" autocomplete="username" autocapitalize="none" required></div>
+      <div class="field"><label for="l-mdp">Mot de passe</label><input id="l-mdp" type="password" autocomplete="current-password" required></div>
+      <div class="msg" id="m-login" hidden></div>
+      <button class="btn" type="submit">Se connecter</button>
+      <p style="margin-top:12px"><button class="link" type="button" id="b-oubli">Mot de passe oublié ?</button></p>
+    </form>
+  </section>
+
+  <!-- création / changement de l'accès -->
+  <section id="v-setup" hidden>
+    <h1 id="setup-titre">Créer ton accès</h1>
+    <p class="sub">Un code va être envoyé sur <b>audioloc13@gmail.com</b> pour vérifier que c'est bien toi.</p>
+    <div class="panel">
+      <button class="btn" type="button" id="b-code">Recevoir un code par e-mail</button>
+      <div class="msg" id="m-code" hidden></div>
+    </div>
+    <form class="panel" id="f-setup" hidden>
+      <div class="field"><label for="s-code">Code reçu par e-mail (6 chiffres)</label><input id="s-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+      <div class="field"><label for="s-id">Identifiant (au choix)</label><input id="s-id" autocomplete="username" autocapitalize="none" minlength="3" maxlength="40" required></div>
+      <div class="field"><label for="s-mdp">Mot de passe (8 caractères minimum)</label><input id="s-mdp" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="field"><label for="s-mdp2">Répète le mot de passe</label><input id="s-mdp2" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="msg" id="m-setup" hidden></div>
+      <button class="btn" type="submit">Enregistrer mon accès</button>
+    </form>
+    <p id="retour-login" hidden><button class="link" type="button" id="b-retour">← Retour à la connexion</button></p>
+  </section>
+
+  <!-- tableau de bord -->
+  <section id="v-admin" hidden>
+    <div class="top-admin"><h1>Mon site</h1><button class="btn ghost small" type="button" id="b-logout">Déconnexion</button></div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-t="resa" aria-selected="true">Réservations</button>
+      <button role="tab" data-t="pause" aria-selected="false">Pause</button>
+      <button role="tab" data-t="prix" aria-selected="false">Prix</button>
+      <button role="tab" data-t="photos" aria-selected="false">Photos</button>
+      <button role="tab" data-t="visites" aria-selected="false">Visites</button>
+    </div>
+    <div class="msg" id="m-admin" hidden></div>
+
+    <div data-p="resa">
+      <div id="liste-resa"></div>
+      <p class="note">Les réservations des 30 derniers jours et à venir. « Confirmer » bloque le matériel sur le site et met l'agenda à jour ; « Annuler » supprime l'événement de l'agenda.</p>
+    </div>
+
+    <div data-p="pause" hidden>
+      <form class="panel" id="f-pause">
+        <div class="switch-row">
+          <div><b>Mettre le site en pause</b><div class="note" style="margin:0">Le site affiche ton message et n'accepte plus de réservations.</div></div>
+          <label class="toggle"><input type="checkbox" id="p-on" aria-label="Site en pause"><span></span></label>
+        </div>
+        <div class="field"><label for="p-msg">Message affiché pendant la pause</label><textarea id="p-msg" rows="3" maxlength="500"></textarea></div>
+        <button class="btn" type="submit">Enregistrer</button>
+      </form>
+    </div>
+
+    <div data-p="prix" hidden>
+      <form class="panel" id="f-prix">
+        <div id="liste-prix"></div>
+        <button class="btn" type="submit" style="margin-top:16px">Enregistrer les prix</button>
+        <p class="note">Prix par soirée, en euros. Ils changent tout de suite sur le site et dans le CRM.</p>
+      </form>
+    </div>
+
+    <div data-p="photos" hidden>
+      <div class="photos" id="liste-photos"></div>
+      <p class="note">Prends la photo à l'horizontale, bien éclairée. Elle est réduite automatiquement avant l'envoi et rangée dans ton Google Drive (dossier « Audioloc – Photos du site »).</p>
+    </div>
+
+    <div data-p="visites" hidden>
+      <div id="stats"><div class="panel empty">Chargement…</div></div>
+      <p class="note">Comptage anonyme, sans cookie : une « visite » = une personne qui arrive sur le site (comptée une fois tant qu'elle ne ferme pas l'onglet) ; une « page vue » = chaque page ouverte. Tes propres visites ne sont pas comptées sur les appareils où tu t'es connecté à l'admin.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const API = 'https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec';
+  // articles affichés dans le catalogue du site (ceux qui ont une photo)
+  const ARTICLES_PHOTO = ['JBL PartyBox 310', 'JBL PartyBox 710', 'JBL PartyBox Ultimate', 'Machine à fumée 2000 W RGB'];
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let token = null, etat = null;
+  try { token = sessionStorage.getItem('audioloc_admin'); } catch (e) {}
+
+  async function appel(action, donnees) {
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action, token }, donnees || {})) });
+    const j = await r.json();
+    if (j.erreur === 'session') { deconnecte(); throw new Error('Session expirée, reconnecte-toi.'); }
+    return j;
+  }
+  function msg(id, texte, ok) { const m = $(id); m.hidden = !texte; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = texte || ''; }
+  function vue(nom) { ['charge', 'login', 'setup', 'admin'].forEach(v => $('v-' + v).hidden = v !== nom); window.scrollTo(0, 0); }
+  function garder(t) {
+    token = t;
+    try { t ? sessionStorage.setItem('audioloc_admin', t) : sessionStorage.removeItem('audioloc_admin'); } catch (e) {}
+    try { if (t) localStorage.setItem('audioloc_moi', '1'); } catch (e) {}   // ne pas compter mes propres visites sur cet appareil
+  }
+  function deconnecte() { garder(null); vue('login'); }
+  async function occupe(btn, f) { const t = btn.textContent; btn.disabled = true; btn.textContent = 'Patiente…'; try { await f(); } finally { btn.disabled = false; btn.textContent = t; } }
+
+  /* ----- démarrage ----- */
+  async function demarrer() {
+    try {
+      if (token) { const j = await appel('admin_etat'); if (j.ok) { etat = j; afficherAdmin(); return; } }
+      const c = await appel('admin_compte');
+      if (c.configure) vue('login'); else { $('setup-titre').textContent = 'Créer ton accès'; $('retour-login').hidden = true; vue('setup'); }
+    } catch (e) { $('v-charge').innerHTML = '<p class="msg err">Impossible de joindre le serveur. Vérifie ta connexion et recharge la page.</p>'; }
+  }
+
+  /* ----- connexion ----- */
+  $('f-login').addEventListener('submit', e => { e.preventDefault(); occupe(e.submitter || e.target.querySelector('button[type=submit]'), async () => {
+    msg('m-login', '');
+    try {
+      const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value });
+      if (!j.ok) return msg('m-login', 'Connexion refusée : ' + j.erreur + '.');
+      garder(j.token); $('l-mdp').value = ''; await charger();
+    } catch (err) { msg('m-login', err.message || 'Erreur réseau.'); }
+  }); });
+  $('b-oubli').addEventListener('click', () => { $('setup-titre').textContent = 'Changer ton mot de passe'; $('retour-login').hidden = false; vue('setup'); });
+  $('b-retour').addEventListener('click', () => vue('login'));
+
+  /* ----- code + création de l'accès ----- */
+  $('b-code').addEventListener('click', e => occupe(e.currentTarget, async () => {
+    try {
+      const j = await appel('admin_code');
+      if (!j.ok) return msg('m-code', 'Pas envoyé : ' + j.erreur + '.');
+      msg('m-code', 'Code envoyé ! Regarde ta boîte audioloc13@gmail.com (et les spams).', true);
+      $('f-setup').hidden = false; $('s-code').focus();
+    } catch (err) { msg('m-code', 'Erreur réseau, réessaie.'); }
+  }));
+  $('f-setup').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    if ($('s-mdp').value !== $('s-mdp2').value) return msg('m-setup', 'Les deux mots de passe ne sont pas identiques.');
+    try {
+      const j = await appel('admin_definir', { code: $('s-code').value, identifiant: $('s-id').value, motdepasse: $('s-mdp').value });
+      if (!j.ok) return msg('m-setup', 'Refusé : ' + j.erreur + '.');
+      garder(j.token); e.target.reset(); await charger();
+    } catch (err) { msg('m-setup', err.message || 'Erreur réseau.'); }
+  }); });
+
+  /* ----- tableau de bord ----- */
+  async function charger() {
+    const j = await appel('admin_etat');
+    if (!j.ok) throw new Error('Chargement impossible.');
+    etat = j; afficherAdmin();
+  }
+  function afficherAdmin() { vue('admin'); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); }
+
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    document.querySelectorAll('[data-p]').forEach(p => p.hidden = p.dataset.p !== b.dataset.t);
+    msg('m-admin', '');
+    if (b.dataset.t === 'visites') chargerVisites();
+  }));
+
+  /* ----- visites ----- */
+  const nb = n => Number(n).toLocaleString('fr-FR');
+  async function chargerVisites() {
+    try {
+      const s = await appel('admin_visites');
+      if (!s.ok) throw new Error(s.erreur);
+      afficherVisites(s);
+    } catch (err) { $('stats').innerHTML = '<div class="msg err">Statistiques indisponibles : ' + esc(err.message || 'erreur') + '.</div>'; }
+  }
+  function afficherVisites(s) {
+    const t = s.totaux;
+    const kpi = (titre, o) => '<div class="kpi"><small>' + titre + '</small><b>' + nb(o.visites) + '</b><span>visites · ' + nb(o.vues) + ' pages vues</span></div>';
+    const max = Math.max(1, ...s.jours.map(j => j.visites));
+    const jourFr = iso => new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const barres = s.jours.map(j => '<button type="button" data-info="' + esc(jourFr(j.jour) + ' : ' + nb(j.visites) + ' visite' + (j.visites > 1 ? 's' : '') + ', ' + nb(j.vues) + ' page' + (j.vues > 1 ? 's' : '') + ' vue' + (j.vues > 1 ? 's' : '')) +
+      '" aria-label="' + esc(jourFr(j.jour) + ' : ' + j.visites + ' visites') + '"><i style="height:' + (j.visites ? Math.max(3, Math.round(j.visites / max * 100)) : 0) + '%"></i></button>').join('');
+    const tableau = (titre, l, vide) => '<div class="panel"><h2>' + titre + '</h2>' + (l.length
+      ? '<table class="liste">' + l.map(x => '<tr><td>' + esc(x.nom) + '</td><td>' + nb(x.nombre) + '</td></tr>').join('') + '</table>'
+      : '<p class="note">' + vide + '</p>') + '</div>';
+    $('stats').innerHTML =
+      '<div class="kpis">' + kpi('Aujourd\'hui', t.aujourdhui) + kpi('7 derniers jours', t.semaine) + kpi('30 derniers jours', t.mois) + kpi('Depuis le début', t.total) + '</div>' +
+      '<div class="panel"><h2>Visites par jour (30 derniers jours)</h2><div class="graph" id="graph">' + barres + '</div>' +
+      '<div class="graph-axe"><span>' + esc(jourFr(s.jours[0].jour)) + '</span><span>aujourd\'hui</span></div>' +
+      '<div class="graph-info" id="graph-info" aria-live="polite">Touche une barre pour voir le détail du jour.</div></div>' +
+      tableau('Pages vues par page (30 jours)', s.pages, 'Aucune page vue pour le moment.') +
+      tableau('D\'où viennent les visiteurs (30 jours)', s.sources, 'Pas encore de visite.');
+    const g = $('graph');
+    const montrer = b => { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); $('graph-info').textContent = b.dataset.info; };
+    g.addEventListener('click', e => { const b = e.target.closest('button'); if (b) montrer(b); });
+    g.addEventListener('mouseover', e => { const b = e.target.closest('button'); if (b) montrer(b); });
+    g.addEventListener('focusin', e => { const b = e.target.closest('button'); if (b) montrer(b); });
+  }
+  $('b-logout').addEventListener('click', async () => { try { await appel('admin_logout'); } catch (e) {} deconnecte(); });
+
+  function dateFr(iso) { return iso ? new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'date à définir'; }
+  function afficherResa() {
+    const l = etat.reservations;
+    if (!l.length) { $('liste-resa').innerHTML = '<div class="panel empty">Aucune réservation pour le moment.</div>'; return; }
+    $('liste-resa').innerHTML = l.map(r => {
+      const tel = String(r.tel).replace(/[^\d+]/g, '');
+      const wa = tel.replace(/^0/, '33').replace(/^\+/, '');
+      const options = etat.statuts.map(s => '<option' + (s === r.statut ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
+      return '<article class="resa" data-ligne="' + r.ligne + '">' +
+        '<span class="badge ' + esc(r.statut.split(' ')[0]) + '">' + esc(r.statut || 'Sans statut') + '</span>' +
+        '<h3>' + esc(dateFr(r.date)) + ' · ' + esc(r.offre) + '</h3>' +
+        '<div class="meta">' + esc(r.client) + (tel ? ' · <a href="tel:' + esc(tel) + '">' + esc(r.tel) + '</a> · <a href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +
+        (r.lieu ? '<br>📍 ' + esc(r.lieu) : '') + (r.invites ? ' · ' + esc(r.invites) + ' invités' : '') + (r.fete ? ' · ' + esc(r.fete) : '') +
+        (r.prix !== '' && r.prix != null ? '<br>💶 ' + esc(r.prix) + ' €' : '') + (r.notes ? '<br><small>' + esc(r.notes) + '</small>' : '') + '</div>' +
+        '<div class="actions">' +
+        (r.statut !== 'Confirmée' ? '<button class="btn small" data-s="Confirmée">✅ Confirmer</button>' : '') +
+        (r.statut !== 'Annulée' ? '<button class="btn ghost small" data-s="Annulée">❌ Annuler</button>' : '') +
+        '<select aria-label="Changer le statut">' + options + '</select></div></article>';
+    }).join('');
+  }
+  async function changerStatut(art, statut, btn) {
+    if (statut === 'Annulée' && !confirm('Annuler cette réservation ? L\'événement sera supprimé de l\'agenda.')) { afficherResa(); return; }
+    art.style.opacity = .5;
+    try {
+      const j = await appel('admin_statut', { ligne: Number(art.dataset.ligne), statut });
+      if (!j.ok) throw new Error(j.erreur);
+      await charger(); msg('m-admin', 'Statut mis à jour : ' + statut + '.', true);
+    } catch (err) { art.style.opacity = 1; msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }
+  $('liste-resa').addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (b) changerStatut(b.closest('.resa'), b.dataset.s, b); });
+  $('liste-resa').addEventListener('change', e => { if (e.target.tagName === 'SELECT') changerStatut(e.target.closest('.resa'), e.target.value); });
+
+  function afficherPause() { $('p-on').checked = !!etat.pause; $('p-msg').value = etat.message || ''; }
+  $('f-pause').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    try {
+      const j = await appel('admin_pause', { pause: $('p-on').checked, message: $('p-msg').value });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.pause = $('p-on').checked; etat.message = $('p-msg').value;
+      msg('m-admin', etat.pause ? 'Le site est maintenant en pause.' : 'Le site est de nouveau ouvert.', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
+
+  function afficherPrix() {
+    $('liste-prix').innerHTML = etat.articles.map((a, i) =>
+      '<div class="prix-row"><label for="px' + i + '">' + esc(a.article) + '</label>' +
+      '<div class="field" style="margin:0"><input id="px' + i + '" data-a="' + esc(a.article) + '" type="number" min="0" step="1" inputmode="decimal" value="' + (a.prix == null ? '' : esc(a.prix)) + '"></div></div>').join('');
+  }
+  $('f-prix').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    const prix = {};
+    $('liste-prix').querySelectorAll('input').forEach(i => { if (i.value !== '') prix[i.dataset.a] = i.value; });
+    try {
+      const j = await appel('admin_prix', { prix });
+      if (!j.ok) throw new Error(j.erreur);
+      await charger(); msg('m-admin', 'Prix enregistrés (' + j.modifies + ').', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
+
+  function afficherPhotos() {
+    $('liste-photos').innerHTML = ARTICLES_PHOTO.map((a, i) => {
+      const url = etat.photos[a];
+      return '<div class="ph-card">' + (url ? '<img src="' + esc(url) + '" alt="' + esc(a) + '">' : '<div class="img">Pas encore de photo</div>') +
+        '<div class="in"><b>' + esc(a) + '</b>' +
+        '<label class="btn small">' + (url ? 'Changer la photo' : 'Ajouter une photo') + '<input type="file" accept="image/*" data-a="' + esc(a) + '"></label>' +
+        (url ? '<button class="link" type="button" data-retirer="' + esc(a) + '">Retirer la photo</button>' : '') + '</div></div>';
+    }).join('');
+  }
+  function reduire(fichier) {
+    return new Promise((ok, ko) => {
+      const img = new Image(), url = URL.createObjectURL(fichier);
+      img.onload = () => {
+        const max = 1600, k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        ok(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('image illisible')); };
+      img.src = url;
+    });
+  }
+  $('liste-photos').addEventListener('change', async e => {
+    const inp = e.target; if (inp.type !== 'file' || !inp.files[0]) return;
+    const carte = inp.closest('.ph-card'); carte.style.opacity = .5;
+    msg('m-admin', 'Envoi de la photo…', true);
+    try {
+      const image = await reduire(inp.files[0]);
+      const j = await appel('admin_photo', { article: inp.dataset.a, image });
+      if (!j.ok) throw new Error(j.erreur);
+      await charger(); msg('m-admin', 'Photo enregistrée. Elle est en ligne sur le site.', true);
+    } catch (err) { carte.style.opacity = 1; msg('m-admin', 'Photo pas envoyée : ' + (err.message || 'erreur') + '.'); }
+  });
+  $('liste-photos').addEventListener('click', async e => {
+    const b = e.target.closest('[data-retirer]'); if (!b) return;
+    if (!confirm('Retirer la photo de « ' + b.dataset.retirer + ' » du site ?')) return;
+    try {
+      const j = await appel('admin_photo', { article: b.dataset.retirer, image: null });
+      if (!j.ok) throw new Error(j.erreur);
+      await charger(); msg('m-admin', 'Photo retirée.', true);
+    } catch (err) { msg('m-admin', 'Pas retirée : ' + (err.message || 'erreur') + '.'); }
+  });
+
+  demarrer();
+})();
+</script>
+</body>
+</html>
