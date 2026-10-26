@@ -180,6 +180,15 @@
   :root[data-theme=light] .ph:has(img){background:radial-gradient(60% 70% at 50% 100%,rgba(124,58,237,.22),transparent 70%),#EEE9F5}
   :root[data-theme=light] .result{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;box-shadow:0 10px 40px rgba(124,58,237,.15)}
   :root[data-theme=light] .field input,:root[data-theme=light] .field select,:root[data-theme=light] .field textarea{color-scheme:light}
+  /* sous-total accroché en bas de l'écran */
+  .barre-total{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:60;width:min(720px,calc(100% - 24px));display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 10px 10px 18px;border-radius:999px;background:color-mix(in srgb,var(--card) 92%,transparent);border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:opacity .25s,transform .25s}
+  .barre-total[hidden]{display:flex;opacity:0;pointer-events:none;transform:translate(-50%,20px)}
+  .barre-total .bt-txt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+  .barre-total .bt-txt span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .barre-total .bt-txt b{font-size:20px;color:var(--text);white-space:nowrap}
+  .barre-total .btn{flex:none;padding:12px 20px;white-space:nowrap}
+  body.avec-barre{padding-bottom:84px}
+  @media (prefers-reduced-motion:reduce){.barre-total{transition:none}}
   /* changer de pack sans remonter : une seule ligne, qui défile de côté au doigt si elle est trop longue */
   .bk-choix{position:relative;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;margin:0 0 10px;padding:2px 0 4px}
   .bk-choix::-webkit-scrollbar{display:none}
@@ -343,6 +352,7 @@
     <div><b>3</b><h3>Tu branches</h3><p>Une prise, ton téléphone en Bluetooth.</p></div>
     <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, avant midi.</p></div>
   </div>
+  <p style="margin-top:26px"><a href="comment-ca-marche.html" style="color:var(--cyan);font-weight:700">Tout savoir sur le déroulé et les tarifs →</a></p>
 </div></section>
 
 <section id="faq"><div class="wrap center">
@@ -353,7 +363,16 @@
     <details><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville.</p></details>
     <details><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée : la soirée la plus chère est au prix plein, toutes les autres à −20 %. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
+    <details><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages. Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
+    <details><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée.</p></details>
+    <details><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
+    <details><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins une heure avant la livraison).</p></details>
+    <details><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
+    <details><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
+    <details><summary>Comment je suis ma réservation ?</summary><p>Après ta demande, tu reçois un lien personnel (par e-mail si tu nous l'as laissé, sinon par WhatsApp). Il montre l'état de ta réservation : reçue, confirmée, livrée, terminée.</p></details>
+    <details><summary>Je peux brancher un micro ?</summary><p>Les PartyBox ont une entrée micro, mais on ne fournit pas de micro pour l'instant : tu peux brancher le tien.</p></details>
   </div>
+  <p style="margin-top:26px">Encore une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener" style="color:var(--cyan)">Écris-nous sur WhatsApp</a> · <a href="comment-ca-marche.html" style="color:var(--cyan)">Comment ça marche</a> · <a href="conditions.html" style="color:var(--cyan)">Conditions de location</a></p>
 </div></section>
 
 <section id="contact" class="contact center"><div class="wrap">
@@ -366,7 +385,11 @@
     <a class="btn ghost" href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener">Instagram · @audioloc</a>
   </div>
 </div></section>
-<footer class="end"><div class="wrap"><span>© Mistraloc · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span><span>Location sono &amp; lumière · Salon-de-Provence</span></div></footer>
+<footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span><a href="comment-ca-marche.html" style="color:inherit">Comment ça marche</a> · <a href="livraison.html" style="color:inherit">Zone de livraison</a> · <a href="conditions.html" style="color:inherit">Conditions de location</a> · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
+<div class="barre-total" id="barre-total" hidden>
+  <div class="bt-txt"><span id="bt-quoi">Pack Soirée</span><b id="bt-prix">94,90 €</b></div>
+  <button type="button" class="btn" id="bt-btn">Choisir ma date</button>
+</div>
 
 <script>
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
@@ -658,7 +681,47 @@
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
     }
+    majBarre();
   }
+
+  // ---- sous-total accroché en bas de l'écran : ce que tu réserves, le prix, et le bouton de l'étape suivante ----
+  function etapeSuivante(){
+    const p = periode(), l = livraison();
+    if (!p) return { txt: 'Choisir ma date', el: $('cal') };
+    if (!$('bk-heure').value) return { txt: 'Continuer', el: $('bk-heure') };
+    if (l.etat === 'vide' || l.etat === 'loin') return { txt: 'Continuer', el: $('bk-lieu') };
+    const vide = ['bk-nom', 'bk-tel'].map($).find(i => !i.value.trim());
+    if (vide) return { txt: 'Continuer', el: vide };
+    if (!$('bk-ok').checked) return { txt: 'Continuer', el: $('bk-ok') };
+    return { txt: 'Envoyer ma demande', envoyer: true };
+  }
+  function majBarre(){
+    const barre = $('barre-total'); if (!barre) return;
+    const k = cleOffre(), p = periode(), l = livraison(), loc = prixLocation(p);
+    const nom = $('bk-recap-nom').textContent;
+    $('bt-quoi').textContent = nom + (p ? ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') : '');
+    $('bt-prix').textContent = p && loc != null
+      ? (l.etat === 'ok' ? 'Total ' + enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'vide' || l.etat === 'devis' ? ' + livraison' : ''))
+      : k && PACKS[k] && prixNum(k) > 0 ? 'dès ' + (PACKS[k].sem && semNum(k) < prixNum(k) ? PACKS[k].sem : PACKS[k].price) + ' / soirée' : 'Compose ton panier';
+    $('bt-btn').textContent = etapeSuivante().txt;
+    visibiliteBarre();
+  }
+  // visible une fois le haut de page passé, cachée quand le vrai bouton « Envoyer » est déjà à l'écran
+  let boutonVisible = false;
+  function visibiliteBarre(){
+    const barre = $('barre-total'), montrer = scrollY > 500 && !boutonVisible && !document.querySelector('.pause');
+    barre.hidden = !montrer; barre.inert = !montrer; document.body.classList.toggle('avec-barre', montrer);
+  }
+  if ('IntersectionObserver' in window) new IntersectionObserver(e => { boutonVisible = e[0].isIntersecting; visibiliteBarre(); }).observe($('bk-submit'));
+  addEventListener('scroll', () => requestAnimationFrame(visibiliteBarre), { passive: true });
+  $('bt-btn').addEventListener('click', () => {
+    const s = etapeSuivante();
+    if (s.envoyer) { $('bk-form').requestSubmit ? $('bk-form').requestSubmit() : $('bk-submit').click(); return; }
+    s.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (s.el.focus && s.el.id !== 'cal') setTimeout(() => s.el.focus({ preventScroll: true }), 450);
+  });
+  ['bk-nom', 'bk-tel'].forEach(id => $(id).addEventListener('input', majBarre));
+  $('bk-ok').addEventListener('change', majBarre);
 
   window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
   offreSel.addEventListener('change', ()=>{ maj(); dessiner(); });
