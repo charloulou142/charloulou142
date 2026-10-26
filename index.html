@@ -91,6 +91,20 @@
   .result.swap .rImg img:nth-child(2){animation-delay:.08s,.68s}.result.swap .rImg img:nth-child(3){animation-delay:.16s,.76s}
   @keyframes pop{from{opacity:0;transform:translateX(var(--dx,28px)) scale(.8)}to{opacity:1;transform:none}}
   @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .panier{display:grid;gap:10px;margin-bottom:22px}
+  .ligne{display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:border-color .2s}
+  .ligne.on{border-color:var(--pink)}
+  .ligne img{width:38px;height:38px;object-fit:contain;flex:0 0 auto}
+  .ligne .nom{flex:1;font-weight:700;font-size:15px;line-height:1.25}
+  .ligne .nom small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+  .qte{display:flex;align-items:center;gap:6px}
+  .qte button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:18px;font-weight:700;line-height:1;cursor:pointer;-webkit-appearance:none;appearance:none;padding:0}
+  .qte button:disabled{opacity:.35;cursor:default}
+  .qte button:not(:disabled):hover{border-color:var(--pink)}
+  .qte output{min-width:18px;text-align:center;font-weight:700}
+  .astuce{font-size:14px;padding:10px 12px;border-radius:12px;background:rgba(255,122,26,.10);border:1px solid rgba(255,122,26,.35)}
+  .astuce button{border:0;background:none;color:var(--pink);font-weight:700;text-decoration:underline;cursor:pointer;padding:0;font:inherit;font-weight:700}
+  .btn.off{opacity:.45;pointer-events:none}
   @keyframes glisse{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){.switch .pill{transition:transform .3s ease,width .3s ease,height .3s ease,opacity .2s!important}.result{--dx:12px}}
   .cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
@@ -203,11 +217,16 @@
       <div class="switch" role="group" aria-label="Louer un appareil seul">
         <button data-pack="p310" aria-pressed="false">PartyBox 310</button><button data-pack="p710" aria-pressed="false">PartyBox 710</button><button data-pack="pult" aria-pressed="false">Ultimate</button><button data-pack="fumee" aria-pressed="false">Fumée</button>
       </div>
+      <p class="swl">Ou compose ton panier</p>
+      <div class="switch" role="group" aria-label="Panier personnalisé">
+        <button data-pack="perso" aria-pressed="false">Mon panier</button>
+      </div>
       <div class="rImg" id="rImg" aria-hidden="true"></div>
       <span class="tag" id="rTag">Recommandé pour toi</span>
       <h3 id="rName">Pack Soirée</h3>
       <p class="why" id="rWhy"></p>
       <ul class="checks" id="rList"></ul>
+      <div class="panier" id="rPanier" hidden></div>
       <p class="price"><span id="rPrice"></span> / soirée</p>
       <a class="btn" id="rBook" href="#reserver">Choisir ma date et réserver</a>
     </div>
@@ -308,7 +327,43 @@
   };
   let kind='anniv', manual=null, current=null;
   const IMAGES={apero:['partybox-310'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-310'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee']};
-  const ORDRE=['apero','soiree','club','p310','p710','pult','fumee'];
+  // Panier personnalisé : nombre maximum de chaque appareil (stock)
+  const STOCK={p310:1,p710:2,pult:1,fumee:1};
+  const panier={p310:0,p710:0,pult:0,fumee:0};
+  const IMG1={p310:'partybox-310',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee'};
+  PACKS.perso={name:'Mon panier',price:'0 €',items:[],why:'Choisis tes appareils : le total se calcule tout seul.'};
+  const prixNum=k=>parseFloat(PACKS[k].price.replace(/[^\d,.]/g,'').replace(',','.'))||0;
+  const enEuros=v=>(Math.round(v*100)/100).toString().replace('.',',')+' €';
+  function panierTexte(){ return Object.keys(panier).filter(k=>panier[k]).map(k=>panier[k]+'× '+PACKS[k].name).join(' + '); }
+  function majPanier(anim){
+    const box=document.getElementById('rPanier');
+    box.innerHTML=Object.keys(panier).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'"><img src="images/'+IMG1[k]+'.webp" alt=""><span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('');
+    const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
+    PACKS.perso.price=enEuros(total);
+    document.getElementById('rPrice').textContent=PACKS.perso.price;
+    const imgs=[];Object.keys(panier).forEach(k=>{for(let i=0;i<panier[k];i++)imgs.push(IMG1[k]);});
+    if(anim!==false) document.getElementById('rImg').innerHTML=imgs.slice(0,4).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
+    const COMPO={apero:{p310:1,p710:0,pult:0,fumee:0},soiree:{p310:0,p710:1,pult:0,fumee:1},club:{p310:0,p710:2,pult:0,fumee:1}};
+    const pk=Object.keys(COMPO).find(c=>Object.keys(panier).every(k=>panier[k]===COMPO[c][k]));
+    const astuce=pk&&prixNum(pk)<total?'<p class="astuce">💡 Le même matériel existe en <b>'+PACKS[pk].name+'</b> à '+PACKS[pk].price+' au lieu de '+enEuros(total)+'. <button type="button" data-pack-go="'+pk+'">Voir le pack</button></p>':'';
+    document.getElementById('rPanier').insertAdjacentHTML('beforeend',astuce);
+    const vide=!total;
+    document.getElementById('rBook').classList.toggle('off',vide);
+    document.getElementById('rBook').textContent=vide?'Ajoute au moins un appareil':'Choisir ma date et réserver';
+    let opt=document.getElementById('opt-perso');
+    if(!opt){opt=document.createElement('option');opt.id='opt-perso';offreSelect().appendChild(opt);}
+    opt.textContent=opt.value=vide?'Panier personnalisé':'Panier perso : '+panierTexte();
+    window.packChoisi=opt.value;
+    if(window.bkSync) window.bkSync();
+  }
+  const offreSelect=()=>document.getElementById('bk-offre');
+  document.getElementById('rPanier').addEventListener('click',e=>{
+    const go=e.target.closest('button[data-pack-go]'); if(go){ show(go.dataset.packGo,false); return; }
+    const b=e.target.closest('button[data-k]'); if(!b) return;
+    const k=b.dataset.k; panier[k]=Math.max(0,Math.min(STOCK[k],panier[k]+(+b.dataset.d)));
+    majPanier();
+  });
+  const ORDRE=['apero','soiree','club','p310','p710','pult','fumee','perso'];
   const result=document.querySelector('.result');
   document.querySelectorAll('.switch').forEach(sw=>sw.insertAdjacentHTML('afterbegin','<span class="pill" aria-hidden="true"></span>'));
   function pills(){
@@ -325,6 +380,7 @@
   function recommend(){const n=+g.value; if(kind==='mariage'||n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}
   function show(key,isReco){
     const p=PACKS[key];
+    if(key===current&&key==='perso') return;
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     if(key===current) return; // même pack (ex. curseur déplacé sans changer de palier) : on ne relance pas l'animation
     if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
@@ -336,6 +392,12 @@
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
     pills();
+    const perso=key==='perso';
+    document.getElementById('rPanier').hidden=!perso;
+    document.getElementById('rList').hidden=perso;
+    if(perso){ document.getElementById('rTag').textContent='Sur mesure'; majPanier(); return; }
+    document.getElementById('rBook').classList.remove('off');
+    document.getElementById('rBook').textContent='Choisir ma date et réserver';
     window.packChoisi=p.name;
     if (window.bkSync) window.bkSync();
   }
@@ -461,6 +523,7 @@
     let change = false;
     Object.keys(PACK_CLE).forEach(k => { if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; } });
     if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; }
+    if (change && !document.getElementById('rPanier').hidden) majPanier(false);
   }).catch(() => {});
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
