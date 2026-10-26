@@ -581,7 +581,9 @@
         const k = p.dataset.panier;
         panier[k] = Math.min(STOCK[k], panier[k] + 1);
         if (current === 'perso') majPanier(); else show('perso', false);
-        $('trouver').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // descend sur le panier lui-même (sur téléphone, il est sous les questions)
+        const res = $('rImg') || $('trouver');
+        window.scrollTo({ top: res.getBoundingClientRect().top + scrollY - 80, behavior: 'smooth' });
         setTimeout(() => briller($('rPanier')), 500);
       }
     });
