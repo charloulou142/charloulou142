@@ -377,6 +377,17 @@
   @media (prefers-color-scheme:light){:root:not([data-theme=dark]) .hero h1 em{background-image:linear-gradient(90deg,#7C3AED,#DB2777,#F26A0A,#DB2777,#7C3AED);background-size:200% 100%}}
   :root[data-theme=light] .hero h1 em{background-image:linear-gradient(90deg,#7C3AED,#DB2777,#F26A0A,#DB2777,#7C3AED);background-size:200% 100%}
   @media (prefers-reduced-motion:reduce){.hero h1 em{animation:none}}
+  /* FAQ compacte : un seul bloc, lignes fines, une question ouverte à la fois, les dernières derrière « Voir plus » */
+  #faq .faq{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:22px!important}
+  #faq .faq details{background:none;border:0;border-top:1px solid var(--line);border-radius:0;margin:0;padding:0;transition:background .2s}
+  #faq .faq details:first-child{border-top:0}
+  #faq .faq details[open]{background:rgba(139,92,246,.08)}
+  #faq .faq summary{font-size:16px;padding:13px 18px;align-items:center}
+  #faq .faq summary::after{font-size:22px;transition:transform .2s}
+  #faq .faq details p{margin:0;padding:0 18px 14px;font-size:15px}
+  #faq .faq details.plus{display:none}
+  #faq .faq.tout details.plus{display:block}
+  .faq-plus{display:block;margin:12px auto 0;background:none;border:0;color:var(--cyan);font:inherit;font-weight:700;cursor:pointer;padding:8px}
 </style>
 </head>
 <body>
@@ -578,20 +589,21 @@
 <section id="faq"><div class="wrap center">
   <h2>Questions fréquentes</h2>
   <div class="faq" style="text-align:left;margin-top:30px">
-    <details><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
-    <details><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
-    <details><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville.</p></details>
-    <details><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée : la soirée la plus chère est au prix plein, toutes les autres à −20 %. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
-    <details><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
-    <details><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages. Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
-    <details><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée.</p></details>
-    <details><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
-    <details><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins une heure avant la livraison).</p></details>
-    <details><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
-    <details><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
-    <details><summary>Comment je suis ma réservation ?</summary><p>Après ta demande, tu reçois un lien personnel (par e-mail si tu nous l'as laissé, sinon par WhatsApp). Il montre l'état de ta réservation : reçue, confirmée, livrée, terminée.</p></details>
-    <details><summary>Je peux brancher un micro ?</summary><p>Les PartyBox ont une entrée micro, mais on ne fournit pas de micro pour l'instant : tu peux brancher le tien.</p></details>
+    <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
+    <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
+    <details name="faq"><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville.</p></details>
+    <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée : la soirée la plus chère est au prix plein, toutes les autres à −20 %. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
+    <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
+    <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages. Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
+    <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée.</p></details>
+    <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
+    <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins une heure avant la livraison).</p></details>
+    <details name="faq" class="plus"><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
+    <details name="faq" class="plus"><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
+    <details name="faq" class="plus"><summary>Comment je suis ma réservation ?</summary><p>Après ta demande, tu reçois un lien personnel (par e-mail si tu nous l'as laissé, sinon par WhatsApp). Il montre l'état de ta réservation : reçue, confirmée, livrée, terminée.</p></details>
+    <details name="faq" class="plus"><summary>Je peux brancher un micro ?</summary><p>Les PartyBox ont une entrée micro, mais on ne fournit pas de micro pour l'instant : tu peux brancher le tien.</p></details>
   </div>
+  <button type="button" class="faq-plus" onclick="this.previousElementSibling.classList.add('tout');this.remove()">Voir les 7 autres questions ↓</button>
   <p style="margin-top:26px">Encore une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener" style="color:var(--cyan)">Écris-nous sur WhatsApp</a> · <a href="comment-ca-marche.html" style="color:var(--cyan)">Comment ça marche</a> · <a href="conditions.html" style="color:var(--cyan)">Conditions de location</a></p>
 </div></section>
 
