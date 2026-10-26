@@ -30,10 +30,10 @@ nav.top .wrap{display:flex;align-items:center;justify-content:space-between;heig
 .hero{position:relative;min-height:min(80vh,720px);display:grid;place-items:center;text-align:center;overflow:hidden;padding:80px 0 110px}
 .beams{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 97%);mask-image:linear-gradient(to bottom,#000 55%,transparent 97%)}
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--bg2));pointer-events:none}
-.beam{position:absolute;bottom:-10%;width:220px;height:130%;transform-origin:50% 100%;filter:blur(6px);opacity:.55;mix-blend-mode:screen;clip-path:polygon(45% 100%,55% 100%,100% 0,0 0)}
-.beam.b1{left:12%;background:linear-gradient(to top,var(--violet),transparent 75%);animation:sweep 7s ease-in-out infinite}
-.beam.b2{left:44%;background:linear-gradient(to top,var(--cyan),transparent 75%);animation:sweep 9s ease-in-out infinite reverse}
-.beam.b3{right:12%;background:linear-gradient(to top,var(--pink),transparent 75%);animation:sweep 8s ease-in-out infinite;animation-delay:-3s}
+.beam{position:absolute;bottom:-10%;width:520px;margin-left:-150px;height:130%;transform-origin:50% 100%;opacity:.7;mix-blend-mode:screen;background:conic-gradient(from -10deg at 50% 100%,transparent 0deg,var(--c) 5deg,var(--c) 15deg,transparent 20deg,transparent 360deg);-webkit-mask-image:linear-gradient(to top,#000 10%,transparent 85%);mask-image:linear-gradient(to top,#000 10%,transparent 85%)}
+.beam.b1{left:12%;--c:var(--violet);animation:sweep 7s ease-in-out infinite}
+.beam.b2{left:44%;--c:var(--cyan);animation:sweep 9s ease-in-out infinite reverse}
+.beam.b3{right:12%;margin-left:0;margin-right:-150px;--c:var(--pink);animation:sweep 8s ease-in-out infinite;animation-delay:-3s}
 @keyframes sweep{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(24deg)}}
 .smoke{position:absolute;left:-10%;right:-10%;bottom:-40px;height:260px;background:radial-gradient(60% 100% at 50% 100%,rgba(185,174,211,.22),transparent 70%);filter:blur(20px)}
 .hero h1{font-family:"Bebas Neue";font-weight:400;font-size:clamp(56px,11vw,124px);line-height:.9;letter-spacing:1px}
