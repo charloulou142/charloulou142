@@ -255,14 +255,18 @@
   .attente[hidden]{display:none}
   .attente-box{text-align:center;display:grid;gap:8px;justify-items:center;max-width:320px}
   .attente svg{width:110px;height:88px;overflow:visible}
-  .attente path{fill:none;stroke:var(--pink);stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:vague 1.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,122,26,.6))}
-  .attente circle{fill:var(--cyan);transform-origin:92px 30px;animation:point 1.4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(34,211,238,.7))}
+  .cal-zone{position:relative}
+  .cal-charge{position:absolute;inset:0;z-index:3;display:grid;place-content:center;justify-items:center;gap:6px;border-radius:12px;background:color-mix(in srgb,var(--card) 78%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);color:var(--muted);font-size:14px;font-weight:600;animation:fondu .2s both}
+  .cal-charge[hidden]{display:none}
+  .cal-charge svg{width:72px;height:58px;overflow:visible}
+  .attente path,.cal-charge path{fill:none;stroke:var(--pink);stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:vague 1.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,122,26,.6))}
+  .attente circle,.cal-charge circle{fill:var(--cyan);transform-origin:92px 30px;animation:point 1.4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(34,211,238,.7))}
   .attente b{font-size:20px}
   .attente small{color:var(--muted);font-size:14px}
   @keyframes fondu{from{opacity:0}}
   @keyframes vague{0%{stroke-dashoffset:110}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-110}}
   @keyframes point{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1.15);opacity:1}}
-  @media (prefers-reduced-motion:reduce){ .attente path{animation:none;stroke-dashoffset:0} .attente circle{animation:none} }
+  @media (prefers-reduced-motion:reduce){ .attente path,.cal-charge path{animation:none;stroke-dashoffset:0} .attente circle,.cal-charge circle{animation:none} }
   @keyframes secoue{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
   .day.sel{animation:choisi .35s cubic-bezier(.3,1.6,.5,1)}
   @keyframes choisi{from{transform:scale(.7)}to{transform:none}}
@@ -428,7 +432,8 @@
           <option>Machine à fumée 2000 W RGB</option>
         </select></div>
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
-      <div class="cal" id="cal" aria-live="polite"></div>
+      <div class="cal-zone"><div class="cal" id="cal" aria-live="polite"></div>
+        <div class="cal-charge" id="cal-charge" hidden><svg viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement des disponibilités…</span></div></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <p class="cal-aide" id="bk-cal-aide"></p>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
@@ -757,7 +762,11 @@
       b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; cliquer(k); });
       cal.appendChild(b); boutons.push(b);
     }
+    // la 1re fois qu'on ouvre un mois, le script Google met 1 à 3 s à répondre : petite vague sur le calendrier
+    const vCal = dessiner.v = (dessiner.v || 0) + 1;   // seul le dernier mois demandé cache la vague
+    if (!(cle in cache)) setTimeout(() => { if (vCal === dessiner.v && !(cle in cache)) $('cal-charge').hidden = false; }, 250);
     const data = await dispoMois(cle);
+    if (vCal === dessiner.v) $('cal-charge').hidden = true;
     boutons.forEach(b=>{
       if (b.disabled) return;
       const s = statutDe(data, b.dataset.k);
