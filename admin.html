@@ -186,6 +186,19 @@
   #visu-corps{overflow:auto;padding:12px;display:grid;place-items:center;min-height:200px}
   #visu-corps img{max-width:100%;max-height:75vh;border-radius:10px}
   #visu-corps iframe{width:100%;height:75vh;border:0;border-radius:10px;background:#fff}
+  /* état des lieux */
+  .edl-corps{overflow:auto;padding:14px;display:grid;gap:2px}
+  .edl-corps .chips{flex-wrap:wrap}
+  .edl-ajout{display:inline-flex;width:auto;cursor:pointer}
+  .edl-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+  .edl-photos div{position:relative}
+  .edl-photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:block}
+  .edl-photos button{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:16px;line-height:1;cursor:pointer}
+  .pad{display:block;width:100%;height:160px;background:#fff;border-radius:12px;touch-action:none;cursor:crosshair;border:2px solid var(--line)}
+  .pad-bas{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+  .coche{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-weight:600;cursor:pointer}
+  .coche input{width:22px;height:22px;flex:0 0 22px;margin:1px 0 0;accent-color:var(--pink)}
+  .docs-resa .btn{width:auto;margin:8px 6px 0 0}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -349,6 +362,24 @@
     <div id="visu-corps"></div></div>
 </div>
 
+<div class="visu" id="edl" role="dialog" aria-modal="true" aria-labelledby="edl-titre" hidden>
+  <div class="visu-box"><div class="visu-haut"><b id="edl-titre">État des lieux</b><span><button type="button" class="btn ghost small" id="edl-x">Fermer</button></span></div>
+  <form id="f-edl" class="edl-corps">
+    <p class="note" id="edl-info" style="margin:0 0 8px"></p>
+    <div class="field"><label>État du matériel</label><div class="chips" id="edl-etat" role="group" aria-label="État du matériel"></div></div>
+    <div class="field"><label for="edl-acc">Accessoires remis / rendus</label><input id="edl-acc" maxlength="300"></div>
+    <div class="field"><label for="edl-rem">Remarques (rayures, propreté, fonctionnement…)</label><textarea id="edl-rem" rows="2" maxlength="1000"></textarea></div>
+    <div class="field"><label>Photos du matériel (1 à 12)</label><label class="btn ghost small edl-ajout">📷 Prendre / ajouter des photos<input type="file" accept="image/*" multiple id="edl-ph" hidden></label><div class="edl-photos" id="edl-photos"></div></div>
+    <div class="field" id="edl-caution-l" hidden><label for="edl-caution">Caution</label><select id="edl-caution"><option>Rendue en entier</option><option>Retenue en partie</option><option>Retenue en entier</option></select><input id="edl-montant" placeholder="si retenue : montant et raison" maxlength="150" style="margin-top:6px"></div>
+    <div class="field"><label for="edl-nom">Nom du client qui signe</label><input id="edl-nom" maxlength="80"></div>
+    <div class="field"><label>Signature du client</label><canvas class="pad" id="edl-pad" aria-label="Signature du client"></canvas><div class="pad-bas"><span>Le client signe avec son doigt</span><button type="button" class="link" id="edl-eff">Effacer</button></div></div>
+    <label class="coche"><input type="checkbox" id="edl-ok"><span>Le client a vérifié le matériel et accepte cet état des lieux</span></label>
+    <label class="coche"><input type="checkbox" id="edl-statut"><span id="edl-statut-txt"></span></label>
+    <button class="btn" type="submit">Enregistrer et envoyer au client</button>
+    <p class="note">Le PDF (photos + signature) est rangé dans le dossier Drive du client et envoyé au client par e-mail s'il en a un.</p>
+  </form></div>
+</div>
+
 <div class="attente" id="attente" role="alertdialog" aria-modal="true" aria-labelledby="attente-txt" tabindex="-1" hidden>
   <div class="attente-box"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg>
     <b id="attente-txt">Un instant…</b><small>Ne ferme pas la page, ça ne prend que quelques secondes.</small></div>
@@ -372,7 +403,7 @@
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
-    admin_doc_refuser: 'Envoi de la demande au client…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…' };
+    admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
     const a = $('attente'); if (a.hidden === !on) return;
@@ -455,7 +486,8 @@
 
   /* ----- documents : pièces d'identité + contrats signés ----- */
   const docsDe = lignes => (etat.docs || []).filter(d => lignes.includes(d.ligne));
-  const nomDoc = d => d.contrat ? '✍️ Contrat signé' : '🪪 ' + (/verso/.test(d.type) ? 'Pièce d\'identité (verso)' : 'Pièce d\'identité' + (d.detail && !/·/.test(d.detail) ? ' – ' + d.detail.toLowerCase() : '') + ' (recto)');
+  const genre = d => d.genre || (d.contrat ? 'contrat' : 'cni');
+  const nomDoc = d => genre(d) === 'edl' ? '📋 ' + d.type : genre(d) === 'contrat' ? '✍️ Contrat signé' : '🪪 ' + (/verso/.test(d.type) ? 'Pièce d\'identité (verso)' : 'Pièce d\'identité' + (d.detail && !/·/.test(d.detail) ? ' – ' + d.detail.toLowerCase() : '') + ' (recto)');
   function ligneDoc(d, avecClient) {
     return '<div class="doc-l' + (d.garder ? ' garde' : '') + '" data-doc="' + esc(d.id) + '"><div><b>' + esc(nomDoc(d)) + '</b>' +
       '<small>' + esc([avecClient ? d.client : '', 'reçu le ' + jjmm(d.date), d.resaDate ? 'location du ' + jjmm(d.resaDate) : 'réservation supprimée',
@@ -463,6 +495,7 @@
       '<span class="actions"><button type="button" class="btn small" data-doc-voir>Voir</button>' +
       (d.contrat ? '' : '<button type="button" class="btn ghost small" data-doc-redem>📷 Redemander</button>' +
         '<button type="button" class="btn ghost small" data-doc-garder="' + (d.garder ? '0' : '1') + '">' + (d.garder ? 'Ne plus garder' : 'Garder') + '</button>') +
+      (d.dossier ? '<a class="link" href="https://drive.google.com/drive/folders/' + esc(d.dossier) + '" target="_blank" rel="noopener">📁 Dossier</a>' : '') +
       '<button type="button" class="link" data-doc-suppr>Supprimer</button></span></div>';
   }
   // message WhatsApp prêt à envoyer (il reste à appuyer sur Envoyer dans WhatsApp)
@@ -474,7 +507,10 @@
   function resumeDocs(r) {
     const l = docsDe([r.ligne]);
     if (!['Confirmée', 'Livrée', 'Rendue'].includes(r.statut) && !l.length) return '';
-    const cni = l.filter(d => !d.contrat), ctr = l.find(d => d.contrat);
+    const cni = l.filter(d => genre(d) === 'cni'), ctr = l.find(d => genre(d) === 'contrat');
+    const rap = (etat.rappelsDocs || []).filter(x => x.ligne === r.ligne).pop();
+    const edlBtn = ['Confirmée', 'Livrée', 'Rendue'].includes(r.statut) ? '<br><button type="button" class="btn ghost small" data-edl="livraison" data-ligne="' + r.ligne + '">📋 État des lieux livraison</button>' +
+      '<button type="button" class="btn ghost small" data-edl="retour" data-ligne="' + r.ligne + '">📋 État des lieux retour</button>' : '';
     const dem = (etat.demandesDocs || []).find(x => x.ligne === r.ligne);
     const signable = !!(etat.loueur || {}).complet;
     const manque = [!cni.length ? 'ta pièce d\'identité' : '', !ctr && signable ? 'ta signature du contrat' : ''].filter(Boolean);
@@ -483,8 +519,9 @@
       ', il me manque ' + manque.join(' et ') + ' (2 minutes, tout se fait ici) : ' + r.suivi + '#documents') : '';
     return '<div class="docs-resa">📄 ' + (cni.length ? '🪪 pièce d\'identité reçue' : dem ? '🪪 <b>nouvelle photo demandée</b> le ' + jjmm(dem.date) : '🪪 pièce d\'identité <b>manquante</b>') + ' · ' +
       (ctr ? '✍️ contrat signé' : '✍️ contrat <b>pas signé</b>') +
-      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (d.contrat ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') +
-      (wa ? ' · <a href="' + esc(wa) + '" target="_blank" rel="noopener">💬 Relancer (WhatsApp)</a>' : '') + '</div>';
+      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (genre(d) === 'edl' ? (/retour/.test(d.type) ? 'état des lieux retour' : 'état des lieux livraison') : genre(d) === 'contrat' ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') +
+      (rap ? ' · 🔔 rappel auto le ' + jjmm(rap.date) : '') +
+      (wa ? ' · <a href="' + esc(wa) + '" target="_blank" rel="noopener">💬 Relancer (WhatsApp)</a>' : '') + edlBtn + '</div>';
   }
   function afficherDocs() {
     const l = etat.docs || [], lo = etat.loueur || {};
@@ -494,9 +531,9 @@
     $('lo-nom').value = lo.nom || ''; $('lo-siret').value = lo.siret || ''; $('lo-adr').value = lo.adresse || ''; $('lo-med').value = lo.mediateur || '';
     const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
     const aVenir = (etat.reservations || []).filter(r => ['Confirmée', 'Livrée'].includes(r.statut) && r.date >= auj());
-    const sansCni = aVenir.filter(r => !docsDe([r.ligne]).some(d => !d.contrat)), sansCtr = aVenir.filter(r => !docsDe([r.ligne]).some(d => d.contrat));
-    $('d-kpis').innerHTML = kpi('Contrats signés', l.filter(d => d.contrat).length, 'gardés 5 ans') +
-      kpi('Pièces d\'identité', l.filter(d => !d.contrat).length, l.filter(d => !d.contrat && d.garder).length + ' gardée(s) pour litige') +
+    const sansCni = aVenir.filter(r => !docsDe([r.ligne]).some(d => genre(d) === 'cni')), sansCtr = aVenir.filter(r => !docsDe([r.ligne]).some(d => genre(d) === 'contrat'));
+    $('d-kpis').innerHTML = kpi('Contrats signés', l.filter(d => genre(d) === 'contrat').length, l.filter(d => genre(d) === 'edl').length + ' état(s) des lieux') +
+      kpi('Pièces d\'identité', l.filter(d => genre(d) === 'cni').length, l.filter(d => genre(d) === 'cni' && d.garder).length + ' gardée(s) pour litige') +
       kpi('À venir sans pièce', sansCni.length, 'locations confirmées') + kpi('À venir sans contrat', sansCtr.length, lo.complet ? 'locations confirmées' : 'signature désactivée');
     const q = norm($('d-q').value.trim());
     const f = l.filter(d => !q || norm(d.client + ' ' + d.type).includes(q));
@@ -531,6 +568,79 @@
     } catch (err) { msg('m-admin', 'Document pas ouvert : ' + (err.message || 'erreur') + '.'); }
   }
   // boutons Voir / Garder / Supprimer, où qu'ils soient (onglet Documents, réservation, fiche client)
+  /* ----- état des lieux (livraison / retour) : photos + signature du client sur ce téléphone ----- */
+  function cadreSignature(cv) {
+    const r = window.devicePixelRatio || 1, b = cv.getBoundingClientRect();
+    cv.width = Math.round(b.width * r); cv.height = Math.round(b.height * r);
+    const g = cv.getContext('2d'); g.scale(r, r);
+    g.lineWidth = 2.6; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#111';
+    let actif = false, points = 0;
+    const pos = e => { const c = cv.getBoundingClientRect(); return [e.clientX - c.left, e.clientY - c.top]; };
+    cv.addEventListener('pointerdown', e => { actif = true; try { cv.setPointerCapture(e.pointerId); } catch (x) {} const [x, y] = pos(e); g.beginPath(); g.moveTo(x, y); e.preventDefault(); });
+    cv.addEventListener('pointermove', e => { if (!actif) return; const [x, y] = pos(e); g.lineTo(x, y); g.stroke(); points++; e.preventDefault(); });
+    const fin = () => { actif = false; };
+    cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin); cv.addEventListener('pointerleave', fin);
+    return { vide: () => points < 12, effacer: () => { g.clearRect(0, 0, cv.width, cv.height); points = 0; }, png: () => cv.toDataURL('image/png') };
+  }
+  async function reduirePhoto(file) {
+    const u = URL.createObjectURL(file), i = new Image();
+    await new Promise((ok, ko) => { i.onload = ok; i.onerror = () => ko(new Error('photo illisible')); i.src = u; });
+    const k = Math.min(1, 1280 / Math.max(i.naturalWidth, i.naturalHeight)), c = document.createElement('canvas');
+    c.width = Math.round(i.naturalWidth * k); c.height = Math.round(i.naturalHeight * k);
+    c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+    return c.toDataURL('image/jpeg', 0.72);
+  }
+  let edlCtx = null, edlPad = null, edlPhotos = [];
+  function majPhotosEdl() {
+    $('edl-photos').innerHTML = edlPhotos.map((p, i) => '<div><img src="' + p + '" alt="Photo ' + (i + 1) + '"><button type="button" data-suppr-ph="' + i + '" aria-label="Retirer la photo ' + (i + 1) + '">×</button></div>').join('');
+  }
+  function ouvrirEdl(ligne, moment) {
+    const r = (etat.reservations || []).find(x => x.ligne === ligne); if (!r) return;
+    edlCtx = { ligne, moment }; edlPhotos = [];
+    $('edl-titre').textContent = 'État des lieux – ' + moment;
+    $('edl-info').textContent = r.client + ' · ' + dateFr(r.date) + ' · ' + r.offre;
+    $('edl-etat').innerHTML = (etat.etatsEdl || ['Bon état']).map((e, i) => '<button type="button" data-etat="' + esc(e) + '" aria-pressed="' + (i === 0) + '">' + esc(e) + '</button>').join('');
+    $('edl-acc').value = 'Câble(s) d\'alimentation'; $('edl-rem').value = ''; $('edl-nom').value = r.client; $('edl-ok').checked = false;
+    $('edl-caution-l').hidden = moment !== 'retour'; $('edl-caution').value = 'Rendue en entier'; $('edl-montant').value = '';
+    const st = moment === 'retour' ? 'Rendue' : 'Livrée';
+    $('edl-statut-txt').textContent = 'Passer la réservation en « ' + st + ' »' + (st === 'Rendue' ? ' (e-mail de remerciement au client)' : '');
+    $('edl-statut').checked = moment === 'retour' ? r.statut !== 'Rendue' : r.statut === 'Confirmée';
+    majPhotosEdl();
+    $('edl').hidden = false; document.body.style.overflow = 'hidden';
+    const ancien = $('edl-pad'), neuf = ancien.cloneNode(false); ancien.replaceWith(neuf);   // nouveau cadre de signature à chaque ouverture
+    edlPad = cadreSignature(neuf);
+  }
+  function fermerEdl() { $('edl').hidden = true; document.body.style.overflow = ''; edlCtx = null; edlPhotos = []; }
+  $('edl-x').addEventListener('click', fermerEdl);
+  $('edl-eff').addEventListener('click', () => edlPad && edlPad.effacer());
+  $('edl-etat').addEventListener('click', e => { const b = e.target.closest('button[data-etat]'); if (!b) return; $('edl-etat').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+  $('edl-photos').addEventListener('click', e => { const b = e.target.closest('button[data-suppr-ph]'); if (!b) return; edlPhotos.splice(Number(b.dataset.supprPh), 1); majPhotosEdl(); });
+  $('edl-ph').addEventListener('change', async e => {
+    for (const f of [...e.target.files]) { if (edlPhotos.length >= 12) break; try { edlPhotos.push(await reduirePhoto(f)); } catch (x) {} }
+    e.target.value = ''; majPhotosEdl();
+  });
+  document.addEventListener('click', e => { const b = e.target.closest('button[data-edl]'); if (!b) return; e.preventDefault(); ouvrirEdl(Number(b.dataset.ligne), b.dataset.edl); });
+  $('f-edl').addEventListener('submit', e => { e.preventDefault(); if (!edlCtx) return;
+    const erreurEdl = (el, txt) => { msg('m-admin', txt); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus && el.focus(); } alert(txt); };
+    if (!edlPhotos.length) return erreurEdl($('edl-photos'), 'Ajoute au moins une photo du matériel.');
+    if ($('edl-nom').value.trim().length < 2) return erreurEdl($('edl-nom'), 'Indique le nom du client.');
+    if (edlPad.vide()) return erreurEdl($('edl-pad'), 'Le client doit signer dans le cadre blanc.');
+    if (!$('edl-ok').checked) return erreurEdl($('edl-ok'), 'Coche la case : le client a vérifié le matériel.');
+    const ctx = edlCtx, r = etat.reservations.find(x => x.ligne === ctx.ligne);
+    const etatChoisi = ($('edl-etat').querySelector('[aria-pressed="true"]') || {}).dataset;
+    occupe(e.target.querySelector('button[type=submit]'), async () => {
+      try {
+        const j = await appel('admin_edl', { ligne: ctx.ligne, moment: ctx.moment, etat: etatChoisi ? etatChoisi.etat : '', accessoires: $('edl-acc').value.trim(),
+          remarques: $('edl-rem').value.trim(), caution: ctx.moment === 'retour' ? $('edl-caution').value + ($('edl-montant').value.trim() ? ' : ' + $('edl-montant').value.trim() : '') : '',
+          photos: edlPhotos, signature: edlPad.png(), signataire: $('edl-nom').value.trim(), accepte: true, ua: navigator.userAgent,
+          statut: $('edl-statut').checked ? (ctx.moment === 'retour' ? 'Rendue' : 'Livrée') : '' });
+        if (!j.ok) throw new Error(j.erreur);
+        etat.docs = j.docs; if (j.statut && r) r.statut = j.statut;
+        fermerEdl(); afficherDocs(); afficherResa(); afficherClients();
+        msg('m-admin', 'État des lieux enregistré dans le dossier du client' + (j.mail === 'envoyé' ? ' et envoyé par e-mail.' : ' (pas d\'e-mail : montre-lui le PDF ou envoie-le par WhatsApp).') + (j.statut ? ' Statut : ' + j.statut + '.' : ''), true);
+      } catch (err) { alert('Pas enregistré : ' + (err.message || 'erreur')); }
+    });
+  });
   // « Redemander » : petit formulaire sous la ligne (raison + précision), puis e-mail au client (ou message WhatsApp prêt si pas d'e-mail)
   document.addEventListener('click', async e => {
     const b = e.target.closest('button[data-doc-redem], button[data-redem-ok], button[data-redem-non]'); if (!b) return;
@@ -675,8 +785,10 @@
       '<div class="cli-corps"><div><h4>Contact</h4><div class="contact">' + contact + '</div></div>' + mini +
       '<div><h4>Historique</h4>' + histo + '</div>' +
       '<div><h4>Compte</h4>' + compte + '</div>' +
-      (() => { const l = docsDe(c.resa.map(r => r.ligne)); return '<div><h4>Documents</h4>' + (l.length ? l.map(d => ligneDoc(d, false)).join('')
-        : '<p class="note" style="margin:0">Aucun document (pièce d\'identité ou contrat) pour l\'instant.</p>') + '</div>'; })() +
+      (() => { const l = docsDe(c.resa.map(r => r.ligne)), dos = (l.find(d => d.dossier) || {}).dossier;
+        return '<div><h4>Documents</h4>' + (dos ? '<p style="margin:0 0 8px"><a href="https://drive.google.com/drive/folders/' + esc(dos) + '" target="_blank" rel="noopener">📁 Ouvrir son dossier dans Google Drive</a></p>' : '') +
+        (l.length ? l.map(d => ligneDoc(d, false)).join('')
+        : '<p class="note" style="margin:0">Aucun document (pièce d\'identité, contrat, état des lieux) pour l\'instant.</p>') + '</div>'; })() +
       '<div class="note-cli"><h4>Note privée</h4><textarea maxlength="1000" placeholder="ex. préfère être livré à 18h, portail bleu, a payé la caution en chèque…" aria-label="Note privée sur ' + esc(c.nom) + '">' + esc(c.note) + '</textarea>' +
       '<div class="actions"><small class="note" style="margin:0" data-etat-note></small><button type="button" class="btn small" data-note>Enregistrer la note</button></div></div></div></details>';
   }
