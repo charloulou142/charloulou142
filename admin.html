@@ -174,6 +174,9 @@
   .doc-l small{display:block;color:var(--muted)}
   .doc-l .actions{margin:0;gap:6px}
   .doc-l.garde{border-color:#FBBF24}
+  .redem{flex-basis:100%;display:grid;gap:8px;padding-top:10px;border-top:1px dashed var(--line);margin-top:4px}
+  .redem label{display:grid;gap:4px;font-size:13px;color:var(--muted);font-weight:600}
+  .redem select,.redem input{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;color:var(--text);font:inherit;font-size:15px}
   .docs-resa{margin-top:8px;font-size:14px}
   .docs-resa button.link{font-size:14px}
   .visu{position:fixed;inset:0;z-index:60;background:rgba(5,3,10,.82);display:grid;place-items:center;padding:14px}
@@ -369,7 +372,7 @@
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
-    admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…' };
+    admin_doc_refuser: 'Envoi de la demande au client…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
     const a = $('attente'); if (a.hidden === !on) return;
@@ -458,17 +461,30 @@
       '<small>' + esc([avecClient ? d.client : '', 'reçu le ' + jjmm(d.date), d.resaDate ? 'location du ' + jjmm(d.resaDate) : 'réservation supprimée',
         d.contrat ? 'gardé 5 ans' : d.garder ? '🔒 gardée (litige)' : d.effacerLe ? 'effacée le ' + jjmm(d.effacerLe) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
       '<span class="actions"><button type="button" class="btn small" data-doc-voir>Voir</button>' +
-      (d.contrat ? '' : '<button type="button" class="btn ghost small" data-doc-garder="' + (d.garder ? '0' : '1') + '">' + (d.garder ? 'Ne plus garder' : 'Garder') + '</button>') +
+      (d.contrat ? '' : '<button type="button" class="btn ghost small" data-doc-redem>📷 Redemander</button>' +
+        '<button type="button" class="btn ghost small" data-doc-garder="' + (d.garder ? '0' : '1') + '">' + (d.garder ? 'Ne plus garder' : 'Garder') + '</button>') +
       '<button type="button" class="link" data-doc-suppr>Supprimer</button></span></div>';
+  }
+  // message WhatsApp prêt à envoyer (il reste à appuyer sur Envoyer dans WhatsApp)
+  function lienWa(tel, texte) {
+    const d = telChiffres(tel); if (!d) return '';
+    return 'https://wa.me/' + waNum(d) + '?text=' + encodeURIComponent(texte);
   }
   // résumé affiché dans une réservation : « 🪪 reçue · ✍️ signé » ou ce qui manque
   function resumeDocs(r) {
     const l = docsDe([r.ligne]);
     if (!['Confirmée', 'Livrée', 'Rendue'].includes(r.statut) && !l.length) return '';
     const cni = l.filter(d => !d.contrat), ctr = l.find(d => d.contrat);
-    return '<div class="docs-resa">📄 ' + (cni.length ? '🪪 pièce d\'identité reçue' : '🪪 pièce d\'identité <b>manquante</b>') + ' · ' +
+    const dem = (etat.demandesDocs || []).find(x => x.ligne === r.ligne);
+    const signable = !!(etat.loueur || {}).complet;
+    const manque = [!cni.length ? 'ta pièce d\'identité' : '', !ctr && signable ? 'ta signature du contrat' : ''].filter(Boolean);
+    const prenom = String(r.client).trim().split(/\s+/)[0];
+    const wa = manque.length && r.suivi && ['Confirmée', 'Livrée'].includes(r.statut) ? lienWa(r.tel, 'Bonjour ' + prenom + ', ici Mistraloc 👋 Pour ta location du ' + dateFr(r.date) +
+      ', il me manque ' + manque.join(' et ') + ' (2 minutes, tout se fait ici) : ' + r.suivi + '#documents') : '';
+    return '<div class="docs-resa">📄 ' + (cni.length ? '🪪 pièce d\'identité reçue' : dem ? '🪪 <b>nouvelle photo demandée</b> le ' + jjmm(dem.date) : '🪪 pièce d\'identité <b>manquante</b>') + ' · ' +
       (ctr ? '✍️ contrat signé' : '✍️ contrat <b>pas signé</b>') +
-      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (d.contrat ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') + '</div>';
+      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (d.contrat ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') +
+      (wa ? ' · <a href="' + esc(wa) + '" target="_blank" rel="noopener">💬 Relancer (WhatsApp)</a>' : '') + '</div>';
   }
   function afficherDocs() {
     const l = etat.docs || [], lo = etat.loueur || {};
@@ -515,6 +531,41 @@
     } catch (err) { msg('m-admin', 'Document pas ouvert : ' + (err.message || 'erreur') + '.'); }
   }
   // boutons Voir / Garder / Supprimer, où qu'ils soient (onglet Documents, réservation, fiche client)
+  // « Redemander » : petit formulaire sous la ligne (raison + précision), puis e-mail au client (ou message WhatsApp prêt si pas d'e-mail)
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-doc-redem], button[data-redem-ok], button[data-redem-non]'); if (!b) return;
+    e.preventDefault();
+    const ligneDocEl = b.closest('[data-doc]'), id = ligneDocEl ? ligneDocEl.dataset.doc : '';
+    const d = (etat.docs || []).find(x => x.id === id); if (!d) return;
+    const form = ligneDocEl.querySelector('.redem');
+    if (b.hasAttribute('data-redem-non')) { if (form) form.remove(); return; }
+    if (b.hasAttribute('data-doc-redem')) {
+      if (form) return form.remove();
+      const raisons = etat.raisonsCni || {};
+      ligneDocEl.insertAdjacentHTML('beforeend', '<div class="redem"><label>Pourquoi ?<select data-redem-raison>' +
+        Object.keys(raisons).map(k => '<option value="' + esc(k) + '">' + esc(raisons[k].charAt(0).toUpperCase() + raisons[k].slice(1)) + '</option>').join('') + '</select></label>' +
+        '<label>Précision (facultatif)<input maxlength="150" data-redem-prec placeholder="ex. le bas de la carte est coupé"></label>' +
+        '<span class="actions"><button type="button" class="btn small" data-redem-ok>Envoyer la demande au client</button><button type="button" class="link" data-redem-non>Annuler</button></span>' +
+        '<small class="note">Les photos actuelles partent à la corbeille et le client reçoit un e-mail avec un bouton pour en renvoyer une.</small></div>');
+      return;
+    }
+    const raison = form.querySelector('[data-redem-raison]').value, precision = form.querySelector('[data-redem-prec]').value.trim();
+    await occupe(b, async () => {
+      try {
+        const j = await appel('admin_doc_refuser', { id, raison, precision });
+        if (!j.ok) throw new Error(j.erreur);
+        etat.docs = etat.docs.filter(x => x.contrat || x.ligne !== d.ligne || x.ligne == null && x.id !== id);
+        etat.demandesDocs = (etat.demandesDocs || []).filter(x => x.ligne !== d.ligne).concat(d.ligne ? [{ ligne: d.ligne, date: auj(), raison: j.motif }] : []);
+        afficherDocs(); afficherResa(); afficherClients();
+        const r = (etat.reservations || []).find(x => x.ligne === d.ligne);
+        const wa = r ? lienWa(r.tel, 'Bonjour ' + String(r.client).trim().split(/\s+/)[0] + ', ici Mistraloc 👋 Merci pour ta pièce d\'identité, mais ' + j.motif +
+          '. Tu peux en renvoyer une photo ici (1 minute) : ' + j.lien) : '';
+        const m = $('m-admin');
+        msg('m-admin', j.mail === 'envoyé' ? 'Demande envoyée au client par e-mail.' : 'Demande enregistrée, mais ' + (j.mail === 'erreur' ? 'l\'e-mail n\'est pas parti' : 'ce client n\'a pas d\'e-mail') + ' : préviens-le par WhatsApp.', true);
+        if (wa) m.insertAdjacentHTML('beforeend', ' <a href="' + esc(wa) + '" target="_blank" rel="noopener">💬 ' + (j.mail === 'envoyé' ? 'Prévenir aussi' : 'Prévenir') + ' par WhatsApp</a>');
+      } catch (err) { msg('m-admin', 'Pas envoyé : ' + (err.message || 'erreur') + '.'); }
+    });
+  });
   document.addEventListener('click', async e => {
     const b = e.target.closest('button[data-doc-voir], button[data-doc-garder], button[data-doc-suppr]'); if (!b) return;
     const id = (b.closest('[data-doc]') || {}).dataset ? b.closest('[data-doc]').dataset.doc : '';
