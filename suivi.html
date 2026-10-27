@@ -102,6 +102,16 @@
   .envoi{margin-top:16px}
   .bouton.grand{display:block;width:100%;padding:16px 22px;font-size:17px}
   input.code{font-size:26px!important;letter-spacing:10px;text-align:center;font-weight:700}
+  .cam-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:12px 0 4px;padding:13px 16px;border-radius:14px;border:2px solid var(--cyan);background:none;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+  .cam{position:fixed;inset:0;z-index:90;background:#000}
+  .cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cam-cadre{position:absolute;left:6%;width:88%;top:50%;aspect-ratio:85.6/54;transform:translateY(-50%);border:3px solid #fff;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+  .cam-txt{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 22px);margin:0;color:#fff;text-align:center;font-weight:700;font-size:17px;text-shadow:0 1px 4px #000}
+  .cam-bas{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 26px);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 22px}
+  .cam-annuler{justify-self:start;background:none;border:0;color:#fff;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
+  .cam-declic{width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:var(--pink);cursor:pointer}
+  .cam.flash::after{content:'';position:absolute;inset:0;background:#fff;opacity:.7}
+  .edl-l{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0}
   /* écran d'attente (même animation que la réservation) : vague du logo + point cyan */
   .attente{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fondu .25s both}
   .attente[hidden]{display:none}
@@ -222,8 +232,9 @@
         '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Ton téléphone ajoute un filigrane « Mistraloc · location du ' +
         esc(j.date) + ' » avant l\'envoi : la copie ne peut servir à rien d\'autre. Elle est rangée dans un dossier privé et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
         '<label class="ch" for="cni-piece">Type de pièce</label><select id="cni-piece">' + PIECES.map(p => '<option' + (p === d.piece ? ' selected' : '') + '>' + esc(p) + '</option>').join('') + '</select>' +
+        '<button type="button" class="cam-go" id="cam-go" hidden>🎯 Prendre la photo avec un cadre (le plus simple)</button>' +
         '<div class="photos2" id="cni-photos">' + ['recto', 'verso'].map(f => '<div class="tuile" id="tu-' + f + '"><label class="photo" id="ph-' + f + '"><input type="file" accept="image/*" data-face="' + f + '">' +
-          '<span>📷 ' + (f === 'recto' ? 'Recto<br><small>la face avec ta photo</small>' : 'Verso<br><small>l\'autre face</small>') + '</span></label>' +
+          '<span>📷 ' + (f === 'recto' ? 'Recto<br><small>ou choisir une photo</small>' : 'Verso<br><small>ou choisir une photo</small>') + '</span></label>' +
           '<p class="ph-etat" id="et-' + f + '" aria-live="polite"></p></div>').join('') + '</div></div>';
       h += '</div>';
       // 2. contrat
@@ -239,6 +250,10 @@
         '<label class="ch">Ta signature</label><canvas class="pad" id="sg-pad" aria-label="Cadre de signature : signe avec ton doigt"></canvas>' +
         '<div class="pad-bas"><span>Signe dans le cadre blanc avec ton doigt</span><button type="button" id="sg-eff">Effacer</button></div>';
       h += '</div>';
+      const edl = d.edl || {};
+      if (edl.livraison || edl.retour) h += '<div class="doc fait"><h3>📋 États des lieux</h3>' +
+        [['livraison', 'À la livraison'], ['retour', 'Au retour']].filter(x => edl[x[0]]).map(x => '<div class="edl-l"><span>' + x[1] + ' : signé le ' + esc(edl[x[0]]) + '</span>' +
+          '<button type="button" class="lien" data-pdf="' + x[0] + '">⬇ Télécharger (PDF)</button></div>').join('') + '<p class="erreur" id="m-edl" hidden></p></div>';
       // bouton unique
       if (d.actif) h += '<div class="envoi" id="envoi"' + (veutCni || veutCtr ? '' : ' hidden') + '><button type="button" class="bouton grand" id="tout-env"></button>' +
         (veutCtr ? '<div id="code-zone" hidden><p class="petit" id="sg-envoye"></p><label class="ch" for="sg-c">Code reçu par e-mail (6 chiffres)</label>' +
@@ -269,7 +284,7 @@
       const d16 = gp.getImageData(0, 0, 16, 16).data, sig = [];
       for (let i = 0; i < 256; i++) sig.push((d16[4 * i] + d16[4 * i + 1] + d16[4 * i + 2]) / 3);
       const raisons = [];
-      if (Math.min(img.naturalWidth, img.naturalHeight) < 600) raisons.push('petite');
+      if (Math.min(img.naturalWidth, img.naturalHeight) < 400) raisons.push('petite');
       if (moy < 65) raisons.push('sombre');
       if (brules / n > 0.06) raisons.push('reflet');
       if (nettete < SEUIL_NETTETE) raisons.push('floue');
@@ -334,8 +349,19 @@
         p.catch(() => {});
         envois[face] = { p, ph };
       }
-      $('cni-photos').addEventListener('change', async e => {
+      $('cni-photos').addEventListener('change', e => {
         const inp = e.target, face = inp.dataset.face, f = inp.files && inp.files[0]; if (!f) return;
+        traiterFichier(face, f); inp.value = '';
+      });
+      // caméra avec cadre : recto puis verso, chaque photo est recadrée sur la carte
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext) {
+        $('cam-go').hidden = false;
+        $('cam-go').addEventListener('click', async () => {
+          const ok = await cameraCadre(facesUtiles(), traiterFichier);
+          if (!ok) { $('cam-go').hidden = true; erreur('m-env', 'La caméra n\'est pas disponible : touche « Recto » puis « Verso » pour prendre ou choisir les photos.'); }
+        });
+      }
+      async function traiterFichier(face, f) {
         const zone = $('ph-' + face); zone.classList.remove('a-remplir', 'ok', 'bof'); erreur('m-env', '');
         etat(face, 'cours', '🔍 Vérification de la photo…');
         try {
@@ -344,7 +370,7 @@
           const autre = photos[face === 'recto' ? 'verso' : 'recto'];
           if (autre && a.sig.reduce((t, v, i) => t + Math.abs(v - autre.sig[i]), 0) / 256 < 8) a.raisons.push('double');
           photos[face] = { data: filigraner(img, 'MISTRALOC · location du ' + j.date + ' · copie non valable ailleurs'), sig: a.sig, raisons: a.raisons, accepte: !a.raisons.length };
-          URL.revokeObjectURL(img.src); inp.value = '';
+          URL.revokeObjectURL(img.src);
           zone.querySelector('span').innerHTML = '<img src="' + photos[face].data + '" alt="Aperçu ' + face + '"><small>Toucher pour changer</small>';
           if (!a.raisons.length) { zone.classList.add('ok'); envoyerFace(face); }
           else {
@@ -354,7 +380,7 @@
               '<button type="button" class="lien" data-garder="' + face + '">Garder quand même</button>');
           }
         } catch (err) { photos[face] = null; etat(face, 'ko', '⚠ Cette photo n\'a pas pu être lue. Essaie une autre photo (JPEG ou PNG).'); }
-      });
+      }
       $('cni-photos').addEventListener('click', e => {
         const b = e.target.closest('button[data-garder]'); if (!b) return;
         const face = b.dataset.garder; if (!photos[face]) return;
@@ -439,17 +465,54 @@
     }
     // --- contrat déjà signé : téléchargement ---
     function brancherPdf() {
-      const b = document.getElementById('sg-pdf'); if (!b) return;
-      b.addEventListener('click', async () => {
-        erreur('m-pdf', '');
+      document.querySelectorAll('#documents [data-pdf]').forEach(b => b.addEventListener('click', () => telechargerPdf(b.dataset.pdf, 'm-edl')));
+      const b = document.getElementById('sg-pdf'); if (b) b.addEventListener('click', () => telechargerPdf('contrat', 'm-pdf'));
+    }
+    async function telechargerPdf(quoi, zoneErreur) {
+      {
+        erreur(zoneErreur, '');
         try {
-          const r = await patienter('Préparation de ton contrat…', () => post('docs_pdf'));
+          const r = await patienter('Préparation du document…', () => post('docs_pdf', { quoi }));
           if (!r.ok) throw new Error(r.erreur || 'erreur');
           const bin = atob(r.data), u8 = new Uint8Array(bin.length);
           for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
           const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([u8], { type: 'application/pdf' })); a.download = r.nom || 'contrat-mistraloc.pdf';
           document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        } catch (err) { erreur('m-pdf', 'Téléchargement impossible pour l\'instant (' + msgErr(err, 'erreur') + '). Ton contrat est aussi dans tes e-mails.'); }
+        } catch (err) { erreur(zoneErreur, 'Téléchargement impossible pour l\'instant (' + msgErr(err, 'erreur') + '). Le document est aussi dans tes e-mails.'); }
+      }
+    }
+    // caméra plein écran avec un cadre au format carte bancaire / carte d'identité ; renvoie false si la caméra est refusée
+    async function cameraCadre(faces, surPhoto) {
+      let flux;
+      try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }); }
+      catch (e) { return false; }
+      const o = document.createElement('div'); o.className = 'cam'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Photo de la pièce d\'identité');
+      o.innerHTML = '<video playsinline muted autoplay></video><div class="cam-cadre"></div><p class="cam-txt" aria-live="polite"></p>' +
+        '<div class="cam-bas"><button type="button" class="cam-annuler">Annuler</button><button type="button" class="cam-declic" aria-label="Prendre la photo"></button><span></span></div>';
+      document.body.appendChild(o); document.body.style.overflow = 'hidden';
+      const v = o.querySelector('video'); v.srcObject = flux; try { await v.play(); } catch (e) {}
+      let i = 0;
+      const majTxt = () => { o.querySelector('.cam-txt').textContent = (faces[i] === 'recto' ? 'Recto (face avec ta photo)' : 'Verso (l\'autre face)') + ' : mets la carte dans le cadre, à plat, sans reflet'; };
+      majTxt();
+      return new Promise(res => {
+        const fin = () => { flux.getTracks().forEach(tr => tr.stop()); o.remove(); document.body.style.overflow = ''; res(true); };
+        o.querySelector('.cam-annuler').addEventListener('click', fin);
+        let prise = false;   // évite deux photos pour la même face si on touche deux fois très vite
+        o.querySelector('.cam-declic').addEventListener('click', async () => {
+          const vw = v.videoWidth, vh = v.videoHeight; if (!vw || prise) return;
+          prise = true; setTimeout(() => { prise = false; }, 700);
+          const cadre = o.querySelector('.cam-cadre').getBoundingClientRect(), vr = v.getBoundingClientRect();
+          const k = Math.max(vr.width / vw, vr.height / vh);   // la vidéo remplit l'écran (object-fit: cover)
+          const ox = vr.left + (vr.width - vw * k) / 2, oy = vr.top + (vr.height - vh * k) / 2;
+          const sx = Math.max(0, (cadre.left - ox) / k), sy = Math.max(0, (cadre.top - oy) / k);
+          const sw = Math.min(vw - sx, cadre.width / k), sh = Math.min(vh - sy, cadre.height / k);
+          const c = document.createElement('canvas'); c.width = Math.round(sw); c.height = Math.round(sh);
+          c.getContext('2d').drawImage(v, sx, sy, sw, sh, 0, 0, c.width, c.height);
+          const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92));
+          o.classList.add('flash'); setTimeout(() => o.classList.remove('flash'), 180);
+          surPhoto(faces[i], new File([blob], faces[i] + '.jpg', { type: 'image/jpeg' }));
+          i++; if (i >= faces.length) setTimeout(fin, 200); else majTxt();
+        });
       });
     }
 
