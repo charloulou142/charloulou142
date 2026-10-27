@@ -169,6 +169,20 @@
   .compte-l{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px}
   .plus-btn{display:block;margin:6px auto 0}
   .resa .fiche{background:none;border:0;color:var(--cyan);font:inherit;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+  /* documents (pièce d'identité + contrats) */
+  .doc-l{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:14px;margin-bottom:6px;flex-wrap:wrap}
+  .doc-l small{display:block;color:var(--muted)}
+  .doc-l .actions{margin:0;gap:6px}
+  .doc-l.garde{border-color:#FBBF24}
+  .docs-resa{margin-top:8px;font-size:14px}
+  .docs-resa button.link{font-size:14px}
+  .visu{position:fixed;inset:0;z-index:60;background:rgba(5,3,10,.82);display:grid;place-items:center;padding:14px}
+  .visu-box{background:var(--bg2);border:1px solid var(--line);border-radius:18px;width:min(900px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+  .visu-haut{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .visu-haut b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+  #visu-corps{overflow:auto;padding:12px;display:grid;place-items:center;min-height:200px}
+  #visu-corps img{max-width:100%;max-height:75vh;border-radius:10px}
+  #visu-corps iframe{width:100%;height:75vh;border:0;border-radius:10px;background:#fff}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -226,6 +240,7 @@
       <button role="tab" data-t="visites" aria-selected="false">Visites</button>
       <button role="tab" data-t="offres" aria-selected="false">Offres</button>
       <button role="tab" data-t="clients" aria-selected="false">Clients</button>
+      <button role="tab" data-t="docs" aria-selected="false">Documents</button>
     </div>
     <div class="msg" id="m-admin" hidden></div>
 
@@ -303,10 +318,33 @@
         <button class="btn ghost small" type="button" id="cl-emails">📋 Copier les e-mails « Offres : oui »</button>
         <button class="btn ghost small" type="button" id="cl-csv">⬇ Exporter la liste (tableur)</button>
       </div>
-      <p class="note">Un client = toutes ses réservations (site, téléphone, WhatsApp) regroupées par e-mail ou numéro, plus son compte s'il en a un. <b>Dépensé</b> = réservations confirmées, livrées ou rendues. La <b>note</b> est privée : rangée dans l'onglet « Notes clients » du CRM, le client ne la voit jamais. <b>Offres : oui</b> = la personne accepte tes promotions par e-mail : n'envoie des offres qu'à celles-là.</p>
+      <p class="note">Un client = toutes ses réservations (site, téléphone, WhatsApp) regroupées par e-mail ou numéro, plus son compte s'il en a un. <b>Documents</b> = sa pièce d'identité et ses contrats signés. <b>Dépensé</b> = réservations confirmées, livrées ou rendues. La <b>note</b> est privée : rangée dans l'onglet « Notes clients » du CRM, le client ne la voit jamais. <b>Offres : oui</b> = la personne accepte tes promotions par e-mail : n'envoie des offres qu'à celles-là.</p>
+    </div>
+
+    <div data-p="docs" hidden>
+      <div class="msg err" id="d-alerte" hidden></div>
+      <div class="kpis" id="d-kpis"></div>
+      <div class="cherche"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" id="d-q" placeholder="Chercher un document : nom du client…" aria-label="Rechercher un document" autocomplete="off"></div>
+      <div id="liste-docs"></div>
+      <form class="panel" id="f-loueur" style="margin-top:16px">
+        <b>Tes informations pour le contrat</b>
+        <p class="note" style="margin:4px 0 10px">Elles sont écrites en haut de chaque contrat. Tant que le nom, le SIRET et l'adresse ne sont pas remplis, les clients peuvent envoyer leur pièce d'identité mais <b>pas signer</b>.</p>
+        <div class="field"><label for="lo-nom">Ton nom et prénom (entrepreneur individuel)</label><input id="lo-nom" maxlength="80" autocomplete="name"></div>
+        <div class="field"><label for="lo-siret">SIRET (14 chiffres)</label><input id="lo-siret" maxlength="20" inputmode="numeric" placeholder="123 456 789 00012"></div>
+        <div class="field"><label for="lo-adr">Adresse professionnelle</label><input id="lo-adr" maxlength="200" autocomplete="street-address"></div>
+        <div class="field"><label for="lo-med">Médiateur de la consommation (nom + site, facultatif mais obligatoire pour un pro)</label><input id="lo-med" maxlength="300" placeholder="ex. CM2C – www.cm2c.net"></div>
+        <button class="btn" type="submit">Enregistrer</button>
+      </form>
+      <p class="note">Les clients envoient leurs documents depuis leur lien de suivi, une fois la réservation <b>confirmée</b> (le bouton est dans l'e-mail « Confirmée »). Tout est rangé dans ton Google Drive, dossier privé « Mistraloc – Documents clients ». Les <b>pièces d'identité</b> portent un filigrane et sont effacées automatiquement <span data-cni-jours>30</span> jours après la reprise (tout de suite si la réservation est annulée) ; « Garder » les protège en cas de litige. Les <b>contrats signés</b> sont gardés 5 ans. Un élément supprimé va dans la corbeille du Drive (vidée par Google après 30 jours).</p>
     </div>
   </section>
 </main>
+
+<div class="visu" id="visu" role="dialog" aria-modal="true" aria-labelledby="visu-titre" hidden>
+  <div class="visu-box"><div class="visu-haut"><b id="visu-titre">Document</b><span><a id="visu-dl" class="btn ghost small" download>⬇ Télécharger</a> <button type="button" class="btn small" id="visu-x">Fermer</button></span></div>
+    <div id="visu-corps"></div></div>
+</div>
 
 <div class="attente" id="attente" role="alertdialog" aria-modal="true" aria-labelledby="attente-txt" tabindex="-1" hidden>
   <div class="attente-box"><svg class="onde" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg>
@@ -330,7 +368,8 @@
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
-    admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…' };
+    admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
+    admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
     const a = $('attente'); if (a.hidden === !on) return;
@@ -409,7 +448,95 @@
     if (!j.ok) throw new Error('Chargement impossible.');
     etat = j; afficherAdmin();
   }
-  function afficherAdmin() { vue('admin'); prepClients(); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); afficherOffres(); afficherClients(); }
+  function afficherAdmin() { vue('admin'); prepClients(); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); afficherOffres(); afficherClients(); afficherDocs(); }
+
+  /* ----- documents : pièces d'identité + contrats signés ----- */
+  const docsDe = lignes => (etat.docs || []).filter(d => lignes.includes(d.ligne));
+  const nomDoc = d => d.contrat ? '✍️ Contrat signé' : '🪪 ' + (/verso/.test(d.type) ? 'Pièce d\'identité (verso)' : 'Pièce d\'identité' + (d.detail && !/·/.test(d.detail) ? ' – ' + d.detail.toLowerCase() : '') + ' (recto)');
+  function ligneDoc(d, avecClient) {
+    return '<div class="doc-l' + (d.garder ? ' garde' : '') + '" data-doc="' + esc(d.id) + '"><div><b>' + esc(nomDoc(d)) + '</b>' +
+      '<small>' + esc([avecClient ? d.client : '', 'reçu le ' + jjmm(d.date), d.resaDate ? 'location du ' + jjmm(d.resaDate) : 'réservation supprimée',
+        d.contrat ? 'gardé 5 ans' : d.garder ? '🔒 gardée (litige)' : d.effacerLe ? 'effacée le ' + jjmm(d.effacerLe) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
+      '<span class="actions"><button type="button" class="btn small" data-doc-voir>Voir</button>' +
+      (d.contrat ? '' : '<button type="button" class="btn ghost small" data-doc-garder="' + (d.garder ? '0' : '1') + '">' + (d.garder ? 'Ne plus garder' : 'Garder') + '</button>') +
+      '<button type="button" class="link" data-doc-suppr>Supprimer</button></span></div>';
+  }
+  // résumé affiché dans une réservation : « 🪪 reçue · ✍️ signé » ou ce qui manque
+  function resumeDocs(r) {
+    const l = docsDe([r.ligne]);
+    if (!['Confirmée', 'Livrée', 'Rendue'].includes(r.statut) && !l.length) return '';
+    const cni = l.filter(d => !d.contrat), ctr = l.find(d => d.contrat);
+    return '<div class="docs-resa">📄 ' + (cni.length ? '🪪 pièce d\'identité reçue' : '🪪 pièce d\'identité <b>manquante</b>') + ' · ' +
+      (ctr ? '✍️ contrat signé' : '✍️ contrat <b>pas signé</b>') +
+      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (d.contrat ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') + '</div>';
+  }
+  function afficherDocs() {
+    const l = etat.docs || [], lo = etat.loueur || {};
+    $('d-alerte').hidden = !!lo.complet;
+    $('d-alerte').textContent = 'La signature des contrats est désactivée : remplis ton nom, ton SIRET et ton adresse ci-dessous.';
+    document.querySelectorAll('[data-cni-jours]').forEach(s => { s.textContent = etat.cniJours || 30; });
+    $('lo-nom').value = lo.nom || ''; $('lo-siret').value = lo.siret || ''; $('lo-adr').value = lo.adresse || ''; $('lo-med').value = lo.mediateur || '';
+    const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
+    const aVenir = (etat.reservations || []).filter(r => ['Confirmée', 'Livrée'].includes(r.statut) && r.date >= auj());
+    const sansCni = aVenir.filter(r => !docsDe([r.ligne]).some(d => !d.contrat)), sansCtr = aVenir.filter(r => !docsDe([r.ligne]).some(d => d.contrat));
+    $('d-kpis').innerHTML = kpi('Contrats signés', l.filter(d => d.contrat).length, 'gardés 5 ans') +
+      kpi('Pièces d\'identité', l.filter(d => !d.contrat).length, l.filter(d => !d.contrat && d.garder).length + ' gardée(s) pour litige') +
+      kpi('À venir sans pièce', sansCni.length, 'locations confirmées') + kpi('À venir sans contrat', sansCtr.length, lo.complet ? 'locations confirmées' : 'signature désactivée');
+    const q = norm($('d-q').value.trim());
+    const f = l.filter(d => !q || norm(d.client + ' ' + d.type).includes(q));
+    $('liste-docs').innerHTML = f.length ? f.map(d => ligneDoc(d, true)).join('')
+      : '<div class="panel empty">' + (l.length ? 'Aucun document ne correspond.' : 'Aucun document pour l\'instant : ils arriveront quand tes clients confirmés les enverront.') + '</div>';
+  }
+  $('d-q').addEventListener('input', afficherDocs);
+  $('f-loueur').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    try {
+      const j = await appel('admin_loueur', { nom: $('lo-nom').value.trim(), siret: $('lo-siret').value.trim(), adresse: $('lo-adr').value.trim(), mediateur: $('lo-med').value.trim() });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.loueur = j.loueur; afficherDocs();
+      msg('m-admin', j.loueur.complet ? 'Enregistré : tes clients peuvent maintenant signer leur contrat en ligne.' : 'Enregistré, mais il manque encore le nom, le SIRET (14 chiffres) ou l\'adresse pour activer la signature.', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
+  let urlVisu = null;
+  function fermerVisu() { $('visu').hidden = true; $('visu-corps').innerHTML = ''; if (urlVisu) { URL.revokeObjectURL(urlVisu); urlVisu = null; } document.body.style.overflow = ''; }
+  $('visu-x').addEventListener('click', fermerVisu);
+  $('visu').addEventListener('click', e => { if (e.target.id === 'visu') fermerVisu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('visu').hidden) fermerVisu(); });
+  async function voirDoc(id) {
+    try {
+      const j = await appel('admin_doc_voir', { id });
+      if (!j.ok) throw new Error(j.erreur);
+      const bin = atob(j.data), u8 = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      if (urlVisu) URL.revokeObjectURL(urlVisu);
+      urlVisu = URL.createObjectURL(new Blob([u8], { type: j.mime }));
+      $('visu-titre').textContent = j.nom; $('visu-dl').href = urlVisu; $('visu-dl').download = j.nom;
+      $('visu-corps').innerHTML = /pdf/.test(j.mime) ? '<iframe src="' + urlVisu + '" title="' + esc(j.nom) + '"></iframe>' : '<img src="' + urlVisu + '" alt="' + esc(j.nom) + '">';
+      $('visu').hidden = false; document.body.style.overflow = 'hidden'; $('visu-x').focus();
+    } catch (err) { msg('m-admin', 'Document pas ouvert : ' + (err.message || 'erreur') + '.'); }
+  }
+  // boutons Voir / Garder / Supprimer, où qu'ils soient (onglet Documents, réservation, fiche client)
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-doc-voir], button[data-doc-garder], button[data-doc-suppr]'); if (!b) return;
+    const id = (b.closest('[data-doc]') || {}).dataset ? b.closest('[data-doc]').dataset.doc : '';
+    const d = (etat.docs || []).find(x => x.id === id); if (!d) return;
+    e.preventDefault();
+    if (b.hasAttribute('data-doc-voir')) return voirDoc(id);
+    if (b.dataset.docGarder) return occupe(b, async () => {
+      try {
+        const j = await appel('admin_doc_garder', { id, garder: b.dataset.docGarder === '1' });
+        if (!j.ok) throw new Error(j.erreur);
+        d.garder = b.dataset.docGarder === '1'; afficherDocs(); afficherResa(); afficherClients();
+        msg('m-admin', d.garder ? 'Pièce gardée : elle ne sera pas effacée automatiquement (pense à la supprimer quand le litige est réglé).' : 'Effacement automatique réactivé.', true);
+      } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+    });
+    if (!confirm('Supprimer « ' + nomDoc(d).replace(/^\S+ /, '') + ' » de ' + d.client + ' ?\n\nLe fichier part dans la corbeille de ton Google Drive (vidée par Google après 30 jours).')) return;
+    try {
+      const j = await appel('admin_doc_suppr', { id });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.docs = etat.docs.filter(x => x.id !== id); afficherDocs(); afficherResa(); afficherClients();
+      msg('m-admin', 'Document supprimé.', true);
+    } catch (err) { msg('m-admin', 'Pas supprimé : ' + (err.message || 'erreur') + '.'); }
+  });
 
   /* ----- offres, codes promo, comptes clients ----- */
   const jjmm = iso => iso ? iso.split('-').reverse().join('/') : '';
@@ -497,6 +624,8 @@
       '<div class="cli-corps"><div><h4>Contact</h4><div class="contact">' + contact + '</div></div>' + mini +
       '<div><h4>Historique</h4>' + histo + '</div>' +
       '<div><h4>Compte</h4>' + compte + '</div>' +
+      (() => { const l = docsDe(c.resa.map(r => r.ligne)); return '<div><h4>Documents</h4>' + (l.length ? l.map(d => ligneDoc(d, false)).join('')
+        : '<p class="note" style="margin:0">Aucun document (pièce d\'identité ou contrat) pour l\'instant.</p>') + '</div>'; })() +
       '<div class="note-cli"><h4>Note privée</h4><textarea maxlength="1000" placeholder="ex. préfère être livré à 18h, portail bleu, a payé la caution en chèque…" aria-label="Note privée sur ' + esc(c.nom) + '">' + esc(c.note) + '</textarea>' +
       '<div class="actions"><small class="note" style="margin:0" data-etat-note></small><button type="button" class="btn small" data-note>Enregistrer la note</button></div></div></div></details>';
   }
@@ -677,7 +806,7 @@
         (r.lieu ? '<br>📍 ' + esc(r.lieu) : '') + (r.invites ? ' · ' + esc(r.invites) + ' invités' : '') + (r.fete ? ' · ' + esc(r.fete) : '') +
         (r.prix !== '' && r.prix != null ? '<br>💶 ' + eur(r.prix) + (r.livraison !== '' && r.livraison != null ? ' + livraison ' + eur(r.livraison) + ' = <b>' + eur(Number(r.prix) + Number(r.livraison)) + '</b>' : ' · livraison sur devis') : '') +
         (r.statut === 'Rendue' && etat.avis && tel ? '<br><a href="https://wa.me/' + esc(wa) + '?text=' + encodeURIComponent('Bonjour ' + prenom + ', merci d\'avoir loué chez Mistraloc ! Si la soirée t\'a plu, ton avis Google nous aiderait énormément (30 secondes) : ' + etat.avis) + '" target="_blank" rel="noopener">⭐ Demander un avis Google (WhatsApp)</a>' : '') +
-        (r.notes ? '<br><small>' + esc(r.notes) + '</small>' : '') + fiche + '</div>' +
+        (r.notes ? '<br><small>' + esc(r.notes) + '</small>' : '') + fiche + resumeDocs(r) + '</div>' +
         '<div class="actions">' +
         (r.statut !== 'Confirmée' ? '<button class="btn small" data-s="Confirmée">✅ Confirmer</button>' : '') +
         (r.statut !== 'Annulée' ? '<button class="btn ghost small" data-s="Annulée">❌ Annuler</button>' : '') +
