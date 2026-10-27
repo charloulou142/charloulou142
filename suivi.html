@@ -112,6 +112,11 @@
   .cam-declic{width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:var(--pink);cursor:pointer}
   .cam.flash::after{content:'';position:absolute;inset:0;background:#fff;opacity:.7}
   .edl-l{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0}
+  .parrain{margin-top:22px;padding:18px;border-radius:18px;border:1px solid var(--pink);background:linear-gradient(135deg,rgba(255,122,26,.12),rgba(34,211,238,.08))}
+  .parrain h3{margin:0 0 6px;font-size:18px}
+  .parrain .code-p{display:inline-block;font-size:26px;font-weight:700;letter-spacing:3px;padding:6px 14px;border-radius:12px;background:var(--bg);border:1px dashed var(--pink);margin:4px 0 8px}
+  .parrain .actions-p{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .parrain .actions-p a{display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:11px 18px;border-radius:999px;text-decoration:none}
   /* écran d'attente (même animation que la réservation) : vague du logo + point cyan */
   .attente{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fondu .25s both}
   .attente[hidden]{display:none}
@@ -184,9 +189,14 @@
           (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>Livraison</dt><dd>' + (j.livraison ? esc(j.livraison) : 'à confirmer') + '</dd>' : '') +
           (j.total ? '<dt>Total</dt><dd>' + esc(j.total) + ' <small style="font-weight:400;color:var(--muted)">hors caution</small></dd>' : '') + '</dl>' +
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
+          (j.parrain ? htmlParrain(j.parrain) : '') +
           (j.docs ? htmlDocs(j) : '') +
           (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
         if (j.docs) brancherDocs(j);
+        const bp = document.getElementById('p-copier');
+        if (bp) bp.addEventListener('click', async () => {
+          try { await navigator.clipboard.writeText(j.parrain.code); bp.textContent = 'Code copié ✓'; } catch (e) { window.prompt('Copie ton code :', j.parrain.code); }
+        });
         if (!info && location.hash === '#documents' && document.getElementById('documents')) document.getElementById('documents').scrollIntoView({ behavior: 'smooth' });
         const b = document.getElementById('b-annul');
         if (b) b.addEventListener('click', async () => {
@@ -214,10 +224,25 @@
     const PIECES = ['Carte d\'identité', 'Passeport', 'Titre de séjour', 'Permis de conduire'];
     const DEFAUTS = { petite: 'trop petite (rapproche-toi)', floue: 'floue', sombre: 'trop sombre', reflet: 'un reflet cache une partie', double: 'identique à l\'autre face' };
     const SEUIL_NETTETE = 60;   // en dessous : photo jugée floue (réglé sur des images de test : texte difficile à lire ; à ajuster avec de vraies photos)
+    // code de parrainage (location terminée, parrainage activé par Mistraloc)
+    function htmlParrain(p) {
+      const txt = 'Je loue mes enceintes de soirée chez Mistraloc (Salon-de-Provence) : avec mon code ' + p.code + ', tu as -' + p.remise + ' % sur ta 1re location 👉 https://mistraloc.fr';
+      return '<div class="parrain"><h3>🎁 Fais découvrir Mistraloc</h3><p class="petit" style="margin:0">Ton code personnel :</p><span class="code-p">' + esc(p.code) + '</span>' +
+        '<p class="petit">Ton ami(e) a <b>−' + esc(p.remise) + ' %</b> sur sa 1re location avec ce code. Quand sa location est terminée, tu reçois à ton tour un code <b>−' + esc(p.remise) + ' %</b> par e-mail pour ta prochaine fête.</p>' +
+        '<div class="actions-p"><a href="https://wa.me/?text=' + encodeURIComponent(txt) + '" target="_blank" rel="noopener">Partager sur WhatsApp</a><button type="button" class="lien" id="p-copier">Copier le code</button></div></div>';
+    }
     function htmlDocs(j) {
       const d = j.docs, cniOk = !!(d.recto && (d.verso || d.piece === 'Passeport'));
       const veutCni = d.actif && !cniOk, veutCtr = d.actif && d.signable && !d.contrat;
       const tout = cniOk && (d.contrat || !d.signable);
+      // location terminée : seulement les documents qui existent (contrat, états des lieux, facture)
+      if (!d.actif) {
+        const edl = d.edl || {}, l = [];
+        if (d.contrat) l.push('<div class="edl-l"><span>✍️ Contrat signé le ' + esc(d.contrat) + '</span><button type="button" class="lien" id="sg-pdf">⬇ Télécharger (PDF)</button></div><p class="erreur" id="m-pdf" hidden></p>');
+        [['livraison', 'État des lieux à la livraison'], ['retour', 'État des lieux au retour']].filter(x => edl[x[0]]).forEach(x => l.push('<div class="edl-l"><span>📋 ' + x[1] + ' (' + esc(edl[x[0]]) + ')</span><button type="button" class="lien" data-pdf="' + x[0] + '" data-zone="m-edl">⬇ Télécharger (PDF)</button></div>'));
+        if (d.facture) l.push('<div class="edl-l"><span>🧾 Facture du ' + esc(d.facture) + '</span><button type="button" class="lien" data-pdf="facture" data-zone="m-edl">⬇ Télécharger (PDF)</button></div>');
+        return l.length ? '<div class="docs" id="documents"><h2>Tes documents</h2><div class="doc fait">' + l.join('') + '<p class="erreur" id="m-edl" hidden></p></div></div>' : '';
+      }
       let h = '<div class="docs" id="documents"><h2>Avant la livraison</h2><p class="petit">' +
         (tout ? 'Tout est bon, merci ! ✅' : !d.actif ? '' : veutCni && veutCtr ? 'Ta pièce d\'identité et ta signature, puis un seul bouton : 2 minutes.'
           : veutCni ? 'Il manque juste ta pièce d\'identité (1 minute).' : 'Il manque juste ta signature (1 minute).') + '</p>';
@@ -254,6 +279,8 @@
       if (edl.livraison || edl.retour) h += '<div class="doc fait"><h3>📋 États des lieux</h3>' +
         [['livraison', 'À la livraison'], ['retour', 'Au retour']].filter(x => edl[x[0]]).map(x => '<div class="edl-l"><span>' + x[1] + ' : signé le ' + esc(edl[x[0]]) + '</span>' +
           '<button type="button" class="lien" data-pdf="' + x[0] + '">⬇ Télécharger (PDF)</button></div>').join('') + '<p class="erreur" id="m-edl" hidden></p></div>';
+      if (d.facture) h += '<div class="doc fait"><h3>🧾 Ta facture</h3><div class="edl-l"><span>Établie le ' + esc(d.facture) + '</span>' +
+        '<button type="button" class="lien" data-pdf="facture" data-zone="m-fact">⬇ Télécharger (PDF)</button></div><p class="erreur" id="m-fact" hidden></p></div>';
       // bouton unique
       if (d.actif) h += '<div class="envoi" id="envoi"' + (veutCni || veutCtr ? '' : ' hidden') + '><button type="button" class="bouton grand" id="tout-env"></button>' +
         (veutCtr ? '<div id="code-zone" hidden><p class="petit" id="sg-envoye"></p><label class="ch" for="sg-c">Code reçu par e-mail (6 chiffres)</label>' +
@@ -465,7 +492,7 @@
     }
     // --- contrat déjà signé : téléchargement ---
     function brancherPdf() {
-      document.querySelectorAll('#documents [data-pdf]').forEach(b => b.addEventListener('click', () => telechargerPdf(b.dataset.pdf, 'm-edl')));
+      document.querySelectorAll('#documents [data-pdf]').forEach(b => b.addEventListener('click', () => telechargerPdf(b.dataset.pdf, b.dataset.zone || 'm-edl')));
       const b = document.getElementById('sg-pdf'); if (b) b.addEventListener('click', () => telechargerPdf('contrat', 'm-pdf'));
     }
     async function telechargerPdf(quoi, zoneErreur) {
