@@ -199,6 +199,73 @@
   .coche{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-weight:600;cursor:pointer}
   .coche input{width:22px;height:22px;flex:0 0 22px;margin:1px 0 0;accent-color:var(--pink)}
   .docs-resa .btn{width:auto;margin:8px 6px 0 0}
+  /* ===== navigation (27/10) : barre en bas sur téléphone, rangée de pastilles sur ordinateur ===== */
+  .nav-admin{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);background:var(--bg2);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(0,0,0,.25)}
+  .nav-admin button{display:grid;justify-items:center;gap:3px;background:none;border:0;color:var(--muted);font:inherit;font-size:12px;font-weight:700;padding:6px 2px;border-radius:12px;cursor:pointer;position:relative;min-width:0}
+  .nav-admin svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .nav-admin button[aria-selected="true"]{color:var(--pink)}
+  .nav-admin button[aria-selected="true"]::before{content:"";position:absolute;top:-6px;left:28%;right:28%;height:3px;border-radius:0 0 3px 3px;background:var(--pink)}
+  .nav-admin .pastille{position:absolute;top:0;left:calc(50% + 5px);min-width:18px;height:18px;border-radius:999px;background:var(--pink);color:#1A0B00;font-size:11px;line-height:18px;text-align:center;padding:0 5px}
+  #v-admin{padding-bottom:84px}
+  @media (min-width:760px){
+    .nav-admin{position:static;display:flex;justify-content:center;gap:4px;border:1px solid var(--line);border-radius:999px;margin:0 0 20px;padding:5px;box-shadow:none}
+    .nav-admin button{display:flex;align-items:center;gap:8px;font-size:15px;padding:9px 16px;border-radius:999px}
+    .nav-admin svg{width:19px;height:19px}
+    .nav-admin button[aria-selected="true"]{background:var(--pink);color:#1A0B00}
+    .nav-admin button[aria-selected="true"]::before{display:none}
+    .nav-admin .pastille{position:static}
+    #v-admin{padding-bottom:0}
+  }
+  .top-admin h1{margin:0}
+  #v-admin .top-admin{margin-bottom:4px}
+  .retour-plus{background:none;border:0;color:var(--cyan);font:inherit;font-weight:700;cursor:pointer;padding:0 0 6px;display:block}
+  /* message : petite bulle en bas de l'écran, visible même quand on a défilé */
+  #m-admin{position:fixed;left:12px;right:12px;bottom:86px;z-index:55;max-width:640px;margin:0 auto;background:var(--bg2);box-shadow:0 10px 30px rgba(0,0,0,.35);cursor:pointer;padding-right:34px}
+  #m-admin::after{content:"×";position:absolute;right:12px;top:8px;font-size:20px;opacity:.6}
+  @media (min-width:760px){#m-admin{bottom:20px}}
+  /* « Plus » : grandes tuiles */
+  .tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media (min-width:600px){.tuiles{grid-template-columns:repeat(3,1fr)}}
+  .tuile-p{display:grid;gap:4px;align-content:start;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;color:var(--text);font:inherit;cursor:pointer;transition:border-color .2s,transform .2s}
+  .tuile-p:hover,.tuile-p:focus-visible{border-color:var(--cyan);transform:translateY(-2px)}
+  .tuile-p i{font-style:normal;font-size:26px;line-height:1.1}
+  .tuile-p b{font-size:16px}
+  .tuile-p small{color:var(--muted);font-size:13px;line-height:1.35}
+  .tuile-p.alerte{border-color:var(--pink)}
+  .tuile-p.alerte small{color:var(--pink);font-weight:700}
+  /* « Aujourd'hui » */
+  .salut{color:var(--muted);font-weight:600;margin:-2px 0 16px;text-transform:capitalize}
+  .bandeau{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;margin-bottom:10px;font-weight:600;border:1px solid rgba(255,122,26,.6);background:rgba(255,122,26,.1)}
+  .bandeau button{flex:0 0 auto}
+  .afaire{display:grid;gap:8px;margin-bottom:6px}
+  .afaire button{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);font:inherit;cursor:pointer}
+  .afaire button:hover,.afaire button:focus-visible{border-color:var(--cyan)}
+  .afaire .n{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--pink);color:#1A0B00;font-weight:700;font-size:16px}
+  .afaire .t{flex:1;min-width:0;font-weight:700}
+  .afaire small{display:block;color:var(--muted);font-size:13px;font-weight:600}
+  .afaire .fl{color:var(--muted);font-size:20px}
+  .tout-va{display:flex;gap:10px;align-items:center;padding:14px;border-radius:14px;border:1px dashed var(--line);color:var(--muted);font-weight:600}
+  .section-t{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 0 8px}
+  .section-t h2{font-size:18px;font-family:inherit;font-weight:700;margin:0}
+  .section-t a,.section-t button{font-size:14px;color:var(--cyan);background:none;border:0;font-weight:700;cursor:pointer;padding:0;text-decoration:none}
+  .tache{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px}
+  .tache .h{grid-row:span 2;font-family:"Bebas Neue";font-size:30px;line-height:1;color:var(--cyan);min-width:60px}
+  .tache .h small{display:block;font-family:"Source Sans 3",sans-serif;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .tache.reprise .h{color:var(--pink)}
+  .tache .nom{display:block}
+  .tache .q{color:var(--muted);font-size:14px;display:block}
+  .tache .contact{grid-column:1/-1;margin-top:8px;gap:6px}
+  .tache .contact a,.tache .contact button{padding:7px 11px;font-size:13px}
+  .vide-jour{color:var(--muted);padding:12px 14px;border:1px dashed var(--line);border-radius:14px;font-size:15px}
+  .att-l{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+  .att-l:first-child{border-top:0}
+  .att-l small{display:block;color:var(--muted)}
+  .att-l .r-x{flex:0 0 30px}
+  .tab-rev td.c{text-align:right;color:var(--muted);padding-left:10px}
+  .tab-rev td.c,.tab-rev td:last-child{white-space:nowrap;width:1%}
+  .tab-rev td:last-child{padding-left:12px}
+  .barre-taux{height:8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-top:4px}
+  .barre-taux i{display:block;height:100%;background:var(--cyan)}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -247,24 +314,52 @@
 
   <!-- tableau de bord -->
   <section id="v-admin" hidden>
-    <div class="top-admin"><h1>Mon site</h1><button class="btn ghost small" type="button" id="b-logout">Déconnexion</button></div>
-    <div class="tabs" role="tablist">
-      <button role="tab" data-t="resa" aria-selected="true">Réservations</button>
-      <button role="tab" data-t="pause" aria-selected="false">Pause</button>
-      <button role="tab" data-t="prix" aria-selected="false">Matériel</button>
-      <button role="tab" data-t="photos" aria-selected="false">Photos</button>
-      <button role="tab" data-t="visites" aria-selected="false">Visites</button>
-      <button role="tab" data-t="offres" aria-selected="false">Offres</button>
-      <button role="tab" data-t="clients" aria-selected="false">Clients</button>
-      <button role="tab" data-t="docs" aria-selected="false">Documents</button>
-    </div>
-    <div class="msg" id="m-admin" hidden></div>
+    <nav class="nav-admin" aria-label="Sections de l'espace admin">
+      <button type="button" data-t="accueil" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Aujourd'hui</span><b class="pastille" id="nav-n" hidden></b></button>
+      <button type="button" data-t="resa" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Réservations</span></button>
+      <button type="button" data-t="clients" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.6c1.8.8 3 2.6 3.5 5.4"/></svg><span>Clients</span></button>
+      <button type="button" data-t="revenus" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Revenus</span></button>
+      <button type="button" data-t="plus" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Plus</span></button>
+    </nav>
+    <button type="button" class="retour-plus" id="retour-plus" data-aller="plus" hidden>‹ Plus</button>
+    <div class="top-admin"><h1 id="titre-admin">Aujourd'hui</h1></div>
+    <div class="msg" id="m-admin" role="status" hidden></div>
 
-    <div data-p="resa">
+    <div data-p="accueil">
+      <p class="salut" id="salut"></p>
+      <div id="accueil"></div>
+    </div>
+
+    <div data-p="revenus" hidden>
+      <div id="rev"></div>
+      <p class="note">Comptées : les réservations <b>confirmées, livrées ou rendues</b> (location + livraison, sans la caution), rangées dans le mois de leur 1re soirée. <b>Remplissage</b> = soirées louées de chaque appareil ÷ (nombre d'appareils × jours du mois). Une location de plusieurs soirées compte dans le mois où elle commence.</p>
+    </div>
+
+    <div data-p="plus" hidden>
+      <div class="tuiles" id="tuiles"></div>
+      <button class="btn ghost" type="button" id="b-logout" style="margin-top:18px">Se déconnecter</button>
+    </div>
+
+    <div data-p="infos" hidden>
+      <form class="panel" id="f-loueur">
+        <b>Tes informations professionnelles</b>
+        <p class="note" style="margin:4px 0 10px">Elles sont écrites sur chaque <b>contrat</b> et chaque <b>facture</b>. Tant que le nom, le SIRET et l'adresse ne sont pas remplis, les clients peuvent envoyer leur pièce d'identité mais <b>pas signer</b>, et aucune facture n'est créée.</p>
+        <div class="field"><label for="lo-nom">Ton nom et prénom (entrepreneur individuel)</label><input id="lo-nom" maxlength="80" autocomplete="name"></div>
+        <div class="field"><label for="lo-siret">SIRET (14 chiffres)</label><input id="lo-siret" maxlength="20" inputmode="numeric" placeholder="123 456 789 00012"></div>
+        <div class="field"><label for="lo-adr">Adresse professionnelle</label><input id="lo-adr" maxlength="200" autocomplete="street-address"></div>
+        <div class="field"><label for="lo-med">Médiateur de la consommation (nom + site, obligatoire pour un pro)</label><input id="lo-med" maxlength="300" placeholder="ex. CM2C – www.cm2c.net"></div>
+        <div class="field"><label for="lo-tva">Mention TVA sur les factures</label><input id="lo-tva" maxlength="120" placeholder="ex. TVA non applicable, art. 293 B du CGI">
+          <small class="note" style="margin:0">Micro-entrepreneur qui ne facture pas la TVA : la mention habituelle est « TVA non applicable, art. 293 B du CGI ». Vérifie ton cas avec l'URSSAF ou ton comptable.</small></div>
+        <button class="btn" type="submit">Enregistrer</button>
+      </form>
+    </div>
+
+    <div data-p="resa" hidden>
       <div class="cherche"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
         <input type="search" id="r-q" placeholder="Chercher une réservation : nom, tél., ville, pack…" aria-label="Rechercher une réservation" autocomplete="off"></div>
+      <div class="chips" id="r-filtres" role="group" aria-label="Filtrer les réservations"></div>
       <div id="liste-resa"></div>
-      <p class="note">Les réservations des 30 derniers jours et à venir : touche une ligne pour voir le détail. La croix × efface une réservation annulée (une copie reste dans l'onglet « Réservations supprimées » du CRM). « Confirmer » bloque le matériel sur le site et met l'agenda à jour ; « Annuler » supprime l'événement de l'agenda.</p>
+      <p class="note">Les réservations des 30 derniers jours et à venir (les plus anciennes sont dans « Clients ») : touche une ligne pour voir le détail. La croix × efface une réservation annulée (une copie reste dans l'onglet « Réservations supprimées » du CRM). « Confirmer » bloque le matériel sur le site et met l'agenda à jour ; « Annuler » supprime l'événement de l'agenda.</p>
     </div>
 
     <div data-p="pause" hidden>
@@ -306,6 +401,15 @@
         <div class="field"><label for="o-code">Code promo lié (facultatif)</label><input id="o-code" maxlength="20" placeholder="ex. BIENVENUE10" style="text-transform:uppercase"></div>
         <button class="btn" type="submit">Enregistrer l'offre</button>
       </form>
+      <form class="panel" id="f-parrain" style="margin-top:16px">
+        <div class="switch-row">
+          <div><b>Parrainage</b><div class="note" style="margin:0">Chaque client dont la location est <b>rendue</b> voit un code personnel sur sa page de suivi. Son ami(e) a une remise sur sa <b>1re location</b> ; quand cette location est rendue, ton client reçoit à son tour un code de remise (1 utilisation) par e-mail.</div></div>
+          <label class="toggle"><input type="checkbox" id="pa-on" aria-label="Activer le parrainage"><span></span></label>
+        </div>
+        <div class="field"><label for="pa-remise">Remise pour l'ami(e) et pour le parrain (en %)</label><input id="pa-remise" type="number" min="1" max="50" step="1" inputmode="numeric"></div>
+        <button class="btn" type="submit">Enregistrer le parrainage</button>
+        <div id="liste-parrains" style="margin-top:14px"></div>
+      </form>
       <div class="panel" style="margin-top:16px">
         <b>Codes promo</b>
         <div id="liste-codes" style="margin:10px 0 16px"></div>
@@ -343,16 +447,7 @@
       <div class="cherche"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
         <input type="search" id="d-q" placeholder="Chercher un document : nom du client…" aria-label="Rechercher un document" autocomplete="off"></div>
       <div id="liste-docs"></div>
-      <form class="panel" id="f-loueur" style="margin-top:16px">
-        <b>Tes informations pour le contrat</b>
-        <p class="note" style="margin:4px 0 10px">Elles sont écrites en haut de chaque contrat. Tant que le nom, le SIRET et l'adresse ne sont pas remplis, les clients peuvent envoyer leur pièce d'identité mais <b>pas signer</b>.</p>
-        <div class="field"><label for="lo-nom">Ton nom et prénom (entrepreneur individuel)</label><input id="lo-nom" maxlength="80" autocomplete="name"></div>
-        <div class="field"><label for="lo-siret">SIRET (14 chiffres)</label><input id="lo-siret" maxlength="20" inputmode="numeric" placeholder="123 456 789 00012"></div>
-        <div class="field"><label for="lo-adr">Adresse professionnelle</label><input id="lo-adr" maxlength="200" autocomplete="street-address"></div>
-        <div class="field"><label for="lo-med">Médiateur de la consommation (nom + site, facultatif mais obligatoire pour un pro)</label><input id="lo-med" maxlength="300" placeholder="ex. CM2C – www.cm2c.net"></div>
-        <button class="btn" type="submit">Enregistrer</button>
-      </form>
-      <p class="note">Les clients envoient leurs documents depuis leur lien de suivi, une fois la réservation <b>confirmée</b> (le bouton est dans l'e-mail « Confirmée »). Tout est rangé dans ton Google Drive, dossier privé « Mistraloc – Documents clients ». Les <b>pièces d'identité</b> portent un filigrane et sont effacées automatiquement <span data-cni-jours>30</span> jours après la reprise (tout de suite si la réservation est annulée) ; « Garder » les protège en cas de litige. Les <b>contrats signés</b> sont gardés 5 ans. Un élément supprimé va dans la corbeille du Drive (vidée par Google après 30 jours).</p>
+      <p class="note">Les clients envoient leurs documents depuis leur lien de suivi, une fois la réservation <b>confirmée</b> (le bouton est dans l'e-mail « Confirmée »). Tout est rangé dans ton Google Drive, dossier privé « Mistraloc – Documents clients ». Les <b>pièces d'identité</b> portent un filigrane et sont effacées automatiquement <span data-cni-jours>30</span> jours après la reprise (tout de suite si la réservation est annulée) ; « Garder » les protège en cas de litige. Les <b>contrats signés</b> et les <b>états des lieux</b> sont gardés 5 ans, les <b>factures</b> 10 ans (pièces comptables). Un élément supprimé va dans la corbeille du Drive (vidée par Google après 30 jours).</p>
     </div>
   </section>
 </main>
@@ -403,7 +498,8 @@
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
-    admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…' };
+    admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…',
+    admin_facture: 'Création de la facture (PDF)…', admin_attente_suppr: 'Suppression…', admin_parrainage: 'Enregistrement du parrainage…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
     const a = $('attente'); if (a.hidden === !on) return;
@@ -427,7 +523,13 @@
     if (j.erreur === 'session') { deconnecte(); throw new Error('Session expirée, reconnecte-toi.'); }
     return j;
   }
-  function msg(id, texte, ok) { const m = $(id); m.hidden = !texte; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = texte || ''; }
+  let tMsg = null;
+  function msg(id, texte, ok) {
+    const m = $(id); m.hidden = !texte; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = texte || '';
+    // bulle en bas de l'écran : les messages « OK » disparaissent seuls, les erreurs restent jusqu'au clic
+    if (id === 'm-admin') { clearTimeout(tMsg); if (texte && ok) tMsg = setTimeout(() => { m.hidden = true; }, 7000); }
+  }
+  $('m-admin').addEventListener('click', e => { if (e.target.tagName !== 'A') $('m-admin').hidden = true; });
   function vue(nom) { ['charge', 'login', 'setup', 'admin'].forEach(v => $('v-' + v).hidden = v !== nom); window.scrollTo(0, 0); }
   function garder(t) {
     token = t;
@@ -482,16 +584,47 @@
     if (!j.ok) throw new Error('Chargement impossible.');
     etat = j; afficherAdmin();
   }
-  function afficherAdmin() { vue('admin'); prepClients(); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); afficherOffres(); afficherClients(); afficherDocs(); }
+  function afficherAdmin() {
+    vue('admin'); prepClients(); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); afficherOffres(); afficherClients(); afficherDocs();
+    afficherInfos(); afficherRevenus(); afficherAccueil(); afficherTuiles();
+    let t = 'accueil'; try { t = sessionStorage.getItem('mistraloc_onglet') || 'accueil'; } catch (e) {}
+    onglet(TITRES[t] ? t : 'accueil', true);
+  }
+
+  /* ----- navigation : 5 boutons (Aujourd'hui, Réservations, Clients, Revenus, Plus) ; « Plus » ouvre les autres réglages ----- */
+  const TITRES = { accueil: 'Aujourd\'hui', resa: 'Réservations', clients: 'Clients', revenus: 'Revenus', plus: 'Plus', prix: 'Matériel et prix', photos: 'Photos du site',
+    offres: 'Offres et parrainage', docs: 'Documents', visites: 'Visites du site', pause: 'Pause du site', infos: 'Mes infos' };
+  const SOUS_PLUS = ['prix', 'photos', 'offres', 'docs', 'visites', 'pause', 'infos'];
+  function onglet(t, garderMsg) {
+    const nav = SOUS_PLUS.includes(t) ? 'plus' : t;
+    document.querySelectorAll('.nav-admin button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === nav));
+    document.querySelectorAll('[data-p]').forEach(p => { p.hidden = p.dataset.p !== t; });
+    $('titre-admin').textContent = TITRES[t] || 'Mon site';
+    $('retour-plus').hidden = !SOUS_PLUS.includes(t);
+    if (!garderMsg) msg('m-admin', '');
+    if (t === 'visites') chargerVisites();
+    if (t === 'accueil') afficherAccueil();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    try { sessionStorage.setItem('mistraloc_onglet', t); } catch (e) {}
+  }
+  document.querySelectorAll('.nav-admin button').forEach(b => b.addEventListener('click', () => onglet(b.dataset.t)));
+  // tout bouton data-aller="…" ouvre une section (avec data-filtre : filtre des réservations)
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-aller]'); if (!b) return;
+    e.preventDefault();
+    if (b.dataset.filtre) { filtreR = b.dataset.filtre; $('r-q').value = ''; afficherResa(); }
+    onglet(b.dataset.aller);
+  });
+  document.addEventListener('click', e => { const b = e.target.closest('[data-voir-resa]'); if (b) { e.preventDefault(); voirResa(Number(b.dataset.voirResa)); } });
 
   /* ----- documents : pièces d'identité + contrats signés ----- */
   const docsDe = lignes => (etat.docs || []).filter(d => lignes.includes(d.ligne));
   const genre = d => d.genre || (d.contrat ? 'contrat' : 'cni');
-  const nomDoc = d => genre(d) === 'edl' ? '📋 ' + d.type : genre(d) === 'contrat' ? '✍️ Contrat signé' : '🪪 ' + (/verso/.test(d.type) ? 'Pièce d\'identité (verso)' : 'Pièce d\'identité' + (d.detail && !/·/.test(d.detail) ? ' – ' + d.detail.toLowerCase() : '') + ' (recto)');
+  const nomDoc = d => genre(d) === 'facture' ? '🧾 Facture ' + String(d.detail || '').split(' ')[0] : genre(d) === 'edl' ? '📋 ' + d.type : genre(d) === 'contrat' ? '✍️ Contrat signé' : '🪪 ' + (/verso/.test(d.type) ? 'Pièce d\'identité (verso)' : 'Pièce d\'identité' + (d.detail && !/·/.test(d.detail) ? ' – ' + d.detail.toLowerCase() : '') + ' (recto)');
   function ligneDoc(d, avecClient) {
     return '<div class="doc-l' + (d.garder ? ' garde' : '') + '" data-doc="' + esc(d.id) + '"><div><b>' + esc(nomDoc(d)) + '</b>' +
       '<small>' + esc([avecClient ? d.client : '', 'reçu le ' + jjmm(d.date), d.resaDate ? 'location du ' + jjmm(d.resaDate) : 'réservation supprimée',
-        d.contrat ? 'gardé 5 ans' : d.garder ? '🔒 gardée (litige)' : d.effacerLe ? 'effacée le ' + jjmm(d.effacerLe) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
+        genre(d) === 'facture' ? (String(d.detail || '').split(' · ')[1] || '') + ' · gardée 10 ans' : d.contrat ? 'gardé 5 ans' : d.garder ? '🔒 gardée (litige)' : d.effacerLe ? 'effacée le ' + jjmm(d.effacerLe) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
       '<span class="actions"><button type="button" class="btn small" data-doc-voir>Voir</button>' +
       (d.contrat ? '' : '<button type="button" class="btn ghost small" data-doc-redem>📷 Redemander</button>' +
         '<button type="button" class="btn ghost small" data-doc-garder="' + (d.garder ? '0' : '1') + '">' + (d.garder ? 'Ne plus garder' : 'Garder') + '</button>') +
@@ -509,8 +642,10 @@
     if (!['Confirmée', 'Livrée', 'Rendue'].includes(r.statut) && !l.length) return '';
     const cni = l.filter(d => genre(d) === 'cni'), ctr = l.find(d => genre(d) === 'contrat');
     const rap = (etat.rappelsDocs || []).filter(x => x.ligne === r.ligne).pop();
+    const fact = l.find(d => genre(d) === 'facture');
     const edlBtn = ['Confirmée', 'Livrée', 'Rendue'].includes(r.statut) ? '<br><button type="button" class="btn ghost small" data-edl="livraison" data-ligne="' + r.ligne + '">📋 État des lieux livraison</button>' +
-      '<button type="button" class="btn ghost small" data-edl="retour" data-ligne="' + r.ligne + '">📋 État des lieux retour</button>' : '';
+      '<button type="button" class="btn ghost small" data-edl="retour" data-ligne="' + r.ligne + '">📋 État des lieux retour</button>' +
+      (fact ? '' : '<button type="button" class="btn ghost small" data-facture="' + r.ligne + '">🧾 Faire la facture</button>') : '';
     const dem = (etat.demandesDocs || []).find(x => x.ligne === r.ligne);
     const signable = !!(etat.loueur || {}).complet;
     const manque = [!cni.length ? 'ta pièce d\'identité' : '', !ctr && signable ? 'ta signature du contrat' : ''].filter(Boolean);
@@ -519,20 +654,19 @@
       ', il me manque ' + manque.join(' et ') + ' (2 minutes, tout se fait ici) : ' + r.suivi + '#documents') : '';
     return '<div class="docs-resa">📄 ' + (cni.length ? '🪪 pièce d\'identité reçue' : dem ? '🪪 <b>nouvelle photo demandée</b> le ' + jjmm(dem.date) : '🪪 pièce d\'identité <b>manquante</b>') + ' · ' +
       (ctr ? '✍️ contrat signé' : '✍️ contrat <b>pas signé</b>') +
-      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (genre(d) === 'edl' ? (/retour/.test(d.type) ? 'état des lieux retour' : 'état des lieux livraison') : genre(d) === 'contrat' ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') +
+      (l.length ? ' · ' + l.map(d => '<button type="button" class="link" data-doc="' + esc(d.id) + '" data-doc-voir>' + (genre(d) === 'facture' ? '🧾 facture ' + esc(String(d.detail || '').split(' ')[0]) : genre(d) === 'edl' ? (/retour/.test(d.type) ? 'état des lieux retour' : 'état des lieux livraison') : genre(d) === 'contrat' ? 'voir le contrat' : /verso/.test(d.type) ? 'verso' : 'voir la pièce') + '</button>').join(' · ') : '') +
       (rap ? ' · 🔔 rappel auto le ' + jjmm(rap.date) : '') +
       (wa ? ' · <a href="' + esc(wa) + '" target="_blank" rel="noopener">💬 Relancer (WhatsApp)</a>' : '') + edlBtn + '</div>';
   }
   function afficherDocs() {
     const l = etat.docs || [], lo = etat.loueur || {};
     $('d-alerte').hidden = !!lo.complet;
-    $('d-alerte').textContent = 'La signature des contrats est désactivée : remplis ton nom, ton SIRET et ton adresse ci-dessous.';
+    $('d-alerte').innerHTML = 'Signature des contrats et factures désactivées : remplis ton nom, ton SIRET et ton adresse. <button type="button" class="link" data-aller="infos">Remplir mes infos ›</button>';
     document.querySelectorAll('[data-cni-jours]').forEach(s => { s.textContent = etat.cniJours || 30; });
-    $('lo-nom').value = lo.nom || ''; $('lo-siret').value = lo.siret || ''; $('lo-adr').value = lo.adresse || ''; $('lo-med').value = lo.mediateur || '';
     const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
     const aVenir = (etat.reservations || []).filter(r => ['Confirmée', 'Livrée'].includes(r.statut) && r.date >= auj());
     const sansCni = aVenir.filter(r => !docsDe([r.ligne]).some(d => genre(d) === 'cni')), sansCtr = aVenir.filter(r => !docsDe([r.ligne]).some(d => genre(d) === 'contrat'));
-    $('d-kpis').innerHTML = kpi('Contrats signés', l.filter(d => genre(d) === 'contrat').length, l.filter(d => genre(d) === 'edl').length + ' état(s) des lieux') +
+    $('d-kpis').innerHTML = kpi('Contrats signés', l.filter(d => genre(d) === 'contrat').length, l.filter(d => genre(d) === 'edl').length + ' état(s) des lieux · ' + l.filter(d => genre(d) === 'facture').length + ' facture(s)') +
       kpi('Pièces d\'identité', l.filter(d => genre(d) === 'cni').length, l.filter(d => genre(d) === 'cni' && d.garder).length + ' gardée(s) pour litige') +
       kpi('À venir sans pièce', sansCni.length, 'locations confirmées') + kpi('À venir sans contrat', sansCtr.length, lo.complet ? 'locations confirmées' : 'signature désactivée');
     const q = norm($('d-q').value.trim());
@@ -543,10 +677,10 @@
   $('d-q').addEventListener('input', afficherDocs);
   $('f-loueur').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
     try {
-      const j = await appel('admin_loueur', { nom: $('lo-nom').value.trim(), siret: $('lo-siret').value.trim(), adresse: $('lo-adr').value.trim(), mediateur: $('lo-med').value.trim() });
+      const j = await appel('admin_loueur', { nom: $('lo-nom').value.trim(), siret: $('lo-siret').value.trim(), adresse: $('lo-adr').value.trim(), mediateur: $('lo-med').value.trim(), tva: $('lo-tva').value.trim() });
       if (!j.ok) throw new Error(j.erreur);
-      etat.loueur = j.loueur; afficherDocs();
-      msg('m-admin', j.loueur.complet ? 'Enregistré : tes clients peuvent maintenant signer leur contrat en ligne.' : 'Enregistré, mais il manque encore le nom, le SIRET (14 chiffres) ou l\'adresse pour activer la signature.', true);
+      etat.loueur = j.loueur; afficherDocs(); afficherInfos(); afficherTuiles(); afficherAccueil();
+      msg('m-admin', j.loueur.complet ? 'Enregistré : tes clients peuvent signer leur contrat en ligne et les factures sont activées.' : 'Enregistré, mais il manque encore le nom, le SIRET (14 chiffres) ou l\'adresse pour activer la signature et les factures.', true);
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
   let urlVisu = null;
@@ -704,7 +838,14 @@
   function afficherOffres() {
     const o = etat.offre || {};
     $('o-on').checked = !!o.affichee; $('o-txt').value = o.texte || ''; $('o-code').value = o.code || '';
-    const codes = etat.codes || [];
+    // parrainage : réglage + liste des parrains (leurs codes ne sont pas mélangés aux codes promo)
+    const P = etat.parrain || { actif: false, remise: 10 }, parrains = etat.parrains || [];
+    $('pa-on').checked = !!P.actif; $('pa-remise').value = P.remise || 10;
+    $('liste-parrains').innerHTML = parrains.length ? '<b style="font-size:15px">Parrains (' + parrains.length + ')</b>' + parrains.map(p => '<div class="code-row"><div><b>' + esc(p.code) + '</b> · ' + esc(p.nom) +
+        '<div class="note" style="margin:0">' + (p.filleuls ? p.filleuls + ' ami' + (p.filleuls > 1 ? 's' : '') + ' parrainé' + (p.filleuls > 1 ? 's' : '') + ' · récompense' + (p.filleuls > 1 ? 's' : '') + ' : ' + p.recompenses.map(x => esc(x.code) + (x.filleul ? ' (' + esc(x.filleul) + ')' : '')).join(', ') : 'pas encore d\'ami parrainé') + '</div></div></div>').join('')
+      : '<p class="note" style="margin:0">' + (P.actif ? 'Les codes apparaîtront quand une location sera « Rendue ».' : 'Parrainage désactivé : aucun code n\'est proposé aux clients.') + '</p>';
+    const estParrainage = c => /^(Parrainage|Récompense parrainage) – /.test(c.note || '');
+    const codes = (etat.codes || []).filter(c => !estParrainage(c));
     $('liste-codes').innerHTML = codes.length ? codes.map(c => '<div class="code-row' + (c.actif ? '' : ' off') + '"><div><b>' + esc(c.code) + '</b> · ' +
         (c.type === '%' ? '−' + esc(c.valeur) + ' %' : '−' + eur(c.valeur)) + (c.fin ? ' · jusqu\'au ' + jjmm(c.fin) : '') +
         '<div class="note" style="margin:0">Utilisé ' + esc(c.utilisees) + ' fois' + (c.max != null ? ' sur ' + esc(c.max) : '') + (c.note ? ' · ' + esc(c.note) : '') + (c.actif ? '' : ' · désactivé') + '</div></div>' +
@@ -794,7 +935,7 @@
   }
   const clientDe = el => { const d = el.closest('.cli'); return d ? (etat.clients || []).find(c => c.cle === d.dataset.cle) : null; };
   function ouvrirClient(cle) {
-    document.querySelector('.tabs button[data-t="clients"]').click();
+    onglet('clients', true);
     $('cl-q').value = ''; filtreCl = 'tous';
     const tous = etat.clients || [], i = tous.findIndex(c => c.cle === cle);
     limiteCl = Math.max(30, i + 1); afficherClients();
@@ -804,8 +945,11 @@
     d.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function voirResa(ligne) {
-    document.querySelector('.tabs button[data-t="resa"]').click();
-    $('r-q').value = ''; afficherResa();
+    onglet('resa', true);
+    $('r-q').value = '';
+    const r0 = (etat.reservations || []).find(x => x.ligne === ligne);
+    if (r0 && !testR(filtreR, r0)) filtreR = 'toutes';   // la réservation doit être visible dans la liste
+    resaOuvertes.add(ligne); afficherResa();
     const a = document.querySelector('.resa[data-ligne="' + ligne + '"]');
     if (a) { a.open = true; a.scrollIntoView({ behavior: 'smooth', block: 'center' }); a.classList.remove('eclair'); void a.offsetWidth; a.classList.add('eclair'); }
   }
@@ -870,7 +1014,7 @@
     try {
       const j = await appel('admin_offre', offre);
       if (!j.ok) throw new Error(j.erreur);
-      etat.offre = offre;
+      etat.offre = offre; afficherTuiles();
       msg('m-admin', offre.affichee ? 'L\'offre est en ligne en haut du site.' : 'L\'offre est enregistrée (pas affichée).', true);
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
@@ -895,12 +1039,16 @@
     envoyerCodePromo({ code: c.code, type: c.type, valeur: c.valeur, debut: c.debut, fin: c.fin, max: c.max == null ? '' : c.max, note: c.note, actif: !c.actif }, b);
   });
 
-  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-    document.querySelectorAll('[data-p]').forEach(p => p.hidden = p.dataset.p !== b.dataset.t);
-    msg('m-admin', '');
-    if (b.dataset.t === 'visites') chargerVisites();
-  }));
+  $('f-parrain').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    const actif = $('pa-on').checked, remise = Number($('pa-remise').value);
+    if (!(remise >= 1 && remise <= 50)) return msg('m-admin', 'La remise doit être entre 1 et 50 %.');
+    try {
+      const j = await appel('admin_parrainage', { actif, remise });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.parrain = j.parrain; etat.codes = j.codes; afficherOffres();
+      msg('m-admin', actif ? 'Parrainage activé : −' + remise + ' % pour l\'ami(e) et pour le parrain.' : 'Parrainage désactivé : les codes parrain ne marchent plus.', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
 
   /* ----- visites ----- */
   const nb = n => Number(n).toLocaleString('fr-FR');
@@ -941,9 +1089,12 @@
     const parLigne = {};
     (etat.clients || []).forEach(c => c.resa.forEach(x => { parLigne[x.ligne] = c; }));
     const q = $('r-q').value.trim(), qn = norm(q).split(/\s+/).filter(Boolean), qd = q.replace(/[\s.+-]/g, '');
-    const l = etat.reservations.filter(r => !q || (/^\d{3,}$/.test(qd) ? telTrouve(telChiffres(r.tel), qd)
-      : qn.every(m => norm([r.client, r.email, r.lieu, r.offre, r.fete, r.statut, dateFr(r.date), r.notes].join(' ')).includes(m))));
-    if (!l.length) { $('liste-resa').innerHTML = '<div class="panel empty">' + (q ? 'Aucune réservation ne correspond.' : 'Aucune réservation pour le moment.') + '</div>'; return; }
+    // filtres (la recherche, elle, cherche dans toutes les réservations)
+    $('r-filtres').innerHTML = FILTRES_R.map(([k, t]) => '<button type="button" data-fr="' + k + '" aria-pressed="' + (k === filtreR) + '">' + t + '<i>' + etat.reservations.filter(r => testR(k, r)).length + '</i></button>').join('');
+    let l = etat.reservations.filter(r => q ? (/^\d{3,}$/.test(qd) ? telTrouve(telChiffres(r.tel), qd)
+      : qn.every(m => norm([r.client, r.email, r.lieu, r.offre, r.fete, r.statut, dateFr(r.date), r.notes].join(' ')).includes(m))) : testR(filtreR, r));
+    if (!q && filtreR === 'passees') l = l.slice().reverse();   // les plus récentes d'abord
+    if (!l.length) { $('liste-resa').innerHTML = '<div class="panel empty">' + (q ? 'Aucune réservation ne correspond.' : ({ venir: 'Aucune réservation à venir.', traiter: 'Aucune demande à traiter 🎉', docs: 'Aucun document ne manque 🎉', passees: 'Aucune réservation passée (30 derniers jours).', annulees: 'Aucune réservation annulée.' }[filtreR] || 'Aucune réservation pour le moment.')) + '</div>'; return; }
     $('liste-resa').innerHTML = l.map(r => {
       const cl = parLigne[r.ligne];
       const fiche = cl ? '<br><button type="button" class="fiche" data-fiche="' + esc(cl.cle) + '">👤 Fiche client</button> · ' +
@@ -977,6 +1128,19 @@
     }).join('');
   }
   const resaOuvertes = new Set();
+  const FILTRES_R = [['venir', 'À venir'], ['traiter', 'À traiter'], ['docs', 'Documents manquants'], ['passees', 'Passées'], ['annulees', 'Annulées'], ['toutes', 'Toutes']];
+  const A_TRAITER = ['Demande reçue', 'Devis envoyé', 'Sans réponse'];
+  let filtreR = 'venir';
+  // location confirmée, pas encore finie, à laquelle il manque la pièce d'identité ou la signature
+  function manqueDocs(r) {
+    if (!['Confirmée', 'Livrée'].includes(r.statut) || (r.reprise || r.date || '') < auj()) return false;
+    const l = docsDe([r.ligne]);
+    return !l.some(d => genre(d) === 'cni') || (!!(etat.loueur || {}).complet && !l.some(d => genre(d) === 'contrat'));
+  }
+  const finR = r => r.reprise || r.date || '9999';
+  const testR = (f, r) => f === 'venir' ? r.statut !== 'Annulée' && finR(r) >= auj() : f === 'traiter' ? A_TRAITER.includes(r.statut) && finR(r) >= auj()
+    : f === 'docs' ? manqueDocs(r) : f === 'passees' ? r.statut !== 'Annulée' && finR(r) < auj() : f === 'annulees' ? r.statut === 'Annulée' : true;
+  $('r-filtres').addEventListener('click', e => { const b = e.target.closest('button[data-fr]'); if (!b) return; filtreR = b.dataset.fr; afficherResa(); });
   const jourCourt = iso => iso ? new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '') : 'date ?';
   $('liste-resa').addEventListener('toggle', e => {
     const d = e.target; if (!d.classList || !d.classList.contains('resa')) return;
@@ -1010,10 +1174,12 @@
       const j = await appel('admin_statut', { ligne, statut });
       if (!j.ok) throw new Error(j.erreur);
       if (j.resa) Object.assign(r, j.resa);
+      if (j.docs) etat.docs = j.docs;
       (etat.clients || []).forEach(c => c.resa.forEach(x => { if (x.ligne === ligne) x.statut = r.statut; }));
-      afficherResa();
-      const info = j.mail === 'envoyé' ? ' E-mail envoyé au client.' : j.mail === 'pas d\'e-mail' ? ' Pas d\'e-mail pour ce client : pense au bouton WhatsApp.' : j.mail === 'erreur' ? ' ⚠ L\'e-mail au client n\'est pas parti.' : '';
-      msg('m-admin', 'Statut enregistré : ' + statut + '.' + info, true);
+      resaOuvertes.add(ligne); afficherResa(); afficherDocs(); afficherAccueil();
+      const info = j.mail === 'envoyé' ? ' E-mail envoyé au client' + (j.facture ? ' avec sa facture ' + j.facture : '') + '.' : j.mail === 'pas d\'e-mail' ? ' Pas d\'e-mail pour ce client : pense au bouton WhatsApp.' : j.mail === 'erreur' ? ' ⚠ L\'e-mail au client n\'est pas parti.' : '';
+      const fInfo = statut === 'Rendue' ? (j.facture ? (j.mail === 'envoyé' ? '' : ' Facture ' + j.facture + ' créée.') : (etat.loueur || {}).complet ? '' : ' Pas de facture : remplis d\'abord tes infos (Plus › Mes infos).') : '';
+      msg('m-admin', 'Statut enregistré : ' + statut + '.' + info + fInfo, true);
     } catch (err) {
       r.statut = avant; afficherResa();
       msg('m-admin', 'Pas enregistré (le statut est revenu à « ' + (avant || 'sans statut') + ' ») : ' + (err.message || 'erreur') + '.');
@@ -1034,7 +1200,7 @@
     try {
       const j = await appel('admin_pause', { pause: $('p-on').checked, message: $('p-msg').value });
       if (!j.ok) throw new Error(j.erreur);
-      etat.pause = $('p-on').checked; etat.message = $('p-msg').value;
+      etat.pause = $('p-on').checked; etat.message = $('p-msg').value; afficherTuiles(); afficherAccueil();
       msg('m-admin', etat.pause ? 'Le site est maintenant en pause.' : 'Le site est de nouveau ouvert.', true);
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
@@ -1102,6 +1268,133 @@
       await charger(); msg('m-admin', 'Photo retirée.', true);
     } catch (err) { msg('m-admin', 'Pas retirée : ' + (err.message || 'erreur') + '.'); }
   });
+
+  /* ===== « Aujourd'hui » : ce qu'il y a à faire, livraisons et reprises du jour et du lendemain, liste d'attente ===== */
+  const demainIso = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); };
+  const lieuDe = r => (etat.adresses || {})[r.ligne] || r.lieu || '';
+  const lienCarte = lieu => 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(lieu + (/\d{5}/.test(lieu) ? '' : ', France'));
+  function carteTache(r, quoi) {
+    const l = docsDe([r.ligne]), lieu = lieuDe(r), tel = telChiffres(r.tel), prenom = String(r.client).trim().split(/\s+/)[0];
+    const edlFait = l.some(d => genre(d) === 'edl' && (quoi === 'reprise' ? /retour/.test(d.type) : /livraison/.test(d.type)));
+    const cni = l.some(d => genre(d) === 'cni'), ctr = l.some(d => genre(d) === 'contrat'), signable = !!(etat.loueur || {}).complet;
+    const etatDocs = quoi === 'livraison' ? (cni ? '🪪 ✓' : '🪪 <b>manquante</b>') + (signable ? ' · ' + (ctr ? '✍️ ✓' : '✍️ <b>pas signé</b>') : '') + ' · ' : '';
+    const texteWa = quoi === 'livraison' ? 'Bonjour ' + prenom + ', ici Mistraloc 👋 Je te livre ' + (r.heure ? 'à ' + r.heure : 'ce soir') + ', c\'est toujours bon pour toi ?'
+      : 'Bonjour ' + prenom + ', ici Mistraloc 👋 Je passe reprendre le matériel ce matin, avant 12h00 : à quelle heure ça t\'arrange ?';
+    return '<div class="tache' + (quoi === 'reprise' ? ' reprise' : '') + '"><span class="h">' + esc(quoi === 'livraison' ? (r.heure || '17h') : '12h') +
+      '<small>' + (quoi === 'livraison' ? 'livraison' : 'reprise avant') + '</small></span>' +
+      '<div><b class="nom">' + esc(r.client) + ' <span class="badge ' + esc(r.statut.split(' ')[0]) + '" style="margin:0 0 0 4px;font-size:11px;padding:1px 8px">' + esc(r.statut) + '</span></b>' +
+      '<span class="q">' + esc(r.offre.replace(/^Panier perso : /, '')) + (r.nuits > 1 ? ' · ' + r.nuits + ' soirées' : '') + (lieu ? ' · 📍 ' + esc(lieu) : '') + '</span></div>' +
+      '<span class="q">' + etatDocs + (edlFait ? '📋 état des lieux fait ✓' : '📋 état des lieux à faire') + '</span>' +
+      '<div class="contact">' + (tel ? '<a href="tel:' + esc(tel) + '">📞 Appeler</a><a href="' + esc(lienWa(r.tel, texteWa)) + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '') +
+      (lieu ? '<a href="' + esc(lienCarte(lieu)) + '" target="_blank" rel="noopener">🗺 Itinéraire</a>' : '') +
+      (edlFait ? '' : '<button type="button" data-edl="' + (quoi === 'livraison' ? 'livraison' : 'retour') + '" data-ligne="' + r.ligne + '">📋 État des lieux</button>') +
+      '<button type="button" data-voir-resa="' + r.ligne + '">Détails</button></div></div>';
+  }
+  // une journée : reprises du matin puis livraisons du soir (dans l'ordre des heures) + lien « toute la tournée »
+  function journee(iso, titre) {
+    const R = etat.reservations || [], actif = r => ['Confirmée', 'Livrée'].includes(r.statut);
+    const rep = R.filter(r => actif(r) && r.reprise === iso), liv = R.filter(r => actif(r) && r.date === iso).sort((a, b) => (a.heure || '17h').localeCompare(b.heure || '17h'));
+    const etapes = rep.concat(liv).map(lieuDe).filter(Boolean);
+    const tournee = etapes.length > 1 ? 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(etapes[etapes.length - 1]) +
+      '&waypoints=' + encodeURIComponent(etapes.slice(0, -1).join('|')) : '';
+    return '<div class="section-t"><h2>' + titre + '</h2>' + (tournee ? '<a href="' + esc(tournee) + '" target="_blank" rel="noopener">🗺 Toute la tournée</a>' : '') + '</div>' +
+      (rep.length || liv.length ? rep.map(r => carteTache(r, 'reprise')).join('') + liv.map(r => carteTache(r, 'livraison')).join('')
+        : '<p class="vide-jour">Aucune livraison ni reprise.</p>');
+  }
+  function afficherAccueil() {
+    if (!etat) return;
+    const R = etat.reservations || [], lo = etat.loueur || {}, a = auj();
+    $('salut').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    // à faire
+    const traiter = R.filter(r => testR('traiter', r)), docs = R.filter(r => manqueDocs(r) && r.date <= (() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); })());
+    const retard = R.filter(r => r.statut === 'Livrée' && r.reprise && r.reprise < a);
+    const items = [];
+    if (traiter.length) items.push(['resa', 'traiter', traiter.length, traiter.length > 1 ? 'demandes à confirmer' : 'demande à confirmer', 'Rappelle le client puis « Confirmer »']);
+    if (docs.length) items.push(['resa', 'docs', docs.length, 'location' + (docs.length > 1 ? 's' : '') + ' sans documents', 'Dans les 7 jours : relance par WhatsApp']);
+    if (retard.length) items.push(['resa', 'passees', retard.length, 'location' + (retard.length > 1 ? 's' : '') + ' encore « Livrée »', 'Reprise passée : fais l\'état des lieux retour ou passe en « Rendue »']);
+    if (!lo.complet) items.push(['infos', '', '!', 'Remplis tes infos pro', 'Nom, SIRET, adresse : nécessaires pour les contrats et les factures']);
+    let h = '';
+    if (etat.pause) h += '<div class="bandeau"><span>⏸ Ton site est <b>en pause</b> : personne ne peut réserver.</span><button type="button" class="btn small" data-aller="pause">Rouvrir</button></div>';
+    h += '<div class="section-t" style="margin-top:0"><h2>À faire</h2></div>' + (items.length ? '<div class="afaire">' + items.map(([t, f, n, titre, sous]) =>
+        '<button type="button" data-aller="' + t + '"' + (f ? ' data-filtre="' + f + '"' : '') + '><span class="n">' + n + '</span><span class="t">' + esc(titre) + '<small>' + esc(sous) + '</small></span><span class="fl" aria-hidden="true">›</span></button>').join('') + '</div>'
+      : '<div class="tout-va">✅ Rien d\'urgent. Bonne journée !</div>');
+    h += journee(a, 'Aujourd\'hui') + journee(demainIso(), 'Demain');
+    // ce mois-ci
+    const M = etat.revenus && etat.revenus.mois ? etat.revenus.mois[etat.revenus.mois.length - 1] : null;
+    if (M) h += '<div class="section-t"><h2>Ce mois-ci</h2><button type="button" data-aller="revenus">Voir les revenus ›</button></div><div class="kpis">' +
+      '<div class="kpi"><small>Chiffre</small><b>' + (eur(Math.round(M.ca)) || '0 €') + '</b><span>' + M.nb + ' location' + (M.nb > 1 ? 's' : '') + '</span></div>' +
+      '<div class="kpi"><small>À venir</small><b>' + (eur(Math.round(etat.revenus.venir.ca)) || '0 €') + '</b><span>' + etat.revenus.venir.nb + ' confirmée' + (etat.revenus.venir.nb > 1 ? 's' : '') + '</span></div></div>';
+    // liste d'attente
+    const att = etat.attente || [];
+    h += '<div class="section-t"><h2>Liste d\'attente</h2></div>' + (att.length ? '<div class="panel" style="padding:8px 16px">' + att.map(x => '<div class="att-l"><div><b>' + esc(dateFr(x.date)) + '</b> · ' + esc(x.offre.replace(/^Panier perso : /, '')) +
+        '<small>' + esc(x.email) + ' · ' + (x.prevenu ? '✓ prévenu le ' + jjmm(x.prevenu) : 'attend qu\'une place se libère') + '</small></div>' +
+        '<button type="button" class="r-x" data-att-suppr="' + x.ligne + '" aria-label="Retirer cette demande" title="Retirer">×</button></div>').join('') + '</div>'
+      : '<p class="vide-jour">Personne n\'attend une date complète. Quand un jour est complet sur le site, le client peut laisser son e-mail : il est prévenu automatiquement si la date se libère.</p>');
+    $('accueil').innerHTML = h;
+    const n = items.filter(i => i[2] !== '!').reduce((s, i) => s + i[2], 0);
+    $('nav-n').hidden = !n; $('nav-n').textContent = n;
+  }
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-att-suppr]'); if (!b) return;
+    if (!confirm('Retirer cette personne de la liste d\'attente ? Elle ne sera pas prévenue si la date se libère.')) return;
+    try {
+      const j = await appel('admin_attente_suppr', { ligne: Number(b.dataset.attSuppr) });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.attente = j.attente; afficherAccueil(); msg('m-admin', 'Demande retirée de la liste d\'attente.', true);
+    } catch (err) { msg('m-admin', 'Pas retirée : ' + (err.message || 'erreur') + '.'); }
+  });
+  // « Faire la facture » (sinon elle est créée toute seule au passage en « Rendue »)
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-facture]'); if (!b) return;
+    e.preventDefault();
+    await occupe(b, async () => {
+      try {
+        const j = await appel('admin_facture', { ligne: Number(b.dataset.facture) });
+        if (!j.ok) throw new Error(j.erreur);
+        etat.docs = j.docs; afficherResa(); afficherDocs(); afficherClients();
+        msg('m-admin', (j.deja ? 'Cette réservation a déjà sa facture : ' : 'Facture créée : ') + j.numero + ' (dans le dossier du client et téléchargeable depuis son lien de suivi).', true);
+      } catch (err) { msg('m-admin', 'Pas de facture : ' + (err.message || 'erreur') + '.'); }
+    });
+  });
+
+  /* ===== Revenus ===== */
+  const moisFr = (cle, long) => new Date(cle + '-15T12:00').toLocaleDateString('fr-FR', long ? { month: 'long', year: 'numeric' } : { month: 'short' }).replace('.', '');
+  function afficherRevenus() {
+    const R = etat.revenus;
+    if (!R) { $('rev').innerHTML = '<div class="panel empty">Revenus indisponibles.</div>'; return; }
+    const m = R.mois, cour = m[m.length - 1], max = Math.max(1, ...m.map(x => x.ca)), e0 = v => eur(Math.round(v)) || '0 €';
+    const pc = v => String(v).replace('.', ',') + ' %';
+    const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
+    const barres = m.map(x => '<button type="button" data-info="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca) + ' · ' + x.nb + ' location' + (x.nb > 1 ? 's' : '') + (x.livr ? ' (dont ' + e0(x.livr) + ' de livraison)' : '') + (x.taux != null ? ' · remplissage ' + pc(x.taux) : '')) +
+      '" aria-label="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca)) + '"><i style="height:' + (x.ca ? Math.max(3, Math.round(x.ca / max * 100)) : 0) + '%"></i></button>').join('');
+    const tot = R.offres.reduce((s, o) => s + o.nb, 0) || 1;
+    $('rev').innerHTML = '<div class="kpis">' + kpi('Ce mois-ci', e0(cour.ca), cour.nb + ' location' + (cour.nb > 1 ? 's' : '')) + kpi('Année ' + R.annee.an, e0(R.annee.ca), R.annee.nb + ' location' + (R.annee.nb > 1 ? 's' : '')) +
+      kpi('À venir', e0(R.venir.ca), R.venir.nb + ' confirmée' + (R.venir.nb > 1 ? 's' : '')) + kpi('Remplissage', cour.taux == null ? '—' : pc(cour.taux), 'ce mois-ci') + '</div>' +
+      '<div class="panel"><h2>Chiffre par mois</h2><div class="graph" id="rev-graph">' + barres + '</div>' +
+      '<div class="graph-axe"><span>' + esc(moisFr(m[0].cle)) + '</span><span>ce mois-ci</span></div><div class="graph-info" id="rev-info" aria-live="polite">Touche une barre pour voir le détail du mois.</div></div>' +
+      '<div class="panel"><h2>Ce qui se loue le plus (12 mois)</h2>' + (R.offres.length ? '<table class="liste tab-rev">' + R.offres.map(o => '<tr><td>' + esc(o.offre) +
+        '<div class="barre-taux"><i style="width:' + Math.round(o.nb / tot * 100) + '%"></i></div></td><td class="c">' + o.nb + ' ×</td><td>' + e0(o.ca) + '</td></tr>').join('') + '</table>'
+        : '<p class="note">Pas encore de location confirmée.</p>') + '</div>' +
+      '<div class="panel"><h2>Tes appareils (12 mois)</h2><table class="liste tab-rev">' + R.articles.map(a => '<tr><td>' + esc(a.article) + (a.stock ? ' <small style="color:var(--muted)">× ' + a.stock + '</small>' : '') +
+        (a.taux != null ? '<div class="barre-taux"><i style="width:' + Math.min(100, a.taux) + '%"></i></div>' : '') + '</td><td class="c">' + a.nuits + ' soirée' + (a.nuits > 1 ? 's' : '') + '</td><td>' + (a.taux != null ? pc(a.taux) : '—') + '</td></tr>').join('') + '</table>' +
+      '<p class="note">Le pourcentage = part des soirées où l\'appareil était loué. Un appareil qui reste bas peut être mis en avant (offre, photo) ou revendu.</p></div>';
+    const g = $('rev-graph'), montrer = b => { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); $('rev-info').textContent = b.dataset.info; };
+    ['click', 'mouseover', 'focusin'].forEach(ev => g.addEventListener(ev, e => { const b = e.target.closest('button'); if (b) montrer(b); }));
+  }
+
+  /* ===== « Plus » : tuiles vers les autres réglages ===== */
+  function afficherTuiles() {
+    const lo = etat.loueur || {}, P = etat.parrain || {}, nbDocs = (etat.docs || []).length, o = etat.offre || {};
+    const T = [['prix', '💶', 'Matériel et prix', 'Stock, prix semaine et week-end'], ['offres', '🎁', 'Offres et parrainage', [o.affichee ? 'Offre en ligne' : 'Pas d\'offre en ligne', P.actif ? 'parrainage actif' : 'parrainage coupé'].join(' · ')],
+      ['docs', '📄', 'Documents', nbDocs + ' document' + (nbDocs > 1 ? 's' : '') + ' (pièces, contrats, factures)'], ['photos', '📷', 'Photos du site', 'Photos du matériel sur le site'],
+      ['visites', '👀', 'Visites du site', 'Combien de visiteurs, d\'où ils viennent'], ['pause', etat.pause ? '⏸' : '▶️', 'Pause du site', etat.pause ? 'EN PAUSE : personne ne peut réserver' : 'Site ouvert aux réservations'],
+      ['infos', '🪪', 'Mes infos', lo.complet ? 'Nom, SIRET, adresse, TVA' : 'À remplir : contrats et factures bloqués']];
+    $('tuiles').innerHTML = T.map(([t, i, titre, sous]) => '<button type="button" class="tuile-p' + ((t === 'infos' && !lo.complet) || (t === 'pause' && etat.pause) ? ' alerte' : '') + '" data-aller="' + t + '"><i aria-hidden="true">' + i + '</i><b>' + esc(titre) + '</b><small>' + esc(sous) + '</small></button>').join('');
+  }
+  function afficherInfos() {
+    const lo = etat.loueur || {};
+    $('lo-nom').value = lo.nom || ''; $('lo-siret').value = lo.siret || ''; $('lo-adr').value = lo.adresse || ''; $('lo-med').value = lo.mediateur || ''; $('lo-tva').value = lo.tva || '';
+  }
 
   demarrer();
 })();
