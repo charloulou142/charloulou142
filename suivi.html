@@ -93,6 +93,15 @@
   .pad-bas{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-top:4px}
   .pad-bas button{background:none;border:0;color:var(--cyan);font:inherit;font-weight:600;cursor:pointer;padding:4px}
   .a-remplir{outline:2px solid #FBBF24;outline-offset:3px;border-radius:12px}
+  .alerte{margin:12px 0 0;padding:12px 14px;border-radius:14px;border:1px solid #FBBF24;background:rgba(251,191,36,.12);font-weight:600;font-size:15px}
+  .tuile{min-width:0}
+  .ph-etat{font-size:13px;margin:6px 2px 0;min-height:1em;color:var(--muted)}
+  .ph-etat.ok{color:#34D399;font-weight:700}.ph-etat.ko{color:#FBBF24;font-weight:600}.ph-etat.cours{color:var(--muted)}
+  .ph-etat .lien{font-size:13px;margin:0 0 0 4px}
+  .photo.bof{border-style:solid;border-color:#FBBF24}
+  .envoi{margin-top:16px}
+  .bouton.grand{display:block;width:100%;padding:16px 22px;font-size:17px}
+  input.code{font-size:26px!important;letter-spacing:10px;text-align:center;font-weight:700}
   /* écran d'attente (même animation que la réservation) : vague du logo + point cyan */
   .attente{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fondu .25s both}
   .attente[hidden]{display:none}
@@ -187,48 +196,91 @@
         carte.innerHTML = '<p>Réservation introuvable pour ce lien. Contacte-nous et on vérifie tout de suite.</p>';
       }
     }
-    /* ----- « Avant la livraison » : pièce d'identité + contrat signé en ligne ----- */
+    /* ----- « Avant la livraison » : pièce d'identité + contrat signé, envoyés avec UN seul bouton ----- */
+    // Les photos partent en arrière-plan dès qu'elles sont choisies (et vérifiées), pendant que le client lit et signe :
+    // au clic final, il ne reste presque plus rien à attendre.
     const post = (action, data) => fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(Object.assign({ action, t }, data || {})) }).then(r => r.json());
     const PIECES = ['Carte d\'identité', 'Passeport', 'Titre de séjour', 'Permis de conduire'];
+    const DEFAUTS = { petite: 'trop petite (rapproche-toi)', floue: 'floue', sombre: 'trop sombre', reflet: 'un reflet cache une partie', double: 'identique à l\'autre face' };
+    const SEUIL_NETTETE = 60;   // en dessous : photo jugée floue (réglé sur des images de test : texte difficile à lire ; à ajuster avec de vraies photos)
     function htmlDocs(j) {
       const d = j.docs, cniOk = !!(d.recto && (d.verso || d.piece === 'Passeport'));
+      const veutCni = d.actif && !cniOk, veutCtr = d.actif && d.signable && !d.contrat;
       const tout = cniOk && (d.contrat || !d.signable);
       let h = '<div class="docs" id="documents"><h2>Avant la livraison</h2><p class="petit">' +
-        (tout ? 'Tout est bon, merci ! ✅' : d.actif ? (d.signable ? '2 petites choses à faire ici, ça prend 2 minutes.' : 'Une petite chose à faire ici, ça prend 1 minute.') : '') + '</p>';
+        (tout ? 'Tout est bon, merci ! ✅' : !d.actif ? '' : veutCni && veutCtr ? 'Ta pièce d\'identité et ta signature, puis un seul bouton : 2 minutes.'
+          : veutCni ? 'Il manque juste ta pièce d\'identité (1 minute).' : 'Il manque juste ta signature (1 minute).') + '</p>';
+      if (d.redemande && d.actif) h += '<div class="alerte">📷 On a besoin d\'une nouvelle photo de ta pièce d\'identité : ' + esc(d.redemande.raison) +
+        '. Pose la carte à plat sur une table, bien éclairée, sans flash, et prends toute la carte.</div>';
       // 1. pièce d'identité
       h += '<div class="doc' + (cniOk ? ' fait' : '') + '"><h3>' + (cniOk ? '✅ ' : '1. ') + 'Ta pièce d\'identité</h3>';
       if (cniOk) h += '<p>Reçue le ' + esc(d.verso || d.recto) + (d.piece ? ' (' + esc(d.piece.toLowerCase()) + ')' : '') + '. Elle sera effacée ' + esc(d.effacement) + ' jours après la reprise du matériel.</p>' +
         (d.actif ? '<button type="button" class="lien" id="cni-refaire">Envoyer une autre photo</button>' : '');
       else if (d.recto && d.actif) h += '<p class="petit">Recto reçu le ' + esc(d.recto) + '. Il manque le verso.</p>';
       if (d.actif) h += '<div id="cni-form"' + (cniOk ? ' hidden' : '') + '>' +
-        '<p class="petit">Une photo nette de ta carte d\'identité, de ton passeport ou de ton titre de séjour. Ton téléphone ajoute un filigrane « Mistraloc · location du ' + esc(j.date) +
-        ' » avant l\'envoi : la copie ne peut servir à rien d\'autre. Elle est rangée dans un dossier privé et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
+        '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Ton téléphone ajoute un filigrane « Mistraloc · location du ' +
+        esc(j.date) + ' » avant l\'envoi : la copie ne peut servir à rien d\'autre. Elle est rangée dans un dossier privé et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
         '<label class="ch" for="cni-piece">Type de pièce</label><select id="cni-piece">' + PIECES.map(p => '<option' + (p === d.piece ? ' selected' : '') + '>' + esc(p) + '</option>').join('') + '</select>' +
-        '<div class="photos2" id="cni-photos"><label class="photo" id="ph-recto"><input type="file" accept="image/*" data-face="recto"><span>📷 Recto<br><small>la face avec ta photo</small></span></label>' +
-        '<label class="photo" id="ph-verso"><input type="file" accept="image/*" data-face="verso"><span>📷 Verso<br><small>l\'autre face</small></span></label></div>' +
-        '<button type="button" class="bouton" id="cni-env">Envoyer ma pièce d\'identité</button><p class="erreur" id="m-cni" hidden></p></div>';
+        '<div class="photos2" id="cni-photos">' + ['recto', 'verso'].map(f => '<div class="tuile" id="tu-' + f + '"><label class="photo" id="ph-' + f + '"><input type="file" accept="image/*" data-face="' + f + '">' +
+          '<span>📷 ' + (f === 'recto' ? 'Recto<br><small>la face avec ta photo</small>' : 'Verso<br><small>l\'autre face</small>') + '</span></label>' +
+          '<p class="ph-etat" id="et-' + f + '" aria-live="polite"></p></div>').join('') + '</div></div>';
       h += '</div>';
       // 2. contrat
       h += '<div class="doc' + (d.contrat ? ' fait' : '') + '"><h3>' + (d.contrat ? '✅ ' : '2. ') + 'Ton contrat de location</h3>';
       if (d.contrat) h += '<p>Signé le ' + esc(d.contrat) + '. Tu l\'as aussi reçu par e-mail.</p><button type="button" class="bouton ghost" id="sg-pdf">⬇ Télécharger mon contrat (PDF)</button><p class="erreur" id="m-pdf" hidden></p>';
       else if (!d.actif) h += '<p class="petit">Pas de contrat signé en ligne pour cette réservation.</p>';
       else if (!d.signable) h += '<p class="petit">Le contrat sera bientôt disponible ici : on te prévient.</p>';
-      else h += '<p class="petit">Lis-le, signe avec ton doigt, puis confirme avec le code qu\'on t\'envoie par e-mail.</p>' +
-        '<button type="button" class="bouton" id="sg-lire">Lire et signer le contrat</button><div id="sg-zone" hidden></div>';
-      return h + '</div></div>';
+      else h += '<div class="contrat-txt" id="sg-txt" tabindex="0" aria-label="Texte du contrat">Chargement du contrat…</div>' +
+        '<label class="ch" for="sg-nom">Ton nom et prénom</label><input type="text" id="sg-nom" autocomplete="name" maxlength="80">' +
+        '<label class="ch" for="sg-adr">Ton adresse (numéro, rue, code postal, ville)</label><input type="text" id="sg-adr" autocomplete="street-address" maxlength="200">' +
+        (d.email ? '' : '<label class="ch" for="sg-mail">Ton e-mail (pour recevoir le code et ton contrat)</label><input type="email" id="sg-mail" autocomplete="email" maxlength="120">') +
+        '<label class="coche" id="sg-ok-l"><input type="checkbox" id="sg-ok"><span>J\'ai lu le contrat et je l\'accepte.</span></label>' +
+        '<label class="ch">Ta signature</label><canvas class="pad" id="sg-pad" aria-label="Cadre de signature : signe avec ton doigt"></canvas>' +
+        '<div class="pad-bas"><span>Signe dans le cadre blanc avec ton doigt</span><button type="button" id="sg-eff">Effacer</button></div>';
+      h += '</div>';
+      // bouton unique
+      if (d.actif) h += '<div class="envoi" id="envoi"' + (veutCni || veutCtr ? '' : ' hidden') + '><button type="button" class="bouton grand" id="tout-env"></button>' +
+        (veutCtr ? '<div id="code-zone" hidden><p class="petit" id="sg-envoye"></p><label class="ch" for="sg-c">Code reçu par e-mail (6 chiffres)</label>' +
+          '<input inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="sg-c" class="code" aria-describedby="sg-envoye">' +
+          '<p><button type="button" class="lien" id="sg-renv">Je n\'ai rien reçu : renvoyer un code</button></p></div>' : '') +
+        '<p class="erreur" id="m-env" hidden></p></div>';
+      return h + '</div>';
     }
 
-    // photo réduite à 1600 px + filigrane en diagonale, faite sur le téléphone AVANT l'envoi
     function lireImage(file) {
       return new Promise((ok, ko) => { const u = URL.createObjectURL(file), i = new Image(); i.onload = () => ok(i); i.onerror = () => ko(new Error('photo illisible')); i.src = u; });
     }
-    async function filigraner(file, texte) {
-      const img = await lireImage(file);
-      const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+    // vérifie la photo AVANT l'envoi : taille, luminosité, reflet, netteté (variance du laplacien sur une version réduite)
+    function analyser(img) {
+      const W = 480, H = Math.max(2, Math.round(img.naturalHeight * W / img.naturalWidth));
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, W, H);
+      const px = g.getImageData(0, 0, W, H).data, n = W * H, gris = new Float32Array(n);
+      let somme = 0, brules = 0;
+      for (let i = 0; i < n; i++) { const v = 0.299 * px[4 * i] + 0.587 * px[4 * i + 1] + 0.114 * px[4 * i + 2]; gris[i] = v; somme += v; if (v > 250) brules++; }
+      let s = 0, s2 = 0, m = 0;
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x, l = 4 * gris[i] - gris[i - 1] - gris[i + 1] - gris[i - W] - gris[i + W]; s += l; s2 += l * l; m++;
+      }
+      const nettete = m ? s2 / m - (s / m) * (s / m) : 0, moy = somme / n;
+      const p = document.createElement('canvas'); p.width = p.height = 16;
+      const gp = p.getContext('2d', { willReadFrequently: true }); gp.drawImage(img, 0, 0, 16, 16);
+      const d16 = gp.getImageData(0, 0, 16, 16).data, sig = [];
+      for (let i = 0; i < 256; i++) sig.push((d16[4 * i] + d16[4 * i + 1] + d16[4 * i + 2]) / 3);
+      const raisons = [];
+      if (Math.min(img.naturalWidth, img.naturalHeight) < 600) raisons.push('petite');
+      if (moy < 65) raisons.push('sombre');
+      if (brules / n > 0.06) raisons.push('reflet');
+      if (nettete < SEUIL_NETTETE) raisons.push('floue');
+      return { raisons, sig, nettete: Math.round(nettete), moy: Math.round(moy) };
+    }
+    // photo réduite à 1500 px + filigrane en diagonale, faite sur le téléphone AVANT l'envoi
+    function filigraner(img, texte) {
+      const k = Math.min(1, 1500 / Math.max(img.naturalWidth, img.naturalHeight));
       const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-      const g = cv.getContext('2d'); g.drawImage(img, 0, 0, w, h); URL.revokeObjectURL(img.src);
+      const g = cv.getContext('2d'); g.drawImage(img, 0, 0, w, h);
       const taille = Math.max(14, Math.round(Math.min(w, h) / 17)), diag = Math.hypot(w, h);
       g.save(); g.translate(w / 2, h / 2); g.rotate(-Math.PI / 7);
       g.font = '700 ' + taille + 'px Arial, Helvetica, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -236,9 +288,8 @@
       const ligne = texte + '   ·   ' + texte;
       for (let y = -diag / 2; y <= diag / 2; y += taille * 3) { g.strokeText(ligne, 0, y); g.fillText(ligne, 0, y); }
       g.restore();
-      return cv.toDataURL('image/jpeg', 0.82);
+      return cv.toDataURL('image/jpeg', 0.8);
     }
-
     // cadre de signature (doigt ou souris), encre noire sur fond blanc
     function cadreSignature(cv) {
       const r = window.devicePixelRatio || 1, b = cv.getBoundingClientRect();
@@ -255,40 +306,141 @@
     }
     const signaler = el => { if (!el) return; el.classList.remove('a-remplir'); void el.offsetWidth; el.classList.add('a-remplir'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
     const erreur = (id, txt) => { const m = document.getElementById(id); if (!m) return; m.hidden = !txt; m.textContent = String(txt || '').replace(/\.\.$/, '.'); };
+    const msgErr = (err, defaut) => err && err.message && err.message !== 'erreur' ? err.message : defaut;
 
     function brancherDocs(j) {
       const d = j.docs, $ = id => document.getElementById(id);
+      if (!d.actif) { brancherPdf(); return; }
+      const besoin = { cni: !(d.recto && (d.verso || d.piece === 'Passeport')), ctr: d.signable && !d.contrat };
+      const photos = {}, envois = {};   // photos[face] = { data, sig, raisons, accepte } ; envois[face] = Promise de l'envoi
+      const majBouton = () => {
+        const b = $('tout-env'); if (!b) return;
+        $('envoi').hidden = !(besoin.cni || besoin.ctr);
+        b.textContent = besoin.cni && besoin.ctr ? 'Envoyer et signer ✓' : besoin.cni ? 'Envoyer ma pièce d\'identité ✓' : 'Signer mon contrat ✓';
+      };
+      majBouton();
       // --- pièce d'identité ---
-      const photos = {};
-      const majPasseport = () => { const p = $('cni-piece').value === 'Passeport'; $('ph-verso').hidden = p; $('cni-photos').classList.toggle('une', p); };
-      if ($('cni-form')) {
-        majPasseport(); $('cni-piece').addEventListener('change', majPasseport);
-        if ($('cni-refaire')) $('cni-refaire').addEventListener('click', () => { $('cni-form').hidden = false; $('cni-refaire').hidden = true; });
-        $('cni-photos').addEventListener('change', async e => {
-          const inp = e.target, face = inp.dataset.face, f = inp.files && inp.files[0]; if (!f) return;
-          const zone = $('ph-' + face); erreur('m-cni', '');
-          try {
-            photos[face] = await filigraner(f, 'MISTRALOC · location du ' + j.date + ' · copie non valable ailleurs');
-            zone.classList.add('ok'); zone.classList.remove('a-remplir');
-            zone.querySelector('span').innerHTML = '<img src="' + photos[face] + '" alt="Aperçu ' + face + '"><small>Toucher pour changer</small>';
-          } catch (err) { erreur('m-cni', 'Cette photo n\'a pas pu être lue. Essaie une autre photo (format JPEG ou PNG).'); }
-        });
-        $('cni-env').addEventListener('click', async () => {
-          const piece = $('cni-piece').value, faces = piece === 'Passeport' ? ['recto'] : ['recto', 'verso'];
-          const manque = faces.find(f => !photos[f] && !d[f]);   // une face déjà reçue n'a pas besoin d'être renvoyée
-          const aEnvoyer = faces.filter(f => photos[f]);
-          if (manque || !aEnvoyer.length) return signaler($('ph-' + (manque || 'recto')));
-          const b = $('cni-env'); b.disabled = true; erreur('m-cni', '');
-          try {
-            await patienter('Envoi de ta pièce d\'identité…', async () => {
-              for (const f of aEnvoyer) { const r = await post('docs_cni', { face: f, image: photos[f], piece }); if (!r.ok) throw new Error(r.erreur || 'erreur'); }
-            });
-            afficher('Pièce d\'identité bien reçue, merci ! 👍');
-          } catch (err) { b.disabled = false; erreur('m-cni', 'Pas envoyée' + (err.message && err.message !== 'erreur' ? ' : ' + err.message : '') + '. Réessaie, ou écris-nous sur WhatsApp.'); }
-        });
+      const facesUtiles = () => $('cni-piece').value === 'Passeport' ? ['recto'] : ['recto', 'verso'];
+      const majPasseport = () => { const p = $('cni-piece').value === 'Passeport'; $('tu-verso').hidden = p; $('cni-photos').classList.toggle('une', p); };
+      majPasseport(); $('cni-piece').addEventListener('change', majPasseport);
+      if ($('cni-refaire')) $('cni-refaire').addEventListener('click', () => { $('cni-form').hidden = false; $('cni-refaire').hidden = true; besoin.cni = true; majBouton(); });
+      const etat = (face, cls, html) => { const e = $('et-' + face); e.className = 'ph-etat ' + cls; e.innerHTML = html; };
+      function envoyerFace(face) {
+        const ph = photos[face];
+        etat(face, 'cours', '⏳ Envoi en cours…');
+        const p = post('docs_cni', { face, image: ph.data, piece: $('cni-piece').value })
+          .then(r => { if (!r.ok) throw new Error(r.erreur || 'erreur'); if (photos[face] === ph) etat(face, 'ok', '✓ Photo nette, bien envoyée'); return r; })
+          .catch(err => { if (photos[face] === ph) etat(face, 'ko', '⚠ Envoi raté : ' + esc(msgErr(err, 'réseau')) + '. On réessaiera au moment d\'envoyer.'); throw err; });
+        p.catch(() => {});
+        envois[face] = { p, ph };
       }
-      // --- contrat : téléchargement ---
-      if ($('sg-pdf')) $('sg-pdf').addEventListener('click', async () => {
+      $('cni-photos').addEventListener('change', async e => {
+        const inp = e.target, face = inp.dataset.face, f = inp.files && inp.files[0]; if (!f) return;
+        const zone = $('ph-' + face); zone.classList.remove('a-remplir', 'ok', 'bof'); erreur('m-env', '');
+        etat(face, 'cours', '🔍 Vérification de la photo…');
+        try {
+          const img = await lireImage(f);
+          const a = analyser(img);
+          const autre = photos[face === 'recto' ? 'verso' : 'recto'];
+          if (autre && a.sig.reduce((t, v, i) => t + Math.abs(v - autre.sig[i]), 0) / 256 < 8) a.raisons.push('double');
+          photos[face] = { data: filigraner(img, 'MISTRALOC · location du ' + j.date + ' · copie non valable ailleurs'), sig: a.sig, raisons: a.raisons, accepte: !a.raisons.length };
+          URL.revokeObjectURL(img.src); inp.value = '';
+          zone.querySelector('span').innerHTML = '<img src="' + photos[face].data + '" alt="Aperçu ' + face + '"><small>Toucher pour changer</small>';
+          if (!a.raisons.length) { zone.classList.add('ok'); envoyerFace(face); }
+          else {
+            zone.classList.add('bof');
+            etat(face, 'ko', (a.raisons.join() === 'double' ? '⚠ C\'est la même photo que l\'autre face : prends l\'autre côté de la carte. '
+              : '⚠ Photo ' + a.raisons.map(r => DEFAUTS[r]).join(', ') + '. Reprends-la : à plat, bien éclairée, sans flash. ') +
+              '<button type="button" class="lien" data-garder="' + face + '">Garder quand même</button>');
+          }
+        } catch (err) { photos[face] = null; etat(face, 'ko', '⚠ Cette photo n\'a pas pu être lue. Essaie une autre photo (JPEG ou PNG).'); }
+      });
+      $('cni-photos').addEventListener('click', e => {
+        const b = e.target.closest('button[data-garder]'); if (!b) return;
+        const face = b.dataset.garder; if (!photos[face]) return;
+        photos[face].accepte = true; $('ph-' + face).classList.remove('bof'); envoyerFace(face);
+      });
+      // attend les envois de photos (relance une fois ceux qui ont raté) ; renvoie une erreur lisible ou ''
+      async function attendrePhotos() {
+        for (const f of facesUtiles()) {
+          if (!photos[f]) continue;
+          if (!envois[f] || envois[f].ph !== photos[f]) envoyerFace(f);
+          try { await envois[f].p; } catch (e) { envoyerFace(f); try { await envois[f].p; } catch (e2) { return 'Ta photo (' + f + ') n\'est pas partie : ' + msgErr(e2, 'problème de réseau') + '. Réessaie.'; } }
+        }
+        return '';
+      }
+      // --- contrat ---
+      let pad = null;
+      if (besoin.ctr) {
+        pad = cadreSignature($('sg-pad'));
+        $('sg-eff').addEventListener('click', () => pad.effacer());
+        post('docs_contrat').then(r => { $('sg-txt').innerHTML = r.ok ? r.html : '<p>Le contrat n\'a pas pu être chargé : recharge la page.</p>'; })
+          .catch(() => { $('sg-txt').innerHTML = '<p>Le contrat n\'a pas pu être chargé : vérifie ta connexion et recharge la page.</p>'; });
+      }
+      const verifierContrat = () => {
+        const nom = $('sg-nom').value.trim(), adr = $('sg-adr').value.trim(), mail = $('sg-mail') ? $('sg-mail').value.trim() : '';
+        if (nom.length < 3) { signaler($('sg-nom')); return null; }
+        if (adr.length < 8) { signaler($('sg-adr')); return null; }
+        if ($('sg-mail') && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(mail)) { signaler($('sg-mail')); return null; }
+        if (!$('sg-ok').checked) { signaler($('sg-ok-l')); return null; }
+        if (pad.vide()) { signaler($('sg-pad')); erreur('m-env', 'Signe dans le cadre blanc avant de continuer.'); return null; }
+        return { nom, adresse: adr, email: mail };
+      };
+      const verifierPhotos = () => {
+        for (const f of facesUtiles()) {
+          if (!photos[f] && !d[f]) { signaler($('ph-' + f)); erreur('m-env', 'Ajoute la photo ' + (f === 'recto' ? 'du recto' : 'du verso') + ' de ta pièce d\'identité.'); return false; }
+          if (photos[f] && !photos[f].accepte) { signaler($('tu-' + f)); erreur('m-env', 'Reprends la photo ' + (f === 'recto' ? 'du recto' : 'du verso') + ', ou touche « Garder quand même ».'); return false; }
+        }
+        if (!facesUtiles().some(f => photos[f])) { signaler($('ph-recto')); erreur('m-env', 'Ajoute la photo de ta pièce d\'identité.'); return false; }
+        return true;
+      };
+      let infos = null;
+      async function demanderCode(btn) {
+        btn.disabled = true; erreur('m-env', '');
+        try {
+          const c = await patienter('Envoi de ton code…', () => post('docs_code', { email: infos.email }));
+          if (!c.ok) throw new Error(c.erreur || 'erreur');
+          $('sg-envoye').textContent = 'Dernière étape : tape le code envoyé à ' + c.email + ' (regarde aussi dans les spams). La signature se valide toute seule.';
+          $('code-zone').hidden = false; $('tout-env').hidden = true; $('sg-c').value = ''; $('sg-c').focus();
+          $('code-zone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (err) { erreur('m-env', msgErr(err, 'Le code n\'a pas pu être envoyé. Réessaie dans un instant.')); }
+        finally { btn.disabled = false; }
+      }
+      $('tout-env').addEventListener('click', async e => {
+        const btn = e.currentTarget; erreur('m-env', '');
+        if (besoin.ctr && !(infos = verifierContrat())) return;
+        if (besoin.cni && !verifierPhotos()) return;
+        if (besoin.ctr) return demanderCode(btn);   // les photos continuent de partir pendant ce temps
+        btn.disabled = true;
+        try {
+          const pb = await patienter('Envoi de ta pièce d\'identité…', attendrePhotos);
+          if (pb) throw new Error(pb);
+          afficher('Pièce d\'identité bien reçue, merci ! 👍');
+        } catch (err) { btn.disabled = false; erreur('m-env', msgErr(err, 'Pas envoyée. Réessaie, ou écris-nous sur WhatsApp.')); }
+      });
+      if ($('sg-c')) {
+        let enCours = false;
+        $('sg-c').addEventListener('input', async () => {
+          const code = $('sg-c').value.replace(/\D/g, '');
+          if (code.length !== 6 || enCours) return;
+          enCours = true; erreur('m-env', '');
+          try {
+            await patienter(besoin.cni ? 'Envoi de ta pièce d\'identité et signature…' : 'Signature de ton contrat…', async () => {
+              if (besoin.cni) { const pb = await attendrePhotos(); if (pb) throw new Error(pb); }
+              const r = await post('docs_signer', { nom: infos.nom, adresse: infos.adresse, accepte: true, signature: pad.png(), code, ua: navigator.userAgent });
+              if (!r.ok) throw new Error(r.erreur || 'erreur');
+            });
+            afficher(besoin.cni ? 'Merci, tout est bon ! Ta pièce d\'identité est reçue et ton contrat est signé (tu le reçois par e-mail). ✍️' : 'Merci, ton contrat est signé ! Tu vas le recevoir par e-mail (PDF). ✍️');
+          } catch (err) { enCours = false; erreur('m-env', 'Pas signé : ' + msgErr(err, 'réessaie') + '.'); $('sg-c').select(); }
+        });
+        $('sg-renv').addEventListener('click', e => demanderCode(e.currentTarget));
+      }
+      brancherPdf();
+    }
+    // --- contrat déjà signé : téléchargement ---
+    function brancherPdf() {
+      const b = document.getElementById('sg-pdf'); if (!b) return;
+      b.addEventListener('click', async () => {
         erreur('m-pdf', '');
         try {
           const r = await patienter('Préparation de ton contrat…', () => post('docs_pdf'));
@@ -297,64 +449,7 @@
           for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
           const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([u8], { type: 'application/pdf' })); a.download = r.nom || 'contrat-mistraloc.pdf';
           document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        } catch (err) { erreur('m-pdf', 'Téléchargement impossible pour l\'instant' + (err.message && err.message !== 'erreur' ? ' (' + err.message + ')' : '') + '. Ton contrat est aussi dans tes e-mails.'); }
-      });
-      // --- contrat : lecture + signature ---
-      if (!$('sg-lire')) return;
-      $('sg-lire').addEventListener('click', async () => {
-        const b = $('sg-lire'); b.disabled = true;
-        try {
-          const r = await patienter('Chargement du contrat…', () => post('docs_contrat'));
-          if (!r.ok) throw new Error(r.erreur || 'erreur');
-          b.hidden = true;
-          const z = $('sg-zone'); z.hidden = false;
-          z.innerHTML = '<div class="contrat-txt" tabindex="0" aria-label="Texte du contrat">' + r.html + '</div>' +
-            '<label class="ch" for="sg-nom">Ton nom et prénom</label><input type="text" id="sg-nom" autocomplete="name" maxlength="80">' +
-            '<label class="ch" for="sg-adr">Ton adresse (numéro, rue, code postal, ville)</label><input type="text" id="sg-adr" autocomplete="street-address" maxlength="200">' +
-            (d.email ? '' : '<label class="ch" for="sg-mail">Ton e-mail (pour recevoir le code et ton contrat)</label><input type="email" id="sg-mail" autocomplete="email" maxlength="120">') +
-            '<label class="coche" id="sg-ok-l"><input type="checkbox" id="sg-ok"><span>J\'ai lu le contrat et je l\'accepte.</span></label>' +
-            '<label class="ch">Ta signature</label><canvas class="pad" id="sg-pad" aria-label="Cadre de signature : signe avec ton doigt"></canvas>' +
-            '<div class="pad-bas"><span>Signe dans le cadre blanc avec ton doigt</span><button type="button" id="sg-eff">Effacer</button></div>' +
-            '<button type="button" class="bouton" id="sg-code">Recevoir mon code par e-mail</button>' +
-            '<div id="sg-etape2" hidden><p class="petit" id="sg-envoye"></p><label class="ch" for="sg-c">Code reçu (6 chiffres)</label>' +
-            '<input inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="sg-c"><button type="button" class="bouton" id="sg-signer">Signer mon contrat ✓</button>' +
-            '<p><button type="button" class="lien" id="sg-renv">Je n\'ai rien reçu : renvoyer un code</button></p></div><p class="erreur" id="m-sg" hidden></p>';
-          const pad = cadreSignature($('sg-pad'));
-          $('sg-eff').addEventListener('click', () => pad.effacer());
-          const verifier = () => {
-            const nom = $('sg-nom').value.trim(), adr = $('sg-adr').value.trim(), mail = $('sg-mail') ? $('sg-mail').value.trim() : '';
-            if (nom.length < 3) { signaler($('sg-nom')); return null; }
-            if (adr.length < 8) { signaler($('sg-adr')); return null; }
-            if ($('sg-mail') && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(mail)) { signaler($('sg-mail')); return null; }
-            if (!$('sg-ok').checked) { signaler($('sg-ok-l')); return null; }
-            if (pad.vide()) { signaler($('sg-pad')); erreur('m-sg', 'Signe dans le cadre blanc avant de continuer.'); return null; }
-            return { nom, adresse: adr, email: mail };
-          };
-          const envoyerCode = async btn => {
-            const v = verifier(); if (!v) return;
-            erreur('m-sg', ''); btn.disabled = true;
-            try {
-              const c = await patienter('Envoi du code…', () => post('docs_code', { email: v.email }));
-              if (!c.ok) throw new Error(c.erreur || 'erreur');
-              $('sg-envoye').textContent = 'Code envoyé à ' + c.email + ' (regarde aussi dans les spams). Il est valable 15 minutes.';
-              $('sg-etape2').hidden = false; $('sg-code').hidden = true; $('sg-c').focus();
-            } catch (err) { erreur('m-sg', err.message && err.message !== 'erreur' ? err.message : 'Le code n\'a pas pu être envoyé. Réessaie dans un instant.'); }
-            finally { btn.disabled = false; }
-          };
-          $('sg-code').addEventListener('click', e => envoyerCode(e.currentTarget));
-          $('sg-renv').addEventListener('click', e => envoyerCode(e.currentTarget));
-          $('sg-signer').addEventListener('click', async () => {
-            const v = verifier(); if (!v) return;
-            const code = $('sg-c').value.replace(/\D/g, '');
-            if (code.length !== 6) return signaler($('sg-c'));
-            const bs = $('sg-signer'); bs.disabled = true; erreur('m-sg', '');
-            try {
-              const r2 = await patienter('Signature de ton contrat…', () => post('docs_signer', { nom: v.nom, adresse: v.adresse, accepte: true, signature: pad.png(), code, ua: navigator.userAgent }));
-              if (!r2.ok) throw new Error(r2.erreur || 'erreur');
-              afficher('Merci, ton contrat est signé ! Tu vas le recevoir par e-mail (PDF). ✍️');
-            } catch (err) { bs.disabled = false; erreur('m-sg', 'Pas signé' + (err.message && err.message !== 'erreur' ? ' : ' + err.message : '') + '.'); }
-          });
-        } catch (err) { b.disabled = false; alert('Le contrat n\'a pas pu être chargé. Réessaie dans un instant.'); }
+        } catch (err) { erreur('m-pdf', 'Téléchargement impossible pour l\'instant (' + msgErr(err, 'erreur') + '). Ton contrat est aussi dans tes e-mails.'); }
       });
     }
 
