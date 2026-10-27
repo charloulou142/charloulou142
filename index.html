@@ -267,6 +267,11 @@
   /* code promo + compte (étape 4) */
   .promo{margin:4px 0 12px}
   .promo label{font-weight:700;font-size:14px;color:var(--muted)}
+  .day.complet:not(.passe){cursor:pointer}
+  .att-box{margin:10px 0 4px;padding:12px 14px;border:1px dashed rgba(248,113,113,.6);border-radius:14px;background:rgba(248,113,113,.06);font-size:15px;line-height:1.45}
+  .att-box p{margin:0 0 8px}
+  .att-box .promo-ligne input{text-transform:none;letter-spacing:0}
+  .att-box small{display:block;margin-top:6px;font-weight:600;color:var(--cyan)}
   .promo-ligne{display:flex;gap:8px;margin-top:4px}
   .promo-ligne input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);font:inherit;text-transform:uppercase;letter-spacing:1px}
   .promo-ligne input:focus{border-color:var(--cyan);outline:none}
@@ -493,6 +498,11 @@
         <div class="cal-charge" id="cal-charge" hidden><svg viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement des disponibilités…</span></div></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <p class="cal-aide" id="bk-cal-aide"></p>
+      <div class="att-box" id="bk-attente" hidden>
+        <p><b id="att-titre"></b><br>Laisse ton e-mail : on te prévient si cette date se libère (un seul e-mail ; ton adresse est effacée une fois la date passée).</p>
+        <div class="promo-ligne"><input id="att-mail" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="prenom@exemple.fr" aria-label="Ton e-mail pour être prévenu"><button type="button" class="retour" id="att-ok">Me prévenir</button></div>
+        <small id="att-msg" aria-live="polite"></small>
+      </div>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
       <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, à −20 %).</span></label>
      </div>
@@ -790,8 +800,32 @@
   function aide(txt){ const a = $('bk-cal-aide'); a.textContent = txt || 'Une soirée : clique sur la date. Plusieurs soirées : clique sur la première, puis sur la dernière (jusqu\'à 7).'; a.style.color = txt ? 'var(--pink)' : ''; a.style.fontWeight = txt ? '700' : ''; }
 
   // 1er clic = première soirée ; 2e clic plus tard dans le calendrier = dernière soirée
+  // ---- liste d'attente : un jour COMPLET → « préviens-moi si ça se libère » ----
+  let attDate = null;
+  function proposerAttente(k){
+    attDate = k;
+    const box = $('bk-attente'); box.hidden = false;
+    $('att-titre').textContent = 'Le ' + jourTxt(k) + ' est complet pour : ' + offreSel.value.replace(/^Panier perso : /, '') + '.';
+    $('att-msg').textContent = '';
+    const m = ($('bk-email') || {}).value; if (m && !$('att-mail').value) $('att-mail').value = m.trim();
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  $('att-ok').addEventListener('click', async () => {
+    const email = $('att-mail').value.trim(), b = $('att-ok');
+    if (!/^[^\s@<>"']+@[^\s@<>"']+\.[a-z]{2,}$/i.test(email)) { $('att-msg').textContent = 'Indique une adresse e-mail valide.'; $('att-mail').focus(); return; }
+    b.disabled = true; $('att-msg').textContent = 'Envoi…';
+    try {
+      const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'attente', date: attDate, offre: offreSel.value, email, site: $('bk-site').value }) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.erreur || '');
+      $('att-msg').textContent = j.deja ? 'Tu es déjà sur la liste pour cette date 👍' : 'C\'est noté ! On t\'écrit si le ' + jourTxt(attDate) + ' se libère.';
+    } catch (e) { $('att-msg').textContent = 'Pas enregistré' + (e.message ? ' (' + e.message + ')' : '') + '. Réessaie ou écris-nous sur WhatsApp.'; }
+    b.disabled = false;
+  });
+
   async function cliquer(k){
-    aide('');
+    aide(''); $('bk-attente').hidden = true;
     if (debut && fin === debut && k > debut) {
       const n = ecart(debut, k) + 1 + ($('bk-veille').checked ? 1 : 0);
       if (n > NUITS_MAX) { aide('7 soirées maximum : on repart de cette date. Pour plus, écris-nous sur WhatsApp.'); debut = fin = k; }
@@ -812,6 +846,7 @@
 
   async function dessiner(){
     const cle = vue.getFullYear()+'-'+pad(vue.getMonth()+1);
+    if (attDate && attDate.slice(0, 7) !== cle) $('bk-attente').hidden = true;   // autre mois affiché : on range la liste d'attente
     $('cal-titre').textContent = MOIS[vue.getMonth()]+' '+vue.getFullYear();
     $('cal-prev').disabled = vue <= new Date(auj.getFullYear(), auj.getMonth(), 1);
     const cal = $('cal'); cal.innerHTML = ['L','M','M','J','V','S','D'].map(d=>'<div class="dow">'+d+'</div>').join('');
@@ -829,7 +864,7 @@
       if (passe(k)) { b.classList.add('passe'); b.disabled = true; }
       if (k === debut || k === fin) b.classList.add('sel');
       else if (p && k >= p.start && k <= (fin || debut)) b.classList.add('plage');   // soirées entre les deux (et la veille)
-      b.addEventListener('click', ()=>{ if (b.classList.contains('complet')||b.disabled) return; cliquer(k); });
+      b.addEventListener('click', ()=>{ if (b.disabled) return; if (b.classList.contains('complet')) return proposerAttente(k); cliquer(k); });
       cal.appendChild(b); boutons.push(b);
     }
     // la 1re fois qu'on ouvre un mois, le script Google met 1 à 3 s à répondre : petite vague sur le calendrier
@@ -841,8 +876,7 @@
       if (b.disabled) return;
       const s = statutDe(data, b.dataset.k);
       b.classList.add(s);
-      b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet':'à confirmer'));
-      if (s==='complet') b.disabled = true;
+      b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet (touche pour être prévenu si ça se libère)':'à confirmer'));
     });
     // l'offre a changé et une soirée choisie n'est plus libre : on efface la sélection
     if (p && !(await periodeLibre(p.start, p.nuits))) { debut = fin = null; $('bk-veille').checked = false; aide('Ce matériel n\'est plus libre sur ces dates : choisis une autre date.'); maj(); majHeures(); dessiner(); }
@@ -1128,7 +1162,7 @@
   $('bk-ok').addEventListener('change', majBarre);
 
   window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
-  offreSel.addEventListener('change', ()=>{ maj(); dessiner(); });
+  offreSel.addEventListener('change', ()=>{ $('bk-attente').hidden = true; maj(); dessiner(); });
   // changer de pack depuis le calendrier ; « Mon panier » vide : on remonte le composer
   $('bk-choix').addEventListener('click', e => {
     const b = e.target.closest('button[data-pack]'); if (!b) return;
