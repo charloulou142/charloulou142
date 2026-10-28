@@ -326,8 +326,8 @@
       // pièce reçue : plus de « refaire » côté client (28/10, demande de Mistraloc) ; s'il faut une nouvelle photo, Mistraloc la redemande depuis l'admin
       else if (d.recto && d.actif) h += '<p class="petit">Recto reçu le ' + esc(d.recto) + '. Il manque le verso.</p>';
       if (d.actif) h += '<div id="cni-form"' + (cniOk ? ' hidden' : '') + '>' +
-        '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Ton téléphone ajoute un filigrane « Mistraloc · location du ' +
-        esc(j.date) + ' » avant l\'envoi : la copie ne peut servir à rien d\'autre. Elle est rangée dans un dossier privé et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
+        '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Elle sert uniquement à ta location du ' +
+        esc(j.date) + ' : rangée dans un dossier privé que seul Mistraloc peut ouvrir (jamais partagée, jamais envoyée par e-mail), et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
         '<label class="ch" for="cni-piece">Type de pièce</label><select id="cni-piece">' + PIECES.map(p => '<option' + (p === d.piece ? ' selected' : '') + '>' + esc(p) + '</option>').join('') + '</select>' +
         '<div class="guide-p" id="cni-guide" aria-label="Comment placer la pièce dans le cadre"></div>' +
         '<button type="button" class="cam-go" id="cam-go">🎯 Prendre la photo avec le cadre</button>' +
@@ -415,9 +415,20 @@
       const g0 = best;
       for (let a = g0 - 2; a <= g0 + 2; a += 0.5) { const e = energie(a); if (e > bestE) { bestE = e; best = a; } }
       return best;
-    }    // photo réduite à 1500 px + filigrane en diagonale, faite sur le téléphone AVANT l'envoi
+    }
+    // photo ENVOYÉE : sans filigrane (28/10, demande de Mistraloc : il veut lire la carte dans l'admin, où le filigrane
+    // est ajouté à l'affichage avec un bouton pour l'enlever), jusqu'à 2200 px, JPEG 0,92, sous 3,5 Mo
+    function photoNette(img) {
+      const k = Math.min(1, 2200 / Math.max(img.naturalWidth, img.naturalHeight));
+      const cv = document.createElement('canvas'); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+      const g = cv.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, cv.width, cv.height);
+      let q = 0.92, url = cv.toDataURL('image/jpeg', q);
+      while (url.length > 4.6e6 && q > 0.6) { q -= 0.08; url = cv.toDataURL('image/jpeg', q); }
+      return url;
+    }
+    // APERÇU du client : réduit + filigrane en diagonale (rien de tout ça n'est envoyé)
     function filigraner(img, texte) {
-      const k = Math.min(1, 1500 / Math.max(img.naturalWidth, img.naturalHeight));
+      const k = Math.min(1, 900 / Math.max(img.naturalWidth, img.naturalHeight));
       const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
       const g = cv.getContext('2d'); g.drawImage(img, 0, 0, w, h);
@@ -499,9 +510,10 @@
           const a = analyser(img);
           const autre = photos[face === 'recto' ? 'verso' : 'recto'];
           if (autre && a.sig.reduce((t, v, i) => t + Math.abs(v - autre.sig[i]), 0) / 256 < 8) a.raisons.push('double');
-          photos[face] = { data: filigraner(img, 'MISTRALOC · location du ' + j.date + ' · copie non valable ailleurs'), sig: a.sig, raisons: a.raisons, accepte: !a.raisons.length };
+          photos[face] = { data: photoNette(img), sig: a.sig, raisons: a.raisons, accepte: !a.raisons.length };
+          const apercu = filigraner(img, 'MISTRALOC · location du ' + j.date + ' · copie non valable ailleurs');
           URL.revokeObjectURL(img.src);
-          zone.querySelector('span').innerHTML = '<img src="' + photos[face].data + '" alt="Aperçu ' + face + '"><small>Toucher pour changer</small>';
+          zone.querySelector('span').innerHTML = '<img src="' + apercu + '" alt="Aperçu ' + face + '"><small>Toucher pour changer</small>';
           if (!a.raisons.length) { zone.classList.add('ok'); envoyerFace(face); }
           else {
             zone.classList.add('bof');
@@ -618,8 +630,14 @@
     // (carte blanche sur table blanche…), le bouton se débloque ; la photo reste revérifiée ensuite (angle, flou, reflet).
     async function cameraCadre(faces, surPhoto, piece) {
       let flux;
-      try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }); }
-      catch (e) { return false; }
+      // la meilleure définition que le téléphone accepte (4K si possible) : la carte n'occupe qu'une partie de l'image
+      try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 3840 }, height: { ideal: 2160 } }, audio: false }); }
+      catch (e) {
+        try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }); }
+        catch (e2) { return false; }
+      }
+      try { const pi = flux.getVideoTracks()[0]; const cap = pi.getCapabilities ? pi.getCapabilities() : {};
+        if (cap.focusMode && cap.focusMode.indexOf('continuous') >= 0) await pi.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch (e) {}
       const pass = piece === 'Passeport';
       const o = document.createElement('div'); o.className = 'cam'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Photo de la pièce d\'identité');
       o.innerHTML = '<video playsinline muted autoplay></video><div class="cam-cadre"' + (pass ? ' style="aspect-ratio:125/88"' : '') + '></div><p class="cam-txt"></p>' +
@@ -658,18 +676,24 @@
         ana.width = W; ana.height = H; ga.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, W, H);
         const px = ga.getImageData(0, 0, W, H).data, gris = new Float32Array(W * H);
         for (let p = 0; p < W * H; p++) gris[p] = 0.299 * px[4 * p] + 0.587 * px[4 * p + 1] + 0.114 * px[4 * p + 2];
-        return { angle: inclinaison(gris, W, H), bords: bordsCarte(gris, W, H, z.g).n };
+        let s = 0, s2 = 0, m = 0;   // netteté (variance du laplacien) pour garder l'image la plus nette
+        for (let y = 2; y < H - 2; y += 2) for (let x = 2; x < W - 2; x += 2) { const p = y * W + x, l = 4 * gris[p] - gris[p - 1] - gris[p + 1] - gris[p - W] - gris[p + W]; s += l; s2 += l * l; m++; }
+        return { angle: inclinaison(gris, W, H), bords: bordsCarte(gris, W, H, z.g).n, nettete: m ? s2 / m - (s / m) * (s / m) : 0 };
       };
+      // copie pleine définition de la zone du cadre
+      const instantane = () => { const z = zone(), c = document.createElement('canvas'); c.width = Math.round(z.sw); c.height = Math.round(z.sh);
+        c.getContext('2d').drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, c.width, c.height); return c; };
+      let meilleure = null, meilleureN = -1;
       return new Promise(res => {
         let tic = 0;
         const fin = () => { clearInterval(tic); flux.getTracks().forEach(tr => tr.stop()); o.remove(); document.body.style.overflow = ''; res(true); };
         o.querySelector('.cam-annuler').addEventListener('click', fin);
-        const prendre = async () => {
+        const prendre = async (auto) => {
           if (!v.videoWidth || prise) return;
           prise = true;
-          const z = zone(), c = document.createElement('canvas'); c.width = Math.round(z.sw); c.height = Math.round(z.sh);
-          c.getContext('2d').drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, c.width, c.height);
-          const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92));
+          const c = auto === true && meilleure ? meilleure : instantane();
+          meilleure = null; meilleureN = -1;
+          const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.95));
           o.classList.add('flash'); setTimeout(() => o.classList.remove('flash'), 180);
           if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {}
           surPhoto(faces[i], new File([blob], faces[i] + '.jpg', { type: 'image/jpeg' }));
@@ -697,8 +721,10 @@
           else if (r.bords < 3) montrer('ko', 'Place ' + nomPiece + ' pile dans le cadre : ses 4 bords le long des traits, en entier, sans doigt dessus' + astuce);
           else { bon = true; montrer('ok', 'Parfait, ne bouge plus…'); }
           okSuite = bon ? okSuite + 1 : 0;
+          if (!bon) { meilleure = null; meilleureN = -1; }
+          else if (r.nettete > meilleureN) { meilleureN = r.nettete; meilleure = instantane(); }   // garde la plus nette des images bonnes
           declic.disabled = !(bon || secours);
-          if (okSuite >= 3) prendre();
+          if (okSuite >= 4) prendre(true);
         }, 250);
       });
     }
