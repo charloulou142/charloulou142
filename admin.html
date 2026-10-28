@@ -414,9 +414,20 @@
         <button class="btn" type="submit">Ajouter l'appareil</button>
         <p class="note">Il apparaît tout de suite sur le site (catalogue, « Trouve ton pack », « Mon panier » et calendrier). Ouvre ensuite sa fiche ci-dessus pour ajouter ses photos.</p>
       </form>
+      <form class="panel" id="f-degressif" style="margin-top:16px">
+        <b>📉 Plusieurs soirées : réductions</b>
+        <p class="note" style="margin-top:4px">Plus le client garde le matériel, moins chaque soirée coûte. La soirée la plus chère reste au prix plein.</p>
+        <div class="mat-grille">
+          <div class="field"><label for="dg2">2e soirée (−%)</label><input id="dg2" type="number" min="0" max="90" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="dg3">3e et 4e (−%)</label><input id="dg3" type="number" min="0" max="90" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="dg5">Dès la 5e (−%)</label><input id="dg5" type="number" min="0" max="90" step="1" inputmode="numeric"></div>
+        </div>
+        <p class="note" id="dg-ex" style="margin-top:0"></p>
+        <button class="btn" type="submit">Enregistrer les réductions</button>
+      </form>
       <form id="f-prix" hidden><div id="liste-prix"></div></form>
       <div class="panel" style="margin-top:16px">
-        <p class="note" style="margin:0"><b>Stock</b> = combien d'exemplaires tu possèdes. Le calendrier du site s'en sert pour savoir si une date est libre ou complète : mets 0 si un appareil est en panne ou prêté. Les packs utilisent le stock de leurs enceintes.<br><b>Semaine</b> = prix d'une soirée du dimanche au jeudi ; <b>Week-end</b> = vendredi ou samedi soir (centimes possibles, ex. 49.90). Plusieurs soirées : la plus chère au prix plein, les autres à −20 %. Tout change tout de suite sur le site et dans le CRM.<br><b>Photo du catalogue</b> = l'appareil seul (section « Le matériel »). <b>Photo en soirée</b> = ton matériel en vrai pendant une fête : elle s'affiche dans « Trouve ton pack ». <b>Masquer</b> un appareil le retire du site sans rien effacer.</p>
+        <p class="note" style="margin:0"><b>Stock</b> = combien d'exemplaires tu possèdes. Le calendrier du site s'en sert pour savoir si une date est libre ou complète : mets 0 si un appareil est en panne ou prêté. Les packs utilisent le stock de leurs enceintes.<br><b>Semaine</b> = prix d'une soirée du dimanche au jeudi ; <b>Week-end</b> = vendredi ou samedi soir (centimes possibles, ex. 49.90). Plusieurs soirées : réductions réglables ci-dessus (« Plusieurs soirées : réductions »). Tout change tout de suite sur le site et dans le CRM.<br><b>Photo du catalogue</b> = l'appareil seul (section « Le matériel »). <b>Photo en soirée</b> = ton matériel en vrai pendant une fête : elle s'affiche dans « Trouve ton pack ». <b>Masquer</b> un appareil le retire du site sans rien effacer.</p>
       </div>
     </div>
 
@@ -559,7 +570,7 @@
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
-    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
+    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
     admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…',
     admin_facture: 'Création de la facture (PDF)…', admin_attente_suppr: 'Suppression…', admin_parrainage: 'Enregistrement du parrainage…' };
@@ -1401,8 +1412,30 @@
     } catch (err) { msg('m-admin', 'Pas ajouté : ' + (err.message || 'erreur') + '.'); }
   }); });
 
+  // tarif dégressif : exemple calculé en direct (Pack Soirée en semaine, 1 à 5 soirées)
+  function exempleDegressif() {
+    const r = [Number($('dg2').value) || 0, Number($('dg3').value) || 0, Number($('dg5').value) || 0];
+    const a = (etat.articles || []).find(x => x.article === 'Pack Soirée') || {}, p = Number(a.prixSem) || 69.9;
+    const rang = i => i === 0 ? 0 : (i === 1 ? r[0] : i <= 3 ? r[1] : r[2]) / 100;
+    const tot = n => { let t = 0; for (let i = 0; i < n; i++) t += p * (1 - rang(i)); return t; };
+    $('dg-ex').textContent = 'Exemple, Pack Soirée en semaine (' + eurN(p) + ') : ' + [1, 2, 3, 5].map(n => n + ' soirée' + (n > 1 ? 's' : '') + ' = ' + eurN(Math.round(tot(n) * 100) / 100)).join(' · ') + '.';
+  }
+  function afficherDegressif() {
+    const d = etat.degressif || { r2: 20, r3: 35, r5: 50 };
+    $('dg2').value = d.r2; $('dg3').value = d.r3; $('dg5').value = d.r5; exempleDegressif();
+  }
+  ['dg2', 'dg3', 'dg5'].forEach(id => $(id).addEventListener('input', exempleDegressif));
+  $('f-degressif').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    try {
+      const j = await appel('admin_degressif', { r2: Number($('dg2').value), r3: Number($('dg3').value), r5: Number($('dg5').value) });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.degressif = j.degressif; afficherDegressif();
+      msg('m-admin', 'Réductions enregistrées : le site et les prix des nouvelles demandes sont à jour.', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
+
   function afficherPrix() {
-    afficherMateriel();
+    afficherMateriel(); afficherDegressif();
     $('liste-prix').innerHTML = '<div class="prix-row tete"><span>Article</span><span>Stock</span><span>Semaine €</span><span>Week-end €</span></div>' +
       etat.articles.map((a, i) =>
         '<div class="prix-row"><span>' + esc(a.article) + '</span>' +
