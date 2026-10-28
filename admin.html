@@ -391,6 +391,30 @@
       <p class="note" data-note-visites>Comptage anonyme, sans cookie : une « visite » = une personne qui arrive sur le site (comptée une fois tant qu'elle ne ferme pas l'onglet) ; une « page vue » = chaque page ouverte. Tes propres visites ne sont pas comptées sur les appareils où tu t'es connecté à l'admin.</p>
     </div>
 
+    <div data-p="avis" hidden>
+      <form class="panel" id="f-avis-on">
+        <div class="switch-row">
+          <div><b>Afficher les avis sur le site</b><div class="note" style="margin:0" id="av-etat"></div></div>
+          <label class="toggle"><input type="checkbox" id="av-on" aria-label="Afficher les avis sur le site"><span></span></label>
+        </div>
+        <div class="field"><label for="av-lien">Lien de ta page d'avis Google (facultatif)</label><input id="av-lien" type="url" inputmode="url" maxlength="300" placeholder="https://g.page/r/…"></div>
+        <button class="btn" type="submit">Enregistrer</button>
+      </form>
+      <div class="panel" style="margin-top:16px">
+        <b>Tes avis</b>
+        <div id="liste-avis" style="margin:10px 0 16px"></div>
+        <form id="f-avis">
+          <input type="hidden" id="av-ligne">
+          <div class="field"><label for="av-nom">Nom affiché (comme sur Google)</label><input id="av-nom" maxlength="40" required placeholder="ex. Julie M."></div>
+          <div class="field"><label for="av-note">Note</label><select id="av-note"><option value="5">★★★★★ (5)</option><option value="4">★★★★ (4)</option><option value="3">★★★ (3)</option><option value="2">★★ (2)</option><option value="1">★ (1)</option></select></div>
+          <div class="field"><label for="av-txt">Texte de l'avis (copié tel quel)</label><textarea id="av-txt" rows="4" maxlength="1000" required></textarea></div>
+          <div class="field"><label for="av-date">Date de l'avis</label><input id="av-date" type="date"></div>
+          <button class="btn" type="submit" id="av-ok">Ajouter l'avis</button> <button class="btn ghost small" type="button" id="av-annule" hidden>Annuler la modification</button>
+        </form>
+        <p class="note">Recopie uniquement de <b>vrais avis</b> laissés par tes clients sur Google, sans les modifier (c'est la loi : pas d'avis inventés ou retouchés). Le site affiche les plus récents (12 au maximum) avec la mention « Avis Google ».</p>
+      </div>
+    </div>
+
     <div data-p="offres" hidden>
       <form class="panel" id="f-offre">
         <div class="switch-row">
@@ -586,15 +610,15 @@
   }
   function afficherAdmin() {
     vue('admin'); prepClients(); afficherResa(); afficherPause(); afficherPrix(); afficherPhotos(); afficherOffres(); afficherClients(); afficherDocs();
-    afficherInfos(); afficherRevenus(); afficherAccueil(); afficherTuiles();
+    afficherInfos(); afficherRevenus(); afficherAccueil(); afficherAvisClients(); afficherTuiles();
     let t = 'accueil'; try { t = sessionStorage.getItem('mistraloc_onglet') || 'accueil'; } catch (e) {}
     onglet(TITRES[t] ? t : 'accueil', true);
   }
 
   /* ----- navigation : 5 boutons (Aujourd'hui, Réservations, Clients, Revenus, Plus) ; « Plus » ouvre les autres réglages ----- */
   const TITRES = { accueil: 'Aujourd\'hui', resa: 'Réservations', clients: 'Clients', revenus: 'Revenus', plus: 'Plus', prix: 'Matériel et prix', photos: 'Photos du site',
-    offres: 'Offres et parrainage', docs: 'Documents', visites: 'Visites du site', pause: 'Pause du site', infos: 'Mes infos' };
-  const SOUS_PLUS = ['prix', 'photos', 'offres', 'docs', 'visites', 'pause', 'infos'];
+    offres: 'Offres et parrainage', docs: 'Documents', visites: 'Visites du site', pause: 'Pause du site', infos: 'Mes infos', avis: 'Avis clients' };
+  const SOUS_PLUS = ['prix', 'photos', 'offres', 'docs', 'visites', 'pause', 'infos', 'avis'];
   function onglet(t, garderMsg) {
     const nav = SOUS_PLUS.includes(t) ? 'plus' : t;
     document.querySelectorAll('.nav-admin button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === nav));
@@ -1050,6 +1074,63 @@
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
 
+  /* ----- avis clients (recopiés depuis Google), affichés sur le site seulement quand tu l'actives ----- */
+  function afficherAvisClients() {
+    const L = etat.temoignages || [], min = etat.avisMin || 3, visibles = L.filter(a => a.afficher).length;
+    $('av-on').checked = !!etat.avisOn; $('av-lien').value = etat.avis || '';
+    $('av-etat').innerHTML = etat.avisOn
+      ? 'Section « Ils ont fait la fête avec nous » sur l\'accueil : ' + (visibles >= min ? '<b>en ligne</b> (' + visibles + ' avis).' : 'elle apparaîtra dès qu\'il y aura <b>' + min + ' avis</b> à afficher (tu en as ' + visibles + ').')
+      : '<b>Coupé</b> : rien n\'est montré aux visiteurs. Une fois activé, une section « Ils ont fait la fête avec nous » apparaît sur l\'accueil (à partir de ' + min + ' avis).';
+    $('liste-avis').innerHTML = L.length ? L.map(a => '<div class="code-row' + (a.afficher ? '' : ' off') + '"><div><b>' + esc(a.nom) + '</b> · ' + '★'.repeat(a.note) + (a.date ? ' · ' + jjmm(a.date) : '') +
+        '<div class="note" style="margin:0">' + esc(a.texte.length > 140 ? a.texte.slice(0, 140) + '…' : a.texte) + (a.afficher ? '' : ' · masqué') + '</div></div>' +
+        '<span style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn ghost small" data-av-modif="' + a.ligne + '">Modifier</button>' +
+        '<button type="button" class="btn ghost small" data-av-voir="' + a.ligne + '">' + (a.afficher ? 'Masquer' : 'Afficher') + '</button>' +
+        '<button type="button" class="btn ghost small" data-av-suppr="' + a.ligne + '" aria-label="Supprimer l\'avis de ' + esc(a.nom) + '">×</button></span></div>').join('')
+      : '<p class="note" style="margin:0">Aucun avis pour l\'instant. Quand un client laisse un avis sur Google, recopie-le ici.</p>';
+  }
+  function formAvisVide() { $('f-avis').reset(); $('av-ligne').value = ''; $('av-ok').textContent = 'Ajouter l\'avis'; $('av-annule').hidden = true; }
+  async function envoyerAvis(donnees, bouton, ok) {
+    await occupe(bouton, async () => {
+      try {
+        const j = await appel('admin_avis', donnees);
+        if (!j.ok) throw new Error(j.erreur);
+        etat.temoignages = j.avis; afficherAvisClients(); afficherTuiles(); msg('m-admin', ok, true); formAvisVide();
+      } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+    });
+  }
+  $('f-avis').addEventListener('submit', e => {
+    e.preventDefault();
+    const ligne = $('av-ligne').value, ancien = (etat.temoignages || []).find(x => String(x.ligne) === ligne);
+    envoyerAvis({ ligne, nom: $('av-nom').value.trim(), note: Number($('av-note').value), texte: $('av-txt').value.trim(), date: $('av-date').value, afficher: ancien ? ancien.afficher : true },
+      $('av-ok'), ligne ? 'Avis modifié.' : 'Avis ajouté.');
+  });
+  $('av-annule').addEventListener('click', formAvisVide);
+  $('liste-avis').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const ligne = b.dataset.avModif || b.dataset.avVoir || b.dataset.avSuppr, a = (etat.temoignages || []).find(x => String(x.ligne) === String(ligne)); if (!a) return;
+    if (b.dataset.avModif) {
+      $('av-ligne').value = a.ligne; $('av-nom').value = a.nom; $('av-note').value = String(a.note); $('av-txt').value = a.texte; $('av-date').value = a.date || '';
+      $('av-ok').textContent = 'Enregistrer la modification'; $('av-annule').hidden = false; $('av-nom').focus();
+    } else if (b.dataset.avVoir) {
+      envoyerAvis({ ligne: a.ligne, nom: a.nom, note: a.note, texte: a.texte, date: a.date, afficher: !a.afficher }, b, a.afficher ? 'Avis masqué.' : 'Avis affiché.');
+    } else if (confirm('Supprimer l\'avis de ' + a.nom + ' ?')) {
+      occupe(b, async () => {
+        try { const j = await appel('admin_avis_suppr', { ligne: a.ligne }); if (!j.ok) throw new Error(j.erreur); etat.temoignages = j.avis; afficherAvisClients(); afficherTuiles(); msg('m-admin', 'Avis supprimé.', true); }
+        catch (err) { msg('m-admin', 'Pas supprimé : ' + (err.message || 'erreur') + '.'); }
+      });
+    }
+  });
+  $('f-avis-on').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    const lien = $('av-lien').value.trim();
+    if (lien && !/^https:\/\/\S+$/.test(lien)) return msg('m-admin', 'Le lien doit commencer par https://');
+    try {
+      const j = await appel('admin_avis_on', { actif: $('av-on').checked, lien });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.avisOn = j.avisOn; etat.avis = j.lien; etat.temoignages = j.avis; afficherAvisClients(); afficherTuiles();
+      msg('m-admin', j.avisOn ? 'Avis activés sur le site.' : 'Avis coupés : rien n\'est affiché sur le site.', true);
+    } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+  }); });
+
   /* ----- visites ----- */
   const nb = n => Number(n).toLocaleString('fr-FR');
   async function chargerVisites() {
@@ -1388,7 +1469,8 @@
     const T = [['prix', '💶', 'Matériel et prix', 'Stock, prix semaine et week-end'], ['offres', '🎁', 'Offres et parrainage', [o.affichee ? 'Offre en ligne' : 'Pas d\'offre en ligne', P.actif ? 'parrainage actif' : 'parrainage coupé'].join(' · ')],
       ['docs', '📄', 'Documents', nbDocs + ' document' + (nbDocs > 1 ? 's' : '') + ' (pièces, contrats, factures)'], ['photos', '📷', 'Photos du site', 'Photos du matériel sur le site'],
       ['visites', '👀', 'Visites du site', 'Combien de visiteurs, d\'où ils viennent'], ['pause', etat.pause ? '⏸' : '▶️', 'Pause du site', etat.pause ? 'EN PAUSE : personne ne peut réserver' : 'Site ouvert aux réservations'],
-      ['infos', '🪪', 'Mes infos', lo.complet ? 'Nom, SIRET, adresse, TVA' : 'À remplir : contrats et factures bloqués']];
+      ['infos', '🪪', 'Mes infos', lo.complet ? 'Nom, SIRET, adresse, TVA' : 'À remplir : contrats et factures bloqués'],
+      ['avis', '⭐', 'Avis clients', (etat.temoignages || []).length + ' avis · ' + (etat.avisOn ? 'affichés sur le site' : 'pas encore affichés')]];
     $('tuiles').innerHTML = T.map(([t, i, titre, sous]) => '<button type="button" class="tuile-p' + ((t === 'infos' && !lo.complet) || (t === 'pause' && etat.pause) ? ' alerte' : '') + '" data-aller="' + t + '"><i aria-hidden="true">' + i + '</i><b>' + esc(titre) + '</b><small>' + esc(sous) + '</small></button>').join('');
   }
   function afficherInfos() {
