@@ -98,6 +98,7 @@
   @keyframes pop{from{opacity:0;transform:translateX(var(--dx,28px)) scale(.8)}to{opacity:1;transform:none}}
   @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .panier{display:grid;gap:10px;margin-bottom:22px}
+  .panier[hidden],.result .checks[hidden]{display:none}   /* sinon « Mon panier » restait visible sous un pack (bug vu le 28/10) */
   .rImg:empty{display:none}   /* panier vide : pas de grand vide à la place des photos */
   .panier-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,122,26,.45);background:rgba(255,122,26,.08)}
   .panier-total span{margin-right:auto;font-weight:700;color:var(--muted)}
@@ -431,6 +432,13 @@
     #materiel .item-actions .btn{padding:8px 10px;font-size:13px;flex:1 1 0;text-align:center;white-space:nowrap}
     #materiel .item-actions .long{display:none}
   }
+  /* photo « en soirée » dans Trouve ton pack + appareils ajoutés depuis l'admin */
+  .r-situ{position:relative;margin:0 0 16px;border-radius:16px;overflow:hidden}
+  .r-situ[hidden]{display:none}
+  .r-situ img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .r-situ figcaption{position:absolute;left:10px;bottom:10px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff}
+  .ligne-ph{width:38px;height:38px;display:grid;place-items:center;font-size:20px;flex:0 0 auto}
+  .item[hidden]{display:none}
   /* avis clients (section #avis, cachée tant qu'elle n'est pas activée) */
   #avis[hidden]{display:none}
   .avis-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 16px;margin:0 0 10px;scrollbar-width:thin;text-align:left}
@@ -521,6 +529,7 @@
         </div>
       </div>
       <div class="rImg" id="rImg" aria-hidden="true"></div>
+      <figure class="r-situ" id="rSitu" hidden><img alt="Notre matériel en soirée" loading="lazy"><figcaption>📸 Notre matériel en soirée</figcaption></figure>
       <span class="tag" id="rTag">Recommandé pour toi</span>
       <h3 id="rName">Pack Soirée</h3>
       <p class="why" id="rWhy"></p>
@@ -722,6 +731,8 @@
   const STOCK={p310:2,p710:2,pult:1,fumee:1}; // valeurs de secours : remplacées par le stock de l'espace admin au chargement
   const panier={p310:0,p710:0,pult:0,fumee:0};
   const IMG1={p310:'partybox-310',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee'};
+  // photo du site (images/…webp) ou photo envoyée depuis l'admin (adresse complète)
+  const imgSrc=f=>/^(https?:|data:)/.test(f)?f:'images/'+f+'.webp';
   PACKS.perso={name:'Mon panier',price:'0 €',sem:'0 €',items:[],why:'Choisis tes appareils : le total se calcule tout seul.'};
   const prixNum=k=>parseFloat(PACKS[k].price.replace(/[^\d,.]/g,'').replace(',','.'))||0;
   const semNum=k=>parseFloat(String(PACKS[k].sem||PACKS[k].price).replace(/[^\d,.]/g,'').replace(',','.'))||0;
@@ -745,7 +756,7 @@
   function panierTexte(){ return Object.keys(panier).filter(k=>panier[k]).map(k=>panier[k]+'× '+PACKS[k].name).join(' + '); }
   function majPanier(anim){
     const box=document.getElementById('rPanier');
-    box.innerHTML=Object.keys(panier).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'"><img src="images/'+IMG1[k]+'.webp" alt=""><span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('');
+    box.innerHTML=Object.keys(panier).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'">'+(IMG1[k]?'<img src="'+imgSrc(IMG1[k])+'" alt="">':'<span class="ligne-ph" aria-hidden="true">🎛️</span>')+'<span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('');
     const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
     PACKS.perso.price=enEuros(total);
     const semT=Object.keys(panier).reduce((t,k)=>t+panier[k]*semNum(k),0);
@@ -760,9 +771,9 @@
     const types=Object.keys(panier).filter(k=>panier[k]), imgs=types.slice();
     for(let n=2;imgs.length<6&&types.some(k=>panier[k]>=n);n++) types.forEach(k=>{if(panier[k]>=n&&imgs.length<6)imgs.push(k);});
     imgs.sort((a,b)=>types.indexOf(a)-types.indexOf(b));
-    if(anim!==false){const ri=document.getElementById('rImg');ri.classList.toggle('n4',imgs.length>3);ri.innerHTML=imgs.map(k=>IMG1[k]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');}
+    if(anim!==false){const ri=document.getElementById('rImg');ri.classList.toggle('n4',imgs.length>3);ri.innerHTML=imgs.map(k=>IMG1[k]).filter(Boolean).map(f=>'<img src="'+imgSrc(f)+'" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');}
     const COMPO={apero:{p310:1,p710:0,pult:0,fumee:0},soiree:{p310:0,p710:1,pult:0,fumee:1},club:{p310:0,p710:2,pult:0,fumee:1}};
-    const pk=Object.keys(COMPO).find(c=>Object.keys(panier).every(k=>panier[k]===COMPO[c][k]));
+    const pk=Object.keys(COMPO).find(c=>Object.keys(panier).every(k=>panier[k]===(COMPO[c][k]||0)));
     const astuce=pk&&prixNum(pk)<total?'<p class="astuce">💡 Le même matériel existe en <b>'+PACKS[pk].name+'</b> à '+PACKS[pk].price+' au lieu de '+enEuros(total)+'. <button type="button" data-pack-go="'+pk+'">Voir le pack</button></p>':'';
     document.getElementById('rPanier').insertAdjacentHTML('beforeend',astuce);
     const vide=!total;
@@ -788,9 +799,16 @@
   const rail=document.getElementById('cpRail'), flG=document.getElementById('cpG'), flD=document.getElementById('cpD');
   const reduitM=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['p310','À l\'unité','PartyBox 310'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['perso','Sur mesure','Mon panier']];
-  rail.innerHTML=CARTES.map(([k,t,n])=>'<button type="button" class="cp" data-pack="'+k+'" aria-pressed="false"><span class="cp-reco">Conseillé</span><span class="cp-img" aria-hidden="true">'+
-    (k==='perso'?'<span class="cp-plus">+</span>':(IMAGES[k]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join(''))+
-    '</span><span class="cp-t">'+t+'</span><b>'+n+'</b><span class="cp-p"></span></button>').join('');
+  // cartes masquées depuis l'admin (Matériel › « Afficher sur le site » décoché) ; photos « en soirée » par formule
+  const CACHES=new Set(), SITU={};
+  function renderRail(){
+    rail.innerHTML=CARTES.filter(c=>!CACHES.has(c[0])).map(([k,t,n])=>'<button type="button" class="cp" data-pack="'+k+'" aria-pressed="'+(k===current)+'"><span class="cp-reco">Conseillé</span><span class="cp-img" aria-hidden="true">'+
+      (k==='perso'?'<span class="cp-plus">+</span>':(IMAGES[k]||[]).length?(IMAGES[k]||[]).map(f=>'<img src="'+imgSrc(f)+'" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join(''):'<span class="cp-plus">🎛️</span>')+
+      '</span><span class="cp-t">'+t+'</span><b>'+n+'</b><span class="cp-p"></span></button>').join('');
+    try{ const r=recommend(); rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',c.dataset.pack===r)); }catch(e){}   // au 1er affichage, le curseur n'existe pas encore
+    majCartes(); if(typeof majFleches==='function') majFleches();
+  }
+  renderRail();
   function majCartes(){
     rail.querySelectorAll('.cp').forEach(c=>{
       const k=c.dataset.pack, we=prixNum(k), se=semNum(k), bas=se>0&&se<we?se:we;
@@ -799,7 +817,8 @@
   }
   function centrerCarte(doux){
     const c=rail.querySelector('.cp[aria-pressed="true"]'); if(!c) return;
-    rail.scrollTo({left:c.offsetLeft-(rail.clientWidth-c.offsetWidth)/2,behavior:doux&&!reduitM?'smooth':'auto'});
+    const x=Math.max(0,c.offsetLeft-(rail.clientWidth-c.offsetWidth)/2);
+    try{ rail.scrollTo({left:x,behavior:doux&&!reduitM?'smooth':'auto'}); }catch(e){ rail.scrollLeft=x; }   // anciens Safari : pas d'options
   }
   function majFleches(){
     const max=rail.scrollWidth-rail.clientWidth-2, d=rail.scrollLeft<=2, f=rail.scrollLeft>=max;
@@ -880,8 +899,12 @@
   }
   addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
-  function recommend(){const n=+g.value; if(typeof prise!=='undefined'&&!prise) return 'apero'; if(kind==='mariage') return n<=40?'soiree':'club'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
-  function show(key,isReco){ show0(key,isReco); majAlerte(); }
+  // pack masqué depuis l'admin : on conseille le plus grand pack encore affiché
+  function recommend(){let r=reco0(); const ordre=['club','soiree','apero']; if(typeof CACHES!=='undefined'&&CACHES.has(r)){ const i=ordre.indexOf(r); r=ordre.slice(i).concat(ordre.slice(0,i).reverse()).find(x=>!CACHES.has(x))||r; } return r;}
+  function reco0(){const n=+g.value; if(typeof prise!=='undefined'&&!prise) return 'apero'; if(kind==='mariage') return n<=40?'soiree':'club'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
+  function show(key,isReco){ show0(key,isReco); majAlerte(); majSitu(); }
+  // photo « en soirée » de la formule choisie (envoyée depuis l'admin)
+  function majSitu(){ const f=document.getElementById('rSitu'), u=SITU[current]; if(u&&current!=='perso'){ f.querySelector('img').src=u; f.hidden=false; } else f.hidden=true; }
   function show0(key,isReco){
     const p=PACKS[key];
     rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',c.dataset.pack===recommend()));
@@ -890,18 +913,19 @@
     if(key===current) return; // même pack (ex. curseur déplacé sans changer de palier) : on ne relance pas l'animation
     if(current){result.style.setProperty('--dx',(ORDRE.indexOf(key)<ORDRE.indexOf(current)?-28:28)+'px');result.classList.remove('swap');void result.offsetWidth;result.classList.add('swap');}
     current=key;
+    // d'abord : « Mon panier » OU la liste du pack, jamais les deux (même si une étape suivante échoue sur un navigateur)
+    const perso=key==='perso';
+    document.getElementById('rPanier').hidden=!perso;
+    document.getElementById('rList').hidden=perso;
     document.getElementById('rName').textContent=p.name;
     document.getElementById('rImg').classList.remove('n4');
-    document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
+    document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="'+imgSrc(f)+'" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
     document.getElementById('rWhy').textContent=p.why;
     document.getElementById('rPrice').textContent=p.price;
     majPrixPack(key);
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
     rail.querySelectorAll('.cp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
-    centrerCarte(show0.deja); show0.deja=true;
-    const perso=key==='perso';
-    document.getElementById('rPanier').hidden=!perso;
-    document.getElementById('rList').hidden=perso;
+    try{ centrerCarte(show0.deja); }catch(e){} show0.deja=true;
     if(perso){ document.getElementById('rTag').textContent='Sur mesure'; majPanier(); return; }
     document.getElementById('rBook').classList.remove('off');
     document.getElementById('rBook').textContent='Choisir ma date →';
@@ -1557,6 +1581,35 @@
       if (/^https:\/\//.test(c.temoignages.lien || '')) { $('avis-lien').querySelector('a').href = c.temoignages.lien; $('avis-lien').hidden = false; }
       $('avis').hidden = false;
     }
+    // appareils ajoutés, textes modifiés, appareils masqués et photos « en soirée » (admin › Matériel)
+    const fiches = c.fiches || {}, situ = c.situations || {}, CLE_DE = {};
+    Object.keys(PACK_CLE).forEach(k => { CLE_DE[PACK_CLE[k]] = k; });
+    let nNouveaux = 0;
+    Object.keys(fiches).forEach(nom => {
+      const f = fiches[nom] || {}; let k = CLE_DE[nom];
+      if (!k) {
+        if (f.pack || f.visible === false) return;          // seul un appareil ajouté et affiché est créé sur le site
+        k = 'n' + (++nNouveaux); CLE_DE[nom] = k; PACK_CLE[k] = nom;
+        const ph = photos[nom] || '';
+        PACKS[k] = { name: nom, price: prix[nom] != null ? euros(prix[nom]) : '—', sem: prixSem[nom] != null ? euros(prixSem[nom]) : '',
+          items: [f.alim === 'Batterie' ? 'Fonctionne sur batterie' : f.alim === 'Prise' ? 'Se branche sur une prise' : '', f.invites ? 'Conseillé jusqu\'à environ ' + f.invites + ' invités' : ''].filter(Boolean), why: f.desc || '' };
+        IMAGES[k] = ph ? [ph] : []; IMG1[k] = ph; STOCK[k] = 0; panier[k] = 0; COMPO_K[k] = { [k]: 1 };
+        CARTES.splice(CARTES.findIndex(x => x[0] === 'perso'), 0, [k, 'À l\'unité', nom]);
+        const o = document.createElement('option'); o.value = o.textContent = nom; offreSel.insertBefore(o, $('opt-perso'));
+        ajouterCarteCatalogue(k, nom, f, ph, prix[nom], prixSem[nom]);
+        change = true;
+      }
+      const it = document.querySelector('#materiel .item[data-article="' + CSS.escape(nom) + '"]');
+      if (f.desc) { PACKS[k].why = f.desc; if (it && it.querySelector('.in p')) it.querySelector('.in p').textContent = f.desc; }
+      if (f.invites > 0) CAP[k] = f.invites;
+      if (f.alim === 'Prise' && SECTEUR.indexOf(k) < 0) SECTEUR.push(k);
+      if (f.alim === 'Batterie' && SECTEUR.indexOf(k) >= 0) SECTEUR.splice(SECTEUR.indexOf(k), 1);
+      const tag = it && it.querySelector('.item-tag');
+      if (tag && f.alim && !/^n\d/.test(k)) { tag.className = 'item-tag' + (f.alim === 'Batterie' ? ' bat' : ''); tag.textContent = f.alim === 'Batterie' ? (k === 'p310' ? '🔋 Sur batterie (~18 h)' : '🔋 Sur batterie') : '🔌 Prise nécessaire'; }
+      if (f.visible === false) { CACHES.add(k); if (it) it.hidden = true; }
+    });
+    Object.keys(situ).forEach(nom => { if (CLE_DE[nom]) SITU[CLE_DE[nom]] = situ[nom]; });
+    renderRail(); majSitu();
     if (change) { const k = document.querySelector('#cpRail .cp[aria-pressed="true"]'); if (k) majPrixPack(k.dataset.pack); else majCartes(); maj(); }
     // stock réglé dans l'espace admin (onglet « Matériel ») : nombre maximum de chaque appareil dans « Mon panier »
     const stock = c.stock || {};
@@ -1567,6 +1620,26 @@
     if (!document.getElementById('rPanier').hidden) majPanier(false);
   }).catch(() => {});
 
+  // carte du catalogue pour un appareil ajouté depuis l'admin (même présentation que les autres)
+  function ajouterCarteCatalogue(k, nom, f, ph, p, ps) {
+    const cat = document.querySelector('#materiel .cat'); if (!cat) return;
+    const el = (tag, cls, txt) => { const x = document.createElement(tag); if (cls) x.className = cls; if (txt != null) x.textContent = txt; return x; };
+    const art = el('article', 'item'); art.dataset.article = nom;
+    const box = el('div', 'ph' + (ph ? ' photo' : ''), ph ? null : 'Photo à venir');
+    if (ph) { const img = el('img'); img.src = ph; img.alt = nom; img.loading = 'lazy'; box.appendChild(img); }
+    const inn = el('div', 'in'); inn.appendChild(el('h3', null, nom));
+    if (f.alim) inn.appendChild(el('span', 'item-tag' + (f.alim === 'Batterie' ? ' bat' : ''), f.alim === 'Batterie' ? '🔋 Sur batterie' : '🔌 Prise nécessaire'));
+    if (f.desc) inn.appendChild(el('p', null, f.desc));
+    const b = el('b'); const bas = ps != null && p != null && ps < p;
+    b.append(bas ? 'dès ' : '', el('span', bas ? 'prixsem' : 'prix', euros(bas ? ps : p != null ? p : ps)), bas ? ' / soirée en semaine' : ' / soirée');
+    if (bas) { b.appendChild(el('br')); const s = el('small'); s.append(el('span', 'prix', euros(p)), ' le week-end (ven. et sam.)'); b.appendChild(s); }
+    inn.appendChild(b);
+    const act = el('div', 'item-actions');
+    const r = el('a', 'btn', 'Réserver'); r.href = '#reserver'; r.dataset.reserver = k; r.appendChild(el('span', 'long', ' cet appareil'));
+    const pa = el('button', 'btn ghost'); pa.type = 'button'; pa.dataset.panier = k; pa.append('+ ', el('span', 'long', 'Ajouter au '), 'panier');
+    act.append(r, pa); inn.appendChild(act);
+    art.append(box, inn); cat.appendChild(art);
+  }
   // Catalogue « Le matériel » : boutons « Réserver » (va au calendrier avec l'appareil choisi) et « + Ajouter au panier »
   (() => {
     const CLE = { 'JBL PartyBox 310': 'p310', 'JBL PartyBox 710': 'p710', 'JBL PartyBox Ultimate': 'pult', 'Machine à fumée 2000 W RGB': 'fumee' };
