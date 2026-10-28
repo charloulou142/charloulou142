@@ -365,6 +365,13 @@
   .cal-aide{font-size:13px;color:var(--muted);margin-top:10px}
   .astuce-nuit{margin:8px 0 0;font-size:13px;font-weight:600;color:var(--cyan)}
   .astuce-nuit[hidden]{display:none}
+  .deja-compte{margin:6px 0 14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(34,211,238,.55);background:rgba(34,211,238,.07);font-size:14px;line-height:1.45}
+  .deja-compte[hidden],.deja-btns[hidden]{display:none}
+  .deja-compte p{margin:0 0 10px}
+  .deja-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .deja-btns .btn{padding:9px 16px;font-size:14px;margin:0}
+  .deja-btns input{flex:1 1 140px;min-width:0;max-width:200px;letter-spacing:3px;font-size:18px;text-align:center}
+  .deja-compte small{display:block;margin-top:6px;font-weight:600;color:var(--cyan)}
   .urgence{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,122,26,.55);background:rgba(255,122,26,.08);font-size:14px;line-height:1.45}
   .urgence[hidden]{display:none}
   .urgence p{margin:0 0 10px}
@@ -619,6 +626,13 @@
         <div class="field"><label for="bk-tel">Téléphone *</label><input id="bk-tel" type="tel" inputmode="tel" autocomplete="tel" required maxlength="30" placeholder="06 12 34 56 78"><small class="verif" id="bk-tel-verif" aria-live="polite"></small></div>
       </div>
       <div class="field"><label for="bk-email">E-mail (facultatif, pour recevoir la confirmation)</label><input id="bk-email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="prenom@exemple.fr"><small class="verif" id="bk-email-verif" aria-live="polite"></small></div>
+      <!-- e-mail ou téléphone déjà connu : on propose de se connecter (code par e-mail, sans mot de passe) -->
+      <div class="deja-compte" id="bk-deja" hidden>
+        <p id="bk-deja-txt"></p>
+        <div class="deja-btns" id="bk-deja-btns"><button type="button" class="btn" id="bk-deja-code">Recevoir mon code</button><button type="button" class="retour" id="bk-deja-non">Non merci</button></div>
+        <div class="deja-btns" id="bk-deja-saisie" hidden><input id="bk-deja-c" inputmode="numeric" maxlength="6" placeholder="Code à 6 chiffres" autocomplete="one-time-code" aria-label="Code reçu par e-mail"><button type="button" class="btn" id="bk-deja-ok">Me connecter</button></div>
+        <small id="bk-deja-msg" aria-live="polite"></small>
+      </div>
       <div class="row2" hidden><!-- rempli tout seul depuis « Trouve ton pack » -->
         <div class="field"><label for="bk-fete">Type de fête</label>
           <select id="bk-fete"><option>Anniversaire</option><option>Soirée entre amis</option><option>Mariage</option><option>Fête de fin d'année</option><option>Événement pro</option><option>Autre</option></select></div>
@@ -1552,9 +1566,64 @@
     if (!$('bk-email').value) $('bk-email').value = pf.email;
     $('bk-infos-sous').innerHTML = 'Connecté avec <b>' + esc(pf.email) + '</b> : tes infos sont déjà remplies. <a href="compte.html" class="lien-compte">Mon compte</a>';
   }
-  // « créer mon compte » proposé au récap si une adresse e-mail valide est donnée (et pas déjà connecté avec elle)
+  // ---- e-mail ou téléphone déjà enregistré : on propose de se connecter (au lieu de créer un compte) ----
+  let dejaRef = null, dejaNon = false, dernierTest = '', tConnu = null; window.compteConnu = false;
+  const poste = async donnees => (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(donnees) })).json();
+  async function testerCompte(){
+    if (compte && compte.profil) return;                     // déjà connecté sur cet appareil
+    const mail = $('bk-email').value.trim().toLowerCase(), tel = telNorme($('bk-tel').value) || '';
+    const cle = (emailOk(mail) ? mail : '') + '|' + tel;
+    if (cle === '|' || cle === dernierTest) return;
+    dernierTest = cle;
+    try {
+      const j = await poste({ action: 'compte_connu', email: emailOk(mail) ? mail : '', tel });
+      if (cle !== dernierTest) return;                       // la saisie a changé entre-temps
+      window.compteConnu = !!(j.ok && j.connu);
+      if (window.compteConnu && !$('bk-deja').hidden && !$('bk-deja-saisie').hidden) { majCompteZone(); return; }   // code en cours de saisie : on ne touche à rien
+      dejaRef = window.compteConnu ? j.ref : null;
+      if (window.compteConnu && !dejaNon) {
+        $('bk-deja-txt').innerHTML = '👋 ' + (j.parTel ? 'Ce numéro est déjà lié' : 'Cette adresse est déjà liée') + ' à un compte Mistraloc (<b>' + esc(j.masque) + '</b>). Connecte-toi pour retrouver tes infos et suivre tes réservations.';
+        $('bk-deja').hidden = false; $('bk-deja-btns').hidden = false; $('bk-deja-saisie').hidden = true; $('bk-deja-msg').textContent = '';
+      } else $('bk-deja').hidden = true;
+      majCompteZone();
+    } catch (e) {}
+  }
+  const testerBientot = () => { clearTimeout(tConnu); tConnu = setTimeout(testerCompte, 900); };
+  ['bk-email', 'bk-tel'].forEach(id => { $(id).addEventListener('input', testerBientot); $(id).addEventListener('blur', testerCompte); });
+  $('bk-deja-non').addEventListener('click', () => { dejaNon = true; $('bk-deja').hidden = true; });
+  $('bk-deja-code').addEventListener('click', async () => {
+    const b = $('bk-deja-code'); b.disabled = true; $('bk-deja-msg').textContent = 'Envoi du code…';
+    try {
+      const j = await poste({ action: 'compte_code', ref: dejaRef });
+      if (!j.ok) throw new Error(j.erreur === 'Adresse e-mail invalide.' ? 'Demande expirée : modifie un caractère de ton e-mail ou téléphone pour recommencer.' : j.erreur);
+      $('bk-deja-btns').hidden = true; $('bk-deja-saisie').hidden = false; $('bk-deja-c').focus();
+      $('bk-deja-msg').textContent = 'Code envoyé par e-mail (regarde aussi tes spams). Il est valable 15 minutes.';
+    } catch (e) { $('bk-deja-msg').textContent = e.message || 'Envoi impossible. Réessaie dans un instant.'; }
+    b.disabled = false;
+  });
+  async function connexionDeja(){
+    const code = $('bk-deja-c').value.replace(/\D/g, ''); if (code.length !== 6) { $('bk-deja-msg').textContent = 'Le code fait 6 chiffres.'; return; }
+    $('bk-deja-ok').disabled = true; $('bk-deja-msg').textContent = 'Connexion…';
+    try {
+      const j = await poste({ action: 'compte_login', ref: dejaRef, code });
+      if (!j.ok || !j.token) throw new Error(j.erreur || 'erreur');
+      compte = { token: j.token, profil: j.profil }; try { localStorage.setItem('mistraloc_compte', JSON.stringify(compte)); } catch (e) {}
+      const pf = j.profil || {};
+      if (pf.nom) $('bk-nom').value = pf.nom; if (pf.tel) $('bk-tel').value = pf.tel; if (pf.email) $('bk-email').value = pf.email;
+      verifTel(false); verifEmail(false);
+      $('compte-btn').classList.add('connecte'); $('compte-btn').title = 'Mon compte (' + pf.email + ')';
+      $('bk-infos-sous').innerHTML = 'Connecté avec <b>' + esc(pf.email) + '</b> : tes infos sont remplies. <a href="compte.html" class="lien-compte">Mon compte</a>';
+      $('bk-deja').hidden = true; window.compteConnu = true; majCompteZone(); majBarre();
+    } catch (e) { $('bk-deja-msg').textContent = e.message || 'Connexion impossible.'; }
+    $('bk-deja-ok').disabled = false;
+  }
+  $('bk-deja-ok').addEventListener('click', connexionDeja);
+  $('bk-deja-c').addEventListener('input', () => { if ($('bk-deja-c').value.replace(/\D/g, '').length === 6) connexionDeja(); });
+  $('bk-deja-c').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); connexionDeja(); } });
+
+  // « créer mon compte » proposé au récap si une adresse e-mail valide est donnée (pas déjà connecté avec elle, et pas déjà un compte existant)
   function majCompteZone(){
-    const mail = $('bk-email').value.trim().toLowerCase(), ok = emailOk(mail) && !(compte && compte.profil && compte.profil.email === mail);
+    const mail = $('bk-email').value.trim().toLowerCase(), ok = emailOk(mail) && !window.compteConnu && !(compte && compte.profil && compte.profil.email === mail);
     $('bk-compte-zone').hidden = !ok; $('bk-compte-mail').textContent = mail;
     if (!ok) $('bk-compte').checked = false;
     $('bk-offres-zone').hidden = !(ok && $('bk-compte').checked);
