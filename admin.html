@@ -207,8 +207,12 @@
   .visu-box{background:var(--bg2);border:1px solid var(--line);border-radius:18px;width:min(900px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
   .visu-haut{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .visu-haut b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+  .visu-haut span{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+  #visu-fil[hidden]{display:none}
   #visu-corps{overflow:auto;padding:12px;display:grid;place-items:center;min-height:200px}
-  #visu-corps img{max-width:100%;max-height:75vh;border-radius:10px}
+  #visu-corps img{max-width:100%;max-height:75vh;border-radius:10px;cursor:zoom-in}
+  #visu-corps.zoom{display:block}
+  #visu-corps.zoom img{max-width:none;max-height:none;width:250%;cursor:zoom-out}
   #visu-corps iframe{width:100%;height:75vh;border:0;border-radius:10px;background:#fff}
   /* état des lieux */
   .edl-corps{overflow:auto;padding:14px;display:grid;gap:2px}
@@ -521,13 +525,13 @@
       <div class="cherche"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
         <input type="search" id="d-q" placeholder="Chercher un document : nom du client…" aria-label="Rechercher un document" autocomplete="off"></div>
       <div id="liste-docs"></div>
-      <p class="note">Les clients envoient leurs documents depuis leur lien de suivi, une fois la réservation <b>confirmée</b> (le bouton est dans l'e-mail « Confirmée »). Tout est rangé dans ton Google Drive, dossier privé « Mistraloc – Documents clients ». Les <b>pièces d'identité</b> portent un filigrane et sont effacées automatiquement <span data-cni-jours>30</span> jours après la reprise (tout de suite si la réservation est annulée) ; « Garder » les protège en cas de litige. Les <b>contrats signés</b> et les <b>états des lieux</b> sont gardés 5 ans, les <b>factures</b> 10 ans (pièces comptables). Un élément supprimé va dans la corbeille du Drive (vidée par Google après 30 jours).</p>
+      <p class="note">Les clients envoient leurs documents depuis leur lien de suivi, une fois la réservation <b>confirmée</b> (le bouton est dans l'e-mail « Confirmée »). Tout est rangé dans ton Google Drive, dossier privé « Mistraloc – Documents clients ». Les <b>pièces d'identité</b> s'ouvrent avec un filigrane (bouton « Masquer le filigrane » pour bien lire la carte) et sont effacées automatiquement <span data-cni-jours>30</span> jours après la reprise (tout de suite si la réservation est annulée) ; « Garder » les protège en cas de litige. Les <b>contrats signés</b> et les <b>états des lieux</b> sont gardés 5 ans, les <b>factures</b> 10 ans (pièces comptables). Un élément supprimé va dans la corbeille du Drive (vidée par Google après 30 jours).</p>
     </div>
   </section>
 </main>
 
 <div class="visu" id="visu" role="dialog" aria-modal="true" aria-labelledby="visu-titre" hidden>
-  <div class="visu-box"><div class="visu-haut"><b id="visu-titre">Document</b><span><a id="visu-dl" class="btn ghost small" download>⬇ Télécharger</a> <button type="button" class="btn small" id="visu-x">Fermer</button></span></div>
+  <div class="visu-box"><div class="visu-haut"><b id="visu-titre">Document</b><span><button type="button" class="btn ghost small" id="visu-fil" hidden>👁 Masquer le filigrane</button> <a id="visu-dl" class="btn ghost small" download>⬇ Télécharger</a> <button type="button" class="btn small" id="visu-x">Fermer</button></span></div>
     <div id="visu-corps"></div></div>
 </div>
 
@@ -759,7 +763,7 @@
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
   let urlVisu = null;
-  function fermerVisu() { $('visu').hidden = true; $('visu-corps').innerHTML = ''; if (urlVisu) { URL.revokeObjectURL(urlVisu); urlVisu = null; } document.body.style.overflow = ''; }
+  function fermerVisu() { $('visu').hidden = true; $('visu-corps').innerHTML = ''; $('visu-corps').classList.remove('zoom'); if (urlVisu) { URL.revokeObjectURL(urlVisu); urlVisu = null; } if (urlFil) { URL.revokeObjectURL(urlFil); urlFil = null; } document.body.style.overflow = ''; }
   $('visu-x').addEventListener('click', fermerVisu);
   $('visu').addEventListener('click', e => { if (e.target.id === 'visu') fermerVisu(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('visu').hidden) fermerVisu(); });
@@ -773,9 +777,39 @@
       urlVisu = URL.createObjectURL(new Blob([u8], { type: j.mime }));
       $('visu-titre').textContent = j.nom; $('visu-dl').href = urlVisu; $('visu-dl').download = j.nom;
       $('visu-corps').innerHTML = /pdf/.test(j.mime) ? '<iframe src="' + urlVisu + '" title="' + esc(j.nom) + '"></iframe>' : '<img src="' + urlVisu + '" alt="' + esc(j.nom) + '">';
+      $('visu-fil').hidden = true;
+      if (/image/.test(j.mime) && /Recto|Verso|identit/i.test(j.nom)) await filigraneVisu(j.nom, true);
       $('visu').hidden = false; document.body.style.overflow = 'hidden'; $('visu-x').focus();
     } catch (err) { msg('m-admin', 'Document pas ouvert : ' + (err.message || 'erreur') + '.'); }
   }
+  // pièce d'identité : la photo est rangée SANS filigrane ; on l'ajoute ici à l'affichage (et au téléchargement),
+  // avec un bouton pour le masquer et lire la carte. Les photos reçues avant le 28/10 (~17 h 45) ont un filigrane imprimé dedans.
+  let urlFil = null;
+  async function filigraneVisu(nom, avec) {
+    const im = new Image(); im.src = urlVisu; await im.decode();
+    const w = im.naturalWidth, h = im.naturalHeight, cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d'); g.drawImage(im, 0, 0);
+    if (avec) {
+      const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(nom), texte = 'MISTRALOC · location du ' + (m ? m[3] + '/' + m[2] + '/' + m[1] : '') + ' · copie non valable ailleurs';
+      const taille = Math.max(14, Math.round(Math.min(w, h) / 17)), diag = Math.hypot(w, h);
+      g.save(); g.translate(w / 2, h / 2); g.rotate(-Math.PI / 7);
+      g.font = '700 ' + taille + 'px Arial, Helvetica, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillStyle = 'rgba(200,30,30,.32)'; g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = Math.max(1, taille / 12);
+      const ligne = texte + '   ·   ' + texte;
+      for (let y = -diag / 2; y <= diag / 2; y += taille * 3) { g.strokeText(ligne, 0, y); g.fillText(ligne, 0, y); }
+      g.restore();
+    }
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.95));
+    if (urlFil) URL.revokeObjectURL(urlFil);
+    urlFil = URL.createObjectURL(blob);
+    $('visu-corps').innerHTML = '<img src="' + urlFil + '" alt="' + esc(nom) + '">';
+    $('visu-dl').href = urlFil; $('visu-dl').download = nom.replace(/\.jpg$/i, '') + (avec ? '' : ' (sans filigrane)') + '.jpg';
+    const b = $('visu-fil'); b.hidden = false; b.dataset.avec = avec ? '1' : ''; b.dataset.nom = nom;
+    b.textContent = avec ? '👁 Masquer le filigrane' : '🔒 Remettre le filigrane';
+  }
+  // toucher la photo = zoom ×2,5 (on fait défiler pour lire les petites lignes), retoucher = taille normale
+  $('visu-corps').addEventListener('click', e => { if (e.target.tagName === 'IMG') $('visu-corps').classList.toggle('zoom'); });
+  $('visu-fil').addEventListener('click', async () => { const b = $('visu-fil'); try { await filigraneVisu(b.dataset.nom, !b.dataset.avec); } catch (e) {} });
   // boutons Voir / Garder / Supprimer, où qu'ils soient (onglet Documents, réservation, fiche client)
   /* ----- état des lieux (livraison / retour) : photos + signature du client sur ce téléphone ----- */
   function cadreSignature(cv) {
