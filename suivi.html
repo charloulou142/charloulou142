@@ -76,7 +76,7 @@
   .photos2.une{grid-template-columns:1fr}
   .photo{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:118px;border:2px dashed var(--line);border-radius:14px;cursor:pointer;text-align:center;font-weight:700;font-size:15px;overflow:hidden;padding:8px}
   .photo small{font-weight:400;color:var(--muted);font-size:12px}
-  .photo input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+  button.photo{width:100%;background:transparent;color:inherit;font-family:inherit}
   .photo img{max-width:100%;max-height:150px;border-radius:8px;display:block}
   .photo.ok{border-style:solid;border-color:var(--cyan)}
   .bouton{display:inline-block;background:var(--pink);color:#1A0B00;padding:12px 22px;border-radius:999px;border:0;font:inherit;font-weight:700;cursor:pointer;margin-top:12px;text-decoration:none}
@@ -101,7 +101,9 @@
   .photo.bof{border-style:solid;border-color:#FBBF24}
   .envoi{margin-top:16px}
   .bouton.grand{display:block;width:100%;padding:16px 22px;font-size:17px}
-  input.code{font-size:26px!important;letter-spacing:10px;text-align:center;font-weight:700}
+  input.code{display:block;box-sizing:border-box;width:100%;max-width:280px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:26px!important;letter-spacing:10px;text-align:center;font-weight:700}
+  input.code:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.25)}
+  #code-zone label.ch{display:block;margin:12px 0 5px;font-size:14px;color:var(--muted);font-weight:600}
   .cam-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:12px 0 4px;padding:13px 16px;border-radius:14px;border:2px solid var(--cyan);background:none;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
   .cam{position:fixed;inset:0;z-index:90;background:#000}
   .cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -222,7 +224,8 @@
     const post = (action, data) => fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(Object.assign({ action, t }, data || {})) }).then(r => r.json());
     const PIECES = ['Carte d\'identité', 'Passeport', 'Titre de séjour', 'Permis de conduire'];
-    const DEFAUTS = { petite: 'trop petite (rapproche-toi)', floue: 'floue', sombre: 'trop sombre', reflet: 'un reflet cache une partie', double: 'identique à l\'autre face' };
+    const DEFAUTS = { petite: 'trop petite (rapproche-toi)', floue: 'floue', sombre: 'trop sombre', reflet: 'un reflet cache une partie', double: 'identique à l\'autre face', travers: 'de travers (mets la carte bien droite dans le cadre)' };
+    const SEUIL_TRAVERS = 6;    // degrés : au-delà, la carte est jugée de travers (28/10, test de Mistraloc avec une carte penchée acceptée)
     const SEUIL_NETTETE = 60;   // en dessous : photo jugée floue (réglé sur des images de test : texte difficile à lire ; à ajuster avec de vraies photos)
     // code de parrainage (location terminée, parrainage activé par Mistraloc)
     function htmlParrain(p) {
@@ -257,9 +260,9 @@
         '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Ton téléphone ajoute un filigrane « Mistraloc · location du ' +
         esc(j.date) + ' » avant l\'envoi : la copie ne peut servir à rien d\'autre. Elle est rangée dans un dossier privé et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
         '<label class="ch" for="cni-piece">Type de pièce</label><select id="cni-piece">' + PIECES.map(p => '<option' + (p === d.piece ? ' selected' : '') + '>' + esc(p) + '</option>').join('') + '</select>' +
-        '<button type="button" class="cam-go" id="cam-go" hidden>🎯 Prendre la photo avec un cadre (le plus simple)</button>' +
-        '<div class="photos2" id="cni-photos">' + ['recto', 'verso'].map(f => '<div class="tuile" id="tu-' + f + '"><label class="photo" id="ph-' + f + '"><input type="file" accept="image/*" data-face="' + f + '">' +
-          '<span>📷 ' + (f === 'recto' ? 'Recto<br><small>ou choisir une photo</small>' : 'Verso<br><small>ou choisir une photo</small>') + '</span></label>' +
+        '<button type="button" class="cam-go" id="cam-go">🎯 Prendre la photo avec le cadre</button>' +
+        '<div class="photos2" id="cni-photos">' + ['recto', 'verso'].map(f => '<div class="tuile" id="tu-' + f + '"><button type="button" class="photo" id="ph-' + f + '" data-cam="' + f + '">' +
+          '<span>📷 ' + (f === 'recto' ? 'Recto<br><small>avec le cadre</small>' : 'Verso<br><small>avec le cadre</small>') + '</span></button>' +
           '<p class="ph-etat" id="et-' + f + '" aria-live="polite"></p></div>').join('') + '</div></div>';
       h += '</div>';
       // 2. contrat
@@ -268,7 +271,7 @@
       else if (!d.actif) h += '<p class="petit">Pas de contrat signé en ligne pour cette réservation.</p>';
       else if (!d.signable) h += '<p class="petit">Le contrat sera bientôt disponible ici : on te prévient.</p>';
       else h += '<div class="contrat-txt" id="sg-txt" tabindex="0" aria-label="Texte du contrat">Chargement du contrat…</div>' +
-        '<label class="ch" for="sg-nom">Ton nom et prénom</label><input type="text" id="sg-nom" autocomplete="name" maxlength="80">' +
+        '<label class="ch" for="sg-nom">Ton nom et prénom' + (d.nom ? ' <small>(repris de ta réservation, tu peux le corriger)</small>' : '') + '</label><input type="text" id="sg-nom" autocomplete="name" maxlength="80" value="' + esc(d.nom || '') + '">' +
         '<label class="ch" for="sg-adr">Ton adresse (numéro, rue, code postal, ville)</label><input type="text" id="sg-adr" autocomplete="street-address" maxlength="200">' +
         (d.email ? '' : '<label class="ch" for="sg-mail">Ton e-mail (pour recevoir le code et ton contrat)</label><input type="email" id="sg-mail" autocomplete="email" maxlength="120">') +
         '<label class="coche" id="sg-ok-l"><input type="checkbox" id="sg-ok"><span>J\'ai lu le contrat et je l\'accepte.</span></label>' +
@@ -306,6 +309,7 @@
         const i = y * W + x, l = 4 * gris[i] - gris[i - 1] - gris[i + 1] - gris[i - W] - gris[i + W]; s += l; s2 += l * l; m++;
       }
       const nettete = m ? s2 / m - (s / m) * (s / m) : 0, moy = somme / n;
+      const travers = inclinaison(gris, W, H);
       const p = document.createElement('canvas'); p.width = p.height = 16;
       const gp = p.getContext('2d', { willReadFrequently: true }); gp.drawImage(img, 0, 0, 16, 16);
       const d16 = gp.getImageData(0, 0, 16, 16).data, sig = [];
@@ -315,9 +319,33 @@
       if (moy < 65) raisons.push('sombre');
       if (brules / n > 0.06) raisons.push('reflet');
       if (nettete < SEUIL_NETTETE) raisons.push('floue');
-      return { raisons, sig, nettete: Math.round(nettete), moy: Math.round(moy) };
+      if (travers != null && Math.abs(travers) > SEUIL_TRAVERS) raisons.push('travers');
+      return { raisons, sig, nettete: Math.round(nettete), moy: Math.round(moy), travers };
     }
-    // photo réduite à 1500 px + filigrane en diagonale, faite sur le téléphone AVANT l'envoi
+    // angle de la carte (en degrés, 0 = bien droite), méthode des scanners : on cherche l'angle où les traits
+    // (bords de la carte, lignes de texte, bande MRZ) s'alignent le mieux sur des lignes horizontales.
+    // On travaille sur 4 000 points de contour au maximum (rapide sur téléphone). null = pas assez de traits pour juger.
+    function inclinaison(gris, W, H) {
+      const pts = [];
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x;
+        const gx = gris[i - W + 1] + 2 * gris[i + 1] + gris[i + W + 1] - gris[i - W - 1] - 2 * gris[i - 1] - gris[i + W - 1];
+        const gy = gris[i + W - 1] + 2 * gris[i + W] + gris[i + W + 1] - gris[i - W - 1] - 2 * gris[i - W] - gris[i - W + 1];
+        const m = gx * gx + gy * gy; if (m > 22500) pts.push(x - W / 2, y - H / 2);   // |gradient| > 150
+      }
+      const n = pts.length / 2; if (n < 600) return null;
+      const pas = Math.max(1, Math.floor(n / 4000)), D = Math.ceil(Math.hypot(W, H)) + 4, bins = new Float64Array(D);
+      const energie = a => {
+        const r = a * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); bins.fill(0);
+        for (let k = 0; k < n; k += pas) bins[(pts[2 * k + 1] * c - pts[2 * k] * s + D / 2) | 0]++;
+        let e = 0; for (let b = 0; b < D; b++) e += bins[b] * bins[b]; return e;
+      };
+      let best = 0, bestE = -1;
+      for (let a = -30; a <= 30; a += 2) { const e = energie(a); if (e > bestE) { bestE = e; best = a; } }
+      const g0 = best;
+      for (let a = g0 - 2; a <= g0 + 2; a += 0.5) { const e = energie(a); if (e > bestE) { bestE = e; best = a; } }
+      return best;
+    }    // photo réduite à 1500 px + filigrane en diagonale, faite sur le téléphone AVANT l'envoi
     function filigraner(img, texte) {
       const k = Math.min(1, 1500 / Math.max(img.naturalWidth, img.naturalHeight));
       const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
@@ -376,18 +404,15 @@
         p.catch(() => {});
         envois[face] = { p, ph };
       }
-      $('cni-photos').addEventListener('change', e => {
-        const inp = e.target, face = inp.dataset.face, f = inp.files && inp.files[0]; if (!f) return;
-        traiterFichier(face, f); inp.value = '';
-      });
-      // caméra avec cadre : recto puis verso, chaque photo est recadrée sur la carte
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext) {
-        $('cam-go').hidden = false;
-        $('cam-go').addEventListener('click', async () => {
-          const ok = await cameraCadre(facesUtiles(), traiterFichier);
-          if (!ok) { $('cam-go').hidden = true; erreur('m-env', 'La caméra n\'est pas disponible : touche « Recto » puis « Verso » pour prendre ou choisir les photos.'); }
-        });
+      // pièce d'identité : UNIQUEMENT avec la caméra et le cadre (demande de Mistraloc, 28/10) — pas de photo choisie dans la galerie
+      const SANS_CAMERA = 'Pour la photo de ta pièce d\'identité, il faut l\'appareil photo avec le cadre : ouvre ce lien <b>sur ton téléphone</b> (il est dans ton e-mail) et autorise l\'appareil photo quand le site le demande. Un souci ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.';
+      async function ouvrirCamera(faces) {
+        if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext)) { erreur('m-env', SANS_CAMERA, true); return; }
+        const ok = await cameraCadre(faces, traiterFichier);
+        if (!ok) erreur('m-env', SANS_CAMERA, true);
       }
+      $('cam-go').addEventListener('click', () => ouvrirCamera(facesUtiles().filter(f => !photos[f] || !photos[f].accepte).length ? facesUtiles().filter(f => !photos[f] || !photos[f].accepte) : facesUtiles()));
+      $('cni-photos').addEventListener('click', e => { const b = e.target.closest('button[data-cam]'); if (b) ouvrirCamera([b.dataset.cam]); });
       async function traiterFichier(face, f) {
         const zone = $('ph-' + face); zone.classList.remove('a-remplir', 'ok', 'bof'); erreur('m-env', '');
         etat(face, 'cours', '🔍 Vérification de la photo…');
@@ -404,7 +429,7 @@
             zone.classList.add('bof');
             etat(face, 'ko', (a.raisons.join() === 'double' ? '⚠ C\'est la même photo que l\'autre face : prends l\'autre côté de la carte. '
               : '⚠ Photo ' + a.raisons.map(r => DEFAUTS[r]).join(', ') + '. Reprends-la : à plat, bien éclairée, sans flash. ') +
-              '<button type="button" class="lien" data-garder="' + face + '">Garder quand même</button>');
+              (a.raisons.indexOf('travers') < 0 ? '<button type="button" class="lien" data-garder="' + face + '">Garder quand même</button>' : '<button type="button" class="lien" data-cam="' + face + '">Reprendre avec le cadre</button>'));
           }
         } catch (err) { photos[face] = null; etat(face, 'ko', '⚠ Cette photo n\'a pas pu être lue. Essaie une autre photo (JPEG ou PNG).'); }
       }
