@@ -88,6 +88,30 @@
   .prix-row.tete{color:var(--muted);font-weight:700;font-size:13px;padding-top:0}
   .prix-row.tete span:not(:first-child){text-align:right}
   .sans-stock{text-align:center;color:var(--muted)}
+  /* « Matériel » : une fiche dépliable par appareil (stock, prix, texte, photos) */
+  .mat{border:1px solid var(--line);border-radius:16px;background:var(--bg2);margin-bottom:10px;overflow:hidden}
+  .mat[open]{border-color:var(--pink)}
+  .mat summary{display:flex;align-items:center;gap:12px;padding:10px 12px;cursor:pointer;list-style:none}
+  .mat summary::-webkit-details-marker{display:none}
+  .mat summary img,.mat .vide-img{width:52px;height:52px;border-radius:12px;object-fit:contain;background:var(--bg);flex:0 0 auto}
+  .mat .vide-img{display:grid;place-items:center;font-size:22px;color:var(--muted)}
+  .mat summary .t{flex:1;min-width:0}
+  .mat summary .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mat summary .t small{color:var(--muted);font-size:13px}
+  .mat .pastille{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:4px;white-space:nowrap}
+  .mat .pastille.off{border-color:#F87171;color:#F87171}
+  .mat-corps{padding:4px 12px 14px;border-top:1px solid var(--line)}
+  .mat-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 10px}
+  .mat-grille .large{grid-column:1/-1}
+  @media (max-width:520px){ .mat-grille{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  .mat-photos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 12px}
+  .mat-photo{border:1px dashed var(--line);border-radius:14px;padding:8px;display:grid;gap:6px;text-align:center;font-size:13px}
+  .mat-photo img{width:100%;height:110px;object-fit:cover;border-radius:10px;background:var(--bg)}
+  .mat-photo .vide{height:110px;display:grid;place-items:center;color:var(--muted);border-radius:10px;background:var(--bg)}
+  .mat-photo label.btn{position:relative;overflow:hidden}
+  .mat-photo input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .mat-bas{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .mat-bas label{display:flex;align-items:center;gap:8px;font-weight:600}
   .photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
   .ph-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg2)}
   .ph-card .img{height:150px;display:grid;place-items:center;color:var(--muted);font-size:14px;background:repeating-linear-gradient(45deg,#1F1636 0 12px,#191130 12px 24px)}
@@ -374,11 +398,26 @@
     </div>
 
     <div data-p="prix" hidden>
-      <form class="panel" id="f-prix">
-        <div id="liste-prix"></div>
-        <button class="btn" type="submit" style="margin-top:16px">Enregistrer</button>
-        <p class="note"><b>Stock</b> = combien d'exemplaires tu possèdes. Le calendrier du site s'en sert pour savoir si une date est libre ou complète : mets 0 si un appareil est en panne ou prêté. Les packs utilisent le stock de leurs enceintes.<br><b>Semaine</b> = prix d'une soirée du dimanche au jeudi ; <b>Week-end</b> = vendredi ou samedi soir (centimes possibles, ex. 49.90). Plusieurs soirées : la plus chère au prix plein, les autres à −20 %. Tout change tout de suite sur le site et dans le CRM.</p>
+      <p class="note" style="margin-top:0">Touche un appareil pour changer son stock, ses prix, son texte ou ses photos.</p>
+      <div id="liste-mat"></div>
+      <form class="panel" id="f-mat-ajout" style="margin-top:16px">
+        <b>➕ Ajouter un appareil</b>
+        <div class="mat-grille" style="margin-top:12px">
+          <div class="field large"><label for="am-nom">Nom (comme sur le site)</label><input id="am-nom" maxlength="60" required placeholder="ex. Barre LED RGB"></div>
+          <div class="field"><label for="am-qte">Stock</label><input id="am-qte" type="number" min="0" max="100" step="1" inputmode="numeric" value="1"></div>
+          <div class="field"><label for="am-sem">Prix semaine €</label><input id="am-sem" type="number" min="0" step="0.01" inputmode="decimal" required></div>
+          <div class="field"><label for="am-we">Prix week-end €</label><input id="am-we" type="number" min="0" step="0.01" inputmode="decimal" required></div>
+          <div class="field"><label for="am-alim">Alimentation</label><select id="am-alim"><option value="Prise">🔌 Prise nécessaire</option><option value="Batterie">🔋 Sur batterie</option><option value="">Sans objet</option></select></div>
+          <div class="field"><label for="am-inv">Invités conseillés</label><input id="am-inv" type="number" min="0" max="5000" step="5" inputmode="numeric" placeholder="vide si pas une enceinte"></div>
+          <div class="field large"><label for="am-desc">Texte affiché sur le site</label><textarea id="am-desc" rows="2" maxlength="300" placeholder="ex. Barre de lumières colorées, se cale sur la musique."></textarea></div>
+        </div>
+        <button class="btn" type="submit">Ajouter l'appareil</button>
+        <p class="note">Il apparaît tout de suite sur le site (catalogue, « Trouve ton pack », « Mon panier » et calendrier). Ouvre ensuite sa fiche ci-dessus pour ajouter ses photos.</p>
       </form>
+      <form id="f-prix" hidden><div id="liste-prix"></div></form>
+      <div class="panel" style="margin-top:16px">
+        <p class="note" style="margin:0"><b>Stock</b> = combien d'exemplaires tu possèdes. Le calendrier du site s'en sert pour savoir si une date est libre ou complète : mets 0 si un appareil est en panne ou prêté. Les packs utilisent le stock de leurs enceintes.<br><b>Semaine</b> = prix d'une soirée du dimanche au jeudi ; <b>Week-end</b> = vendredi ou samedi soir (centimes possibles, ex. 49.90). Plusieurs soirées : la plus chère au prix plein, les autres à −20 %. Tout change tout de suite sur le site et dans le CRM.<br><b>Photo du catalogue</b> = l'appareil seul (section « Le matériel »). <b>Photo en soirée</b> = ton matériel en vrai pendant une fête : elle s'affiche dans « Trouve ton pack ». <b>Masquer</b> un appareil le retire du site sans rien effacer.</p>
+      </div>
     </div>
 
     <div data-p="photos" hidden>
@@ -520,7 +559,7 @@
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
-    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
+    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
     admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…',
     admin_facture: 'Création de la facture (PDF)…', admin_attente_suppr: 'Suppression…', admin_parrainage: 'Enregistrement du parrainage…' };
@@ -616,10 +655,11 @@
   }
 
   /* ----- navigation : 5 boutons (Aujourd'hui, Réservations, Clients, Revenus, Plus) ; « Plus » ouvre les autres réglages ----- */
-  const TITRES = { accueil: 'Aujourd\'hui', resa: 'Réservations', clients: 'Clients', revenus: 'Revenus', plus: 'Plus', prix: 'Matériel et prix', photos: 'Photos du site',
+  const TITRES = { accueil: 'Aujourd\'hui', resa: 'Réservations', clients: 'Clients', revenus: 'Revenus', plus: 'Plus', prix: 'Matériel', photos: 'Matériel',
     offres: 'Offres et parrainage', docs: 'Documents', visites: 'Visites du site', pause: 'Pause du site', infos: 'Mes infos', avis: 'Avis clients' };
   const SOUS_PLUS = ['prix', 'photos', 'offres', 'docs', 'visites', 'pause', 'infos', 'avis'];
   function onglet(t, garderMsg) {
+    if (t === 'photos') t = 'prix';   // les photos sont maintenant dans « Matériel »
     const nav = SOUS_PLUS.includes(t) ? 'plus' : t;
     document.querySelectorAll('.nav-admin button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === nav));
     document.querySelectorAll('[data-p]').forEach(p => { p.hidden = p.dataset.p !== t; });
@@ -1286,7 +1326,83 @@
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
 
+  /* ===== « Matériel » : une fiche par appareil (stock, prix, texte, alimentation, invités, photos), + ajouter un appareil ===== */
+  const IMG_SITE = { 'JBL PartyBox 310': 'images/partybox-310.webp', 'JBL PartyBox 710': 'images/partybox-710.webp', 'JBL PartyBox Ultimate': 'images/partybox-ultimate.webp', 'Machine à fumée 2000 W RGB': 'images/machine-fumee.webp',
+    'Pack Apéro': 'images/partybox-310.webp', 'Pack Soirée': 'images/partybox-710.webp', 'Pack Club': 'images/partybox-710.webp' };
+  const matOuverts = new Set();
+  const eurN = v => v == null || v === '' ? '—' : Number(v).toFixed(2).replace('.', ',') + ' €';
+  function afficherMateriel() {
+    const L = etat.articles || [], photos = etat.photos || {}, situ = etat.situations || {};
+    $('liste-mat').innerHTML = L.map((a, i) => {
+      const n = esc(a.article), vignette = photos[a.article] || IMG_SITE[a.article] || '';
+      const champ = (id, lab, html) => '<div class="field"><label for="' + id + '">' + lab + '</label>' + html + '</div>';
+      const val = v => v == null ? '' : esc(v);
+      const bloc = (genre, titre, url) => '<div class="mat-photo"><b>' + titre + '</b>' + (url ? '<img src="' + esc(url) + '" alt="">' : '<div class="vide">Pas encore de photo</div>') +
+        '<label class="btn small">' + (url ? 'Changer' : 'Ajouter') + '<input type="file" accept="image/*" data-photo="' + genre + '"></label>' +
+        (url && (genre === 'situation' || photos[a.article]) ? '<button class="link" type="button" data-retirer-photo="' + genre + '">Retirer</button>' : '') + '</div>';
+      return '<details class="mat" data-art="' + n + '"' + (matOuverts.has(a.article) ? ' open' : '') + '><summary>' +
+        (vignette ? '<img src="' + esc(vignette) + '" alt="">' : '<span class="vide-img">＋</span>') +
+        '<span class="t"><b>' + n + '</b><small>' + (a.pack ? 'Pack' : 'Stock ' + (a.qte == null ? '?' : esc(a.qte))) + ' · ' + eurN(a.prixSem) + ' / ' + eurN(a.prix) + '</small></span>' +
+        (a.visible === false ? '<span class="pastille off">Masqué</span>' : '') + (a.nouveau ? '<span class="pastille">Ajouté</span>' : '') + '</summary>' +
+        '<div class="mat-corps"><div class="mat-grille">' +
+        (a.pack ? '' : champ('mq' + i, 'Stock', '<input id="mq-' + n + '" data-f="qte" type="number" min="0" max="100" step="1" inputmode="numeric" value="' + val(a.qte) + '">')) +
+        champ('ms' + i, 'Semaine €', '<input id="ms-' + n + '" data-f="prixSem" type="number" min="0" step="0.01" inputmode="decimal" value="' + val(a.prixSem) + '">') +
+        champ('mw' + i, 'Week-end €', '<input id="mw-' + n + '" data-f="prix" type="number" min="0" step="0.01" inputmode="decimal" value="' + val(a.prix) + '">') +
+        (a.pack ? '' : champ('ma' + i, 'Alimentation', '<select id="ma-' + n + '" data-f="alim">' + [['', 'Pas précisé'], ['Prise', '🔌 Prise nécessaire'], ['Batterie', '🔋 Sur batterie']].map(o => '<option value="' + o[0] + '"' + ((a.alim || '') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select>') +
+          champ('mi' + i, 'Invités conseillés', '<input id="mi-' + n + '" data-f="invites" type="number" min="0" max="5000" step="5" inputmode="numeric" value="' + val(a.invites) + '" placeholder="auto">')) +
+        '<div class="field large"><label for="md-' + n + '">' + (a.pack ? 'Phrase affichée sous le pack' : 'Texte affiché sur le site') + '</label><textarea id="md-' + n + '" data-f="desc" rows="2" maxlength="300" placeholder="vide = texte actuel du site">' + esc(a.desc || '') + '</textarea></div></div>' +
+        '<div class="mat-photos">' + (a.pack ? '' : bloc('catalogue', 'Photo du catalogue', photos[a.article] || IMG_SITE[a.article] || '')) + bloc('situation', 'Photo en soirée', situ[a.article] || '') + '</div>' +
+        '<div class="mat-bas"><label><input type="checkbox" data-f="visible"' + (a.visible === false ? '' : ' checked') + '> Afficher sur le site</label>' +
+        '<button class="btn" type="button" data-mat-ok>Enregistrer</button></div></div></details>';
+    }).join('');
+  }
+  $('liste-mat').addEventListener('toggle', e => { const d = e.target; if (!d.dataset || !d.dataset.art) return; if (d.open) matOuverts.add(d.dataset.art); else matOuverts.delete(d.dataset.art); }, true);
+  $('liste-mat').addEventListener('click', async e => {
+    const fiche = e.target.closest('.mat'); if (!fiche) return;
+    const article = fiche.dataset.art.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    const a = (etat.articles || []).find(x => x.article === article); if (!a) return;
+    if (e.target.closest('[data-mat-ok]')) {
+      const v = f => { const el = fiche.querySelector('[data-f="' + f + '"]'); return el ? (el.type === 'checkbox' ? el.checked : el.value.trim()) : undefined; };
+      await occupe(e.target.closest('[data-mat-ok]'), async () => {
+        try {
+          const j = await appel('admin_article', { article, qte: v('qte'), prix: v('prix'), prixSem: v('prixSem'), alim: v('alim') || '', invites: v('invites') || '', desc: v('desc'), visible: v('visible') });
+          if (!j.ok) throw new Error(j.erreur);
+          etat.articles = j.articles; afficherMateriel(); afficherTuiles();
+          msg('m-admin', '« ' + article + ' » enregistré. Le site est à jour.', true);
+        } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
+      });
+    }
+    const r = e.target.closest('[data-retirer-photo]');
+    if (r) {
+      if (!confirm('Retirer cette photo de « ' + article + ' » ?')) return;
+      try { const j = await appel('admin_photo', { article, image: null, genre: r.dataset.retirerPhoto }); if (!j.ok) throw new Error(j.erreur); await charger(); msg('m-admin', 'Photo retirée.', true); }
+      catch (err) { msg('m-admin', 'Pas retirée : ' + (err.message || 'erreur') + '.'); }
+    }
+  });
+  $('liste-mat').addEventListener('change', async e => {
+    const inp = e.target; if (inp.type !== 'file' || !inp.files[0]) return;
+    const fiche = inp.closest('.mat'), article = (etat.articles || []).map(x => x.article).find(x => esc(x) === fiche.dataset.art || x === fiche.dataset.art);
+    fiche.style.opacity = .5; msg('m-admin', 'Envoi de la photo…', true);
+    try {
+      const image = await reduire(inp.files[0]);
+      const j = await appel('admin_photo', { article, image, genre: inp.dataset.photo });
+      if (!j.ok) throw new Error(j.erreur);
+      await charger(); msg('m-admin', 'Photo enregistrée. Elle est en ligne sur le site.', true);
+    } catch (err) { fiche.style.opacity = 1; msg('m-admin', 'Photo pas envoyée : ' + (err.message || 'erreur') + '.'); }
+  });
+  $('f-mat-ajout').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    const nom = $('am-nom').value.trim();
+    try {
+      const j = await appel('admin_article_ajout', { nom, qte: $('am-qte').value, prixSem: $('am-sem').value, prix: $('am-we').value, alim: $('am-alim').value, invites: $('am-inv').value, desc: $('am-desc').value.trim() });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.articles = j.articles; matOuverts.add(j.article); afficherMateriel(); afficherTuiles(); e.target.reset();
+      msg('m-admin', '« ' + j.article + ' » ajouté et en ligne. Ajoute maintenant sa photo dans sa fiche.', true);
+      const f = [...document.querySelectorAll('#liste-mat .mat')].pop(); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) { msg('m-admin', 'Pas ajouté : ' + (err.message || 'erreur') + '.'); }
+  }); });
+
   function afficherPrix() {
+    afficherMateriel();
     $('liste-prix').innerHTML = '<div class="prix-row tete"><span>Article</span><span>Stock</span><span>Semaine €</span><span>Week-end €</span></div>' +
       etat.articles.map((a, i) =>
         '<div class="prix-row"><span>' + esc(a.article) + '</span>' +
@@ -1466,8 +1582,9 @@
   /* ===== « Plus » : tuiles vers les autres réglages ===== */
   function afficherTuiles() {
     const lo = etat.loueur || {}, P = etat.parrain || {}, nbDocs = (etat.docs || []).length, o = etat.offre || {};
-    const T = [['prix', '💶', 'Matériel et prix', 'Stock, prix semaine et week-end'], ['offres', '🎁', 'Offres et parrainage', [o.affichee ? 'Offre en ligne' : 'Pas d\'offre en ligne', P.actif ? 'parrainage actif' : 'parrainage coupé'].join(' · ')],
-      ['docs', '📄', 'Documents', nbDocs + ' document' + (nbDocs > 1 ? 's' : '') + ' (pièces, contrats, factures)'], ['photos', '📷', 'Photos du site', 'Photos du matériel sur le site'],
+    const nbMat = (etat.articles || []).filter(a => !a.pack).length;
+    const T = [['prix', '🔊', 'Matériel', nbMat + ' appareils · stock, prix, photos, ajouter'], ['offres', '🎁', 'Offres et parrainage', [o.affichee ? 'Offre en ligne' : 'Pas d\'offre en ligne', P.actif ? 'parrainage actif' : 'parrainage coupé'].join(' · ')],
+      ['docs', '📄', 'Documents', nbDocs + ' document' + (nbDocs > 1 ? 's' : '') + ' (pièces, contrats, factures)'],
       ['visites', '👀', 'Visites du site', 'Combien de visiteurs, d\'où ils viennent'], ['pause', etat.pause ? '⏸' : '▶️', 'Pause du site', etat.pause ? 'EN PAUSE : personne ne peut réserver' : 'Site ouvert aux réservations'],
       ['infos', '🪪', 'Mes infos', lo.complet ? 'Nom, SIRET, adresse, TVA' : 'À remplir : contrats et factures bloqués'],
       ['avis', '⭐', 'Avis clients', (etat.temoignages || []).length + ' avis · ' + (etat.avisOn ? 'affichés sur le site' : 'pas encore affichés')]];
