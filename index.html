@@ -200,6 +200,16 @@
   .barre-total .bt-txt b{font-size:20px;color:var(--text);white-space:nowrap}
   .barre-total .btn{flex:none;padding:12px 20px;white-space:nowrap}
   body.avec-barre{padding-bottom:84px}
+  /* bulle d'aide WhatsApp (en bas à droite, au-dessus de la barre du total sur téléphone) */
+  .aide-wa{position:fixed;right:14px;bottom:16px;z-index:61;display:flex;align-items:center;gap:8px;padding:10px 16px 10px 12px;border-radius:999px;background:#25D366;color:#06301A;font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:bottom .25s,opacity .25s,transform .25s;animation:aideIn .45s cubic-bezier(.3,1.5,.5,1)}
+  .aide-wa[hidden]{display:none}
+  .aide-wa svg{width:24px;height:24px;fill:currentColor;flex:0 0 auto}
+  .aide-wa:hover{transform:translateY(-2px)}
+  .aide-wa:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+  @keyframes aideIn{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:none}}
+  @media (max-width:900px){ body.avec-barre .aide-wa{bottom:86px} }
+  @media (max-width:520px){ .aide-wa{padding:12px;right:12px} .aide-wa span{display:none} }
+  @media (prefers-reduced-motion:reduce){ .aide-wa{animation:none;transition:none} }
   @media (prefers-reduced-motion:reduce){.barre-total{transition:none}}
   /* changer de pack sans remonter : une seule ligne, qui défile de côté au doigt si elle est trop longue */
   .bk-choix{position:relative;display:none;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;margin:0 0 10px;padding:2px 0 4px}
@@ -571,7 +581,7 @@
         <div class="cal-charge" id="cal-charge" hidden><svg viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement des disponibilités…</span></div></div>
       <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
       <p class="cal-aide" id="bk-cal-aide"></p>
-      <div class="att-box" id="bk-attente" hidden>
+      <div class="att-box" id="bk-liste-attente" hidden>
         <p><b id="att-titre"></b><br>Laisse ton e-mail : on te prévient si cette date se libère (un seul e-mail ; ton adresse est effacée une fois la date passée).</p>
         <div class="promo-ligne"><input id="att-mail" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="prenom@exemple.fr" aria-label="Ton e-mail pour être prévenu"><button type="button" class="retour" id="att-ok">Me prévenir</button></div>
         <small id="att-msg" aria-live="polite"></small>
@@ -709,6 +719,11 @@
   </div>
 </div></section>
 <footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span><a href="comment-ca-marche.html" style="color:inherit">Comment ça marche</a> · <a href="livraison.html" style="color:inherit">Zone de livraison</a> · <a href="conditions.html" style="color:inherit">Conditions de location</a> · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/audioloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
+<!-- bulle d'aide : ouvre WhatsApp avec un message déjà rempli (étape, formule, date, ville) -->
+<a class="aide-wa" id="aide-wa" href="https://wa.me/33622123963" target="_blank" rel="noopener" aria-label="Besoin d'aide ? Écris-nous sur WhatsApp" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1c-.2.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.6-.3z"/></svg>
+  <span>Besoin d'aide ?</span>
+</a>
 <div class="barre-total" id="barre-total" hidden>
   <div class="bt-txt"><span id="bt-quoi">Pack Soirée</span><b id="bt-prix">94,90 €</b></div>
   <button type="button" class="btn" id="bt-btn">Choisir ma date</button>
@@ -992,7 +1007,7 @@
   let attDate = null;
   function proposerAttente(k){
     attDate = k;
-    const box = $('bk-attente'); box.hidden = false;
+    const box = $('bk-liste-attente'); box.hidden = false;
     $('att-titre').textContent = 'Le ' + jourTxt(k) + ' est complet pour : ' + offreSel.value.replace(/^Panier perso : /, '') + '.';
     $('att-msg').textContent = '';
     const m = ($('bk-email') || {}).value; if (m && !$('att-mail').value) $('att-mail').value = m.trim();
@@ -1013,7 +1028,7 @@
   });
 
   async function cliquer(k){
-    aide(''); $('bk-attente').hidden = true;
+    aide(''); $('bk-liste-attente').hidden = true;
     if (debut && fin === debut && k > debut) {
       const n = ecart(debut, k) + 1 + ($('bk-veille').checked ? 1 : 0);
       if (n > NUITS_MAX) { aide('7 soirées maximum : on repart de cette date. Pour plus, écris-nous sur WhatsApp.'); debut = fin = k; }
@@ -1034,7 +1049,7 @@
 
   async function dessiner(){
     const cle = vue.getFullYear()+'-'+pad(vue.getMonth()+1);
-    if (attDate && attDate.slice(0, 7) !== cle) $('bk-attente').hidden = true;   // autre mois affiché : on range la liste d'attente
+    if (attDate && attDate.slice(0, 7) !== cle) $('bk-liste-attente').hidden = true;   // autre mois affiché : on range la liste d'attente
     $('cal-titre').textContent = MOIS[vue.getMonth()]+' '+vue.getFullYear();
     $('cal-prev').disabled = vue <= new Date(auj.getFullYear(), auj.getMonth(), 1);
     const cal = $('cal'); cal.innerHTML = ['L','M','M','J','V','S','D'].map(d=>'<div class="dow">'+d+'</div>').join('');
@@ -1337,7 +1352,26 @@
   function visibiliteBarre(){
     const barre = $('barre-total'), montrer = scrollY > 500 && !boutonVisible && pas < 5 && !document.querySelector('.pause');
     barre.hidden = !montrer; barre.inert = !montrer; document.body.classList.toggle('avec-barre', montrer);
+    // bulle d'aide : après le haut de page, pas une fois la demande envoyée, pas pendant l'écran d'envoi
+    const aide = $('aide-wa'); if (aide) aide.hidden = !(scrollY > 400 && pas < 5 && $('bk-attente').hidden && !document.querySelector('.pause'));
   }
+  // message WhatsApp rempli avec ce que la personne est en train de faire (rien de personnel : ni nom ni numéro)
+  function texteAide(){
+    const l = ['Bonjour Mistraloc, j\'ai besoin d\'aide sur le site.'];
+    const r = $('reserver').getBoundingClientRect(), dansResa = r.top < innerHeight * .6 && r.bottom > 0;
+    if (dansResa) {
+      const li = $('wiz-etapes').querySelector('li[data-pas="' + pas + '"]');
+      l.push('• Étape de la réservation : ' + pas + '/4' + (li ? ' (' + li.innerText.replace(/\s+/g, ' ').trim().replace(/^\d+\s*/, '') + ')' : ''));
+    }
+    const o = offreSel.value; if (o && o !== 'Panier personnalisé') l.push('• Formule : ' + o.replace('Panier perso : ', 'Mon panier : '));
+    const p = periode(); if (p) l.push('• Date : ' + jourTxt(p.start) + ' (' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + ')');
+    const v = $('bk-lieu').value.trim(); if (v) l.push('• Livraison : ' + v);
+    const f = document.querySelector('.choice[aria-pressed="true"]'), g2 = document.getElementById('g');
+    if (f && g2) l.push('• Fête : ' + f.textContent.trim() + ', ' + (g2.value >= 200 ? '200+' : g2.value) + ' invités' + (window.sansPrise ? ', sans prise électrique' : ''));
+    l.push('Ma question : ');
+    return l.join('\n');
+  }
+  $('aide-wa').addEventListener('click', () => { $('aide-wa').href = 'https://wa.me/33622123963?text=' + encodeURIComponent(texteAide()); });
   if ('IntersectionObserver' in window) new IntersectionObserver(e => { boutonVisible = e[0].isIntersecting; visibiliteBarre(); }).observe($('wiz-nav'));
   addEventListener('scroll', () => requestAnimationFrame(visibiliteBarre), { passive: true });
   // le bouton de la barre fait comme le bouton de l'étape
@@ -1350,7 +1384,7 @@
   $('bk-ok').addEventListener('change', majBarre);
 
   window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
-  offreSel.addEventListener('change', ()=>{ $('bk-attente').hidden = true; maj(); dessiner(); });
+  offreSel.addEventListener('change', ()=>{ $('bk-liste-attente').hidden = true; maj(); dessiner(); });
   // changer de pack depuis le calendrier ; « Mon panier » vide : on remonte le composer
   $('bk-choix').addEventListener('click', e => {
     const b = e.target.closest('button[data-pack]'); if (!b) return;
