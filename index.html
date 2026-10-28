@@ -365,6 +365,10 @@
   .cal-aide{font-size:13px;color:var(--muted);margin-top:10px}
   .astuce-nuit{margin:8px 0 0;font-size:13px;font-weight:600;color:var(--cyan)}
   .astuce-nuit[hidden]{display:none}
+  .urgence{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,122,26,.55);background:rgba(255,122,26,.08);font-size:14px;line-height:1.45}
+  .urgence[hidden]{display:none}
+  .urgence p{margin:0 0 10px}
+  .urgence .btn{display:inline-block;padding:10px 16px;font-size:15px}
   .astuce-nuit .lien-plus{margin-left:4px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);border-radius:999px;padding:3px 10px;font:inherit;font-weight:700;cursor:pointer}
   .astuce-nuit .lien-plus:hover{background:color-mix(in srgb,var(--cyan) 15%,transparent)}
   .veille{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:14px;cursor:pointer}
@@ -592,6 +596,7 @@
       </div>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
       <p class="astuce-nuit" id="bk-astuce-nuit" hidden></p>
+      <div class="urgence" id="bk-urgence" hidden><p>⏱️ On a besoin d'<b>au moins 2 h</b> entre ta réservation et la livraison. Pour ce soir, appelle-nous : on fait au mieux.</p><a class="btn" href="tel:+33622123963">📞 Appeler le 06 22 12 39 63</a></div>
       <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, avec la réduction plusieurs soirées).</span></label>
      </div>
      <div class="wiz-pas" data-pas="2" hidden>
@@ -703,7 +708,7 @@
     <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages. Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
     <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée.</p></details>
     <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
-    <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins une heure avant la livraison).</p></details>
+    <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins 2 heures avant la livraison ; sinon, appelle-nous au 06 22 12 39 63).</p></details>
     <details name="faq" class="plus"><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
     <details name="faq" class="plus"><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
     <details name="faq" class="plus"><summary>Comment je suis ma réservation ?</summary><p>Après ta demande, tu reçois un lien personnel (par e-mail si tu nous l'as laissé, sinon par WhatsApp). Il montre l'état de ta réservation : reçue, confirmée, livrée, terminée.</p></details>
@@ -1093,16 +1098,19 @@
   // ---- heure de livraison : 17h00 → 19h30 par 30 min (reprise le lendemain de la dernière soirée avant 12h00) ----
   const CRENEAUX = [1020, 1050, 1080, 1110, 1140, 1170];
   const hTexte = m => pad(Math.floor(m/60)) + 'h' + pad(m%60);
-  // aujourd'hui : au moins 1 h à l'avance
+  // aujourd'hui : au moins DELAI minutes entre la réservation et la livraison (demande de Mistraloc, 28/10) ; sinon on appelle
+  const DELAI = 120;
+  const maintenantM = () => { const n = new Date(); return n.getHours()*60 + n.getMinutes(); };
   function heuresPossibles(iso){
-    const n = new Date();
-    return iso === isoJ(n) ? CRENEAUX.filter(m => m >= n.getHours()*60 + n.getMinutes() + 60) : CRENEAUX;
+    return iso === isoJ(new Date()) ? CRENEAUX.filter(m => m >= maintenantM() + DELAI) : CRENEAUX;
   }
+  // créneaux de ce soir encore possibles en vrai mais trop proches pour une réservation en ligne
+  const ceSoirTropTot = () => CRENEAUX.some(m => m > maintenantM() && m < maintenantM() + DELAI);
   function majHeures(){
     const sel = $('bk-heure'), avant = sel.value, p = periode();
     if (!p) { sel.innerHTML = '<option value="">Date d\'abord</option>'; sel.disabled = true; maj(); return; }
     const ok = heuresPossibles(p.start);
-    sel.innerHTML = '<option value="">Choisis une heure</option>' + CRENEAUX.map(m => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(ok.indexOf(m)<0?' disabled':'')+'>'+hTexte(m)+(ok.indexOf(m)<0?' · passé':'')+'</option>').join('');
+    sel.innerHTML = '<option value="">Choisis une heure</option>' + CRENEAUX.map(m => '<option value="'+pad(Math.floor(m/60))+':'+pad(m%60)+'"'+(ok.indexOf(m)<0?' disabled':'')+'>'+hTexte(m)+(ok.indexOf(m)<0?(m > maintenantM() ? ' · moins de 2 h : appelle-nous' : ' · passé'):'')+'</option>').join('');
     sel.disabled = false;
     if (avant && [...sel.options].some(o => o.value === avant && !o.disabled)) sel.value = avant;
     maj();
@@ -1169,6 +1177,8 @@
         ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
       : 'Clique sur une date du calendrier.';
     $('bk-pas2-date').textContent = p ? $('bk-date-txt').textContent : '';
+    // moins de 2 h avant les livraisons de ce soir : on propose d'appeler
+    const urg = $('bk-urgence'); if (urg) urg.hidden = !(ceSoirTropTot() && (!p || p.start === isoJ(new Date())));
     // astuce : une soirée de plus coûte moins cher (tarif dégressif)
     const an = $('bk-astuce-nuit');
     if (an) {
@@ -1269,7 +1279,10 @@
   // ce qui manque pour quitter une étape (null = tout est bon)
   function manque(n){
     const l = livraison();
+    if (n === 1 && cleOffre() === 'perso' && !Object.keys(panier).some(a => panier[a])) return { el: $('bk-recap'), txt: 'Ton panier est vide : ajoute au moins un appareil (bouton « Changer »), ou choisis un pack.' };
+    if (n === 1 && !cleOffre()) return { el: $('bk-recap'), txt: 'Choisis d\'abord ton matériel (bouton « Changer »).' };
     if (n === 1 && !periode()) return { el: $('cal'), txt: 'Choisis d\'abord ta date dans le calendrier.' };
+    if (n === 2 && $('bk-heure').value && periode() && heuresPossibles(periode().start).indexOf(Number($('bk-heure').value.slice(0, 2)) * 60 + Number($('bk-heure').value.slice(3))) < 0) return { el: $('bk-heure'), txt: 'Cette heure est trop proche (il faut au moins 2 h) : choisis-en une autre ou appelle-nous au 06 22 12 39 63.' };
     if (n === 2) {
       if (!$('bk-heure').value) return { el: $('bk-heure'), txt: 'Choisis l\'heure de livraison.' };
       if (l.etat === 'vide') return { el: $('bk-lieu'), txt: 'Indique la ville ou le code postal de livraison.' };
@@ -1320,7 +1333,8 @@
     const m = manque(pas);
     if (m) {
       $('bk-msg').hidden = true;
-      if (m.el.id === 'cal') aide(m.txt);
+      if (pas === 1) aide(m.txt);                       // sous le calendrier (date manquante, panier vide…)
+      else if (/2 h/.test(m.txt)) message(m.txt);      // heure trop proche : on explique
       signaler(m.el);
       return false;
     }
@@ -1487,6 +1501,7 @@
       const reste = 900 - (Date.now() - t0); if (reste > 0) await new Promise(ok => setTimeout(ok, reste));   // pas de flash trop court
       attente(false);
       if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
+      if (!j.ok && j.erreur === 'delai') { message('Il faut réserver au moins 2 h avant la livraison. Pour ce soir, <a href="tel:+33622123963">appelle-nous au 06 22 12 39 63</a> : on fait au mieux.'); return; }
       if (!j.ok && j.erreur === 'hors zone') { message('On livre seulement jusqu\'à 25 km de Salon-de-Provence. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a> si tu as une question.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); syncFete(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
