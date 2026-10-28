@@ -363,6 +363,10 @@
   /* plusieurs soirées, livraison, total */
   .day.plage{background:color-mix(in srgb,var(--pink) 28%,var(--bg));border:2px solid var(--pink);color:var(--text)}
   .cal-aide{font-size:13px;color:var(--muted);margin-top:10px}
+  .astuce-nuit{margin:8px 0 0;font-size:13px;font-weight:600;color:var(--cyan)}
+  .astuce-nuit[hidden]{display:none}
+  .astuce-nuit .lien-plus{margin-left:4px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);border-radius:999px;padding:3px 10px;font:inherit;font-weight:700;cursor:pointer}
+  .astuce-nuit .lien-plus:hover{background:color-mix(in srgb,var(--cyan) 15%,transparent)}
   .veille{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:14px;cursor:pointer}
   .veille input{width:18px;height:18px;margin-top:2px;accent-color:var(--pink);flex:none}
   .devis{margin-top:16px;padding:14px;border-radius:12px;border:1px solid var(--line)}
@@ -587,7 +591,8 @@
         <small id="att-msg" aria-live="polite"></small>
       </div>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
-      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, à −20 %).</span></label>
+      <p class="astuce-nuit" id="bk-astuce-nuit" hidden></p>
+      <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, avec la réduction plusieurs soirées).</span></label>
      </div>
      <div class="wiz-pas" data-pas="2" hidden>
       <h3>La livraison</h3>
@@ -693,7 +698,7 @@
     <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
     <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
     <details name="faq"><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville.</p></details>
-    <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée : la soirée la plus chère est au prix plein, toutes les autres à −20 %. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
+    <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
     <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages. Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
     <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée.</p></details>
@@ -961,7 +966,7 @@
   const auj = new Date(); auj.setHours(0,0,0,0);
   let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), cache = {};
   let debut = null, fin = null;             // première et dernière soirée de la fête (aaaa-mm-jj)
-  let LIVR = { base: 5, km: 1.2, maxKm: 25 }, REMISE = 0.2;   // remplacés par les réglages du script au chargement
+  let LIVR = { base: 5, km: 1.2, maxKm: 25 }, REMISE = 0.2, DEGR = { r2: 20, r3: 35, r5: 50 };   // remplacés par les réglages du script au chargement
   const NUITS_MAX = 7;
   const $ = id => document.getElementById(id);
   const offreSel = $('bk-offre');
@@ -1029,7 +1034,7 @@
 
   async function cliquer(k){
     aide(''); $('bk-liste-attente').hidden = true;
-    if (debut && fin === debut && k > debut) {
+    if (debut && k > debut && (fin === debut || k === plusJ(fin, 1))) {   // 2e clic = dernière soirée ; le jour qui suit la période l'allonge d'une soirée
       const n = ecart(debut, k) + 1 + ($('bk-veille').checked ? 1 : 0);
       if (n > NUITS_MAX) { aide('7 soirées maximum : on repart de cette date. Pour plus, écris-nous sur WhatsApp.'); debut = fin = k; }
       else if (!(await periodeLibre(debut, ecart(debut, k) + 1))) { aide('Une des soirées entre les deux est déjà réservée : on repart de cette date.'); debut = fin = k; }
@@ -1137,16 +1142,25 @@
     return { etat: 'ok', nom: v, km, prix: km === 0 ? LIVR.base : Math.round(LIVR.base + LIVR.km * km) };
   }
 
-  // ---- prix : soirée du vendredi ou du samedi = tarif week-end, sinon tarif semaine ; la plus chère au prix plein, les autres −20 % ----
+  // ---- prix : soirée du vendredi ou du samedi = tarif week-end, sinon tarif semaine ----
+  // TARIF DÉGRESSIF : soirées triées de la plus chère à la moins chère ; la 1re plein tarif, la 2e −r2 %, 3e-4e −r3 %, dès la 5e −r5 % (réglé dans l'admin)
+  const remiseRang = i => i === 0 ? 0 : (i === 1 ? DEGR.r2 : i <= 3 ? DEGR.r3 : DEGR.r5) / 100;
   function cleOffre(){ const o = offreSel.value; return o.indexOf('Panier perso') === 0 ? 'perso' : Object.keys(PACKS).find(c => PACKS[c].name === o); }
-  function prixLocation(p){
+  function prixSoirees(p){
     const k = cleOffre(); if (!k || !p) return null;
     const l = [];
     for (let i = 0; i < p.nuits; i++) { const j = new Date(plusJ(p.start, i) + 'T12:00').getDay(); l.push(j === 5 || j === 6 ? prixNum(k) : semNum(k)); }
     if (l.some(v => !(v > 0))) return null;
-    l.sort((a, b) => b - a);
-    return Math.round(l.reduce((t, v, i) => t + (i ? v * (1 - REMISE) : v), 0) * 100) / 100;
+    return l.sort((a, b) => b - a);
   }
+  function prixLocation(p){
+    const l = prixSoirees(p); if (!l) return null;
+    return Math.round(l.reduce((t, v, i) => t + v * (1 - remiseRang(i)), 0) * 100) / 100;
+  }
+  function prixPlein(p){ const l = prixSoirees(p); return l ? Math.round(l.reduce((t, v) => t + v, 0) * 100) / 100 : null; }
+  // texte du barème, ex. « 2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 % »
+  const texteDegressif = () => '2e soirée −' + DEGR.r2 + ' %, 3e et 4e −' + DEGR.r3 + ' %, dès la 5e −' + DEGR.r5 + ' %';
+  function majTextesDegressif(){ document.querySelectorAll('[data-degressif]').forEach(e => { e.textContent = texteDegressif(); }); }
 
   function maj(){
     const h = $('bk-heure') && $('bk-heure').value, p = periode();
@@ -1155,6 +1169,13 @@
         ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
       : 'Clique sur une date du calendrier.';
     $('bk-pas2-date').textContent = p ? $('bk-date-txt').textContent : '';
+    // astuce : une soirée de plus coûte moins cher (tarif dégressif)
+    const an = $('bk-astuce-nuit');
+    if (an) {
+      const r = p && p.nuits < NUITS_MAX ? Math.round(remiseRang(p.nuits) * 100) : 0;
+      an.hidden = !(r > 0);
+      if (r > 0) an.innerHTML = '💡 Garde le matériel une soirée de plus : elle est à <b>−' + r + ' %</b>. <button type="button" class="lien-plus" id="bk-plus1">+ 1 soirée</button>';
+    }
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
     const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
     $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
@@ -1176,11 +1197,13 @@
     box.hidden = !p || loc == null;
     if (!box.hidden) {
       const ligne = (a, b, cl) => '<div class="l' + (cl ? ' ' + cl : '') + '"><span>' + a + '</span><b>' + b + '</b></div>';
-      box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(loc0)) +
-        (rem ? ligne('Code ' + esc(promoActif.code) + ' (' + esc(promoActif.libelle) + ')', '−' + enEuros(rem), 'promo') : '') +
+      const plein = prixPlein(p), red = plein != null ? Math.round((plein - loc0) * 100) / 100 : 0;
+      box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(red > 0 ? plein : loc0)) +
+        (red > 0 ? ligne('Réduction ' + p.nuits + ' soirées', '−' + enEuros(red), 'promo') : '') +
+        (rem ?ligne('Code ' + esc(promoActif.code) + ' (' + esc(promoActif.libelle) + ')', '−' + enEuros(rem), 'promo') : '') +
         ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville') +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
-        '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, toutes les autres à −20 %. ' : '') +
+        '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, puis ' + texteDegressif() + '. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
       // le total « saute » quand il change
       const tb = box.querySelector('.tot b');
@@ -1398,6 +1421,13 @@
     show(k, k === recommend());
   });
   $('bk-heure').addEventListener('change', maj);
+  // « + 1 soirée » (astuce tarif dégressif) : comme cliquer sur le jour qui suit la période
+  $('bk-astuce-nuit').addEventListener('click', async e => {
+    if (!e.target.closest('#bk-plus1') || !debut) return;
+    const k = plusJ(fin || debut, 1);
+    if (await statutK(k) === 'complet') { aide('Le ' + jourTxt(k) + ' n\'est pas disponible pour ce matériel.'); return; }
+    await cliquer(k);
+  });
   $('bk-lieu').addEventListener('input', maj);
   $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
   $('bk-veille').addEventListener('change', async () => { aide(''); await verifVeille(); maj(); dessiner(); majHeures(); });
@@ -1601,6 +1631,7 @@
       if (!ferme) { $('offre-txt').textContent = c.offre.texte + (c.offre.code ? ' · code ' + c.offre.code : ''); $('offre-bandeau').hidden = false; }
     }
     if (c.remiseNuit != null) REMISE = c.remiseNuit;
+    if (c.degressif && c.degressif.r2 != null) { DEGR = c.degressif; majTextesDegressif(); maj(); }
     // avis clients : seulement si activés dans l'admin (le script n'envoie rien sinon)
     if (c.temoignages && c.temoignages.liste && c.temoignages.liste.length) {
       const box = $('avis-liste'); box.textContent = '';
