@@ -107,7 +107,18 @@
   .cam-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:12px 0 4px;padding:13px 16px;border-radius:14px;border:2px solid var(--cyan);background:none;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
   .cam{position:fixed;inset:0;z-index:90;background:#000}
   .cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .cam-cadre{position:absolute;left:6%;width:88%;top:50%;aspect-ratio:85.6/54;transform:translateY(-50%);border:3px solid #fff;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+  .cam-cadre{position:absolute;left:6%;width:88%;top:50%;aspect-ratio:85.6/54;transform:translateY(-50%);border:3px solid #fff;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);transition:border-color .2s}
+  .cam-cadre.ko{border-color:#FB923C}.cam-cadre.ok{border-color:#22C55E;border-width:4px}
+  .cam-dessin{position:absolute;inset:7%;width:86%;height:86%;color:#fff;opacity:.3;transition:opacity .3s;pointer-events:none}
+  .cam-cadre.ok .cam-dessin{opacity:0}
+  .cam-etat{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 122px);max-width:440px;margin:0 auto;padding:11px 14px;border-radius:14px;background:rgba(0,0,0,.65);color:#fff;text-align:center;font-weight:700;font-size:17px;line-height:1.35}
+  .cam-etat.ko{background:#C2410C}.cam-etat.ok{background:#15803D}
+  .cam-etat small{display:block;font-weight:500;font-size:13px;opacity:.9;margin-top:3px}
+  .cam-declic:disabled{opacity:.35;cursor:default}
+  .guide-p{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 2px}
+  .guide-p figure{margin:0;text-align:center;font-size:12px;line-height:1.3;color:var(--muted)}
+  .guide-p svg{display:block;width:100%;height:auto;margin-bottom:4px}
+  .guide-p .bon{color:#34D399;font-weight:700}.guide-p .mal{color:#F87171;font-weight:700}
   .cam-txt{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 22px);margin:0;color:#fff;text-align:center;font-weight:700;font-size:17px;text-shadow:0 1px 4px #000}
   .cam-bas{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 26px);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 22px}
   .cam-annuler{justify-self:start;background:none;border:0;color:#fff;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
@@ -225,7 +236,52 @@
       body: JSON.stringify(Object.assign({ action, t }, data || {})) }).then(r => r.json());
     const PIECES = ['Carte d\'identité', 'Passeport', 'Titre de séjour', 'Permis de conduire'];
     const DEFAUTS = { petite: 'trop petite (rapproche-toi)', floue: 'floue', sombre: 'trop sombre', reflet: 'un reflet cache une partie', double: 'identique à l\'autre face', travers: 'de travers (mets la carte bien droite dans le cadre)' };
-    const SEUIL_TRAVERS = 6;    // degrés : au-delà, la carte est jugée de travers (28/10, test de Mistraloc avec une carte penchée acceptée)
+    const SEUIL_TRAVERS = 4;    // degrés : au-delà, la photo est jugée de travers (28/10 : 6° laissait passer un verso penché d'environ 3°)
+    const SEUIL_DIRECT = 3;     // degrés : pendant la visée, la carte doit être à moins de 3° pour que la photo parte
+    // dessin d'une pièce d'identité (repère du cadre) : carte 85,6 × 54 mm, passeport 125 × 88 mm
+    function dessinPiece(piece, face) {
+      const pass = piece === 'Passeport', W = pass ? 1250 : 856, H = pass ? 880 : 540;
+      const L = (x, y, w, h) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + (h || 24) + '" rx="' + (h || 24) / 2 + '" fill="currentColor"/>';
+      let s = '<rect x="8" y="8" width="' + (W - 16) + '" height="' + (H - 16) + '" rx="' + (pass ? 24 : 42) + '" fill="none" stroke="currentColor" stroke-width="14"/>';
+      if (face === 'verso' && !pass) {
+        s += '<rect x="70" y="70" width="140" height="110" rx="20" fill="none" stroke="currentColor" stroke-width="10"/><path d="M70 125h140M140 70v110" stroke="currentColor" stroke-width="8"/>' +
+          L(270, 85, 420) + L(270, 140, 300) + L(50, 350, W - 100, 30) + L(50, 405, W - 100, 30) + L(50, 460, W - 100, 30);
+      } else {
+        const x = pass ? 70 : 50, y = pass ? 150 : 115, w = pass ? 320 : 230, h = pass ? 410 : 300, x0 = x + w + 45;
+        s += L(40, 40, W - 80, 34) + '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="16" fill="none" stroke="currentColor" stroke-width="10"/>' +
+          '<circle cx="' + (x + w / 2) + '" cy="' + (y + h * .4) + '" r="' + w * .2 + '" fill="currentColor"/>' +
+          '<path d="M' + (x + w * .16) + ' ' + (y + h - 8) + 'Q' + (x + w * .16) + ' ' + (y + h * .68) + ' ' + (x + w / 2) + ' ' + (y + h * .68) + 'Q' + (x + w * .84) + ' ' + (y + h * .68) + ' ' + (x + w * .84) + ' ' + (y + h - 8) + 'Z" fill="currentColor"/>' +
+          [1, .7, .55, .8, .6].map((k, i) => L(x0, y + 15 + i * (pass ? 75 : 58), Math.round((W - x0 - 60) * k))).join('') +
+          (pass ? L(60, H - 190, W - 120, 34) + L(60, H - 120, W - 120, 34) : '');
+      }
+      return { W, H, s };
+    }
+    const svgPiece = (piece, face, cls) => { const d = dessinPiece(piece, face); return '<svg class="' + cls + '" viewBox="0 0 ' + d.W + ' ' + d.H + '" aria-hidden="true">' + d.s + '</svg>'; };
+    // 3 petits exemples sous « Type de pièce » : bien placée / penchée / coupée
+    function guidePiece(piece) {
+      const d = dessinPiece(piece, 'recto'), m = 70, vb = (-m) + ' ' + (-m) + ' ' + (d.W + 2 * m) + ' ' + (d.H + 2 * m);
+      const ex = (t, legende, cls, couleur) => '<figure><svg viewBox="' + vb + '" aria-hidden="true"><rect x="' + (-m / 2) + '" y="' + (-m / 2) + '" width="' + (d.W + m) + '" height="' + (d.H + m) +
+        '" rx="50" fill="none" stroke="#22D3EE" stroke-width="12" stroke-dasharray="40 26"/><g color="' + couleur + '"' + (t ? ' transform="' + t + '"' : '') + '>' + d.s + '</g></svg><span class="' + cls + '">' + legende + '</span></figure>';
+      return ex('', '✅ Bien droite', 'bon', '#E5E7EB') + ex('rotate(-9 ' + d.W / 2 + ' ' + d.H / 2 + ')', '❌ Penchée', 'mal', '#9CA3AF') +
+        ex('translate(' + Math.round(d.W * .3) + ' 0)', '❌ Coupée', 'mal', '#9CA3AF');
+    }
+    // côtés de la carte trouvés près des bords du cadre (gris = image W×H de la zone filmée, g = cadre en fraction de l'image)
+    function bordsCarte(gris, W, H, g) {
+      const X0 = g.x0 * W, X1 = g.x1 * W, Y0 = g.y0 * H, Y1 = g.y1 * H, gw = X1 - X0, gh = Y1 - Y0, T = 90;
+      const sob = (x, y) => { const i = y * W + x;
+        return [gris[i - W + 1] + 2 * gris[i + 1] + gris[i + W + 1] - gris[i - W - 1] - 2 * gris[i - 1] - gris[i + W - 1],
+          gris[i + W - 1] + 2 * gris[i + W] + gris[i + W + 1] - gris[i - W - 1] - 2 * gris[i - W] - gris[i - W + 1]]; };
+      const cote = (horiz, pos) => {
+        const b = Math.max(4, Math.round(.09 * gh)); let ok = 0, tot = 0;
+        if (horiz) for (let x = Math.round(X0 + .15 * gw); x < X1 - .15 * gw; x += 2) { tot++;
+          for (let y = Math.max(1, Math.round(pos - b)); y <= Math.min(H - 2, Math.round(pos + b)); y++) { const s = sob(x, y); if (Math.abs(s[1]) > T && Math.abs(s[1]) > 1.5 * Math.abs(s[0])) { ok++; break; } } }
+        else for (let y = Math.round(Y0 + .15 * gh); y < Y1 - .15 * gh; y += 2) { tot++;
+          for (let x = Math.max(1, Math.round(pos - b)); x <= Math.min(W - 2, Math.round(pos + b)); x++) { const s = sob(x, y); if (Math.abs(s[0]) > T && Math.abs(s[0]) > 1.5 * Math.abs(s[1])) { ok++; break; } } }
+        return tot ? ok / tot : 0;
+      };
+      const f = [cote(true, Y0), cote(true, Y1), cote(false, X0), cote(false, X1)];
+      return { f, n: f.filter(v => v > .5).length };
+    }
     const SEUIL_NETTETE = 60;   // en dessous : photo jugée floue (réglé sur des images de test : texte difficile à lire ; à ajuster avec de vraies photos)
     // code de parrainage (location terminée, parrainage activé par Mistraloc)
     function htmlParrain(p) {
@@ -260,6 +316,7 @@
         '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Ton téléphone ajoute un filigrane « Mistraloc · location du ' +
         esc(j.date) + ' » avant l\'envoi : la copie ne peut servir à rien d\'autre. Elle est rangée dans un dossier privé et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
         '<label class="ch" for="cni-piece">Type de pièce</label><select id="cni-piece">' + PIECES.map(p => '<option' + (p === d.piece ? ' selected' : '') + '>' + esc(p) + '</option>').join('') + '</select>' +
+        '<div class="guide-p" id="cni-guide" aria-label="Comment placer la pièce dans le cadre"></div>' +
         '<button type="button" class="cam-go" id="cam-go">🎯 Prendre la photo avec le cadre</button>' +
         '<div class="photos2" id="cni-photos">' + ['recto', 'verso'].map(f => '<div class="tuile" id="tu-' + f + '"><button type="button" class="photo" id="ph-' + f + '" data-cam="' + f + '">' +
           '<span>📷 ' + (f === 'recto' ? 'Recto<br><small>avec le cadre</small>' : 'Verso<br><small>avec le cadre</small>') + '</span></button>' +
@@ -391,7 +448,7 @@
       majBouton();
       // --- pièce d'identité ---
       const facesUtiles = () => $('cni-piece').value === 'Passeport' ? ['recto'] : ['recto', 'verso'];
-      const majPasseport = () => { const p = $('cni-piece').value === 'Passeport'; $('tu-verso').hidden = p; $('cni-photos').classList.toggle('une', p); };
+      const majPasseport = () => { const p = $('cni-piece').value === 'Passeport'; $('tu-verso').hidden = p; $('cni-photos').classList.toggle('une', p); $('cni-guide').innerHTML = guidePiece($('cni-piece').value); };
       majPasseport(); $('cni-piece').addEventListener('change', majPasseport);
       if ($('cni-refaire')) $('cni-refaire').addEventListener('click', () => { $('cni-form').hidden = false; $('cni-refaire').hidden = true; besoin.cni = true; majBouton(); });
       const etat = (face, cls, html) => { const e = $('et-' + face); e.className = 'ph-etat ' + cls; e.innerHTML = html; };
@@ -408,7 +465,7 @@
       const SANS_CAMERA = 'Pour la photo de ta pièce d\'identité, il faut l\'appareil photo avec le cadre : ouvre ce lien <b>sur ton téléphone</b> (il est dans ton e-mail) et autorise l\'appareil photo quand le site le demande. Un souci ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.';
       async function ouvrirCamera(faces) {
         if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext)) { erreur('m-env', SANS_CAMERA, true); return; }
-        const ok = await cameraCadre(faces, traiterFichier);
+        const ok = await cameraCadre(faces, traiterFichier, $('cni-piece').value);
         if (!ok) erreur('m-env', SANS_CAMERA, true);
       }
       $('cam-go').addEventListener('click', () => ouvrirCamera(facesUtiles().filter(f => !photos[f] || !photos[f].accepte).length ? facesUtiles().filter(f => !photos[f] || !photos[f].accepte) : facesUtiles()));
@@ -534,37 +591,85 @@
       }
     }
     // caméra plein écran avec un cadre au format carte bancaire / carte d'identité ; renvoie false si la caméra est refusée
-    async function cameraCadre(faces, surPhoto) {
+    // Pendant la visée, l'image est vérifiée 4 fois par seconde : angle de la carte + ses bords le long du cadre.
+    // Quand tout est bon ~0,75 s de suite, la photo part toute seule. Si rien n'est détecté au bout de 12 s
+    // (carte blanche sur table blanche…), le bouton se débloque ; la photo reste revérifiée ensuite (angle, flou, reflet).
+    async function cameraCadre(faces, surPhoto, piece) {
       let flux;
       try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }); }
       catch (e) { return false; }
+      const pass = piece === 'Passeport';
       const o = document.createElement('div'); o.className = 'cam'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Photo de la pièce d\'identité');
-      o.innerHTML = '<video playsinline muted autoplay></video><div class="cam-cadre"></div><p class="cam-txt" aria-live="polite"></p>' +
-        '<div class="cam-bas"><button type="button" class="cam-annuler">Annuler</button><button type="button" class="cam-declic" aria-label="Prendre la photo"></button><span></span></div>';
+      o.innerHTML = '<video playsinline muted autoplay></video><div class="cam-cadre"' + (pass ? ' style="aspect-ratio:125/88"' : '') + '></div><p class="cam-txt"></p>' +
+        '<p class="cam-etat" aria-live="polite"></p>' +
+        '<div class="cam-bas"><button type="button" class="cam-annuler">Annuler</button><button type="button" class="cam-declic" aria-label="Prendre la photo" disabled></button><span></span></div>';
       document.body.appendChild(o); document.body.style.overflow = 'hidden';
       const v = o.querySelector('video'); v.srcObject = flux; try { await v.play(); } catch (e) {}
-      let i = 0;
-      const majTxt = () => { o.querySelector('.cam-txt').textContent = (faces[i] === 'recto' ? 'Recto (face avec ta photo)' : 'Verso (l\'autre face)') + ' : mets la carte dans le cadre, à plat, sans reflet'; };
-      majTxt();
+      const cadreEl = o.querySelector('.cam-cadre'), etatEl = o.querySelector('.cam-etat'), declic = o.querySelector('.cam-declic');
+      const nomPiece = pass ? 'le passeport' : 'la carte';
+      let i = 0, okSuite = 0, pause = Date.now() + 800, debutFace = Date.now(), prise = false, dernier = '';
+      const majTxt = () => {
+        o.querySelector('.cam-txt').textContent = pass ? 'Page avec ta photo' : faces[i] === 'recto' ? 'Recto (face avec ta photo)' : 'Verso (l\'autre face)';
+        cadreEl.innerHTML = svgPiece(piece, faces[i], 'cam-dessin');
+      };
+      const montrer = (cls, html) => {
+        if (html === dernier) return; dernier = html;
+        etatEl.className = 'cam-etat ' + cls; etatEl.innerHTML = html;
+        cadreEl.classList.toggle('ok', cls === 'ok'); cadreEl.classList.toggle('ko', cls === 'ko');
+      };
+      majTxt(); montrer('', 'Mets ' + nomPiece + ' dans le cadre, à plat, sans reflet');
+      // zone filmée = le cadre + une petite marge autour (pour voir les 4 bords de la carte)
+      const zone = () => {
+        const vw = v.videoWidth, vh = v.videoHeight, cadre = cadreEl.getBoundingClientRect(), vr = v.getBoundingClientRect();
+        const k = Math.max(vr.width / vw, vr.height / vh);   // la vidéo remplit l'écran (object-fit: cover)
+        const ox = vr.left + (vr.width - vw * k) / 2, oy = vr.top + (vr.height - vh * k) / 2, m = cadre.width * .06;
+        const gx = (cadre.left - ox) / k, gy = (cadre.top - oy) / k, gw = cadre.width / k, gh = cadre.height / k, mk = m / k;
+        const sx = Math.max(0, gx - mk), sy = Math.max(0, gy - mk), sw = Math.min(vw, gx + gw + mk) - sx, sh = Math.min(vh, gy + gh + mk) - sy;
+        return { sx, sy, sw, sh, g: { x0: (gx - sx) / sw, y0: (gy - sy) / sh, x1: (gx + gw - sx) / sw, y1: (gy + gh - sy) / sh } };
+      };
+      const ana = document.createElement('canvas'), ga = ana.getContext('2d', { willReadFrequently: true });
+      const examiner = () => {
+        const z = zone(), W = 320, H = Math.max(40, Math.round(z.sh * W / z.sw));
+        ana.width = W; ana.height = H; ga.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, W, H);
+        const px = ga.getImageData(0, 0, W, H).data, gris = new Float32Array(W * H);
+        for (let p = 0; p < W * H; p++) gris[p] = 0.299 * px[4 * p] + 0.587 * px[4 * p + 1] + 0.114 * px[4 * p + 2];
+        return { angle: inclinaison(gris, W, H), bords: bordsCarte(gris, W, H, z.g).n };
+      };
       return new Promise(res => {
-        const fin = () => { flux.getTracks().forEach(tr => tr.stop()); o.remove(); document.body.style.overflow = ''; res(true); };
+        let tic = 0;
+        const fin = () => { clearInterval(tic); flux.getTracks().forEach(tr => tr.stop()); o.remove(); document.body.style.overflow = ''; res(true); };
         o.querySelector('.cam-annuler').addEventListener('click', fin);
-        let prise = false;   // évite deux photos pour la même face si on touche deux fois très vite
-        o.querySelector('.cam-declic').addEventListener('click', async () => {
-          const vw = v.videoWidth, vh = v.videoHeight; if (!vw || prise) return;
-          prise = true; setTimeout(() => { prise = false; }, 700);
-          const cadre = o.querySelector('.cam-cadre').getBoundingClientRect(), vr = v.getBoundingClientRect();
-          const k = Math.max(vr.width / vw, vr.height / vh);   // la vidéo remplit l'écran (object-fit: cover)
-          const ox = vr.left + (vr.width - vw * k) / 2, oy = vr.top + (vr.height - vh * k) / 2;
-          const sx = Math.max(0, (cadre.left - ox) / k), sy = Math.max(0, (cadre.top - oy) / k);
-          const sw = Math.min(vw - sx, cadre.width / k), sh = Math.min(vh - sy, cadre.height / k);
-          const c = document.createElement('canvas'); c.width = Math.round(sw); c.height = Math.round(sh);
-          c.getContext('2d').drawImage(v, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        const prendre = async () => {
+          if (!v.videoWidth || prise) return;
+          prise = true;
+          const z = zone(), c = document.createElement('canvas'); c.width = Math.round(z.sw); c.height = Math.round(z.sh);
+          c.getContext('2d').drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, c.width, c.height);
           const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92));
           o.classList.add('flash'); setTimeout(() => o.classList.remove('flash'), 180);
+          if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {}
           surPhoto(faces[i], new File([blob], faces[i] + '.jpg', { type: 'image/jpeg' }));
-          i++; if (i >= faces.length) setTimeout(fin, 200); else majTxt();
-        });
+          i++;
+          if (i >= faces.length) { montrer('ok', '✓ Photo prise'); setTimeout(fin, 350); return; }
+          majTxt(); okSuite = 0; declic.disabled = true; pause = Date.now() + 1600; debutFace = Date.now();
+          montrer('', '✓ Recto pris. Retourne ' + nomPiece + ' : on passe au verso');
+          setTimeout(() => { prise = false; }, 700);
+        };
+        declic.addEventListener('click', prendre);
+        tic = setInterval(() => {
+          if (prise || Date.now() < pause || !v.videoWidth) return;
+          let r; try { r = examiner(); } catch (e) { declic.disabled = false; return; }
+          const a = r.angle, secours = Date.now() - debutFace > 12000;
+          const astuce = secours ? '<small>Sinon, appuie sur le bouton quand ' + nomPiece + ' est bien droite.</small>' : '';
+          let bon = false;
+          if (a == null && r.bords < 2) montrer('', 'Mets ' + nomPiece + ' dans le cadre, à plat, sans reflet' + astuce);
+          else if (a != null && Math.abs(a) > SEUIL_DIRECT) montrer('ko', (a > 0 ? '↺' : '↻') + ' ' + (pass ? 'Le passeport est' : 'La carte est') + (Math.abs(a) > 8 ? ' penché' : ' un peu penché') + (pass ? '' : 'e') +
+            ' : redresse-' + (pass ? 'le' : 'la') + ' pour qu\'' + (pass ? 'il' : 'elle') + ' suive le cadre' + astuce);
+          else if (r.bords < 3) montrer('ko', 'Place ' + nomPiece + ' pile dans le cadre : ses 4 bords le long des traits, en entier, sans doigt dessus' + astuce);
+          else { bon = true; montrer('ok', 'Parfait, ne bouge plus…'); }
+          okSuite = bon ? okSuite + 1 : 0;
+          declic.disabled = !(bon || secours);
+          if (okSuite >= 3) prendre();
+        }, 250);
       });
     }
 
