@@ -358,23 +358,51 @@
   .result .price small{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-top:2px}
   .eco{font-size:14px;color:var(--cyan);font-weight:700;margin:-8px 0 14px}
   .eco[hidden]{display:none}
-  /* « Trouve ton pack » : prix à côté des packs, bouton à côté de « Mon panier » (26/10) */
-  .r-haut{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;grid-template-areas:"a prix" "b b" "c c";margin-bottom:4px}
-  .r-a{grid-area:a}.r-b{grid-area:b}.r-c{grid-area:c}
-  .r-haut .switch{align-self:auto;justify-self:start}
-  .r-prix{grid-area:prix;align-self:center;text-align:right;padding-top:16px;min-width:0}
-  .result .r-prix .price{margin:0;font-size:24px;line-height:1.1}
-  .r-prix #rPrice{white-space:nowrap}
-  .r-prix .price i{display:block;font-style:normal;font-size:12px;font-weight:600;color:var(--muted)}
-  .result .r-prix .price small{font-size:12px;color:var(--cyan);margin-top:3px;line-height:1.3}
-  .r-prix .eco{margin:5px 0 0;font-size:12px;line-height:1.3;white-space:normal}
-  .r-ligne{display:flex;gap:10px;align-items:flex-start}
-  .r-ligne .switch{flex:none}
-  .r-ligne .btn{flex:1 1 auto;white-space:nowrap;padding:13px 16px;margin-top:0}
-  @media (max-width:430px){ .r-haut .switch button{padding:8px 12px;font-size:15px} .result{padding:22px 18px} }
-  /* petits téléphones : le prix passe sur une ligne juste sous les packs (toujours en haut) */
-  @media (max-width:385px){ .r-haut{grid-template-areas:"a a" "prix prix" "b b" "c c"} .r-prix{text-align:left;padding:0 0 14px;margin-top:-6px}
-    .result .r-prix .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:22px} .r-prix .price i,.result .r-prix .price small{display:inline;margin:0} .r-prix .eco{margin-top:2px} }
+  @media (max-width:430px){ .result{padding:22px 18px} }
+  /* « Trouve ton pack » : rangée de cartes qui défile au doigt, prix semaine en gros, alerte invités (28/10) */
+  .finder>.result,.finder>.q{min-width:0}   /* sinon la rangée de cartes élargit toute la page sur téléphone */
+  .r-top{margin-bottom:6px;min-width:0}
+  .r-top .swl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0}
+  .r-top .swl span{font-weight:600;letter-spacing:0;text-transform:none;color:var(--cyan)}
+  @media (hover:hover) and (pointer:fine){ .r-top .swl span{display:none} }
+  .cp-zone{position:relative;margin:0 -10px}
+  .cp-rail{position:relative;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding:0 10px;padding:14px 10px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 34px),transparent)}
+  .cp-rail.debut{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
+  .cp-rail.fin{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px);mask-image:linear-gradient(90deg,transparent 0,#000 22px)}
+  .cp-rail.debut.fin{-webkit-mask-image:none;mask-image:none}
+  .cp-rail::-webkit-scrollbar{display:none}
+  .cp{flex:0 0 116px;scroll-snap-align:start;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:10px 11px 11px;border-radius:16px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.4,.5,1),border-color .25s,box-shadow .25s,background .25s}
+  .cp:hover{border-color:var(--violet)}
+  .cp:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .cp[aria-pressed=true]{border-color:var(--pink);background:color-mix(in srgb,var(--pink) 13%,var(--bg));box-shadow:0 0 0 1px var(--pink),0 8px 22px rgba(255,122,26,.25);transform:translateY(-3px)}
+  .cp-img{height:48px;width:100%;display:flex;align-items:flex-end;justify-content:center;margin-bottom:6px}
+  .cp-img img{height:100%;width:auto;max-width:52%;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+  .cp-img img.fm{height:58%}
+  .cp-img img+img{margin-left:-12px}
+  .cp-plus{width:40px;height:40px;border-radius:50%;border:2px dashed var(--muted);display:grid;place-items:center;font-size:22px;font-weight:700;color:var(--muted);align-self:center}
+  .cp-t{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .cp b{font-size:15px;line-height:1.2;white-space:nowrap}
+  .cp-p{font-size:13px;color:var(--muted);white-space:nowrap;margin-top:2px}
+  .cp-p strong{color:var(--text);font-size:14px}
+  .cp-reco{position:absolute;top:-9px;right:8px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:var(--cyan);color:#06222A;display:none}
+  .cp.reco .cp-reco{display:block}
+  .cp-fl{display:none;position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:20px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+  .cp-fl.g{left:-4px}.cp-fl.d{right:-4px}
+  .cp-fl:hover{border-color:var(--pink)}
+  @media (hover:hover) and (pointer:fine){ .cp-fl:not([hidden]){display:grid;place-items:center} }
+  .r-tarif{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;margin-top:2px}
+  .result .r-tarif .price{margin:0;font-size:30px;line-height:1.05}
+  .r-tarif #rPrice{white-space:nowrap}
+  .r-tarif .des{font-size:15px;font-weight:600;color:var(--muted);margin-right:5px}
+  .r-tarif .price i{display:block;font-style:normal;font-size:13px;font-weight:600;color:var(--muted);margin-top:2px}
+  .result .r-tarif .price small{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-top:3px}
+  .r-tarif .eco{margin:5px 0 0;font-size:12px;line-height:1.3}
+  .r-tarif .btn{margin:0;white-space:nowrap;flex:0 0 auto;padding:13px 18px}
+  @media (max-width:400px){ .r-tarif .btn{flex:1 1 100%;text-align:center} }
+  .alerte-inv{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(250,204,21,.10);border:1px solid rgba(250,204,21,.5);color:var(--text)}
+  .alerte-inv[hidden]{display:none}
+  .alerte-inv button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
   .item .in small{font-weight:600;color:var(--muted)}
   /* « en grand. » : le dégradé glisse lentement en boucle (lumière de scène), sans clignoter */
   @keyframes flux{from{background-position:0% 50%}to{background-position:-200% 50%}}
@@ -434,27 +462,22 @@
       </div>
     </div>
     <div class="result" aria-live="polite">
-      <!-- haut de la carte : choix + prix + bouton, visibles sans faire défiler -->
-      <div class="r-haut">
-        <div class="r-a"><p class="swl">Les packs</p>
-          <div class="switch" role="group" aria-label="Voir un pack">
-            <button data-pack="apero" aria-pressed="false">Apéro</button><button data-pack="soiree" aria-pressed="true">Soirée</button><button data-pack="club" aria-pressed="false">Club</button>
-          </div></div>
-        <div class="r-prix">
-          <p class="price"><span id="rPrice"></span><i>/ soirée week-end</i><small id="rSem"></small></p>
-          <p class="eco" id="rEco" hidden></p>
+      <!-- haut de la carte : rangée de formules qui défile au doigt + prix + bouton (28/10) -->
+      <div class="r-top">
+        <p class="swl">Choisis ta formule <span>fais glisser ↔</span></p>
+        <div class="cp-zone">
+          <div class="cp-rail debut" id="cpRail" role="group" aria-label="Choisis ta formule"></div>
+          <button type="button" class="cp-fl g" id="cpG" aria-label="Formules précédentes" hidden>‹</button>
+          <button type="button" class="cp-fl d" id="cpD" aria-label="Formules suivantes">›</button>
         </div>
-        <div class="r-b"><p class="swl">Ou à l'unité</p>
-          <div class="switch" role="group" aria-label="Louer un appareil seul">
-            <button data-pack="p310" aria-pressed="false">PartyBox 310</button><button data-pack="p710" aria-pressed="false">PartyBox 710</button><button data-pack="pult" aria-pressed="false">Ultimate</button><button data-pack="fumee" aria-pressed="false">Fumée</button>
-          </div></div>
-        <div class="r-c"><p class="swl">Ou compose ton panier</p>
-          <div class="r-ligne">
-            <div class="switch" role="group" aria-label="Panier personnalisé">
-              <button data-pack="perso" aria-pressed="false">Mon panier</button>
-            </div>
-            <a class="btn" id="rBook" href="#reserver">Choisir ma date →</a>
-          </div></div>
+        <p class="alerte-inv" id="rAlerte" role="status" hidden></p>
+        <div class="r-tarif">
+          <div>
+            <p class="price"><span class="des" id="rDes">dès</span><span id="rPrice"></span><i id="rUnite">/ soirée en semaine</i><small id="rSem"></small></p>
+            <p class="eco" id="rEco" hidden></p>
+          </div>
+          <a class="btn" id="rBook" href="#reserver">Choisir ma date →</a>
+        </div>
       </div>
       <div class="rImg" id="rImg" aria-hidden="true"></div>
       <span class="tag" id="rTag">Recommandé pour toi</span>
@@ -577,10 +600,10 @@
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="cat">
-    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b><span class="prix">49,90 €</span> / soirée le week-end<br><small><span class="prixsem">39,90 €</span> en semaine</small></b></div></article>
-    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b><span class="prix">79,90 €</span> / soirée le week-end<br><small><span class="prixsem">59,90 €</span> en semaine</small></b></div></article>
-    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b><span class="prix">109,90 €</span> / soirée le week-end<br><small><span class="prixsem">79,90 €</span> en semaine</small></b></div></article>
-    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b><span class="prix">24,90 €</span> / soirée le week-end<br><small><span class="prixsem">19,90 €</span> en semaine</small></b></div></article>
+    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>dès <span class="prixsem">59,90 €</span> / soirée en semaine<br><small><span class="prix">79,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>dès <span class="prixsem">79,90 €</span> / soirée en semaine<br><small><span class="prix">109,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b>dès <span class="prixsem">19,90 €</span> / soirée en semaine<br><small><span class="prix">24,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
   </div>
 </div></section>
 
@@ -657,8 +680,14 @@
   const enEuros=v=>{const x=Math.round(v*100)/100; return (Number.isInteger(x)?String(x):x.toFixed(2).replace('.',','))+' €';};
   // sous le prix : tarif semaine + économie d'un pack par rapport aux mêmes appareils à l'unité
   const PACK_COMPO={soiree:{p710:1,fumee:1},club:{p710:2,fumee:1}};
+  // le plus petit prix (semaine, dim.→jeu.) en gros, le week-end en dessous
   function majPrixPack(key){
-    document.getElementById('rSem').textContent=PACKS[key].sem&&semNum(key)>0?semNum(key)<prixNum(key)?PACKS[key].sem+' en semaine':'':''; document.getElementById('rSem').title='Du dimanche au jeudi soir';
+    const we=prixNum(key), se=semNum(key), bas=se>0&&se<we;
+    document.getElementById('rPrice').textContent=bas?PACKS[key].sem:PACKS[key].price;
+    document.getElementById('rDes').hidden=!bas;
+    document.getElementById('rUnite').textContent=bas?'/ soirée en semaine (dim. → jeu.)':'/ soirée';
+    document.getElementById('rSem').textContent=bas?PACKS[key].price+' le week-end (ven. et sam.)':'';
+    majCartes();
     const c=PACK_COMPO[key], eco=document.getElementById('rEco');
     if(c){const unite=Object.keys(c).reduce((t,k)=>t+c[k]*prixNum(k),0), gain=unite-prixNum(key);
       eco.hidden=!(gain>0); eco.textContent='−'+enEuros(gain)+' vs à l\'unité'; eco.title='Par rapport aux mêmes appareils loués à l\'unité';}
@@ -701,11 +730,64 @@
     const go=e.target.closest('button[data-pack-go]'); if(go){ show(go.dataset.packGo,false); return; }
     const b=e.target.closest('button[data-k]'); if(!b) return;
     const k=b.dataset.k; panier[k]=Math.max(0,Math.min(STOCK[k],panier[k]+(+b.dataset.d)));
-    majPanier();
+    majPanier(); majAlerte();
   });
   const ORDRE=['apero','soiree','club','p310','p710','pult','fumee','perso'];
   const result=document.querySelector('.result');
   document.querySelectorAll('.switch').forEach(sw=>sw.insertAdjacentHTML('afterbegin','<span class="pill" aria-hidden="true"></span>'));
+  // ---- rangée de formules « Choisis ta formule » : cartes qui défilent au doigt (28/10) ----
+  const rail=document.getElementById('cpRail'), flG=document.getElementById('cpG'), flD=document.getElementById('cpD');
+  const reduitM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['p310','À l\'unité','PartyBox 310'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['perso','Sur mesure','Mon panier']];
+  rail.innerHTML=CARTES.map(([k,t,n])=>'<button type="button" class="cp" data-pack="'+k+'" aria-pressed="false"><span class="cp-reco">Conseillé</span><span class="cp-img" aria-hidden="true">'+
+    (k==='perso'?'<span class="cp-plus">+</span>':(IMAGES[k]||[]).map(f=>'<img src="images/'+f+'.webp" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join(''))+
+    '</span><span class="cp-t">'+t+'</span><b>'+n+'</b><span class="cp-p"></span></button>').join('');
+  function majCartes(){
+    rail.querySelectorAll('.cp').forEach(c=>{
+      const k=c.dataset.pack, we=prixNum(k), se=semNum(k), bas=se>0&&se<we?se:we;
+      c.querySelector('.cp-p').innerHTML=k==='perso'&&!we?'à composer':'dès <strong>'+enEuros(bas)+'</strong>';
+    });
+  }
+  function centrerCarte(doux){
+    const c=rail.querySelector('.cp[aria-pressed="true"]'); if(!c) return;
+    rail.scrollTo({left:c.offsetLeft-(rail.clientWidth-c.offsetWidth)/2,behavior:doux&&!reduitM?'smooth':'auto'});
+  }
+  function majFleches(){
+    const max=rail.scrollWidth-rail.clientWidth-2, d=rail.scrollLeft<=2, f=rail.scrollLeft>=max;
+    flG.hidden=d; flD.hidden=f; rail.classList.toggle('debut',d); rail.classList.toggle('fin',f);
+  }
+  rail.addEventListener('scroll',()=>requestAnimationFrame(majFleches),{passive:true});
+  addEventListener('resize',majFleches);
+  flG.addEventListener('click',()=>rail.scrollBy({left:-rail.clientWidth*.75,behavior:reduitM?'auto':'smooth'}));
+  flD.addEventListener('click',()=>rail.scrollBy({left:rail.clientWidth*.75,behavior:reduitM?'auto':'smooth'}));
+  rail.addEventListener('click',e=>{const b=e.target.closest('.cp'); if(b) show(b.dataset.pack,b.dataset.pack===recommend());});
+  // la 1re fois que la rangée apparaît : petit aller-retour pour montrer qu'elle défile
+  if('IntersectionObserver' in window && !reduitM){
+    const io=new IntersectionObserver(e=>{
+      if(!e[0].isIntersecting) return; io.disconnect();
+      if(rail.scrollWidth<=rail.clientWidth+4) return;
+      const x=rail.scrollLeft; rail.style.scrollSnapType='none';
+      setTimeout(()=>{ rail.scrollTo({left:x+90,behavior:'smooth'}); setTimeout(()=>{ rail.scrollTo({left:x,behavior:'smooth'}); setTimeout(()=>{rail.style.scrollSnapType='';},700); },650); },350);
+    },{threshold:.9});
+    io.observe(rail);
+  }
+  // ---- alerte « ce choix risque d'être juste pour ton nombre d'invités » ----
+  // invités conseillés par appareil (mêmes repères que la recommandation : 310 ≈ 20, 710 ≈ 80 ; Ultimate ≈ 120 = estimation) ; mariage = on compte double
+  const CAP={p310:20,p710:80,pult:120,fumee:0};
+  const COMPO_K={apero:{p310:1},soiree:{p710:1,fumee:1},club:{p710:2,fumee:1},p310:{p310:1},p710:{p710:1},pult:{pult:1},fumee:{fumee:1}};
+  function capacite(k){const c=k==='perso'?panier:COMPO_K[k]||{}; return Object.keys(c).reduce((t,a)=>t+(CAP[a]||0)*(c[a]||0),0);}
+  function majAlerte(){
+    const el=document.getElementById('rAlerte'), k=current; if(!el||!k) return;
+    const n=+g.value, besoin=kind==='mariage'?n*2:n, cap=capacite(k), r=recommend();
+    const vide=k==='perso'&&!Object.keys(panier).some(a=>panier[a]);
+    const voir=r!==k?' <button type="button" data-go="'+r+'">Voir le '+PACKS[r].name+'</button>':'';
+    let h='';
+    if(vide) h='';
+    else if(cap===0) h='🔇 La machine à fumée ne fait pas de son : garde-la pour ta propre sono, ou prends une enceinte avec.'+(r!==k?' <button type="button" data-go="'+r+'">Voir le '+PACKS[r].name+'</button>':'');
+    else if(cap<160&&cap<besoin) h='⚠️ Pour <b>'+(n>=200?'200+':n)+' invités</b>'+(kind==='mariage'?' à un mariage':'')+', '+(k==='perso'?'ton panier':'le '+PACKS[k].name)+' risque d\'être <b>un peu juste</b>.'+(r!==k?' On te conseille plutôt le '+PACKS[r].name+'.'+voir:'');
+    el.innerHTML=h; el.hidden=!h;
+  }
+  document.getElementById('rAlerte').addEventListener('click',e=>{const b=e.target.closest('button[data-go]'); if(b) show(b.dataset.go,true);});
   function pills(){
     document.querySelectorAll('.switch').forEach(sw=>{
       const pill=sw.querySelector('.pill'), b=sw.querySelector('button[aria-pressed="true"]');
@@ -718,8 +800,10 @@
   addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
   function recommend(){const n=+g.value; if(kind==='mariage') return n<=40?'soiree':'club'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
-  function show(key,isReco){
+  function show(key,isReco){ show0(key,isReco); majAlerte(); }
+  function show0(key,isReco){
     const p=PACKS[key];
+    rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',c.dataset.pack===recommend()));
     if(key===current&&key==='perso') return;
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     if(key===current) return; // même pack (ex. curseur déplacé sans changer de palier) : on ne relance pas l'animation
@@ -732,8 +816,8 @@
     document.getElementById('rPrice').textContent=p.price;
     majPrixPack(key);
     document.getElementById('rList').innerHTML=p.items.map(i=>'<li>'+i+'</li>').join('');
-    document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
-    pills();
+    rail.querySelectorAll('.cp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===key));
+    centrerCarte(show0.deja); show0.deja=true;
     const perso=key==='perso';
     document.getElementById('rPanier').hidden=!perso;
     document.getElementById('rList').hidden=perso;
@@ -746,8 +830,7 @@
   function update(){g.style.setProperty('--p',((g.value-g.min)/(g.max-g.min)*100)+'%');gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
   document.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed',x===c));kind=c.dataset.k;update();}));
   g.addEventListener('input',update);
-  document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.pack,b.dataset.pack===recommend())));
-  update();
+  update(); majFleches();
 </script>
 <script>
   // Adresse du script Google (Application Web) qui relie le site au CRM et à l'agenda
@@ -1379,7 +1462,7 @@
       if (!ferme) { $('offre-txt').textContent = c.offre.texte + (c.offre.code ? ' · code ' + c.offre.code : ''); $('offre-bandeau').hidden = false; }
     }
     if (c.remiseNuit != null) REMISE = c.remiseNuit;
-    if (change) { const k = document.querySelector('.switch button[aria-pressed="true"]'); if (k) { document.getElementById('rPrice').textContent = PACKS[k.dataset.pack].price; majPrixPack(k.dataset.pack); } maj(); }
+    if (change) { const k = document.querySelector('#cpRail .cp[aria-pressed="true"]'); if (k) majPrixPack(k.dataset.pack); else majCartes(); maj(); }
     // stock réglé dans l'espace admin (onglet « Matériel ») : nombre maximum de chaque appareil dans « Mon panier »
     const stock = c.stock || {};
     Object.keys(STOCK).forEach(k => {
