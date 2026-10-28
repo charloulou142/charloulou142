@@ -115,6 +115,8 @@
   .cam-etat.ko{background:#C2410C}.cam-etat.ok{background:#15803D}
   .cam-etat small{display:block;font-weight:500;font-size:13px;opacity:.9;margin-top:3px}
   .cam-declic:disabled{opacity:.35;cursor:default}
+  button.photo:disabled{cursor:default;opacity:1}
+  .cam-go[hidden],.guide-p[hidden]{display:none}
   .cam-retourne{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;background:rgba(11,7,20,.97);color:#fff;text-align:center}
   .cam-retourne[hidden]{display:none}
   .cam-retourne b{font-size:26px;line-height:1.2}
@@ -320,8 +322,8 @@
         '. Pose la carte à plat sur une table, bien éclairée, sans flash, et prends toute la carte.</div>';
       // 1. pièce d'identité
       h += '<div class="doc' + (cniOk ? ' fait' : '') + '"><h3>' + (cniOk ? '✅ ' : '1. ') + 'Ta pièce d\'identité</h3>';
-      if (cniOk) h += '<p>Reçue le ' + esc(d.verso || d.recto) + (d.piece ? ' (' + esc(d.piece.toLowerCase()) + ')' : '') + '. Elle sera effacée ' + esc(d.effacement) + ' jours après la reprise du matériel.</p>' +
-        (d.actif ? '<button type="button" class="lien" id="cni-refaire">Envoyer une autre photo</button>' : '');
+      if (cniOk) h += '<p>Reçue le ' + esc(d.verso || d.recto) + (d.piece ? ' (' + esc(d.piece.toLowerCase()) + ')' : '') + '. Elle sera effacée ' + esc(d.effacement) + ' jours après la reprise du matériel.</p>';
+      // pièce reçue : plus de « refaire » côté client (28/10, demande de Mistraloc) ; s'il faut une nouvelle photo, Mistraloc la redemande depuis l'admin
       else if (d.recto && d.actif) h += '<p class="petit">Recto reçu le ' + esc(d.recto) + '. Il manque le verso.</p>';
       if (d.actif) h += '<div id="cni-form"' + (cniOk ? ' hidden' : '') + '>' +
         '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Ton téléphone ajoute un filigrane « Mistraloc · location du ' +
@@ -463,11 +465,19 @@
       majPasseport(); $('cni-piece').addEventListener('change', majPasseport);
       if ($('cni-refaire')) $('cni-refaire').addEventListener('click', () => { $('cni-form').hidden = false; $('cni-refaire').hidden = true; besoin.cni = true; majBouton(); });
       const etat = (face, cls, html) => { const e = $('et-' + face); e.className = 'ph-etat ' + cls; e.innerHTML = html; };
+      // toutes les faces bonnes et envoyées : on fige la pièce (plus de caméra ni de « Toucher pour changer »)
+      const envoyees = {};
+      function verrouillerCni() {
+        if (!facesUtiles().every(f => photos[f] && photos[f].accepte && envoyees[f] === photos[f])) return;
+        ['cam-go', 'cni-guide'].forEach(id => { $(id).hidden = true; });
+        $('cni-piece').disabled = true;
+        facesUtiles().forEach(f => { const b = $('ph-' + f); b.disabled = true; const s = b.querySelector('small'); if (s) s.remove(); });
+      }
       function envoyerFace(face) {
         const ph = photos[face];
         etat(face, 'cours', '⏳ Envoi en cours…');
         const p = post('docs_cni', { face, image: ph.data, piece: $('cni-piece').value })
-          .then(r => { if (!r.ok) throw new Error(r.erreur || 'erreur'); if (photos[face] === ph) etat(face, 'ok', '✓ Photo nette, bien envoyée'); return r; })
+          .then(r => { if (!r.ok) throw new Error(r.erreur || 'erreur'); if (photos[face] === ph) { etat(face, 'ok', '✓ Photo nette, bien envoyée'); envoyees[face] = ph; verrouillerCni(); } return r; })
           .catch(err => { if (photos[face] === ph) etat(face, 'ko', '⚠ Envoi raté : ' + esc(msgErr(err, 'réseau')) + '. On réessaiera au moment d\'envoyer.'); throw err; });
         p.catch(() => {});
         envois[face] = { p, ph };
