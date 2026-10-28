@@ -57,6 +57,11 @@
   .choice:hover{border-color:var(--violet)}
   .choice[aria-pressed="true"]{border-color:var(--pink);background:rgba(255,122,26,.12);box-shadow:0 0 20px rgba(255,122,26,.25)}
   .choice svg{width:24px;height:24px;stroke:var(--cyan);flex:0 0 auto}
+  .choix-prise{margin-bottom:0}
+  .choice-p{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-weight:700;color:var(--text);cursor:pointer;text-align:left;transition:all .2s}
+  .choice-p:hover{border-color:var(--violet)}
+  .choice-p[aria-pressed="true"]{border-color:var(--pink);background:rgba(255,122,26,.12);box-shadow:0 0 20px rgba(255,122,26,.25)}
+  .choice-p span{font-size:20px;line-height:1}
   .range{display:grid;gap:10px}
   .range output{font-family:"Bebas Neue";font-size:44px;line-height:1;color:var(--cyan);text-shadow:0 0 14px rgba(34,211,238,.6)}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;--p:13%}
@@ -402,8 +407,38 @@
   @media (max-width:400px){ .r-tarif .btn{flex:1 1 100%;text-align:center} }
   .alerte-inv{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(250,204,21,.10);border:1px solid rgba(250,204,21,.5);color:var(--text)}
   .alerte-inv[hidden]{display:none}
-  .alerte-inv button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
+  .alerte-inv button,.plus-fumee button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
+  .plus-fumee{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(139,92,246,.10);border:1px dashed rgba(139,92,246,.55);color:var(--text)}
+  .plus-fumee[hidden]{display:none}
   .item .in small{font-weight:600;color:var(--muted)}
+  /* « Le matériel » plus compact (28/10) : photos moins hautes, étiquette batterie / prise ; sur téléphone une ligne par appareil */
+  #materiel .ph{height:170px}
+  #materiel .item .in{padding:16px}
+  .item-tag{display:inline-block;align-self:flex-start;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;margin:2px 0 4px;border:1px solid var(--line);color:var(--muted)}
+  .item-tag.bat{color:#34D399;border-color:rgba(52,211,153,.5)}
+  @media (max-width:700px){
+    #materiel .cat{grid-template-columns:1fr;gap:10px}
+    #materiel .item{display:grid;grid-template-columns:104px minmax(0,1fr);border-radius:16px}
+    #materiel .ph,#materiel .ph.photo{height:auto;min-height:150px}
+    #materiel .ph img{inset:10px 4px}
+    #materiel .ph.photo img{height:100%}
+    #materiel .item .in{padding:12px 12px 12px 10px}
+    #materiel .item h3{font-size:16px;line-height:1.25}
+    #materiel .item p{font-size:13px;margin:2px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    #materiel .item .in b{font-size:14px;line-height:1.35}
+    #materiel .item .in b small{font-size:12px}
+    #materiel .item-actions{padding-top:8px;gap:6px}
+    #materiel .item-actions .btn{padding:8px 10px;font-size:13px;flex:1 1 0;text-align:center;white-space:nowrap}
+    #materiel .item-actions .long{display:none}
+  }
+  /* avis clients (section #avis, cachée tant qu'elle n'est pas activée) */
+  #avis[hidden]{display:none}
+  .avis-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 16px;margin:0 0 10px;scrollbar-width:thin;text-align:left}
+  .avis-c{flex:0 0 min(300px,82%);scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:8px}
+  .avis-c .et{color:#FBBF24;font-size:17px;letter-spacing:2px}
+  .avis-c p{margin:0;color:var(--text);font-size:15px;line-height:1.5}
+  .avis-c footer{margin-top:auto;font-size:13px;color:var(--muted)}
+  .avis-c footer b{color:var(--text)}
   /* « en grand. » : le dégradé glisse lentement en boucle (lumière de scène), sans clignoter */
   @keyframes flux{from{background-position:0% 50%}to{background-position:-200% 50%}}
   .hero h1 em{background-image:linear-gradient(90deg,#A78BFA,#F472B6,#FB923C,#F472B6,#A78BFA);background-size:200% 100%;animation:flux 9s linear infinite}
@@ -460,6 +495,11 @@
         <input id="g" type="range" min="5" max="200" step="5" value="30" aria-label="Nombre d'invités">
         <div class="scale"><span>5</span><span>100</span><span>200+</span></div>
       </div>
+      <h3 style="margin-top:26px"><small>03</small>Une prise électrique sur place ?</h3>
+      <div class="choices choix-prise" role="group" aria-label="Prise électrique sur place">
+        <button type="button" class="choice-p" data-prise="oui" aria-pressed="true"><span aria-hidden="true">🔌</span>Oui, il y a une prise</button>
+        <button type="button" class="choice-p" data-prise="non" aria-pressed="false"><span aria-hidden="true">🌳</span>Non, dehors sans prise</button>
+      </div>
     </div>
     <div class="result" aria-live="polite">
       <!-- haut de la carte : rangée de formules qui défile au doigt + prix + bouton (28/10) -->
@@ -471,6 +511,7 @@
           <button type="button" class="cp-fl d" id="cpD" aria-label="Formules suivantes">›</button>
         </div>
         <p class="alerte-inv" id="rAlerte" role="status" hidden></p>
+        <p class="plus-fumee" id="rPlus" hidden></p>
         <div class="r-tarif">
           <div>
             <p class="price"><span class="des" id="rDes">dès</span><span id="rPrice"></span><i id="rUnite">/ soirée en semaine</i><small id="rSem"></small></p>
@@ -617,6 +658,14 @@
     <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, avant midi.</p></div>
   </div>
   <p style="margin-top:26px"><a href="comment-ca-marche.html" style="color:var(--cyan);font-weight:700">Tout savoir sur le déroulé et les tarifs →</a></p>
+</div></section>
+
+<!-- avis clients : n'apparaît que lorsque Mistraloc l'active dans l'admin (au moins 3 vrais avis Google) -->
+<section id="avis" hidden><div class="wrap center">
+  <h2>Ils ont fait la fête avec nous</h2>
+  <p class="lead">Avis laissés par nos clients sur Google.</p>
+  <div class="avis-rail" id="avis-liste"></div>
+  <p id="avis-lien" hidden><a class="btn ghost" target="_blank" rel="noopener">Voir tous nos avis sur Google →</a></p>
 </div></section>
 
 <section id="faq"><div class="wrap center">
@@ -776,18 +825,50 @@
   const CAP={p310:20,p710:80,pult:120,fumee:0};
   const COMPO_K={apero:{p310:1},soiree:{p710:1,fumee:1},club:{p710:2,fumee:1},p310:{p310:1},p710:{p710:1},pult:{pult:1},fumee:{fumee:1}};
   function capacite(k){const c=k==='perso'?panier:COMPO_K[k]||{}; return Object.keys(c).reduce((t,a)=>t+(CAP[a]||0)*(c[a]||0),0);}
+  // prise électrique sur place (question 03) : la 710, l'Ultimate et la machine à fumée doivent être branchées ; la 310 tient ~18 h sur batterie
+  let prise=true;
+  const SECTEUR=['p710','pult','fumee'];
+  const compoDe=k=>k==='perso'?panier:(COMPO_K[k]||{});
   function majAlerte(){
     const el=document.getElementById('rAlerte'), k=current; if(!el||!k) return;
-    const n=+g.value, besoin=kind==='mariage'?n*2:n, cap=capacite(k), r=recommend();
+    const n=+g.value, besoin=kind==='mariage'?n*2:n, cap=capacite(k), r=recommend(), c=compoDe(k);
     const vide=k==='perso'&&!Object.keys(panier).some(a=>panier[a]);
+    const nomDe=x=>x==='perso'?'ton panier':'le '+PACKS[x].name;
     const voir=r!==k?' <button type="button" data-go="'+r+'">Voir le '+PACKS[r].name+'</button>':'';
+    const deux310=STOCK.p310>=2?' <button type="button" data-go="2x310">Prendre 2 PartyBox 310</button>':'';
     let h='';
     if(vide) h='';
-    else if(cap===0) h='🔇 La machine à fumée ne fait pas de son : garde-la pour ta propre sono, ou prends une enceinte avec.'+(r!==k?' <button type="button" data-go="'+r+'">Voir le '+PACKS[r].name+'</button>':'');
-    else if(cap<160&&cap<besoin) h='⚠️ Pour <b>'+(n>=200?'200+':n)+' invités</b>'+(kind==='mariage'?' à un mariage':'')+', '+(k==='perso'?'ton panier':'le '+PACKS[k].name)+' risque d\'être <b>un peu juste</b>.'+(r!==k?' On te conseille plutôt le '+PACKS[r].name+'.'+voir:'');
+    else if(!prise&&SECTEUR.some(a=>c[a])) h='🔌 Sans prise, '+(k==='perso'?'une partie de ton panier ne marchera pas':nomDe(k)+' ne marchera pas')+' : la PartyBox 710, l\'Ultimate et la machine à fumée doivent être branchées. La <b>PartyBox 310</b> tient environ 18 h sur batterie.'+(n>20?deux310:' <button type="button" data-go="apero">Voir le Pack Apéro</button>');
+    else if(cap===0) h='🔇 La machine à fumée ne fait pas de son : garde-la pour ta propre sono, ou prends une enceinte avec.'+voir;
+    else if(!prise&&cap<besoin) h='⚠️ Pour <b>'+(n>=200?'200+':n)+' invités</b> sans prise, '+nomDe(k)+' risque d\'être <b>un peu juste</b>.'+(cap<40&&n<=40?deux310:' Au-delà de 40 personnes sans prise, appelle-nous : on cherchera une solution ensemble.');
+    else if(cap<160&&cap<besoin) h='⚠️ Pour <b>'+(n>=200?'200+':n)+' invités</b>'+(kind==='mariage'?' à un mariage':'')+', '+nomDe(k)+' risque d\'être <b>un peu juste</b>.'+(r!==k?' On te conseille plutôt le '+PACKS[r].name+'.'+voir:'');
+    el.innerHTML=h; el.hidden=!h;
+    majPlus(h);
+  }
+  // une enceinte seule : on propose la machine à fumée (seulement s'il y a une prise et pas déjà d'alerte)
+  function majPlus(alerte){
+    const el=document.getElementById('rPlus'), k=current, c=compoDe(k);
+    let h='';
+    if(prise&&!alerte&&STOCK.fumee>0&&!c.fumee&&(c.p310||c.p710||c.pult)){
+      const prixF=enEuros(semNum('fumee'));
+      if(k==='p710') h='✨ Avec la machine à fumée, c\'est le <b>Pack Soirée</b> : dès '+enEuros(semNum('soiree'))+' au lieu de '+enEuros(semNum('p710')+semNum('fumee'))+'. <button type="button" data-plus="soiree">Voir le Pack Soirée</button>';
+      else h='✨ Ajoute la <b>machine à fumée</b> (fumée colorée, effet boîte de nuit) : <b>+'+prixF+'</b> en semaine. <button type="button" data-plus="fumee">Ajouter la fumée</button>';
+    }
     el.innerHTML=h; el.hidden=!h;
   }
-  document.getElementById('rAlerte').addEventListener('click',e=>{const b=e.target.closest('button[data-go]'); if(b) show(b.dataset.go,true);});
+  document.getElementById('rAlerte').addEventListener('click',e=>{const b=e.target.closest('button[data-go]'); if(!b) return;
+    if(b.dataset.go==='2x310'){ Object.keys(panier).forEach(a=>panier[a]=0); panier.p310=Math.min(2,STOCK.p310); if(current==='perso'){majPanier();majAlerte();} else show('perso',false); return; }
+    show(b.dataset.go,b.dataset.go===recommend());});
+  document.getElementById('rPlus').addEventListener('click',e=>{const b=e.target.closest('button[data-plus]'); if(!b) return;
+    if(b.dataset.plus==='soiree'){ show('soiree',false); return; }
+    if(current!=='perso'){ Object.keys(panier).forEach(a=>panier[a]=0); Object.assign(panier,COMPO_K[current]); }
+    panier.fumee=1;
+    if(current==='perso'){majPanier();majAlerte();} else show('perso',false);
+  });
+  document.querySelectorAll('.choice-p').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.choice-p').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    prise=b.dataset.prise!=='non'; window.sansPrise=!prise; update();
+  }));
   function pills(){
     document.querySelectorAll('.switch').forEach(sw=>{
       const pill=sw.querySelector('.pill'), b=sw.querySelector('button[aria-pressed="true"]');
@@ -799,7 +880,7 @@
   }
   addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
-  function recommend(){const n=+g.value; if(kind==='mariage') return n<=40?'soiree':'club'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
+  function recommend(){const n=+g.value; if(typeof prise!=='undefined'&&!prise) return 'apero'; if(kind==='mariage') return n<=40?'soiree':'club'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
   function show(key,isReco){ show0(key,isReco); majAlerte(); }
   function show0(key,isReco){
     const p=PACKS[key];
@@ -1305,7 +1386,7 @@
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
     const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, invites:$('bk-invites').value,
-                   fete:$('bk-fete').value, message:$('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
+                   fete:$('bk-fete').value, message:(window.sansPrise ? '[Pas de prise électrique sur place] ' : '') + $('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
                    creerCompte: !$('bk-compte-zone').hidden && $('bk-compte').checked, offres: $('bk-offres').checked };
     const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : livraison le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+', à '+l.nom+'. '+nom);
@@ -1462,6 +1543,20 @@
       if (!ferme) { $('offre-txt').textContent = c.offre.texte + (c.offre.code ? ' · code ' + c.offre.code : ''); $('offre-bandeau').hidden = false; }
     }
     if (c.remiseNuit != null) REMISE = c.remiseNuit;
+    // avis clients : seulement si activés dans l'admin (le script n'envoie rien sinon)
+    if (c.temoignages && c.temoignages.liste && c.temoignages.liste.length) {
+      const box = $('avis-liste'); box.textContent = '';
+      c.temoignages.liste.forEach(a => {
+        const art = document.createElement('article'); art.className = 'avis-c';
+        const et = document.createElement('div'); et.className = 'et'; et.textContent = '★'.repeat(a.note) + '☆'.repeat(5 - a.note); et.setAttribute('aria-label', a.note + ' sur 5');
+        const p = document.createElement('p'); p.textContent = '« ' + a.texte + ' »';
+        const f = document.createElement('footer'); const b = document.createElement('b'); b.textContent = a.nom;
+        f.append(b, ' · Avis ' + (a.source || 'Google') + (a.date ? ' · ' + new Date(a.date + 'T12:00').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : ''));
+        art.append(et, p, f); box.appendChild(art);
+      });
+      if (/^https:\/\//.test(c.temoignages.lien || '')) { $('avis-lien').querySelector('a').href = c.temoignages.lien; $('avis-lien').hidden = false; }
+      $('avis').hidden = false;
+    }
     if (change) { const k = document.querySelector('#cpRail .cp[aria-pressed="true"]'); if (k) majPrixPack(k.dataset.pack); else majCartes(); maj(); }
     // stock réglé dans l'espace admin (onglet « Matériel ») : nombre maximum de chaque appareil dans « Mon panier »
     const stock = c.stock || {};
@@ -1478,9 +1573,10 @@
     const zone = document.getElementById('materiel'); if (!zone) return;
     zone.querySelectorAll('.item[data-article]').forEach(it => {
       const k = CLE[it.dataset.article]; if (!k) return;
+      it.querySelector('h3').insertAdjacentHTML('afterend', k === 'p310' ? '<span class="item-tag bat">🔋 Sur batterie (~18 h)</span>' : '<span class="item-tag">🔌 Prise nécessaire</span>');
       it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions">' +
-        '<a class="btn" href="#reserver" data-reserver="' + k + '">Réserver ' + (k === 'fumee' ? 'cette machine' : 'cette enceinte') + '</a>' +
-        '<button type="button" class="btn ghost" data-panier="' + k + '">+ Ajouter au panier</button></div>');
+        '<a class="btn" href="#reserver" data-reserver="' + k + '">Réserver<span class="long"> ' + (k === 'fumee' ? 'cette machine' : 'cette enceinte') + '</span></a>' +
+        '<button type="button" class="btn ghost" data-panier="' + k + '">+ <span class="long">Ajouter au </span>panier</button></div>');
     });
     const briller = el => { if (!el) return; el.classList.remove('surbrille'); void el.offsetWidth; el.classList.add('surbrille'); };
     zone.addEventListener('click', e => {
@@ -1495,7 +1591,7 @@
       if (p) {
         const k = p.dataset.panier;
         panier[k] = Math.min(STOCK[k], panier[k] + 1);
-        if (current === 'perso') majPanier(); else show('perso', false);
+        if (current === 'perso') { majPanier(); majAlerte(); } else show('perso', false);
         // descend sur le panier lui-même (sur téléphone, il est sous les questions)
         const res = $('rImg') || $('trouver');
         window.scrollTo({ top: res.getBoundingClientRect().top + scrollY - 80, behavior: 'smooth' });
