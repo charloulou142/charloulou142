@@ -233,6 +233,16 @@
   #reserver .veille{margin-top:10px;font-size:13px}
   #reserver .row2.livr{margin-top:10px}
   #reserver .livr-txt{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin:-2px 0 0}
+  /* retrait gratuit ou livraison (étape 2) */
+  #reserver .mode{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px}
+  #reserver .mode label{display:flex;flex-direction:column;gap:2px;padding:12px;border:1.5px solid var(--line,rgba(255,255,255,.14));border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s}
+  #reserver .mode input{position:absolute;opacity:0;pointer-events:none}
+  #reserver .mode b{font-size:15px}
+  #reserver .mode small{color:var(--muted);font-size:12.5px;line-height:1.35}
+  #reserver .mode em{font-style:normal;font-weight:700;color:var(--pink)}
+  #reserver .mode label:has(input:checked){border-color:var(--pink);background:color-mix(in srgb,var(--pink) 10%,transparent)}
+  #reserver .mode label:has(input:focus-visible){outline:2px solid var(--pink);outline-offset:2px}
+  #reserver .field[hidden]{display:none}
   #reserver .devis{margin-top:12px;padding:12px}
   #reserver .devis .l{padding:2px 0}
   #reserver .recap-offre{padding:9px 12px;margin-bottom:10px;font-size:15px}
@@ -566,7 +576,7 @@
 
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
-  <p class="lead">Une ou plusieurs soirées, livrées chez toi : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
+  <p class="lead">Une ou plusieurs soirées, livrées chez toi ou à retirer gratuitement à Salon : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
   <div class="reprise" id="bk-reprise" hidden>
     <span>🛒 Tu avais commencé une réservation : <b id="bk-reprise-txt"></b></span>
     <span class="reprise-btns"><button type="button" class="btn" id="bk-reprise-ok">Reprendre</button><button type="button" class="retour" id="bk-reprise-non">Effacer</button></span>
@@ -607,12 +617,16 @@
       <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, avec la réduction plusieurs soirées).</span></label>
      </div>
      <div class="wiz-pas" data-pas="2" hidden>
-      <h3>La livraison</h3>
+      <h3>Livraison ou retrait</h3>
       <p class="sous" id="bk-pas2-date"></p>
-      <div class="field"><label for="bk-heure">Heure de livraison *</label>
+      <div class="mode" role="radiogroup" aria-label="Livraison ou retrait">
+        <label><input type="radio" name="bk-mode" value="livraison" checked><b>🚗 Livraison</b><small>Chez toi ou sur le lieu de la fête · <em>dès 5 €</em></small></label>
+        <label><input type="radio" name="bk-mode" value="retrait"><b>📍 Retrait</b><small>Tu viens le chercher à Salon-de-Provence · <em>gratuit</em></small></label>
+      </div>
+      <div class="field"><label for="bk-heure" id="bk-heure-lbl">Heure de livraison *</label>
         <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
-        <small class="livr-txt">On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.</small></div>
-      <div class="field"><label for="bk-lieu">Ville ou code postal de livraison *</label>
+        <small class="livr-txt" id="bk-heure-txt">On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.</small></div>
+      <div class="field" id="bk-lieu-champ"><label for="bk-lieu">Ville ou code postal de livraison *</label>
         <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne ou 13330" autocomplete="address-level2">
         <datalist id="bk-villes"></datalist>
         <small class="livr-txt" id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu'à 25 km de Salon.</small></div>
@@ -696,7 +710,7 @@
   <p class="lead">Pas besoin d'être DJ ni technicien.</p>
   <div class="easy" style="text-align:left">
     <div><b>1</b><h3>Tu choisis</h3><p>Ton pack, en deux questions.</p></div>
-    <div><b>2</b><h3>On te livre</h3><p>Chez toi ou sur le lieu de la fête, tarif selon la distance.</p></div>
+    <div><b>2</b><h3>On te livre (ou tu passes le prendre)</h3><p>Livraison chez toi ou sur le lieu de la fête selon la distance, ou retrait gratuit à Salon-de-Provence.</p></div>
     <div><b>3</b><h3>Tu branches</h3><p>Une prise, ton téléphone en Bluetooth.</p></div>
     <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, avant midi.</p></div>
   </div>
@@ -716,12 +730,13 @@
   <div class="faq" style="text-align:left;margin-top:30px">
     <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
     <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
-    <details name="faq"><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville.</p></details>
+    <details name="faq"><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
+    <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
     <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages. Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
     <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée.</p></details>
-    <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
+    <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. En retrait, mêmes horaires : tu le récupères entre 17h00 et 19h30 et tu le rapportes avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
     <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins 2 heures avant la livraison ; sinon, appelle-nous au 06 22 12 39 63).</p></details>
     <details name="faq" class="plus"><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
     <details name="faq" class="plus"><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
@@ -1150,7 +1165,11 @@
     return null;
   }
   const villeDe = txt => { const r = chercheVille(txt); return typeof r === 'string' ? r : null; };
+  // retrait gratuit à Salon-de-Provence (demande de Mistraloc, 31/10) : l'adresse exacte est envoyée à la confirmation
+  const enRetrait = () => { const m = document.querySelector('input[name="bk-mode"]:checked'); return !!m && m.value === 'retrait'; };
+  const LIEU_RETRAIT = 'Retrait à Salon-de-Provence';
   function livraison(){
+    if (enRetrait()) return { etat: 'ok', retrait: true, nom: LIEU_RETRAIT, km: 0, prix: 0 };
     const txt = $('bk-lieu').value.trim(), r = chercheVille(txt), v = typeof r === 'string' ? r : null;
     if (!txt) return { etat: 'vide' };
     if (Array.isArray(r)) {
@@ -1185,11 +1204,17 @@
   function majTextesDegressif(){ document.querySelectorAll('[data-degressif]').forEach(e => { e.textContent = texteDegressif(); }); }
 
   function maj(){
-    const h = $('bk-heure') && $('bk-heure').value, p = periode();
+    const h = $('bk-heure') && $('bk-heure').value, p = periode(), ret = enRetrait();
     $('bk-date-txt').textContent = p
-      ? 'Livraison le ' + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
-        ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
+      ? (ret ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
+        (ret ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
       : 'Clique sur une date du calendrier.';
+    // étape 2 : champs et textes selon livraison / retrait
+    $('bk-lieu-champ').hidden = ret;
+    $('bk-heure-lbl').textContent = ret ? 'Heure de retrait *' : 'Heure de livraison *';
+    $('bk-heure-txt').textContent = ret
+      ? 'Retrait gratuit à Salon-de-Provence entre 17h00 et 19h30 (adresse exacte envoyée à la confirmation). Tu rapportes le matériel le lendemain de la dernière soirée, avant 12h00.'
+      : 'On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.';
     $('bk-pas2-date').textContent = p ? $('bk-date-txt').textContent : '';
     // moins de 2 h avant les livraisons de ce soir : on propose d'appeler
     const urg = $('bk-urgence'); if (urg) urg.hidden = !(ceSoirTropTot() && (!p || p.start === isoJ(new Date())));
@@ -1225,7 +1250,8 @@
       box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(red > 0 ? plein : loc0)) +
         (red > 0 ? ligne('Réduction ' + p.nuits + ' soirées', '−' + enEuros(red), 'promo') : '') +
         (rem ?ligne('Code ' + esc(promoActif.code) + ' (' + esc(promoActif.libelle) + ')', '−' + enEuros(rem), 'promo') : '') +
-        ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville') +
+        (l.retrait ? ligne('Retrait à Salon-de-Provence', 'gratuit')
+                   : ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville')) +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, puis ' + texteDegressif() + '. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
@@ -1360,8 +1386,9 @@
     const p = periode(), l = livraison(), h = $('bk-heure').value;
     const blocs = [
       ['Matériel', esc($('bk-recap-nom').textContent), 1],
-      ['Dates', p ? esc('Livraison le ' + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + ' · reprise le ' + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
-      ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
+      ['Dates', p ? esc((l.retrait ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + (l.retrait ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
+      l.retrait ? ['Retrait', 'Gratuit, à Salon-de-Provence (adresse envoyée à la confirmation)', 2]
+                : ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
       ['Tes infos', [$('bk-nom').value.trim(), $('bk-tel').value.trim(), $('bk-email').value.trim(), $('bk-fete').value + ($('bk-invites').value ? ' · ' + ($('bk-invites').value >= 200 ? '200+' : $('bk-invites').value) + ' invités' : '')].filter(Boolean).map(esc).join('<br>') +
         ($('bk-message').value.trim() ? '<br><i>« ' + esc($('bk-message').value.trim()) + ' »</i>' : ''), 3]
     ];
@@ -1416,7 +1443,7 @@
     }
     const o = offreSel.value; if (o && o !== 'Panier personnalisé') l.push('• Formule : ' + o.replace('Panier perso : ', 'Mon panier : '));
     const p = periode(); if (p) l.push('• Date : ' + jourTxt(p.start) + ' (' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + ')');
-    const v = $('bk-lieu').value.trim(); if (v) l.push('• Livraison : ' + v);
+    const v = $('bk-lieu').value.trim(); if (enRetrait()) l.push('• Retrait à Salon-de-Provence'); else if (v) l.push('• Livraison : ' + v);
     const f = document.querySelector('.choice[aria-pressed="true"]'), g2 = document.getElementById('g');
     if (f && g2) l.push('• Fête : ' + f.textContent.trim() + ', ' + (g2.value >= 200 ? '200+' : g2.value) + ' invités' + (window.sansPrise ? ', sans prise électrique' : ''));
     l.push('Ma question : ');
@@ -1457,6 +1484,7 @@
     await cliquer(k);
   });
   $('bk-lieu').addEventListener('input', maj);
+  document.querySelectorAll('input[name="bk-mode"]').forEach(r => r.addEventListener('change', () => { document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir')); maj(); }));
   $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
   $('bk-veille').addEventListener('change', async () => { aide(''); await verifVeille(); maj(); dessiner(); majHeures(); });
   $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
@@ -1495,17 +1523,17 @@
     const nom=$('bk-nom').value.trim(), tel=telNorme($('bk-tel').value) || $('bk-tel').value.trim(), p = periode(), l = livraison();
     if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
-    if (!heure) { $('bk-heure').focus(); return message('Choisis l\'heure de livraison (sous le calendrier).'); }
+    if (!heure) { $('bk-heure').focus(); return message(l.retrait ? 'Choisis l\'heure de retrait.' : 'Choisis l\'heure de livraison (sous le calendrier).'); }
     if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique la ville ou le code postal de livraison (sous le calendrier).'); }
     if (l.etat === 'choix') { $('bk-lieu').focus(); return message('Le ' + l.cp + ' correspond à plusieurs communes (' + l.liste.join(', ') + ') : écris ou choisis la tienne.'); }
     if (l.etat === 'loin') { $('bk-lieu').focus(); return message('On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
-    const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, invites:$('bk-invites').value,
+    const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, mode: l.retrait ? 'retrait' : 'livraison', invites:$('bk-invites').value,
                    fete:$('bk-fete').value, message:(window.sansPrise ? '[Pas de prise électrique sur place] ' : '') + $('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
                    creerCompte: !$('bk-compte-zone').hidden && $('bk-compte').checked, offres: $('bk-offres').checked };
-    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : livraison le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+', à '+l.nom+'. '+nom);
+    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : '+(l.retrait?'retrait':'livraison')+' le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+(l.retrait?', retrait à Salon-de-Provence':', à '+l.nom)+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
     attente(true); const t0 = Date.now();
@@ -1647,7 +1675,7 @@
       if (!debut || pas === 5) return;
       const k = cleOffre();
       const s = { k, offre: offreSel.value, panier: k === 'perso' ? Object.assign({}, panier) : null, debut, fin, veille: $('bk-veille').checked,
-                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, pas: Math.min(pas, 3), ts: Date.now() };
+                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, retrait: enRetrait(), pas: Math.min(pas, 3), ts: Date.now() };
       try { localStorage.setItem(CLE_RESA, JSON.stringify(s)); } catch (e) {}
     }, 400);
   }
@@ -1668,6 +1696,7 @@
     await dessiner(); majHeures();
     if (s.heure && [...$('bk-heure').options].some(o => o.value === s.heure && !o.disabled)) $('bk-heure').value = s.heure;
     if (s.lieu) $('bk-lieu').value = s.lieu;
+    if (s.retrait) document.querySelector('input[name="bk-mode"][value="retrait"]').checked = true;
     maj();
     let n = 1; while (n < (s.pas || 1) && !manque(n)) n++;
     allerA(n);
