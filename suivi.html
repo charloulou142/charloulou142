@@ -208,11 +208,11 @@
         carte.innerHTML = (info ? '<p style="margin-bottom:14px;font-weight:600">' + esc(info) + '</p>' : '') +
           '<span class="statut">' + esc(j.statut) + '</span><p class="explic">' + esc(j.explication) + '</p>' +
           '<ol class="etapes' + (j.etape < 0 ? ' annule' : '') + '">' + etapes.map((e, i) => '<li class="' + (j.etape >= i ? 'ok' : '') + '">' + e + '</li>').join('') + '</ol>' +
-          '<dl>' + (j.retour ? '<dt>Livraison</dt><dd>' + esc(j.date) + (j.heure ? ' à ' + esc(j.heure) : ' entre 17h00 et 19h30') + '</dd>' +
+          '<dl>' + (j.retour ? '<dt>' + (j.retrait ? 'Retrait' : 'Livraison') + '</dt><dd>' + esc(j.date) + (j.heure ? ' à ' + esc(j.heure) : ' entre 17h00 et 19h30') + '</dd>' +
                              (j.nuits > 1 ? '<dt>Soirées</dt><dd>' + esc(j.nuits) + ' (jusqu\'au ' + esc(j.fin) + ')</dd>' : '') +
-                             '<dt>Reprise</dt><dd>' + esc(j.retour) + ' avant ' + esc(j.retourAvant || '12h00') + '</dd>'
+                             '<dt>' + (j.retrait ? 'Retour' : 'Reprise') + '</dt><dd>' + esc(j.retour) + ' avant ' + esc(j.retourAvant || '12h00') + '</dd>'
                             : '<dt>Date</dt><dd>' + esc(j.date) + '</dd>') + '<dt>Matériel</dt><dd>' + esc(j.offre) + '</dd>' +
-          (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>Livraison</dt><dd>' + (j.livraison ? esc(j.livraison) : 'à confirmer') + '</dd>' : '') +
+          (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>' + (j.retrait ? 'Retrait' : 'Livraison') + '</dt><dd>' + (j.retrait ? 'gratuit (à Salon-de-Provence)' : j.livraison ? esc(j.livraison) : 'à confirmer') + '</dd>' : '') +
           (j.total ? '<dt>Total</dt><dd>' + esc(j.total) + ' <small style="font-weight:400;color:var(--muted)">hors caution</small></dd>' : '') + '</dl>' +
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
           (j.parrain ? htmlParrain(j.parrain) : '') +
