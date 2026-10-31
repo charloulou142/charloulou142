@@ -1535,19 +1535,24 @@
 
   /* ===== « Aujourd'hui » : ce qu'il y a à faire, livraisons et reprises du jour et du lendemain, liste d'attente ===== */
   const demainIso = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); };
-  const lieuDe = r => (etat.adresses || {})[r.ligne] || r.lieu || '';
+  // retrait par le client (31/10) : pas d'itinéraire, il vient chez toi
+  const retraitDe = r => String(r.lieu || '').indexOf('Retrait') === 0;
+  const lieuDe = r => retraitDe(r) ? '' : (etat.adresses || {})[r.ligne] || r.lieu || '';
   const lienCarte = lieu => 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(lieu + (/\d{5}/.test(lieu) ? '' : ', France'));
   function carteTache(r, quoi) {
     const l = docsDe([r.ligne]), lieu = lieuDe(r), tel = telChiffres(r.tel), prenom = String(r.client).trim().split(/\s+/)[0];
     const edlFait = l.some(d => genre(d) === 'edl' && (quoi === 'reprise' ? /retour/.test(d.type) : /livraison/.test(d.type)));
     const cni = l.some(d => genre(d) === 'cni'), ctr = l.some(d => genre(d) === 'contrat'), signable = !!(etat.loueur || {}).complet;
     const etatDocs = quoi === 'livraison' ? (cni ? '🪪 ✓' : '🪪 <b>manquante</b>') + (signable ? ' · ' + (ctr ? '✍️ ✓' : '✍️ <b>pas signé</b>') : '') + ' · ' : '';
-    const texteWa = quoi === 'livraison' ? 'Bonjour ' + prenom + ', ici Mistraloc 👋 Je te livre ' + (r.heure ? 'à ' + r.heure : 'ce soir') + ', c\'est toujours bon pour toi ?'
+    const ret = retraitDe(r);
+    const texteWa = ret ? (quoi === 'livraison' ? 'Bonjour ' + prenom + ', ici Mistraloc 👋 Je t\'attends ' + (r.heure ? 'à ' + r.heure : 'ce soir') + ' pour le retrait du matériel, c\'est toujours bon pour toi ?'
+                                                : 'Bonjour ' + prenom + ', ici Mistraloc 👋 Petit rappel : le matériel est à rapporter ce matin, avant 12h00. À quelle heure tu passes ?')
+      : quoi === 'livraison' ? 'Bonjour ' + prenom + ', ici Mistraloc 👋 Je te livre ' + (r.heure ? 'à ' + r.heure : 'ce soir') + ', c\'est toujours bon pour toi ?'
       : 'Bonjour ' + prenom + ', ici Mistraloc 👋 Je passe reprendre le matériel ce matin, avant 12h00 : à quelle heure ça t\'arrange ?';
     return '<div class="tache' + (quoi === 'reprise' ? ' reprise' : '') + '"><span class="h">' + esc(quoi === 'livraison' ? (r.heure || '17h') : '12h') +
-      '<small>' + (quoi === 'livraison' ? 'livraison' : 'reprise avant') + '</small></span>' +
+      '<small>' + (ret ? (quoi === 'livraison' ? 'retrait client' : 'retour client avant') : quoi === 'livraison' ? 'livraison' : 'reprise avant') + '</small></span>' +
       '<div><b class="nom">' + esc(r.client) + ' <span class="badge ' + esc(r.statut.split(' ')[0]) + '" style="margin:0 0 0 4px;font-size:11px;padding:1px 8px">' + esc(r.statut) + '</span></b>' +
-      '<span class="q">' + esc(r.offre.replace(/^Panier perso : /, '')) + (r.nuits > 1 ? ' · ' + r.nuits + ' soirées' : '') + (lieu ? ' · 📍 ' + esc(lieu) : '') + '</span></div>' +
+      '<span class="q">' + esc(r.offre.replace(/^Panier perso : /, '')) + (r.nuits > 1 ? ' · ' + r.nuits + ' soirées' : '') + (ret ? ' · 📍 vient chez toi (retrait)' : lieu ? ' · 📍 ' + esc(lieu) : '') + '</span></div>' +
       '<span class="q">' + etatDocs + (edlFait ? '📋 état des lieux fait ✓' : '📋 état des lieux à faire') + '</span>' +
       '<div class="contact">' + (tel ? '<a href="tel:' + esc(tel) + '">📞 Appeler</a><a href="' + esc(lienWa(r.tel, texteWa)) + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '') +
       (lieu ? '<a href="' + esc(lienCarte(lieu)) + '" target="_blank" rel="noopener">🗺 Itinéraire</a>' : '') +
@@ -1563,7 +1568,7 @@
       '&waypoints=' + encodeURIComponent(etapes.slice(0, -1).join('|')) : '';
     return '<div class="section-t"><h2>' + titre + '</h2>' + (tournee ? '<a href="' + esc(tournee) + '" target="_blank" rel="noopener">🗺 Toute la tournée</a>' : '') + '</div>' +
       (rep.length || liv.length ? rep.map(r => carteTache(r, 'reprise')).join('') + liv.map(r => carteTache(r, 'livraison')).join('')
-        : '<p class="vide-jour">Aucune livraison ni reprise.</p>');
+        : '<p class="vide-jour">Aucune livraison, reprise ni retrait.</p>');
   }
   function afficherAccueil() {
     if (!etat) return;
