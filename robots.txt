@@ -1,4 +1,4 @@
-# Mistraloc · location son & lumière · Salon-de-Provence
+# Mistraloc : location son & lumière à Salon-de-Provence
 User-agent: *
 Disallow: /admin
 Disallow: /suivi
