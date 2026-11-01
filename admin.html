@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data: blob: https://*.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src blob: data:; upgrade-insecure-requests">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Espace admin · Mistraloc</title>
@@ -368,6 +369,7 @@
     <div data-p="plus" hidden>
       <div class="tuiles" id="tuiles"></div>
       <button class="btn ghost" type="button" id="b-logout" style="margin-top:18px">Se déconnecter</button>
+      <button class="btn ghost" type="button" id="b-deco-tout" style="margin-top:10px">Déconnecter tous les appareils</button>
     </div>
 
     <div data-p="infos" hidden>
@@ -718,7 +720,8 @@
   const nomDoc = d => genre(d) === 'facture' ? '🧾 Facture ' + String(d.detail || '').split(' ')[0] : genre(d) === 'edl' ? '📋 ' + d.type : genre(d) === 'contrat' ? '✍️ Contrat signé' : '🪪 ' + (/verso/.test(d.type) ? 'Pièce d\'identité (verso)' : 'Pièce d\'identité' + (d.detail && !/·/.test(d.detail) ? ' – ' + d.detail.toLowerCase() : '') + ' (recto)');
   function ligneDoc(d, avecClient) {
     return '<div class="doc-l' + (d.garder ? ' garde' : '') + '" data-doc="' + esc(d.id) + '"><div><b>' + esc(nomDoc(d)) + '</b>' +
-      '<small>' + esc([avecClient ? d.client : '', 'reçu le ' + jjmm(d.date), d.resaDate ? 'location du ' + jjmm(d.resaDate) : 'réservation supprimée',
+      '<small>' + esc([avecClient ? d.client : '', 'reçu le ' + jjmm(d.date),
+        genre(d) === 'cni' && d.lecture ? (d.lecture === 'ok' ? '✓ pièce reconnue' : d.lecture === 'illisible' ? '⚠ texte illisible : vérifie la photo' : '⚠ pas lue automatiquement : vérifie la photo') : '', d.resaDate ? 'location du ' + jjmm(d.resaDate) : 'réservation supprimée',
         genre(d) === 'facture' ? (String(d.detail || '').split(' · ')[1] || '') + ' · gardée 10 ans' : d.contrat ? 'gardé 5 ans' : d.garder ? '🔒 gardée (litige)' : d.effacerLe ? 'effacée le ' + jjmm(d.effacerLe) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
       '<span class="actions"><button type="button" class="btn small" data-doc-voir>Voir</button>' +
       (d.contrat ? '' : '<button type="button" class="btn ghost small" data-doc-redem>📷 Redemander</button>' +
@@ -1298,6 +1301,11 @@
     g.addEventListener('focusin', e => { const b = e.target.closest('button'); if (b) montrer(b); });
   }
   $('b-logout').addEventListener('click', async () => { try { await appel('admin_logout'); } catch (e) {} deconnecte(); });
+  // en cas de doute (téléphone perdu, ordinateur partagé) : ferme toutes les sessions ouvertes, y compris celle-ci
+  $('b-deco-tout').addEventListener('click', async () => {
+    if (!confirm('Déconnecter tous les appareils connectés à ton admin (y compris celui-ci) ?')) return;
+    try { await appel('admin_deco_tout'); } catch (e) {} deconnecte();
+  });
 
   function dateFr(iso) { return iso ? new Date(iso + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'date à définir'; }
   function afficherResa() {
