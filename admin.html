@@ -618,7 +618,7 @@
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
-    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_bon_cadeau: 'Création du bon cadeau…', admin_offre: 'Enregistrement de l\'offre…',
+    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_bon_cadeau: 'Création du bon cadeau…', admin_bon_suppr: 'Suppression du bon…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
     admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…', admin_loueur_sig: 'Enregistrement de ta signature…',
     admin_facture: 'Création de la facture (PDF)…', admin_attente_suppr: 'Suppression…', admin_parrainage: 'Enregistrement du parrainage…' };
@@ -1275,7 +1275,8 @@
       return '<div class="code-row' + (c.actif && !utilise && !expire ? '' : ' off') + '"><div><b>' + esc(codeJoli(c.code)) + '</b> · ' + eur(c.valeur) + ' · pour ' + esc(i.pour) +
         '<div class="note" style="margin:0">' + (i.de ? 'de ' + esc(i.de) + ' · ' : '') + etatB + '</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">' +
         '<button type="button" class="btn ghost small" data-bon-img="' + esc(c.code) + '">Image</button>' +
-        (utilise ? '' : '<button type="button" class="btn ghost small" data-code="' + esc(c.code) + '">' + (c.actif ? 'Désactiver' : 'Réactiver') + '</button>') + '</div></div>';
+        (utilise ? '' : '<button type="button" class="btn ghost small" data-code="' + esc(c.code) + '">' + (c.actif ? 'Désactiver' : 'Réactiver') + '</button>') +
+        '<button type="button" class="btn ghost small" data-bon-suppr="' + esc(c.code) + '" aria-label="Supprimer le bon ' + esc(codeJoli(c.code)) + '">🗑 Supprimer</button></div></div>';
     }).join('') : '';
   }
   $('b-vite').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) { $('b-montant').value = b.dataset.v; $('b-pour').focus(); } });
@@ -1290,6 +1291,21 @@
     } catch (err) { msg('m-admin', 'Bon pas créé : ' + (err.message || 'erreur') + '.'); }
   }); });
   $('liste-bons').addEventListener('click', e => {
+    const sp = e.target.closest('button[data-bon-suppr]');
+    if (sp) {
+      const c = (etat.codes || []).find(x => x.code === sp.dataset.bonSuppr); if (!c) return;
+      const i = infosBon(c);
+      if (!confirm('Supprimer définitivement le bon ' + codeJoli(c.code) + ' (' + eur(c.valeur) + ' pour ' + i.pour + ') ? Le code ne marchera plus sur le site. Cette action ne peut pas être annulée.')) return;
+      occupe(sp, async () => {
+        try {
+          const j = await appel('admin_bon_suppr', { code: c.code });
+          if (!j.ok) throw new Error(j.erreur);
+          etat.codes = j.codes; afficherOffres(); $('b-apercu').hidden = true;
+          msg('m-admin', 'Bon ' + codeJoli(c.code) + ' supprimé.', true);
+        } catch (err) { msg('m-admin', 'Pas supprimé : ' + (err.message || 'erreur') + '.'); }
+      });
+      return;
+    }
     const im = e.target.closest('button[data-bon-img]');
     if (im) { const c = (etat.codes || []).find(x => x.code === im.dataset.bonImg); if (c) montrerBon(Object.assign({ code: c.code, montant: c.valeur, fin: c.fin }, infosBon(c))); return; }
     const b = e.target.closest('button[data-code]'); if (!b) return;
