@@ -549,6 +549,56 @@
   #faq .faq details.plus{display:none}
   #faq .faq.tout details.plus{display:block}
   .faq-plus{display:block;margin:12px auto 0;background:none;border:0;color:var(--cyan);font:inherit;font-weight:700;cursor:pointer;padding:8px}
+  /* ===== Espace de réservation plein écran (01/11) : l'accueil présente le matériel, un bouton fait « entrer » dans un espace à étapes ===== */
+  body:not(.esp) #trouver,body:not(.esp) #reserver,body:not(.esp) #esp-tete{display:none}
+  body.esp>nav.top,body.esp>header.hero,body.esp>section:not(#trouver):not(#reserver),body.esp>footer,body.esp .reprise-accueil{display:none}
+  body.esp[data-phase="pack"] #reserver,body.esp[data-phase="resa"] #trouver{display:none}
+  body.esp section#trouver,body.esp section#reserver{padding:18px 0 110px;min-height:calc(100vh - 66px);min-height:calc(100dvh - 66px);background:transparent}
+  body.esp #trouver>.wrap>h2,body.esp #trouver>.wrap>.lead,body.esp #reserver>.wrap>h2,body.esp #reserver>.wrap>.lead,body.esp #wiz-etapes{display:none}
+  body.esp #trouver .finder{display:block;max-width:720px;margin:0 auto}
+  body.esp .fq{display:none}
+  body.esp[data-fq="1"] .fq[data-fq="1"],body.esp[data-fq="2"] .fq[data-fq="2"],body.esp[data-fq="3"] .fq[data-fq="3"]{display:block}
+  body.esp[data-fq="4"] #trouver .q,body.esp:not([data-fq="4"]) #trouver .result{display:none}
+  body:not(.esp) #barre-total,body.esp[data-phase="pack"]:not([data-fq="4"]) #barre-total{display:none!important}
+  body.esp .q{padding:26px 22px}
+  body.esp .fq h3{font-size:clamp(26px,7vw,36px);line-height:1.15;margin:6px 0 24px!important}
+  body.esp .fq h3 small{display:none}
+  body.esp .fq .choices{margin-bottom:4px}
+  body.esp .fq .choice,body.esp .fq .choice-p{padding:18px 16px;font-size:16px}
+  body.esp .fq .choice-p{width:100%}
+  body.esp .fq .choix-prise{grid-template-columns:1fr}
+  .esp-suite{display:none}
+  body.esp .esp-suite{display:flex;width:100%;justify-content:center;margin-top:26px}
+  .esp-astuce{display:none}
+  body.esp .esp-astuce{display:block;color:var(--muted);font-size:14px;margin:18px 0 0;text-align:center}
+  .esp-choix{display:none}
+  body.esp[data-fq="4"] .esp-choix{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;max-width:720px;margin:0 auto 14px;font-size:14px}
+  .esp-choix span{padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
+  .esp-choix button{border:0;background:none;color:var(--cyan);font:inherit;font-weight:700;cursor:pointer;padding:6px 4px;text-decoration:underline;text-underline-offset:3px}
+  .esp-tete{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .esp-tete[hidden]{display:none}
+  .esp-tete .wrap{display:flex;align-items:center;gap:12px;height:62px}
+  .esp-btn{width:42px;height:42px;flex:0 0 42px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+  .esp-btn:hover{border-color:var(--pink)}
+  .esp-btn:disabled{visibility:hidden}
+  .esp-titre{flex:1;min-width:0;text-align:center}
+  .esp-titre small{display:block;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.04em}
+  .esp-titre b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .esp-barre{height:3px;background:var(--line)}
+  .esp-barre i{display:block;height:100%;width:var(--av,12.5%);background:linear-gradient(90deg,var(--pink),var(--violet),var(--cyan));transition:width .45s cubic-bezier(.2,.8,.2,1)}
+  .esp-voile{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#2A1450 0%,#0B0714 72%);pointer-events:none}
+  .esp-voile[hidden]{display:none}
+  .esp-voile svg{width:120px;height:auto;fill:none;overflow:visible}
+  .esp-voile path{stroke:#FF7A1A;stroke-width:10;stroke-linecap:round;stroke-dasharray:130;stroke-dashoffset:130;animation:espTrace .55s .08s ease forwards}
+  .esp-voile circle{fill:#22D3EE;transform-box:fill-box;transform-origin:center;transform:scale(0);animation:espPoint .3s .5s ease forwards}
+  @keyframes espTrace{to{stroke-dashoffset:0}}
+  @keyframes espPoint{to{transform:scale(1)}}
+  .btn-go{font-size:18px;padding:17px 30px;animation:goPulse 2.6s ease-out infinite}
+  @keyframes goPulse{0%{box-shadow:0 0 0 0 rgba(255,122,26,.45)}70%,100%{box-shadow:0 0 0 16px rgba(255,122,26,0)}}
+  .go-sous{margin:14px auto 0!important;font-size:14px!important;color:var(--muted);text-align:center}
+  .reprise-accueil{padding-top:18px}
+  .cta-centre{text-align:center;margin-top:30px}
+  @media (prefers-reduced-motion:reduce){.btn-go{animation:none}.esp-voile path{animation:none;stroke-dashoffset:0}.esp-voile circle{animation:none;transform:none}}
 </style>
 </head>
 <body>
@@ -566,15 +616,35 @@
     <span class="eyebrow">Location sono &amp; lumière · <span style="white-space:nowrap">Salon-de-Provence</span> <span style="white-space:nowrap">et alentours</span></span>
     <h1>Ta fête,<br><em>en grand.</em></h1>
     <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
-    <div class="ctas"><a class="btn" href="#trouver">Trouver mon pack en 10 s</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
+    <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
+    <p class="go-sous">Ton pack, ta date et la livraison : tout se fait en 2 minutes.</p>
   </div>
 </header>
+<div class="wrap reprise-accueil">
+  <div class="reprise" id="bk-reprise" hidden>
+    <span>🛒 Tu avais commencé une réservation : <b id="bk-reprise-txt"></b></span>
+    <span class="reprise-btns"><button type="button" class="btn" id="bk-reprise-ok">Reprendre</button><button type="button" class="retour" id="bk-reprise-non">Effacer</button></span>
+  </div>
+</div>
+
+<!-- espace de réservation plein écran : en-tête (retour, étape, fermer) + voile d'entrée animé -->
+<div class="esp-tete" id="esp-tete" hidden>
+  <div class="wrap">
+    <button type="button" class="esp-btn" id="esp-retour" aria-label="Étape précédente">‹</button>
+    <div class="esp-titre" aria-live="polite"><small id="esp-num">Étape 1 sur 8</small><b id="esp-nom">Ta fête</b></div>
+    <button type="button" class="esp-btn" id="esp-fermer" aria-label="Fermer et revenir à l'accueil">✕</button>
+  </div>
+  <div class="esp-barre" aria-hidden="true"><i></i></div>
+</div>
+<div class="esp-voile" id="esp-voile" aria-hidden="true" hidden><svg viewBox="0 0 100 80"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg></div>
 
 <section id="trouver" class="alt"><div class="wrap">
   <h2>Trouve ton pack</h2>
   <p class="lead">Deux questions, et on te recommande la bonne formule.</p>
+  <p class="esp-choix" id="esp-choix"></p>
   <div class="finder">
     <div class="q">
+      <div class="fq" data-fq="1">
       <h3><small>01</small>Quelle fête ?</h3>
       <div class="choices" role="group" aria-label="Type de fête">
         <button class="choice" data-k="anniv" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16v-8H4z"/><path d="M4 16h16"/><path d="M12 13V9"/><path d="M12 6a1.5 1.5 0 0 1-1.5-1.5C10.5 3 12 2 12 2s1.5 1 1.5 2.5A1.5 1.5 0 0 1 12 6z"/></svg>Anniversaire</button>
@@ -582,16 +652,24 @@
         <button class="choice" data-k="mariage" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14" r="6"/><circle cx="15" cy="14" r="6"/><path d="M10 4l2-2 2 2"/></svg>Mariage</button>
         <button class="choice" data-k="autre" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>Autre événement</button>
       </div>
+      </div>
+      <div class="fq" data-fq="2">
       <h3><small>02</small>Combien d'invités ?</h3>
       <div class="range">
         <output id="gOut">30</output>
         <input id="g" type="range" min="5" max="200" step="5" value="30" aria-label="Nombre d'invités">
         <div class="scale"><span>5</span><span>100</span><span>200+</span></div>
       </div>
+      <p class="esp-astuce">Fais glisser le curseur, à peu près suffit.</p>
+      <button type="button" class="btn esp-suite" data-esp-suite="3">Continuer →</button>
+      </div>
+      <div class="fq" data-fq="3">
       <h3 style="margin-top:26px"><small>03</small>Une prise électrique sur place ?</h3>
       <div class="choices choix-prise" role="group" aria-label="Prise électrique sur place">
         <button type="button" class="choice-p" data-prise="oui" aria-pressed="true"><span aria-hidden="true">🔌</span>Oui, il y a une prise</button>
         <button type="button" class="choice-p" data-prise="non" aria-pressed="false"><span aria-hidden="true">🌳</span>Non, dehors sans prise</button>
+      </div>
+      <p class="esp-astuce">Sans prise, on te conseille du matériel sur batterie.</p>
       </div>
     </div>
     <div class="result" aria-live="polite">
@@ -627,10 +705,6 @@
 <section id="reserver"><div class="wrap">
   <h2>Choisis ta date et réserve</h2>
   <p class="lead">Une ou plusieurs soirées, livrées chez toi ou à retirer gratuitement à Salon : le prix total s'affiche tout de suite. Ta demande nous arrive aussitôt, on te confirme rapidement par téléphone ou WhatsApp.</p>
-  <div class="reprise" id="bk-reprise" hidden>
-    <span>🛒 Tu avais commencé une réservation : <b id="bk-reprise-txt"></b></span>
-    <span class="reprise-btns"><button type="button" class="btn" id="bk-reprise-ok">Reprendre</button><button type="button" class="retour" id="bk-reprise-non">Effacer</button></span>
-  </div>
   <div class="wiz" id="wiz">
     <ol class="wiz-etapes" id="wiz-etapes" aria-label="Étapes de la réservation">
       <li data-pas="1"><button type="button"><b>1</b>Matériel &amp; date</button></li>
@@ -763,6 +837,7 @@
     <article class="item" data-article="Laser KeoBin 3D RGB"><div class="ph" data-dessin="laser">Laser KeoBin 3D RGB</div><div class="in"><h3>Laser KeoBin 3D RGB</h3><p>Un laser 3D rouge, vert et bleu : motifs et nappes de lumière, superbe avec la machine à fumée. S'accroche au trépied.</p><b>dès <span class="prixsem">17,90 €</span> / soirée en semaine<br><small><span class="prix">24,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item" data-article="Paire de micros sans fil JBL"><div class="ph" data-dessin="micro">2 micros sans fil JBL</div><div class="in"><h3>2 micros sans fil JBL</h3><p>Deux micros JBL PartyBox Wireless Mic, rechargeables : discours, karaoké, mariage. Ils se branchent sur la PartyBox.</p><b>dès <span class="prixsem">9,90 €</span> / soirée en semaine<br><small><span class="prix">12,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
   </div>
+  <p class="cta-centre"><a class="btn" href="#trouver" data-esp-go>Réserver ma soirée →</a></p>
 </div></section>
 
 <section class="alt"><div class="wrap center">
@@ -774,7 +849,8 @@
     <div><b>3</b><h3>Tu branches</h3><p>Une prise, ton téléphone en Bluetooth.</p></div>
     <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, avant midi.</p></div>
   </div>
-  <p style="margin-top:26px"><a href="comment-ca-marche.html" style="color:var(--cyan);font-weight:700">Tout savoir sur le déroulé et les tarifs →</a></p>
+  <p class="cta-centre"><a class="btn" href="#trouver" data-esp-go>Réserver ma soirée →</a></p>
+  <p style="margin-top:20px"><a href="comment-ca-marche.html" style="color:var(--cyan);font-weight:700">Tout savoir sur le déroulé et les tarifs →</a></p>
 </div></section>
 
 <!-- avis clients : n'apparaît que lorsque Mistraloc l'active dans l'admin (au moins 3 vrais avis Google) -->
@@ -1020,7 +1096,7 @@
   const $reserver=()=>{ const r=document.getElementById('reserver'); if(r) r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); };
   document.getElementById('rPanier').addEventListener('click',e=>{
     const go=e.target.closest('button[data-pack-go]'); if(go){ show(go.dataset.packGo,false); return; }
-    const vd=e.target.closest('button[data-vide]'); if(vd){ boiteVide.ici=''; if(vd.dataset.vide==='ok'){ trepVideOk=true; majPanier(false); location.hash='reserver'; $reserver(); } else { accChoisie=SLOTS.indexOf(null); majPanier(false); } return; }
+    const vd=e.target.closest('button[data-vide]'); if(vd){ boiteVide.ici=''; if(vd.dataset.vide==='ok'){ trepVideOk=true; majPanier(false); if(window.espResa) window.espResa(); else $reserver(); } else { accChoisie=SLOTS.indexOf(null); majPanier(false); } return; }
     const ac=e.target.closest('button[data-acc]'); if(ac){ const i=+ac.dataset.acc; accChoisie=accChoisie===i?null:i; boiteVide.ici=''; majPanier(false); const z=document.querySelector('#conf-trep .bulles'); if(z&&z.getBoundingClientRect().bottom>innerHeight) z.scrollIntoView({block:'nearest',behavior:'smooth'}); return; }
     const lu=e.target.closest('button[data-lum]'); if(lu&&accChoisie!=null){
       const a=lu.dataset.lum, i=accChoisie; SLOTS[i]=a||null;
@@ -2096,6 +2172,142 @@
         setTimeout(() => briller($('rPanier')), 500);
       }
     });
+  })();
+
+  // ===== Espace de réservation plein écran (01/11) =====
+  // L'accueil présente le matériel ; « Réserver ma soirée » (ou tout lien vers le pack / la réservation) fait entrer dans un espace
+  // à 8 étapes : 1 fête · 2 invités · 3 prise · 4 pack, puis les 4 étapes de la réservation. Un seul écran à la fois, sans défiler.
+  (() => {
+    const B = document.body, $e = id => document.getElementById(id);
+    const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const NOMS = ['Ta fête', 'Tes invités', 'Électricité sur place', 'Ton pack', 'Ta date', 'Livraison ou retrait', 'Tes infos', 'Récap'];
+    let ouvert = false, phase = 'pack', fq = 1, vu = false, passe = false, anime = false, scrollAccueil = 0;
+    const pasResa = () => { const v = document.querySelector('#bk-form .wiz-pas:not([hidden])'); return v ? +v.dataset.pas : 1; };
+    const echap = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    function entree(el, sens){ if (doux && el) el.animate([{ opacity: 0, transform: 'translateX(' + (36 * sens) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 360, easing: 'cubic-bezier(.2,.8,.2,1)' }); }
+    function majChoix(){
+      const f = document.querySelector('#trouver .choice[aria-pressed="true"]'), g = $e('g'), p = document.querySelector('#trouver .choice-p[aria-pressed="true"]');
+      $e('esp-choix').innerHTML = '<span>🎉 ' + echap(f ? f.textContent.trim() : 'Fête') + '</span><span>👥 ' + (+g.value >= 200 ? '200+' : g.value) + ' invités</span>' +
+        '<span>' + (p && p.dataset.prise === 'non' ? '🌳 Sans prise' : '🔌 Prise sur place') + '</span><button type="button" data-esp-fq="1">Modifier</button>';
+    }
+    function majTete(){
+      const p = pasResa(), fini = phase === 'resa' && p === 5, n = phase === 'pack' ? fq : 4 + Math.min(p, 4);
+      $e('esp-num').textContent = fini ? 'C\'est envoyé' : 'Étape ' + n + ' sur 8';
+      $e('esp-nom').textContent = fini ? 'Demande envoyée ✓' : NOMS[n - 1];
+      $e('esp-tete').style.setProperty('--av', (fini ? 100 : n / 8 * 100) + '%');
+      $e('esp-retour').disabled = fini;
+      B.dataset.phase = phase; B.dataset.fq = phase === 'resa' ? 4 : fq;
+      if (phase === 'pack' && fq === 4) majChoix();
+    }
+    function allerFq(n, sil){
+      const sens = phase === 'resa' || n < fq ? -1 : 1;
+      phase = 'pack'; fq = n; majTete(); window.scrollTo(0, 0);
+      if (!sil) entree(n === 4 ? document.querySelector('#trouver .result') : document.querySelector('#trouver .fq[data-fq="' + n + '"]'), sens);
+    }
+    function allerResa(sil){ phase = 'resa'; fq = 4; majTete(); window.scrollTo(0, 0); if (!sil) entree($e('wiz'), 1); }
+    const aller = (c, sil) => c === 'resa' ? allerResa(sil) : allerFq(c, sil);
+    window.espResa = () => { if (ouvert) allerResa(); };
+    const reprendre = () => {
+      if (!vu) return 1;
+      if (pasResa() === 5) { $e('bk-encore').click(); return 1; }   // demande déjà envoyée : on repart du début
+      return phase === 'resa' ? 'resa' : fq;
+    };
+    function retour(){
+      if (phase === 'resa') { const p = pasResa(); if (p === 5) return fermer(); if (p > 1) return $e('wiz-prec').click(); return allerFq(4); }
+      if (fq > 1) return allerFq(fq - 1);
+      fermer();
+    }
+    function ouvrir(cible, x, y, suite){
+      if (ouvert) { aller(cible); if (suite) suite(); return; }
+      if (anime) return;
+      const go = () => {
+        scrollAccueil = scrollY; ouvert = true; vu = true;
+        B.classList.add('esp'); $e('esp-tete').hidden = false;
+        try { history.pushState({ esp: 1 }, '', location.pathname + location.search); } catch (e) {}
+        aller(cible, true);
+        if (suite) suite();
+      };
+      if (!doux) return go();
+      const v = $e('esp-voile'), cx = x == null ? innerWidth / 2 : x, cy = y == null ? innerHeight / 2 : y;
+      const r = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
+      anime = true; v.hidden = false;
+      v.animate([{ clipPath: 'circle(0px at ' + cx + 'px ' + cy + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + cx + 'px ' + cy + 'px)' }], { duration: 480, easing: 'cubic-bezier(.7,0,.3,1)' }).onfinish = () => {
+        go();
+        setTimeout(() => {
+          const zone = phase === 'resa' ? $e('reserver') : $e('trouver');
+          zone.animate([{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: 'cubic-bezier(.2,.8,.2,1)' });
+          v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, easing: 'ease' }).onfinish = () => { v.hidden = true; anime = false; };
+        }, 260);
+      };
+    }
+    function fermer(depuisHist){
+      if (!ouvert || anime) return;
+      ouvert = false;   // tout de suite : le « popstate » du history.back() ci-dessous est alors ignoré
+      if (!depuisHist) { try { if (history.state && history.state.esp) history.back(); } catch (e) {} }
+      const fin = () => { B.classList.remove('esp'); $e('esp-tete').hidden = true; window.scrollTo(0, scrollAccueil); };
+      if (!doux) return fin();
+      const v = $e('esp-voile'); anime = true; v.hidden = false;
+      v.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease' }).onfinish = () => {
+        fin();
+        v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: 'ease' }).onfinish = () => { v.hidden = true; anime = false; };
+      };
+    }
+    // bouton « retour » du téléphone : étape précédente, puis retour à l'accueil
+    addEventListener('popstate', e => {
+      if (!ouvert || anime) return;
+      if ((phase === 'pack' && fq === 1) || (phase === 'resa' && pasResa() === 5)) return fermer(true);
+      retour();
+      if (!(e.state && e.state.esp)) { try { history.pushState({ esp: 1 }, '', location.pathname + location.search); } catch (er) {} }
+    });
+    // tous les chemins vers le pack ou la réservation passent par l'espace
+    document.addEventListener('click', e => {
+      if (passe) return;
+      const t = e.target;
+      const a = t.closest('a[href="#trouver"], a[href="#reserver"], [data-esp-go]');
+      if (!ouvert) {
+        const cat = t.closest('#materiel [data-reserver], #materiel [data-panier], #materiel [data-creer]'), autre = t.closest('#bk-reprise-ok, #offre-go');
+        let cible = null;
+        if (cat) cible = cat.matches('[data-reserver]') && cat.dataset.reserver !== 'ptm' ? 'resa' : 4;
+        else if (autre) cible = autre.id === 'bk-reprise-ok' ? 'resa' : reprendre();
+        else if (a) cible = reprendre();
+        if (cible == null) return;
+        e.preventDefault(); e.stopPropagation();
+        const el = cat || autre;   // on rejoue le clic une fois dans l'espace (choix de l'appareil, reprise…)
+        ouvrir(cible, e.clientX || null, e.clientY || null, el ? () => { passe = true; try { el.click(); } finally { passe = false; } } : null);
+        return;
+      }
+      if (a) {
+        e.preventDefault();
+        if (a.id === 'rBook') { if (a.classList.contains('off') || (typeof trepVide === 'function' && trepVide())) return; allerResa(); return; }
+        if (a.getAttribute('href') === '#reserver') allerResa(); else allerFq(4);
+        return;
+      }
+      if (t.closest('#bt-btn') && phase === 'pack') { e.preventDefault(); e.stopPropagation(); $e('rBook').click(); return; }
+      const tv = t.closest('#bk-trep-vide [data-vide]');
+      if (tv && tv.dataset.vide !== 'ok') allerFq(4, true);
+    }, true);
+    // un lien interne qui change l'adresse (#reserver) : on reste dans l'espace, adresse nettoyée
+    addEventListener('hashchange', () => {
+      const h = location.hash; if (h !== '#reserver' && h !== '#trouver') return;
+      try { history.replaceState({ esp: 1 }, '', location.pathname + location.search); } catch (e) {}
+      if (ouvert) { if (h === '#reserver') allerResa(); else allerFq(4); } else ouvrir(1);
+    });
+    // questions : on passe tout seul à la suivante après un choix
+    document.querySelectorAll('#trouver .choice').forEach(c => c.addEventListener('click', () => { if (ouvert && phase === 'pack' && fq === 1) setTimeout(() => allerFq(2), 260); }));
+    document.querySelectorAll('#trouver .choice-p').forEach(c => c.addEventListener('click', () => { if (ouvert && phase === 'pack' && fq === 3) setTimeout(() => allerFq(4), 260); }));
+    document.addEventListener('click', e => {
+      const s = e.target.closest('[data-esp-suite]'); if (s) { allerFq(+s.dataset.espSuite); return; }
+      const m = e.target.closest('[data-esp-fq]'); if (m) allerFq(+m.dataset.espFq);
+    });
+    $e('esp-retour').addEventListener('click', retour);
+    $e('esp-fermer').addEventListener('click', () => fermer());
+    $e('bk-encore').addEventListener('click', () => { if (ouvert) allerFq(1); });
+    new MutationObserver(() => { if (ouvert) majTete(); }).observe($e('bk-form'), { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+    // arrivée depuis une autre page (./#reserver, ./#trouver) : on ouvre l'espace directement
+    if (location.hash === '#reserver' || location.hash === '#trouver') {
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      ouvrir(1);
+    }
   })();
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
