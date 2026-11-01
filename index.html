@@ -2245,14 +2245,21 @@
       const v = $e('esp-voile'), cx = x == null ? innerWidth / 2 : x, cy = y == null ? innerHeight / 2 : y;
       const r = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
       anime = true; v.hidden = false;
-      v.animate([{ clipPath: 'circle(0px at ' + cx + 'px ' + cy + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + cx + 'px ' + cy + 'px)' }], { duration: 480, easing: 'cubic-bezier(.7,0,.3,1)' }).onfinish = () => {
+      // sécurité : si l'animation ne se termine pas (appli mise en arrière-plan…), l'espace s'ouvre quand même et le voile disparaît
+      let entre = false;
+      const entrer = () => {
+        if (entre) return; entre = true;
         go();
         setTimeout(() => {
           const zone = phase === 'resa' ? $e('reserver') : $e('trouver');
           zone.animate([{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: 'cubic-bezier(.2,.8,.2,1)' });
-          v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, easing: 'ease' }).onfinish = () => { v.hidden = true; anime = false; };
+          const cacher = () => { v.hidden = true; anime = false; };
+          v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, easing: 'ease' }).onfinish = cacher;
+          setTimeout(cacher, 700);
         }, 260);
       };
+      v.animate([{ clipPath: 'circle(0px at ' + cx + 'px ' + cy + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + cx + 'px ' + cy + 'px)' }], { duration: 480, easing: 'cubic-bezier(.7,0,.3,1)' }).onfinish = entrer;
+      setTimeout(entrer, 800);
     }
     function fermer(depuisHist){
       if (!ouvert || anime) return;
@@ -2261,10 +2268,16 @@
       const fin = () => { B.classList.remove('esp'); $e('esp-tete').hidden = true; window.scrollTo(0, scrollAccueil); };
       if (!doux) return fin();
       const v = $e('esp-voile'); anime = true; v.hidden = false;
-      v.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease' }).onfinish = () => {
+      let sorti = false;
+      const sortir = () => {
+        if (sorti) return; sorti = true;
         fin();
-        v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: 'ease' }).onfinish = () => { v.hidden = true; anime = false; };
+        const cacher = () => { v.hidden = true; anime = false; };
+        v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: 'ease' }).onfinish = cacher;
+        setTimeout(cacher, 700);
       };
+      v.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease' }).onfinish = sortir;
+      setTimeout(sortir, 500);
     }
     // bouton « retour » du téléphone : étape précédente, puis retour à l'accueil
     addEventListener('popstate', e => {
@@ -2277,6 +2290,9 @@
     document.addEventListener('click', e => {
       if (passe) return;
       const t = e.target;
+      // « Déjà client ? Connecte-toi » / « Mon compte » pendant la réservation : on enregistre la réservation, puis retour ici après la connexion
+      const lc = t.closest('#reserver a[href^="compte.html"]');
+      if (lc) { e.preventDefault(); if (typeof sauverResa === 'function') sauverResa(); setTimeout(() => { location.href = 'compte.html?retour=resa'; }, 500); return; }
       const a = t.closest('a[href="#trouver"], a[href="#reserver"], [data-esp-go]');
       if (!ouvert) {
         const cat = t.closest('#materiel [data-reserver], #materiel [data-panier], #materiel [data-creer]'), autre = t.closest('#bk-reprise-ok, #offre-go');
@@ -2322,6 +2338,11 @@
     if (location.hash === '#reserver' || location.hash === '#trouver') {
       try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
       ouvrir(1);
+    }
+    // retour de « Mon compte » (connexion pendant la réservation) : la réservation reprend là où elle en était
+    if (/[?&]reprendre=1/.test(location.search)) {
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      if (!$e('bk-reprise').hidden) $e('bk-reprise-ok').click(); else ouvrir(1);
     }
   })();
 
