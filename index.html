@@ -104,6 +104,9 @@
   .panier-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,122,26,.45);background:rgba(255,122,26,.08)}
   .panier-total span{margin-right:auto;font-weight:700;color:var(--muted)}
   .panier-total b{font-size:24px;display:inline-block}
+  @media (max-width:420px){ #barre-total .bt-txt b{font-size:16px} }
+  .consent span{min-width:0;overflow-wrap:anywhere}
+  .panier-total b .des{font-style:normal;font-size:14px;font-weight:600;color:var(--muted)}
   .panier-total b.bump{animation:bump .45s cubic-bezier(.3,1.6,.5,1)}
   .panier-total small{width:100%;text-align:right;color:var(--muted);font-size:12px}
   .ligne{display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:border-color .2s}
@@ -344,7 +347,8 @@
   .devis .tot b.bump{animation:bump .45s cubic-bezier(.3,1.6,.5,1)}
   @keyframes bump{40%{transform:scale(1.18);color:var(--pink)}}
   /* récap (étape 4) */
-  .resume{display:grid;gap:10px;margin-bottom:14px}
+  .resume{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:14px}
+  .resume .bloc>div{min-width:0;overflow-wrap:anywhere}
   .resume .bloc{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;gap:12px;justify-content:space-between;align-items:flex-start;animation:glisse .45s both;animation-delay:calc(var(--i,0) * 70ms)}
   .resume .bloc span{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
   .resume .bloc p{margin:0;line-height:1.45}
@@ -384,6 +388,11 @@
   .deja-btns input{flex:1 1 140px;min-width:0;max-width:200px;letter-spacing:3px;font-size:18px;text-align:center}
   .deja-compte small{display:block;margin-top:6px;font-weight:600;color:var(--cyan)}
   .urgence{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,122,26,.55);background:rgba(255,122,26,.08);font-size:14px;line-height:1.45}
+  .urg-mini{display:none}
+  .urgence.mini:not([hidden]){display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-style:dashed;background:none}
+  .urgence.mini p{display:none}
+  .urgence.mini .urg-mini{display:inline}
+  .urgence.mini .btn{padding:7px 12px;font-size:13.5px}
   .urgence[hidden]{display:none}
   .urgence p{margin:0 0 10px}
   .urgence .btn{display:inline-block;padding:10px 16px;font-size:15px}
@@ -637,7 +646,7 @@
     <h1>Ta fête,<br><em>en grand.</em></h1>
     <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
-    <p class="go-sous">Ton pack, ta date et la livraison : tout se fait en 2 minutes.</p>
+    <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · livraison dès 5 € ou retrait gratuit · réservation en 2 minutes.</p>
   </div>
 </header>
 <div class="wrap reprise-accueil">
@@ -760,7 +769,7 @@
       </div>
       <div class="chosen" id="bk-date-txt">Clique sur une date du calendrier.</div>
       <p class="astuce-nuit" id="bk-astuce-nuit" hidden></p>
-      <div class="urgence" id="bk-urgence" hidden><p>⏱️ On a besoin d'<b>au moins 2 h</b> entre ta réservation et la livraison. Pour ce soir, appelle-nous : on fait au mieux.</p><a class="btn" href="tel:+33622123963">📞 Appeler le 06 22 12 39 63</a></div>
+      <div class="urgence" id="bk-urgence" hidden><p>⏱️ On a besoin d'<b>au moins 2 h</b> entre ta réservation et la livraison. Pour ce soir, appelle-nous : on fait au mieux.</p><span class="urg-mini">Une fête <b>ce soir</b> ? </span><a class="btn" href="tel:+33622123963">📞 Appeler le 06 22 12 39 63</a></div>
       <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, avec la réduction plusieurs soirées).</span></label>
      </div>
      <div class="wiz-pas" data-pas="2" hidden>
@@ -1065,7 +1074,7 @@
   boiteVide.ici='';
   // photo du site (images/…webp) ou photo envoyée depuis l'admin (adresse complète)
   const imgSrc=f=>/^(https?:|data:)/.test(f)?f:'images/'+f+'.webp';
-  PACKS.perso={name:'Sur mesure',price:'0 €',sem:'0 €',items:[],why:'Ajoute ce que tu veux : enceintes, fumée, micros, trépied lumière… le total se calcule tout seul.'};
+  PACKS.perso={name:'Compose ta soirée',price:'0 €',sem:'0 €',items:[],why:'Ajoute ce que tu veux : enceintes, fumée, micros, trépied lumière… le total se calcule tout seul.'};
   PACKS.creer={name:'Crée ton trépied',price:'',sem:'',items:[],why:''};   // carte « Crée ton trépied » : ouvre « Mon panier » avec le trépied
   const prixNum=k=>parseFloat(PACKS[k].price.replace(/[^\d,.]/g,'').replace(',','.'))||0;
   const semNum=k=>parseFloat(String(PACKS[k].sem||PACKS[k].price).replace(/[^\d,.]/g,'').replace(',','.'))||0;
@@ -1101,7 +1110,8 @@
     const semT=Object.keys(panier).reduce((t,k)=>t+panier[k]*semNum(k),0);
     PACKS.perso.sem=enEuros(semT);
     // total à jour, juste au-dessus des appareils (il « saute » quand il change)
-    box.insertAdjacentHTML('afterbegin','<div class="panier-total"><span>Ton total</span><b>'+enEuros(total)+'</b><small>'+(total?'/ soirée le week-end'+(semT<total?' · '+enEuros(semT)+' en semaine':''):'Ajoute un appareil ci-dessous ↓')+'</small></div>');
+    const basT=semT>0&&semT<total;
+    box.insertAdjacentHTML('afterbegin','<div class="panier-total"><span>Ton total</span><b>'+(basT?'<i class="des">dès </i>'+enEuros(semT):enEuros(total))+'</b><small>'+(total?(basT?'/ soirée en semaine (dim. → jeu.) · '+enEuros(total)+' le week-end (ven. et sam.)':'/ soirée'):'Ajoute un appareil ci-dessous ↓')+'</small></div>');
     if(majPanier.dernier!=null&&majPanier.dernier!==total){const tb=box.querySelector('.panier-total b');tb.classList.add('bump');}
     majPanier.dernier=total;
     document.getElementById('rPrice').textContent=PACKS.perso.price;
@@ -1114,7 +1124,7 @@
     const COMPO=Object.assign({apero:{p310:1},soiree:{p710:1,fumee:1},club:{p710:2,fumee:1},ptl:{trep:1,wzy:2,laser:2},ptm:{trep:1,wzy:2,beto:2}},SL_COMPO);
     const pk=Object.keys(COMPO).find(c=>Object.keys(panier).every(k=>panier[k]===(COMPO[c][k]||0)));
     const astuce=pk&&prixNum(pk)<total?'<p class="astuce">💡 Le même matériel existe en <b>'+PACKS[pk].name+'</b> à '+PACKS[pk].price+' au lieu de '+enEuros(total)+'. <button type="button" data-pack-go="'+pk+'">Voir le pack</button></p>':'';
-    document.getElementById('rPanier').insertAdjacentHTML('beforeend',astuce);
+    const totBox=box.querySelector('.panier-total'); if(astuce) totBox.insertAdjacentHTML('afterend',astuce);
     const vide=!total;
     document.getElementById('rBook').classList.toggle('off',vide);
     document.getElementById('rBook').textContent=vide?'Ajoute un appareil ↓':'Choisir ma date →';
@@ -1253,7 +1263,7 @@
     if(!alerte&&STOCK.micro>0&&!c.micro&&(c.p310||c.p710||c.pult)){
       const pm=enEuros(semNum('micro')), pw=PACKS.micro.price;
       h+=(h?'<br>':'')+(k==='soiree'||k==='club'||SL_COMPO[k]
-        ? '🎤 Des discours ou du karaoké ? Écris « micros » dans ton message (étape 3) : on ajoute les <b>2 micros sans fil</b> (+'+pm+' en semaine, '+pw+' le week-end).'
+        ? '🎤 Des discours ou du karaoké ? Écris « micros » dans ton message (étape « Tes infos ») : on ajoute les <b>2 micros sans fil</b> (+'+pm+' en semaine, '+pw+' le week-end).'
         : '🎤 Ajoute les <b>2 micros sans fil</b> pour les discours ou le karaoké : <b>+'+pm+'</b> en semaine. <button type="button" data-plus="micro">Ajouter les micros</button>');
     }
     const nInv=+g.value, besoinInv=kind==='mariage'?nInv*2:nInv;
@@ -1560,7 +1570,7 @@
       : 'On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.';
     $('bk-pas2-date').textContent = p ? $('bk-date-txt').textContent : '';
     // moins de 2 h avant les livraisons de ce soir : on propose d'appeler
-    const urg = $('bk-urgence'); if (urg) urg.hidden = !(ceSoirTropTot() && (!p || p.start === isoJ(new Date())));
+    const urg = $('bk-urgence'); if (urg) { urg.hidden = !(ceSoirTropTot() && (!p || p.start === isoJ(new Date()))); urg.classList.toggle('mini', !p); }
     // astuce : une soirée de plus coûte moins cher (tarif dégressif)
     const an = $('bk-astuce-nuit');
     if (an) {
