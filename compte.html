@@ -159,6 +159,8 @@
 (() => {
   const API = 'https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec';
   const CLE = 'mistraloc_compte';
+  // venu de la réservation (« Déjà client ? Connecte-toi ») : après la connexion, on y retourne directement
+  const RETOUR = /[?&]retour=resa/.test(location.search);
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   let session = null; try { session = JSON.parse(localStorage.getItem(CLE) || 'null'); } catch (e) {}
@@ -238,9 +240,16 @@
       const j = await appel('compte_login', { email: mail, code, nom: $('c-nom').value.trim(), tel: $('c-tel').value.trim(), offres: $('c-offres').checked }, 'Connexion…');
       if (!j.ok) return msg('m-code', j.erreur || 'Connexion impossible.');
       garder({ token: j.token, profil: j.profil });
+      if (RETOUR) { location.href = './?reprendre=1'; return; }
       afficher(j);
     } catch (err) { msg('m-code', 'Impossible de joindre le serveur. Réessaie dans un instant.'); }
   });
+
+  if (RETOUR) {   // bandeau pour revenir à la réservation sans se connecter
+    const b = document.createElement('p'); b.className = 'msg ok'; b.style.margin = '0 0 16px';
+    b.innerHTML = '🛒 Ta réservation est gardée : une fois connecté, tu y reviens directement. <a href="./?reprendre=1" style="color:inherit;font-weight:700">← Revenir à ma réservation</a>';
+    const m = document.querySelector('main'); m.insertBefore(b, m.firstElementChild);
+  }
 
   /* ----- infos, déconnexion, suppression ----- */
   $('f-profil').addEventListener('submit', async e => {
