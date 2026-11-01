@@ -456,6 +456,8 @@
   .alerte-inv button,.plus-fumee button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
   .plus-fumee{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(139,92,246,.10);border:1px dashed rgba(139,92,246,.55);color:var(--text)}
   .plus-fumee[hidden]{display:none}
+  .opt-micros{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .opt-micros input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:var(--pink);cursor:pointer}
   /* configurateur « Crée ton trépied » (01/11) */
   .conf-trep{border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.06);border-radius:16px;padding:12px 12px 10px}
   .conf-t{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 6px;font-size:15px}
@@ -906,7 +908,7 @@
   <h2>Questions fréquentes</h2>
   <div class="faq" style="text-align:left;margin-top:30px">
     <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : tout se connecte en Bluetooth, et on t'explique tout à la livraison.</p></details>
-    <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu peux la laisser en espèces, par carte ou par chèque, et elle t'est rendue au retour du matériel.</p></details>
+    <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui. Son montant dépend de l'enceinte louée. Tu la laisses par chèque ou en espèces, et elle t'est rendue au retour du matériel.</p></details>
     <details name="faq"><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
@@ -918,7 +920,7 @@
     <details name="faq" class="plus"><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
     <details name="faq" class="plus"><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
     <details name="faq" class="plus"><summary>Comment je suis ma réservation ?</summary><p>Après ta demande, tu reçois un lien personnel (par e-mail si tu nous l'as laissé, sinon par WhatsApp). Il montre l'état de ta réservation : reçue, confirmée, livrée, terminée.</p></details>
-    <details name="faq" class="plus"><summary>Vous louez des micros ?</summary><p>Oui : une paire de micros sans fil JBL (<span data-prix-we="micro">12,90 €</span> le week-end, <span data-prix-sem="micro">9,90 €</span> en semaine). Ils se branchent sur la PartyBox, pour les discours, le karaoké ou un mariage. Ajoute-les dans « Mon panier », ou écris « micros » dans ton message si tu prends un Pack Soirée ou Club.</p></details>
+    <details name="faq" class="plus"><summary>Vous louez des micros ?</summary><p>Oui : une paire de micros sans fil JBL (<span data-prix-we="micro">12,90 €</span> le week-end, <span data-prix-sem="micro">9,90 €</span> en semaine). Ils se branchent sur la PartyBox, pour les discours, le karaoké ou un mariage. Coche « Ajouter les 2 micros sans fil » sous ton pack, ou ajoute-les dans « Compose ta soirée ».</p></details>
     <details name="faq" class="plus"><summary>Comment marchent les lumières ?</summary><p>Les lyres et le laser s'accrochent sur notre trépied (2 barres de 4 accroches, jusqu'à 3,51 m de haut) : on ne les loue pas sans lui. Prends le Pack Trépied Laser ou le Pack Trépied Lumière, un pack « Son + lumière » (enceinte + trépied), ou touche « Crée ton trépied » dans <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour choisir chaque lumière. Elles se branchent sur une prise.</p></details>
   </div>
   <button type="button" class="faq-plus" onclick="this.previousElementSibling.classList.add('tout');this.remove()">Voir les 8 autres questions ↓</button>
@@ -935,7 +937,7 @@
     <a class="btn ghost" href="https://www.instagram.com/mistraloc/" target="_blank" rel="noopener">Instagram · @mistraloc</a>
   </div>
 </div></section>
-<footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span><a href="comment-ca-marche.html" style="color:inherit">Comment ça marche</a> · <a href="livraison.html" style="color:inherit">Zone de livraison</a> · <a href="conditions.html" style="color:inherit">Conditions de location</a> · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="https://www.instagram.com/mistraloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
+<footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span><a href="comment-ca-marche.html" style="color:inherit">Comment ça marche</a> · <a href="livraison.html" style="color:inherit">Zone de livraison</a> · <a href="avant-ta-fete.html" style="color:inherit">Avant ta fête</a> · <a href="conditions.html" style="color:inherit">Conditions de location</a> · <a href="confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="mentions-legales.html" style="color:inherit">Mentions légales</a> · <a href="https://www.instagram.com/mistraloc/" target="_blank" rel="noopener" style="color:inherit">Instagram</a></span></div></footer>
 <!-- bulle d'aide : ouvre WhatsApp avec un message déjà rempli (étape, formule, date, ville) -->
 <a class="aide-wa" id="aide-wa" href="https://wa.me/33622123963" target="_blank" rel="noopener" aria-label="Besoin d'aide ? Écris-nous sur WhatsApp" hidden>
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1c-.2.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.6-.3z"/></svg>
@@ -1232,6 +1234,12 @@
   // ---- alerte « ce choix risque d'être juste pour ton nombre d'invités » ----
   // invités conseillés par appareil (mêmes repères que la recommandation : 310 ≈ 20, 710 ≈ 80 ; Ultimate ≈ 120 = estimation) ; mariage = on compte double
   const CAP={p310:20,p710:80,pult:120,fumee:0};
+  // OPTION MICROS sur un pack (01/11) : l'offre envoyée devient « Pack … + Paire de micros sans fil JBL » (même nom côté script)
+  const MICRO_SUF=' + Paire de micros sans fil JBL';
+  let avecMicros=false;
+  const microsPossibles=k=>{ const c=(typeof COMPO_K!=='undefined'&&COMPO_K[k])||{}; return k!=='perso'&&!!PACKS[k]&&/^Pack /.test(PACKS[k].name)&&!c.micro&&!!(c.p310||c.p710||c.pult)&&(STOCK.micro||0)>0&&!CACHES.has('micro'); };
+  const nomOffre=k=>PACKS[k].name+(avecMicros&&microsPossibles(k)?MICRO_SUF:'');
+  function optionOffre(v){ const s=document.getElementById('bk-offre'); if(s&&![...s.options].some(o=>o.value===v)){ const o=document.createElement('option'); o.value=o.textContent=v; s.appendChild(o); } return v; }
   const COMPO_K={apero:{p310:1},soiree:{p710:1,fumee:1},club:{p710:2,fumee:1},p310:{p310:1},p710:{p710:1},pult:{pult:1},fumee:{fumee:1},
     ptl:{trep:1,wzy:2,laser:2},ptm:{trep:1,wzy:2,beto:2},micro:{micro:1},trep:{trep:1}};
   Object.assign(COMPO_K,SL_COMPO);
@@ -1269,10 +1277,10 @@
       else h='✨ Ajoute la <b>machine à fumée</b> (fumée colorée, effet boîte de nuit) : <b>+'+prixF+'</b> en semaine. <button type="button" data-plus="fumee">Ajouter la fumée</button>';
     }
     // micros : proposés avec une enceinte (dans un Pack Soirée / Club, on les ajoute sur demande pour garder le prix du pack)
-    if(!alerte&&STOCK.micro>0&&!c.micro&&(c.p310||c.p710||c.pult)){
+    if((!alerte||microsPossibles(k))&&STOCK.micro>0&&!c.micro&&(c.p310||c.p710||c.pult)){   // la case micros reste visible même avec une alerte (sinon des micros cochés seraient cachés)
       const pm=enEuros(semNum('micro')), pw=PACKS.micro.price;
-      h+=(h?'<br>':'')+(k==='soiree'||k==='club'||SL_COMPO[k]
-        ? '🎤 Des discours ou du karaoké ? Écris « micros » dans ton message (étape « Tes infos ») : on ajoute les <b>2 micros sans fil</b> (+'+pm+' en semaine, '+pw+' le week-end).'
+      h+=(h?'<br>':'')+(microsPossibles(k)
+        ? '<label class="opt-micros"><input type="checkbox" id="cb-micros"'+(avecMicros?' checked':'')+'><span>🎤 Ajouter les <b>2 micros sans fil</b> (discours, karaoké) : <b>+'+pm+'</b> en semaine, +'+pw+' le week-end</span></label>'
         : '🎤 Ajoute les <b>2 micros sans fil</b> pour les discours ou le karaoké : <b>+'+pm+'</b> en semaine. <button type="button" data-plus="micro">Ajouter les micros</button>');
     }
     const nInv=+g.value, besoinInv=kind==='mariage'?nInv*2:nInv;
@@ -1284,6 +1292,11 @@
   document.getElementById('rAlerte').addEventListener('click',e=>{const b=e.target.closest('button[data-go]'); if(!b) return;
     if(b.dataset.go==='2x310'){ Object.keys(panier).forEach(a=>panier[a]=0); panier.p310=Math.min(2,STOCK.p310); if(current==='perso'){majPanier();majAlerte();} else show('perso',false); return; }
     show(b.dataset.go,b.dataset.go===recommend());});
+  document.getElementById('rPlus').addEventListener('change',e=>{
+    if(e.target.id!=='cb-micros') return;
+    avecMicros=e.target.checked;
+    if(current&&current!=='perso'){ window.packChoisi=optionOffre(nomOffre(current)); if(window.bkSync) window.bkSync(); }
+  });
   document.getElementById('rPlus').addEventListener('click',e=>{const b=e.target.closest('button[data-plus]'); if(!b) return;
     if(b.dataset.plus==='soiree'||b.dataset.plus==='pcult'){ show(b.dataset.plus,b.dataset.plus===recommend()); return; }
     if(b.dataset.plus==='perso-trep'){ const pk=current; Object.keys(panier).forEach(a=>panier[a]=0); Object.assign(panier,COMPO_K[pk]); SLOTS=(SLOTS_PACK[pk]||[]).slice(); accChoisie=null; show('perso',false); return; }
@@ -1345,7 +1358,7 @@
     if(perso){ document.getElementById('rTag').textContent='Sur mesure'; majPanier(); return; }
     document.getElementById('rBook').classList.remove('off');
     document.getElementById('rBook').textContent='Choisir ma date →';
-    window.packChoisi=p.name;
+    window.packChoisi=optionOffre(nomOffre(key));
     if (window.bkSync) window.bkSync();
   }
   function update(){g.style.setProperty('--p',((g.value-g.min)/(g.max-g.min)*100)+'%');gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
@@ -1386,8 +1399,13 @@
   // disponibilité d'un jour pour l'offre choisie (horaires fixes : un appareil rendu le matin repart le soir même, donc on raisonne par jour)
   function statutDe(data, k){
     if (!data) return 'a_confirmer';
-    const statuts = data.offres && data.offres[offreSel.value];
-    if (statuts) return statuts[k] || 'a_confirmer';
+    let ov = offreSel.value; const mic = ov.endsWith(MICRO_SUF); if (mic) ov = ov.slice(0, -MICRO_SUF.length);
+    const statuts = data.offres && data.offres[ov];
+    if (statuts) {
+      const s = statuts[k] || 'a_confirmer';
+      if (mic && s !== 'complet' && data.reste && data.reste[k]) { const v = data.reste[k][PACK_CLE.micro]; if (v != null && v < 1) return 'complet'; }
+      return s;
+    }
     if (offreSel.value.indexOf('Panier perso : ') !== 0 || !data.reste || !data.reste[k]) return 'a_confirmer';
     const r = data.reste[k]; let inconnu = false;   // panier perso : chaque appareil choisi comparé aux unités encore libres
     for (const a in panier) {
@@ -1548,11 +1566,13 @@
   // ---- prix : soirée du vendredi ou du samedi = tarif week-end, sinon tarif semaine ----
   // TARIF DÉGRESSIF : soirées triées de la plus chère à la moins chère ; la 1re plein tarif, la 2e −r2 %, 3e-4e −r3 %, dès la 5e −r5 % (réglé dans l'admin)
   const remiseRang = i => i === 0 ? 0 : (i === 1 ? DEGR.r2 : i <= 3 ? DEGR.r3 : DEGR.r5) / 100;
-  function cleOffre(){ const o = offreSel.value; return o.indexOf('Panier perso') === 0 ? 'perso' : Object.keys(PACKS).find(c => PACKS[c].name === o); }
+  function cleOffre(){ const o = offreSel.value; if (o.indexOf('Panier perso') === 0) return 'perso'; const b = o.endsWith(MICRO_SUF) ? o.slice(0, -MICRO_SUF.length) : o; return Object.keys(PACKS).find(c => PACKS[c].name === b); }
+  const micOffre = () => offreSel.value.endsWith(MICRO_SUF);
   function prixSoirees(p){
     const k = cleOffre(); if (!k || !p) return null;
     const l = [];
-    for (let i = 0; i < p.nuits; i++) { const j = new Date(plusJ(p.start, i) + 'T12:00').getDay(); l.push(j === 5 || j === 6 ? prixNum(k) : semNum(k)); }
+    const m = micOffre();
+    for (let i = 0; i < p.nuits; i++) { const j = new Date(plusJ(p.start, i) + 'T12:00').getDay(); l.push(j === 5 || j === 6 ? prixNum(k) + (m ? prixNum('micro') : 0) : semNum(k) + (m ? semNum('micro') : 0)); }
     if (l.some(v => !(v > 0))) return null;
     return l.sort((a, b) => b - a);
   }
@@ -1589,8 +1609,10 @@
     }
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
     const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
-    $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o;
-    $('bk-recap-prix').textContent = k && PACKS[k] ? '· ' + PACKS[k].price + '/soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '') : '';
+    const mic = micOffre();
+    $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o.replace(MICRO_SUF, ' + 2 micros sans fil');
+    $('bk-recap-prix').textContent = k && PACKS[k] ? (mic ? '· ' + enEuros(prixNum(k) + prixNum('micro')) + '/soirée le week-end, ' + enEuros(semNum(k) + semNum('micro')) + ' en semaine'
+      : '· ' + PACKS[k].price + '/soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '')) : '';
     // rangée de packs : bouton actif + le garder visible dans la ligne (sans faire bouger la page)
     const choix = $('bk-choix');
     choix.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pack === k)));
@@ -1859,6 +1881,8 @@
   $('bk-lieu').addEventListener('input', maj);
   document.querySelectorAll('input[name="bk-mode"]').forEach(r => r.addEventListener('change', () => { document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir')); maj(); }));
   $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
+  // arrivée depuis une page de ville (?ville=Istres#reserver) : commune de livraison déjà remplie
+  try { const vq = new URLSearchParams(location.search).get('ville'); if (vq && VILLES[vq] != null) { $('bk-lieu').value = vq; maj(); history.replaceState(history.state, '', location.pathname + location.hash); } } catch (e) {}
   $('bk-veille').addEventListener('change', async () => { aide(''); await verifVeille(); maj(); dessiner(); majHeures(); });
   $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
   $('cal-next').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()+1, 1); dessiner(); });
@@ -2069,7 +2093,7 @@
     const s = resaGardee; if (!s) return;
     $('bk-reprise').hidden = true;
     if (s.k === 'perso' && s.panier) { Object.keys(panier).forEach(a => { panier[a] = Math.max(0, Math.min(STOCK[a] || 0, Number(s.panier[a]) || 0)); }); current = null; show('perso', false); }
-    else if (s.k && PACKS[s.k]) show(s.k, s.k === recommend());
+    else if (s.k && PACKS[s.k]) { avecMicros = String(s.offre || '').endsWith(MICRO_SUF); show(s.k, s.k === recommend()); }
     debut = s.debut; fin = s.fin || s.debut; $('bk-veille').checked = !!s.veille;
     const d = new Date(s.debut + 'T12:00'); vue = new Date(d.getFullYear(), d.getMonth(), 1);
     await dessiner(); majHeures();

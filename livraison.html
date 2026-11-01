@@ -106,8 +106,8 @@
   .carte-bulle span{color:var(--muted)}
   .carte-bulle strong{color:var(--pink);font-size:16px}
   .carte-aide{margin:0;padding:10px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
-  tbody tr{cursor:pointer;transition:background .2s}
-  tbody tr:hover,tbody tr.on{background:color-mix(in srgb,var(--pink) 12%,transparent)}
+  .tab-communes tbody tr{cursor:pointer;transition:background .2s}
+  .tab-communes tbody tr:hover,.tab-communes tbody tr.on{background:color-mix(in srgb,var(--pink) 12%,transparent)}
   @media (prefers-reduced-motion:reduce){ .carte-svg .onde-salon{animation:none;opacity:0} }
 </style>
   <div class="carte">
@@ -145,51 +145,53 @@
   </div>
 
   <h2>Les 27 communes livrées</h2>
-  <div class="tab-wrap"><table>
+  <div class="tab-wrap"><table class="tab-communes">
     <thead><tr><th>Commune</th><th class="n">Distance</th><th class="n">Livraison</th></tr></thead>
     <tbody>
-      <tr><td>Salon-de-Provence</td><td class="n">0 km</td><td class="n">5 €</td></tr>
-      <tr><td>Grans</td><td class="n">6 km</td><td class="n">12 €</td></tr>
+      <tr><td><a href="location-sono-salon-de-provence.html">Salon-de-Provence</a></td><td class="n">0 km</td><td class="n">5 €</td></tr>
+      <tr><td><a href="location-sono-grans.html">Grans</a></td><td class="n">6 km</td><td class="n">12 €</td></tr>
       <tr><td>Aurons</td><td class="n">8 km</td><td class="n">15 €</td></tr>
-      <tr><td>Pélissanne</td><td class="n">8 km</td><td class="n">15 €</td></tr>
+      <tr><td><a href="location-sono-pelissanne.html">Pélissanne</a></td><td class="n">8 km</td><td class="n">15 €</td></tr>
       <tr><td>Cornillon-Confoux</td><td class="n">9 km</td><td class="n">16 €</td></tr>
       <tr><td>Lamanon</td><td class="n">9 km</td><td class="n">16 €</td></tr>
-      <tr><td>Eyguières</td><td class="n">12 km</td><td class="n">19 €</td></tr>
+      <tr><td><a href="location-sono-eyguieres.html">Eyguières</a></td><td class="n">12 km</td><td class="n">19 €</td></tr>
       <tr><td>La Barben</td><td class="n">12 km</td><td class="n">19 €</td></tr>
-      <tr><td>Miramas</td><td class="n">12 km</td><td class="n">19 €</td></tr>
+      <tr><td><a href="location-sono-miramas.html">Miramas</a></td><td class="n">12 km</td><td class="n">19 €</td></tr>
       <tr><td>Alleins</td><td class="n">13 km</td><td class="n">21 €</td></tr>
-      <tr><td>Lançon-Provence</td><td class="n">13 km</td><td class="n">21 €</td></tr>
-      <tr><td>Saint-Chamas</td><td class="n">13 km</td><td class="n">21 €</td></tr>
+      <tr><td><a href="location-sono-lancon-provence.html">Lançon-Provence</a></td><td class="n">13 km</td><td class="n">21 €</td></tr>
+      <tr><td><a href="location-sono-saint-chamas.html">Saint-Chamas</a></td><td class="n">13 km</td><td class="n">21 €</td></tr>
       <tr><td>Sénas</td><td class="n">15 km</td><td class="n">23 €</td></tr>
       <tr><td>Aureille</td><td class="n">16 km</td><td class="n">24 €</td></tr>
       <tr><td>Mallemort</td><td class="n">16 km</td><td class="n">24 €</td></tr>
       <tr><td>Vernègues</td><td class="n">16 km</td><td class="n">24 €</td></tr>
       <tr><td>La Fare-les-Oliviers</td><td class="n">17 km</td><td class="n">25 €</td></tr>
-      <tr><td>Lambesc</td><td class="n">18 km</td><td class="n">27 €</td></tr>
+      <tr><td><a href="location-sono-lambesc.html">Lambesc</a></td><td class="n">18 km</td><td class="n">27 €</td></tr>
       <tr><td>Mérindol</td><td class="n">19 km</td><td class="n">28 €</td></tr>
       <tr><td>Saint-Cannat</td><td class="n">19 km</td><td class="n">28 €</td></tr>
-      <tr><td>Saint-Martin-de-Crau</td><td class="n">21 km</td><td class="n">30 €</td></tr>
-      <tr><td>Berre-l'Étang</td><td class="n">22 km</td><td class="n">31 €</td></tr>
+      <tr><td><a href="location-sono-saint-martin-de-crau.html">Saint-Martin-de-Crau</a></td><td class="n">21 km</td><td class="n">30 €</td></tr>
+      <tr><td><a href="location-sono-berre-l-etang.html">Berre-l'Étang</a></td><td class="n">22 km</td><td class="n">31 €</td></tr>
       <tr><td>Charleval</td><td class="n">22 km</td><td class="n">31 €</td></tr>
-      <tr><td>Istres</td><td class="n">23 km</td><td class="n">33 €</td></tr>
+      <tr><td><a href="location-sono-istres.html">Istres</a></td><td class="n">23 km</td><td class="n">33 €</td></tr>
       <tr><td>Velaux</td><td class="n">24 km</td><td class="n">34 €</td></tr>
-      <tr><td>Rognac</td><td class="n">25 km</td><td class="n">35 €</td></tr>
+      <tr><td><a href="location-sono-rognac.html">Rognac</a></td><td class="n">25 km</td><td class="n">35 €</td></tr>
       <tr><td>Rognes</td><td class="n">25 km</td><td class="n">35 €</td></tr>
     </tbody>
   </table></div>
   <p class="note">Distances par la route depuis le centre de Salon-de-Provence, calculées avec OpenStreetMap. Contours des communes : geo.api.gouv.fr. Le prix exact s'affiche automatiquement quand tu réserves.</p>
 
+  <p class="note">Location à : <a href="location-sono-salon-de-provence.html">Salon-de-Provence</a> · <a href="location-sono-istres.html">Istres</a> · <a href="location-sono-miramas.html">Miramas</a> · <a href="location-sono-pelissanne.html">Pélissanne</a> · <a href="location-sono-lancon-provence.html">Lançon-Provence</a> · <a href="location-sono-berre-l-etang.html">Berre-l'Étang</a> · <a href="location-sono-saint-martin-de-crau.html">Saint-Martin-de-Crau</a> · <a href="location-sono-lambesc.html">Lambesc</a> · <a href="location-sono-eyguieres.html">Eyguières</a> · <a href="location-sono-saint-chamas.html">Saint-Chamas</a> · <a href="location-sono-grans.html">Grans</a> · <a href="location-sono-rognac.html">Rognac</a>.</p>
+
   <h2>Ta commune n'est pas dans la liste ?</h2>
   <p>Si elle est à moins de 25 km de Salon, réserve quand même : on te confirme la livraison par téléphone. Au-delà de 25 km, on ne livre pas pour l'instant. Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.</p>
 <div class="cta"><a class="btn" href="./#reserver">Choisir ma date et réserver</a><a class="btn ghost" href="https://wa.me/33622123963" target="_blank" rel="noopener">Une question ? WhatsApp</a></div>
 </main>
-<footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span class="liens-pied"><a href="comment-ca-marche.html">Comment ça marche</a> · <a href="livraison.html">Zone de livraison</a> · <a href="conditions.html">Conditions de location</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="https://www.instagram.com/mistraloc/" target="_blank" rel="noopener">Instagram</a></span></div></footer>
+<footer class="end"><div class="wrap"><span>© Mistraloc · location sono &amp; lumière · Salon-de-Provence</span><span class="liens-pied"><a href="comment-ca-marche.html">Comment ça marche</a> · <a href="livraison.html">Zone de livraison</a> · <a href="avant-ta-fete.html">Avant ta fête</a> · <a href="conditions.html">Conditions de location</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="mentions-legales.html">Mentions légales</a> · <a href="https://www.instagram.com/mistraloc/" target="_blank" rel="noopener">Instagram</a></span></div></footer>
 <script>
   // Carte : bulle « ville · distance · prix » au survol de la souris ; sur téléphone, en touchant la commune
   (() => {
     const carte = document.querySelector('.carte'), svg = document.querySelector('.carte-svg'), bulle = document.querySelector('.carte-bulle');
     if (!carte || !svg || !bulle) return;
-    const lignes = [...document.querySelectorAll('tbody tr')];
+    const lignes = [...document.querySelectorAll('.tab-communes tbody tr')];
     let fixe = null;   // commune touchée (téléphone) ou choisie dans le tableau
     const montrer = (c, x, y) => {
       const km = +c.dataset.km;
