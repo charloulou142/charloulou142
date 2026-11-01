@@ -144,6 +144,17 @@
   .code-row{display:flex;gap:12px;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
   .code-row:first-child{border-top:0}
   .code-row.off{opacity:.55}
+  /* bons cadeaux */
+  .bon-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0 12px;align-items:end}
+  .bon-form .large{grid-column:1/-1}
+  .bon-form .btn{grid-column:1/-1}
+  .bon-vite{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}
+  .bon-vite button{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .bon-vite button:hover{border-color:var(--pink)}
+  .bon-apercu{margin:14px 0 4px}
+  .bon-apercu img{display:block;width:100%;max-width:640px;border-radius:14px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .bon-apercu .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .bon-apercu[hidden]{display:none}
   .pastille-offres{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--line);color:var(--muted);white-space:nowrap}
   .pastille-offres.oui{border-color:#34D399;color:#34D399}
   /* clients : recherche, filtres, fiches dépliables */
@@ -506,6 +517,21 @@
         <button class="btn" type="submit">Enregistrer le parrainage</button>
         <div id="liste-parrains" style="margin-top:14px"></div>
       </form>
+      <div class="panel" style="margin-top:16px" id="p-bons">
+        <b>🎁 Bons cadeaux</b>
+        <p class="note" style="margin:4px 0 12px">Quelqu'un veut offrir une soirée ? Il te paie (espèces, chèque ou virement), puis tu crées le bon ici : un code à usage unique est créé et une image du bon est dessinée, prête à imprimer ou à envoyer par WhatsApp.</p>
+        <form id="f-bon" class="bon-form">
+          <div class="field"><label for="b-montant">Montant (€)</label><input id="b-montant" type="number" min="5" max="2000" step="0.01" inputmode="decimal" required placeholder="100"></div>
+          <div class="field"><label for="b-mois">Valable</label><select id="b-mois"><option value="6">6 mois</option><option value="12" selected>1 an</option><option value="24">2 ans</option></select></div>
+          <div class="bon-vite large" id="b-vite" aria-label="Montants rapides"></div>
+          <div class="field"><label for="b-pour">Pour (prénom)</label><input id="b-pour" maxlength="40" required placeholder="Julie"></div>
+          <div class="field"><label for="b-de">Offert par (facultatif)</label><input id="b-de" maxlength="40" placeholder="Tom et Léa"></div>
+          <div class="field large"><label for="b-msg">Petit mot (facultatif)</label><input id="b-msg" maxlength="120" placeholder="Joyeux anniversaire ! 🎉"></div>
+          <button class="btn" type="submit">Créer le bon cadeau</button>
+        </form>
+        <div class="bon-apercu" id="b-apercu" hidden></div>
+        <div id="liste-bons" style="margin-top:12px"></div>
+      </div>
       <div class="panel" style="margin-top:16px">
         <b>Codes promo</b>
         <div id="liste-codes" style="margin:10px 0 16px"></div>
@@ -592,7 +618,7 @@
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
-    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
+    admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_bon_cadeau: 'Création du bon cadeau…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
     admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…', admin_loueur_sig: 'Enregistrement de ta signature…',
     admin_facture: 'Création de la facture (PDF)…', admin_attente_suppr: 'Suppression…', admin_parrainage: 'Enregistrement du parrainage…' };
@@ -1006,7 +1032,8 @@
         '<div class="note" style="margin:0">' + (p.filleuls ? p.filleuls + ' ami' + (p.filleuls > 1 ? 's' : '') + ' parrainé' + (p.filleuls > 1 ? 's' : '') + ' · récompense' + (p.filleuls > 1 ? 's' : '') + ' : ' + p.recompenses.map(x => esc(x.code) + (x.filleul ? ' (' + esc(x.filleul) + ')' : '')).join(', ') : 'pas encore d\'ami parrainé') + '</div></div></div>').join('')
       : '<p class="note" style="margin:0">' + (P.actif ? 'Les codes apparaîtront quand une location sera « Rendue ».' : 'Parrainage désactivé : aucun code n\'est proposé aux clients.') + '</p>';
     const estParrainage = c => /^(Parrainage|Récompense parrainage) – /.test(c.note || '');
-    const codes = (etat.codes || []).filter(c => !estParrainage(c));
+    const codes = (etat.codes || []).filter(c => !estParrainage(c) && !estBon(c));
+    afficherBons();
     $('liste-codes').innerHTML = codes.length ? codes.map(c => '<div class="code-row' + (c.actif ? '' : ' off') + '"><div><b>' + esc(c.code) + '</b> · ' +
         (c.type === '%' ? '−' + esc(c.valeur) + ' %' : '−' + eur(c.valeur)) + (c.fin ? ' · jusqu\'au ' + jjmm(c.fin) : '') +
         '<div class="note" style="margin:0">Utilisé ' + esc(c.utilisees) + ' fois' + (c.max != null ? ' sur ' + esc(c.max) : '') + (c.note ? ' · ' + esc(c.note) : '') + (c.actif ? '' : ' · désactivé') + '</div></div>' +
@@ -1179,6 +1206,96 @@
       msg('m-admin', offre.affichee ? 'L\'offre est en ligne en haut du site.' : 'L\'offre est enregistrée (pas affichée).', true);
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
+  /* ----- bons cadeaux : un code promo en € à usage unique + une image du bon dessinée ici ----- */
+  const estBon = c => /^Bon cadeau/.test(c.note || '');
+  const infosBon = c => { const m = /^Bon cadeau – pour (.+?)(?: – de (.+?))? – créé le [\d/]+(?: – « (.*?)(?: »)?)?$/.exec(c.note || ''); return m ? { pour: m[1], de: m[2] || '', message: m[3] || '' } : { pour: '', de: '', message: '' }; };
+  const codeJoli = c => String(c).replace(/^CADEAU/, 'CADEAU-');
+  function lignesTexte(ctx, t, larg) { const mots = String(t).split(/\s+/), l = []; let cur = ''; mots.forEach(m => { const x = cur ? cur + ' ' + m : m; if (ctx.measureText(x).width > larg && cur) { l.push(cur); cur = m; } else cur = x; }); if (cur) l.push(cur); return l; }
+  async function dessinerBon(b) {
+    try { await document.fonts.ready; } catch (e) {}
+    const W = 1600, H = 1000, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d'), POL = '"Source Sans 3", system-ui, sans-serif', TIT = '"Bebas Neue", ' + POL;
+    let g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0B0714'); g.addColorStop(1, '#1B1230'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    g = x.createRadialGradient(W - 220, 160, 20, W - 220, 160, 700); g.addColorStop(0, 'rgba(255,122,26,.30)'); g.addColorStop(1, 'rgba(255,122,26,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    g = x.createRadialGradient(160, H - 120, 20, 160, H - 120, 650); g.addColorStop(0, 'rgba(139,92,246,.30)'); g.addColorStop(1, 'rgba(139,92,246,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 3; x.beginPath(); x.roundRect(36, 36, W - 72, H - 72, 36); x.stroke();
+    // logo
+    x.save(); x.translate(92, 82); x.scale(1.15, 1.15); x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#FF7A1A'; x.lineWidth = 10;
+    x.stroke(new Path2D('M8 56 C22 30 36 30 46 50 S70 70 82 44')); x.fillStyle = '#22D3EE'; x.beginPath(); x.arc(92, 30, 6.5, 0, 7); x.fill(); x.restore();
+    x.fillStyle = '#F4EEFF'; x.font = '600 66px ' + POL; x.textBaseline = 'alphabetic'; x.fillText('mistraloc', 232, 162);
+    x.textAlign = 'right'; x.fillStyle = '#22D3EE'; x.font = '400 64px ' + TIT; x.fillText('BON CADEAU', W - 96, 150); x.textAlign = 'left';
+    // pour qui
+    x.fillStyle = '#B9AED3'; x.font = '600 36px ' + POL; x.fillText('Pour', 96, 330);
+    let t = 96; x.font = '700 ' + t + 'px ' + POL; while (x.measureText(b.pour).width > 760 && t > 40) { t -= 4; x.font = '700 ' + t + 'px ' + POL; }
+    x.fillStyle = '#F4EEFF'; x.fillText(b.pour, 92, 420);
+    x.fillStyle = '#B9AED3'; x.font = '400 36px ' + POL; x.fillText('Une soirée son & lumière Mistraloc', 96, 482);
+    let y = 560;
+    if (b.de) { x.fillStyle = '#F4EEFF'; x.font = '600 38px ' + POL; x.fillText('Offert par ' + b.de, 96, y); y += 62; }
+    if (b.message) { x.fillStyle = '#E9DDFF'; x.font = 'italic 400 36px ' + POL; lignesTexte(x, '« ' + b.message + ' »', 780).slice(0, 2).forEach(l => { x.fillText(l, 96, y); y += 48; }); }
+    // montant
+    const mt = (Math.round(b.montant * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: b.montant % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' €';
+    x.textAlign = 'right'; t = 260; x.font = '400 ' + t + 'px ' + TIT; while (x.measureText(mt).width > 640 && t > 120) { t -= 10; x.font = '400 ' + t + 'px ' + TIT; }
+    x.shadowColor = 'rgba(255,122,26,.55)'; x.shadowBlur = 40; x.fillStyle = '#FF7A1A'; x.fillText(mt, W - 96, 470); x.shadowBlur = 0;
+    x.fillStyle = '#B9AED3'; x.font = '600 32px ' + POL; x.fillText('à utiliser sur ta location', W - 100, 530); x.textAlign = 'left';
+    // code
+    x.setLineDash([16, 12]); x.strokeStyle = '#FF7A1A'; x.lineWidth = 4; x.beginPath(); x.roundRect(92, 730, 720, 140, 24); x.stroke(); x.setLineDash([]);
+    x.fillStyle = '#B9AED3'; x.font = '700 24px ' + POL; x.fillText('TON CODE', 126, 774);
+    x.fillStyle = '#F4EEFF'; x.font = '700 62px ' + POL; x.fillText(codeJoli(b.code), 124, 840);
+    // comment l'utiliser
+    x.fillStyle = '#F4EEFF'; x.font = '600 32px ' + POL; x.fillText('Valable jusqu\u2019au ' + jjmm(b.fin), 870, 770);
+    x.fillStyle = '#B9AED3'; x.font = '400 30px ' + POL; x.fillText('Réserve sur mistraloc.fr et entre ce code', 870, 815); x.fillText('au récapitulatif de ta réservation.', 870, 853);
+    x.fillStyle = '#9C91B8'; x.font = '400 26px ' + POL;
+    x.fillText('Utilisable en une fois, sur la location (hors livraison) · mistraloc.fr · 06 22 12 39 63', 96, 932);
+    return cv;
+  }
+  async function montrerBon(b) {
+    const cv = await dessinerBon(b), blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+    const url = URL.createObjectURL(blob), nom = 'bon-cadeau-mistraloc-' + b.pour.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.png';
+    const fichier = new File([blob], nom, { type: 'image/png' }), partage = !!(navigator.canShare && navigator.canShare({ files: [fichier] }));
+    const z = $('b-apercu'); z.hidden = false;
+    z.innerHTML = '<img alt="Bon cadeau pour ' + esc(b.pour) + '"><div class="actions"><a class="btn small" download="' + esc(nom) + '">⬇️ Télécharger l\'image</a>' +
+      (partage ? '<button type="button" class="btn small" id="b-partage">📤 Envoyer (WhatsApp…)</button>' : '') +
+      '<button type="button" class="btn ghost small" id="b-copie">Copier le code ' + esc(codeJoli(b.code)) + '</button></div>';
+    z.querySelector('img').src = url; z.querySelector('a').href = url;
+    if (partage) $('b-partage').addEventListener('click', () => navigator.share({ files: [fichier], title: 'Bon cadeau Mistraloc', text: 'Ton bon cadeau Mistraloc : code ' + codeJoli(b.code) + ', à utiliser sur mistraloc.fr' }).catch(() => {}));
+    $('b-copie').addEventListener('click', () => { navigator.clipboard.writeText(codeJoli(b.code)).then(() => msg('m-admin', 'Code copié.', true)).catch(() => {}); });
+    z.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function afficherBons() {
+    const vite = $('b-vite');
+    if (vite && !vite.dataset.ok) {   // montants rapides : 50 / 100 / 150 € + le prix week-end des packs principaux
+      const p = {}; (etat.articles || []).forEach(a => { p[a.article] = a.prix; }); const l = [[50, '50 €'], [100, '100 €'], [150, '150 €']];
+      [['Pack Soirée', 'Pack Soirée'], ['Pack Club', 'Pack Club'], ['Pack Mariage', 'Pack Mariage']].forEach(([a, t]) => { if (p[a] > 0) l.push([p[a], t + ' · ' + eur(p[a])]); });
+      vite.innerHTML = l.map(([v, t]) => '<button type="button" data-v="' + v + '">' + esc(t) + '</button>').join(''); vite.dataset.ok = '1';
+    }
+    const bons = (etat.codes || []).filter(estBon).reverse(), auj0 = new Date().toISOString().slice(0, 10);
+    $('liste-bons').innerHTML = bons.length ? '<b style="font-size:15px">Bons créés (' + bons.length + ')</b>' + bons.map(c => {
+      const i = infosBon(c), utilise = c.max != null && c.utilisees >= c.max, expire = c.fin && c.fin < auj0;
+      const etatB = utilise ? '✅ utilisé' : !c.actif ? 'désactivé' : expire ? '⌛ expiré le ' + jjmm(c.fin) : 'valable jusqu\'au ' + jjmm(c.fin);
+      return '<div class="code-row' + (c.actif && !utilise && !expire ? '' : ' off') + '"><div><b>' + esc(codeJoli(c.code)) + '</b> · ' + eur(c.valeur) + ' · pour ' + esc(i.pour) +
+        '<div class="note" style="margin:0">' + (i.de ? 'de ' + esc(i.de) + ' · ' : '') + etatB + '</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">' +
+        '<button type="button" class="btn ghost small" data-bon-img="' + esc(c.code) + '">Image</button>' +
+        (utilise ? '' : '<button type="button" class="btn ghost small" data-code="' + esc(c.code) + '">' + (c.actif ? 'Désactiver' : 'Réactiver') + '</button>') + '</div></div>';
+    }).join('') : '';
+  }
+  $('b-vite').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) { $('b-montant').value = b.dataset.v; $('b-pour').focus(); } });
+  $('f-bon').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    const bon = { montant: $('b-montant').value, mois: $('b-mois').value, pour: $('b-pour').value.trim(), de: $('b-de').value.trim(), message: $('b-msg').value.trim() };
+    try {
+      const j = await appel('admin_bon_cadeau', { bon });
+      if (!j.ok) throw new Error(j.erreur);
+      etat.codes = j.codes; afficherOffres(); e.target.reset();
+      msg('m-admin', 'Bon cadeau ' + codeJoli(j.bon.code) + ' créé : il marche tout de suite sur le site.', true);
+      await montrerBon(j.bon);
+    } catch (err) { msg('m-admin', 'Bon pas créé : ' + (err.message || 'erreur') + '.'); }
+  }); });
+  $('liste-bons').addEventListener('click', e => {
+    const im = e.target.closest('button[data-bon-img]');
+    if (im) { const c = (etat.codes || []).find(x => x.code === im.dataset.bonImg); if (c) montrerBon(Object.assign({ code: c.code, montant: c.valeur, fin: c.fin }, infosBon(c))); return; }
+    const b = e.target.closest('button[data-code]'); if (!b) return;
+    const c = (etat.codes || []).find(x => x.code === b.dataset.code); if (!c) return;
+    envoyerCodePromo({ code: c.code, type: c.type, valeur: c.valeur, debut: c.debut, fin: c.fin, max: c.max == null ? '' : c.max, note: c.note, actif: !c.actif }, b);
+  });
   async function envoyerCodePromo(promo, btn) {
     await occupe(btn, async () => {
       try {
@@ -1712,7 +1829,7 @@
   function afficherTuiles() {
     const lo = etat.loueur || {}, P = etat.parrain || {}, nbDocs = (etat.docs || []).length, o = etat.offre || {};
     const nbMat = (etat.articles || []).filter(a => !a.pack).length;
-    const T = [['prix', '🔊', 'Matériel', nbMat + ' appareils · stock, prix, photos, ajouter'], ['offres', '🎁', 'Offres et parrainage', [o.affichee ? 'Offre en ligne' : 'Pas d\'offre en ligne', P.actif ? 'parrainage actif' : 'parrainage coupé'].join(' · ')],
+    const T = [['prix', '🔊', 'Matériel', nbMat + ' appareils · stock, prix, photos, ajouter'], ['offres', '🎁', 'Offres, bons cadeaux, parrainage', [o.affichee ? 'Offre en ligne' : 'Pas d\'offre en ligne', P.actif ? 'parrainage actif' : 'parrainage coupé'].join(' · ')],
       ['docs', '📄', 'Documents', nbDocs + ' document' + (nbDocs > 1 ? 's' : '') + ' (pièces, contrats, factures)'],
       ['visites', '👀', 'Visites du site', 'Combien de visiteurs, d\'où ils viennent'], ['pause', etat.pause ? '⏸' : '▶️', 'Pause du site', etat.pause ? 'EN PAUSE : personne ne peut réserver' : 'Site ouvert aux réservations'],
       ['infos', '🪪', 'Mes infos', lo.complet ? 'Nom, SIRET, adresse, TVA' : 'À remplir : contrats et factures bloqués'],
