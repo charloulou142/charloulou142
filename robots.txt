@@ -1,4 +1,5 @@
 User-agent: *
 Disallow: /admin
 Disallow: /suivi
+Disallow: /compte
 Sitemap: https://mistraloc.fr/sitemap.xml
