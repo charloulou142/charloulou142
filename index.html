@@ -1544,6 +1544,8 @@
       attente(false);
       if (!j.ok && j.erreur === 'pause') { message('Les réservations en ligne sont en pause. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok && j.erreur === 'delai') { message('Il faut réserver au moins 2 h avant la livraison. Pour ce soir, <a href="tel:+33622123963">appelle-nous au 06 22 12 39 63</a> : on fait au mieux.'); return; }
+      if (!j.ok && j.erreur === 'trop') { message('Tu nous as déjà envoyé plusieurs demandes : on te rappelle très vite. Pour une autre demande, <a href="'+wa+'" target="_blank" rel="noopener">écris-nous sur WhatsApp</a>.'); return; }
+      if (!j.ok && j.erreur === 'Date trop lointaine') { message('On prend les réservations jusqu\'à 18 mois à l\'avance. Pour une date plus lointaine, <a href="'+wa+'" target="_blank" rel="noopener">écris-nous sur WhatsApp</a>.'); return; }
       if (!j.ok && j.erreur === 'hors zone') { message('On livre seulement jusqu\'à 25 km de Salon-de-Provence. <a href="'+wa+'" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a> si tu as une question.'); return; }
       if (!j.ok) throw new Error(j.erreur||'erreur');
       $('bk-form').reset(); syncFete(); debut = fin = null; $('bk-veille').checked = false; $('bk-lieu').value = ''; cache={}; majHeures(); dessiner();
