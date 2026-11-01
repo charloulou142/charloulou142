@@ -598,6 +598,16 @@
   .go-sous{margin:14px auto 0!important;font-size:14px!important;color:var(--muted);text-align:center}
   .reprise-accueil{padding-top:18px}
   .cta-centre{text-align:center;margin-top:30px}
+  /* « Le matériel » rangé par catégories (01/11) : une seule catégorie affichée à la fois */
+  .mat-onglets{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 0 18px;padding:2px 2px 6px}
+  .mat-onglets::-webkit-scrollbar{display:none}
+  .mat-onglets button{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-weight:700;cursor:pointer;transition:all .2s}
+  .mat-onglets button:hover{border-color:var(--violet)}
+  .mat-onglets button small{color:var(--muted);font-weight:600}
+  .mat-onglets button[aria-selected="true"]{border-color:var(--pink);background:rgba(255,122,26,.14);box-shadow:0 0 16px rgba(255,122,26,.22)}
+  @media (min-width:700px){.mat-onglets{justify-content:center}}
+  #materiel .cat-titre{display:none}
+  #materiel .hors-cat{display:none!important}
   @media (prefers-reduced-motion:reduce){.btn-go{animation:none}.esp-voile path{animation:none;stroke-dashoffset:0}.esp-voile circle{animation:none;transform:none}}
 </style>
 </head>
@@ -822,6 +832,7 @@
 <section id="materiel"><div class="wrap">
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
+  <div class="mat-onglets" id="mat-onglets" role="tablist" aria-label="Catégories de matériel"></div>
   <div class="cat">
     <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>dès <span class="prixsem">59,90 €</span> / soirée en semaine<br><small><span class="prix">79,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
@@ -2182,6 +2193,9 @@
     const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
     const NOMS = ['Ta fête', 'Tes invités', 'Électricité sur place', 'Ton pack', 'Ta date', 'Livraison ou retrait', 'Tes infos', 'Récap'];
     let ouvert = false, phase = 'pack', fq = 1, vu = false, passe = false, anime = false, scrollAccueil = 0;
+    const rejouer = el => { passe = true; try { el.click(); } finally { passe = false; } };
+    // aucune réponse cochée d'avance : le client choisit lui-même sa fête et la prise
+    document.querySelectorAll('#trouver .choice, #trouver .choice-p').forEach(b => b.setAttribute('aria-pressed', 'false'));
     const pasResa = () => { const v = document.querySelector('#bk-form .wiz-pas:not([hidden])'); return v ? +v.dataset.pas : 1; };
     const echap = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     function entree(el, sens){ if (doux && el) el.animate([{ opacity: 0, transform: 'translateX(' + (36 * sens) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 360, easing: 'cubic-bezier(.2,.8,.2,1)' }); }
@@ -2267,13 +2281,14 @@
       if (!ouvert) {
         const cat = t.closest('#materiel [data-reserver], #materiel [data-panier], #materiel [data-creer]'), autre = t.closest('#bk-reprise-ok, #offre-go');
         let cible = null;
-        if (cat) cible = cat.matches('[data-reserver]') && cat.dataset.reserver !== 'ptm' ? 'resa' : 4;
+        if (cat) cible = 1;   // bouton du catalogue : on commence à l'étape 1, sans rien choisir à la place du client
         else if (autre) cible = autre.id === 'bk-reprise-ok' ? 'resa' : reprendre();
         else if (a) cible = reprendre();
         if (cible == null) return;
         e.preventDefault(); e.stopPropagation();
-        const el = cat || autre;   // on rejoue le clic une fois dans l'espace (choix de l'appareil, reprise…)
-        ouvrir(cible, e.clientX || null, e.clientY || null, el ? () => { passe = true; try { el.click(); } finally { passe = false; } } : null);
+        if (anime) return;   // animation d'ouverture / fermeture en cours
+        const el = cat ? null : autre;   // reprise / offre : on rejoue le clic une fois dans l'espace
+        ouvrir(cible, e.clientX || null, e.clientY || null, el ? () => rejouer(el) : null);
         return;
       }
       if (a) {
@@ -2308,6 +2323,28 @@
       try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
       ouvrir(1);
     }
+  })();
+
+  // « Le matériel » rangé par catégories : Enceintes · Lumières · Fumée · Micros (un appareil ajouté dans l'admin est classé d'après son nom)
+  (() => {
+    const zone = document.getElementById('materiel'), bar = document.getElementById('mat-onglets'); if (!zone || !bar) return;
+    const CATS = [['son', '🔊', 'Enceintes'], ['lum', '💡', 'Lumières'], ['fumee', '💨', 'Fumée'], ['micros', '🎤', 'Micros']];
+    const catDe = n => /micro/i.test(n) ? 'micros' : /fum/i.test(n) ? 'fumee' : /lyre|laser|tr[ée]pied|lumi/i.test(n) ? 'lum' : 'son';
+    const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let actif = 'son';
+    function maj(anim){
+      const items = [...zone.querySelectorAll('.item')], nb = {};
+      items.forEach(it => { const c = catDe(it.dataset.article || ''); it.dataset.cat = c; if (!it.hidden) nb[c] = (nb[c] || 0) + 1; });
+      if (!nb[actif]) { const c = CATS.find(x => nb[x[0]]); actif = c ? c[0] : 'son'; }
+      bar.innerHTML = CATS.filter(c => nb[c[0]]).map(([k, i, t]) => '<button type="button" role="tab" data-mat="' + k + '" aria-selected="' + (k === actif) + '"><span aria-hidden="true">' + i + '</span>' + t + ' <small>' + nb[k] + '</small></button>').join('');
+      items.forEach(it => it.classList.toggle('hors-cat', it.dataset.cat !== actif));
+      const sous = zone.querySelector('.cat-sous'); if (sous) sous.classList.toggle('hors-cat', actif !== 'lum');
+      if (anim && doux) items.filter(it => !it.hidden && it.dataset.cat === actif).forEach((it, i) => it.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: i * 50, easing: 'ease-out', fill: 'backwards' }));
+    }
+    bar.addEventListener('click', e => { const b = e.target.closest('[data-mat]'); if (!b || b.dataset.mat === actif) return; actif = b.dataset.mat; maj(true); });
+    const obs = new MutationObserver(() => maj(false));
+    zone.querySelectorAll('.cat').forEach(c => obs.observe(c, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }));
+    maj(false);
   })();
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
