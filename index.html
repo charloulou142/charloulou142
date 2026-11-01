@@ -491,6 +491,15 @@
   .cp-img{height:38px;margin-bottom:4px}
   .cp-p{white-space:normal;font-size:12px}
   .cp-fl{display:none!important}
+  /* ordi : texte à gauche, image à droite (plus grande) */
+  @media (min-width:720px){
+    .cp{display:grid;grid-template-columns:minmax(0,1fr) 46%;grid-template-rows:auto auto 1fr;column-gap:8px;align-items:start;padding:12px 12px 12px 14px;min-height:96px}
+    .cp-t,.cp b,.cp-p{grid-column:1}
+    .cp-t{grid-row:1;margin-top:4px}.cp b{grid-row:2}.cp-p{grid-row:3;align-self:end}
+    .cp-img{grid-column:2;grid-row:1/4;height:78px;margin:0;align-self:center;justify-content:center;align-items:center}
+    .cp-img img{max-width:60%}
+    .cp-plus{width:48px;height:48px}
+  }
   /* bulles du configurateur */
   .bulles{position:absolute;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px;padding:8px;border-radius:18px;background:color-mix(in srgb,var(--bg) 94%,transparent);border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.45)}
   .bulle{width:62px;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--text);font:inherit;cursor:pointer;padding:0;animation:bulle .3s cubic-bezier(.34,1.5,.5,1) both}
