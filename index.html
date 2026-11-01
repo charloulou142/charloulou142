@@ -451,7 +451,7 @@
   .conf-t{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 6px;font-size:15px}
   .conf-t span{color:var(--muted);font-size:13px;font-weight:600}
   .conf-zone{position:relative;width:min(230px,74%);margin:0 auto;aspect-ratio:120/170}
-  .conf-zone img{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .conf-zone>img{position:absolute;inset:0;width:100%;height:100%;display:block}
   .acc{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:2px dashed rgba(148,163,184,.85);background:rgba(15,10,30,.35);color:var(--text);font:inherit;font-weight:800;font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;transition:transform .2s,box-shadow .2s}
   .acc:hover{transform:scale(1.08)}
   .acc.plein{border-style:solid;border-color:transparent;background:transparent}
@@ -465,6 +465,33 @@
   .conf-aide{font-size:12.5px;line-height:1.4;color:var(--muted);text-align:center;margin:8px 0 0}
   .conf-note{font-size:13px;color:var(--pink);font-weight:700;text-align:center;margin:6px 0 0}
   .cat-titre{margin:40px 0 6px;font-size:22px}
+  /* 01/11 : rangée « Choisis ta formule » compacte = grille de 6 cartes, sans défilement */
+  .cp-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;overflow:visible;scroll-snap-type:none;padding:12px 10px 10px;-webkit-mask-image:none!important;mask-image:none!important}
+  .cp{flex:none;min-width:0;padding:8px 9px 9px}
+  .cp b{white-space:normal;font-size:14px}
+  .cp-img{height:38px;margin-bottom:4px}
+  .cp-p{white-space:normal;font-size:12px}
+  .cp-fl{display:none!important}
+  /* bulles du configurateur */
+  .bulles{position:absolute;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px;padding:8px;border-radius:18px;background:color-mix(in srgb,var(--bg) 94%,transparent);border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.45)}
+  .bulle{width:62px;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--text);font:inherit;cursor:pointer;padding:0;animation:bulle .3s cubic-bezier(.34,1.5,.5,1) both}
+  .bulle:nth-child(2){animation-delay:.05s}.bulle:nth-child(3){animation-delay:.1s}.bulle:nth-child(4){animation-delay:.15s}
+  .bulle img,.bulle span{width:56px;height:56px;border-radius:50%;box-sizing:border-box;padding:7px;object-fit:contain;background:radial-gradient(circle at 50% 35%,#FFFFFF,#D6D0E4);border:2px solid var(--line);transition:transform .2s,border-color .2s}
+  .bulle:hover img{transform:scale(1.06);border-color:var(--cyan)}
+  .bulle.on img{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,122,26,.3)}
+  .bulle b{font-size:11.5px;line-height:1.1}
+  .bulle small{font-size:10.5px;color:var(--muted)}
+  .bulle:disabled{opacity:.4;cursor:not-allowed}
+  .bulle.x span{display:grid;place-items:center;background:transparent;border-style:dashed;font-size:24px;color:var(--muted);padding:0}
+  @keyframes bulle{from{transform:scale(.3) translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+  @media (prefers-reduced-motion: reduce){ .bulle{animation:none} }
+  .trep-vide{margin:10px 0 4px;padding:10px 12px;border-radius:12px;border:1px solid rgba(250,204,21,.6);background:rgba(250,204,21,.10);font-size:14px;line-height:1.45}
+  .trep-vide p{margin:0 0 8px}
+  .trep-vide div{display:flex;flex-wrap:wrap;gap:8px}
+  .trep-vide .btn{padding:8px 14px;font-size:14px}
+  .trep-vide .retour{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .trep-vide .retour:hover{border-color:var(--pink)}
+  #bk-trep-vide[hidden]{display:none}
   .cat-sous{color:var(--muted);margin:0 0 18px}
   #materiel .ph[data-dessin] img{inset:14px 0 10px}
   @media (prefers-color-scheme: light){ :root:not([data-theme=dark]) .acc{background:rgba(255,255,255,.55)} }
@@ -570,7 +597,7 @@
     <div class="result" aria-live="polite">
       <!-- haut de la carte : rangée de formules qui défile au doigt + prix + bouton (28/10) -->
       <div class="r-top">
-        <p class="swl">Choisis ta formule <span>fais glisser ↔</span></p>
+        <p class="swl">Choisis ta formule</p>
         <div class="cp-zone">
           <div class="cp-rail debut" id="cpRail" role="group" aria-label="Choisis ta formule"></div>
           <button type="button" class="cp-fl g" id="cpG" aria-label="Formules précédentes" hidden>‹</button>
@@ -826,22 +853,43 @@
   const ACC=8, LUM=['wzy','beto','laser'];
   const svgUri=x=>'data:image/svg+xml,'+encodeURIComponent(x);
   const ACC_X=[22,44,76,98], ACC_Y=[22,52];
-  // une lumière dessinée (lyre WZYBUTA, lyre Betopper, laser) à l'endroit (x, y), faisceau vers le bas
-  function lumSvg(k,x,y,s,r){
-    const t='<g transform="translate('+x+' '+y+') scale('+s+') rotate('+(r||0)+')">', yoke='<path d="M-7 0h14M-6 0v7M6 0v7" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round"/>';
-    if(k==='wzy') return t+'<path d="M-2.5 13 L-13 58 L13 58 L2.5 13Z" fill="#22D3EE" opacity=".25"/>'+yoke+'<circle cx="0" cy="9" r="5.5" fill="#1E1B2E" stroke="#22D3EE" stroke-width="2"/><circle cx="0" cy="10" r="2.2" fill="#22D3EE"/></g>';
-    if(k==='beto') return t+'<path d="M-6 14 L-20 58 L20 58 L6 14Z" fill="#A855F7" opacity=".22"/>'+yoke+'<rect x="-8" y="4" width="16" height="10" rx="3" fill="#1E1B2E" stroke="#FF7A1A" stroke-width="2"/><circle cx="-4" cy="9" r="1.6" fill="#FF7A1A"/><circle cx="0" cy="9" r="1.6" fill="#A855F7"/><circle cx="4" cy="9" r="1.6" fill="#22D3EE"/></g>';
-    if(k==='laser') return t+'<g stroke-width="1.1" opacity=".85"><path d="M0 10 L-18 56" stroke="#34D399"/><path d="M0 10 L-7 58" stroke="#F43F5E"/><path d="M0 10 L5 58" stroke="#34D399"/><path d="M0 10 L17 56" stroke="#60A5FA"/></g>'+yoke+'<rect x="-7" y="3" width="14" height="8" rx="2" fill="#1E1B2E" stroke="#34D399" stroke-width="2"/></g>';
+  // dessins des appareils à accrocher (repère 100 × 80, posés à l'endroit) : lyre WZYBUTA, lyre Betopper, laser KeoBin
+  const hexa=(cx,cy,r)=>{let p='';for(let i=0;i<6;i++){const a=Math.PI/3*i+Math.PI/6;p+=(i?'L':'M')+(cx+r*Math.cos(a)).toFixed(1)+' '+(cy+r*Math.sin(a)).toFixed(1);}return p+'Z';};
+  function devSvg(k,seul){
+    const corps='fill="#1C1C22" stroke="#6B6B78" stroke-width="1.5"';
+    if(k==='wzy') return '<rect x="14" y="54" width="72" height="20" rx="4" '+corps+'/><rect x="44" y="59" width="14" height="7" rx="1" fill="#EF4444" opacity=".9"/><circle cx="26" cy="64" r="2.2" fill="#3B82F6"/><circle cx="33" cy="64" r="2.2" fill="#3B82F6"/>'
+      +'<path d="M3 29h19l4 15H7z" '+corps+'/><circle cx="14" cy="36.5" r="6.5" fill="#EF4444"/><circle cx="12" cy="34.5" r="2" fill="#fff" opacity=".65"/>'
+      +'<path d="M97 29H78l-4 15h19z" '+corps+'/><circle cx="86" cy="36.5" r="6.5" fill="#3B82F6"/><circle cx="84" cy="34.5" r="2" fill="#fff" opacity=".65"/>'
+      +'<circle cx="50" cy="34" r="23" '+corps+'/>'
+      +['#EC4899','#22D3EE','#FACC15','#22C55E'].map((c,i)=>'<circle cx="50" cy="34" r="18.5" fill="none" stroke="'+c+'" stroke-width="3.2" stroke-dasharray="29.06 87.18" stroke-dashoffset="'+(-29.06*i).toFixed(2)+'"/>').join('')
+      +[['#EF4444',43.5,27.5],['#22C55E',56.5,27.5],['#3B82F6',43.5,40.5],['#FACC15',56.5,40.5]].map(d=>'<circle cx="'+d[1]+'" cy="'+d[2]+'" r="5.6" fill="'+d[0]+'"/><circle cx="'+(d[1]-1.8)+'" cy="'+(d[2]-1.8)+'" r="1.6" fill="#fff" opacity=".7"/>').join('');
+    if(k==='beto') return '<rect x="29" y="62" width="42" height="14" rx="3" '+corps+'/><path d="M24 63V30a6 6 0 0 1 6-6h40a6 6 0 0 1 6 6v33" fill="none" stroke="#3A3A44" stroke-width="7" stroke-linejoin="round"/>'
+      +'<circle cx="50" cy="38" r="21.5" '+corps+'/>'
+      +[[50,38,'#F5F5F5'],[50,27,'#A855F7'],[59.5,32.5,'#EC4899'],[59.5,43.5,'#3B82F6'],[50,49,'#22C55E'],[40.5,43.5,'#EF4444'],[40.5,32.5,'#22D3EE']].map(h=>'<path d="'+hexa(h[0],h[1],5.7)+'" fill="'+h[2]+'" stroke="#0B0B0E" stroke-width=".8"/>').join('');
+    if(k==='laser') return '<path d="M26 30V17h48v13" fill="none" stroke="#6B6B78" stroke-width="4" stroke-linejoin="round"/><rect x="12" y="28" width="76" height="40" rx="5" '+corps+'/>'
+      +'<circle cx="37" cy="48" r="11.5" fill="#0F172A" stroke="#60A5FA" stroke-width="3"/><circle cx="37" cy="48" r="5" fill="#93C5FD"/><circle cx="35" cy="46" r="1.8" fill="#fff"/>'
+      +'<circle cx="64" cy="48" r="8.5" fill="#0F172A" stroke="#EF4444" stroke-width="3"/><circle cx="64" cy="48" r="3" fill="#FCA5A5"/>'
+      +'<path d="M78 33l5.5 9.5h-11z" fill="#FACC15"/>'
+      +(seul?'<g stroke-width="2" stroke-linecap="round" opacity=".9"><path d="M37 60L18 80" stroke="#34D399"/><path d="M37 60L30 80" stroke="#F43F5E"/><path d="M37 60L42 80" stroke="#60A5FA"/><path d="M37 60L54 80" stroke="#34D399"/></g>':'');   // faisceaux (dessin seul)
     return '';
+  }
+  function lumSeuleSvg(k){ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80">'+devSvg(k,true)+'</svg>'; }
+  // une lumière accrochée sous la barre (à l'envers, comme sur le vrai trépied), faisceaux vers le bas
+  const FAIS={wzy:'#22D3EE',beto:'#A855F7'};
+  function lumAccrochee(k,x,y){
+    const w=22, h=17.6, o=x+' '+(y+13);
+    const f=k==='laser'
+      ? '<g stroke-width=".9" opacity=".85"><path d="M'+o+'L'+(x-16)+' '+(y+54)+'" stroke="#34D399"/><path d="M'+o+'L'+(x-6)+' '+(y+56)+'" stroke="#F43F5E"/><path d="M'+o+'L'+(x+5)+' '+(y+56)+'" stroke="#34D399"/><path d="M'+o+'L'+(x+15)+' '+(y+54)+'" stroke="#60A5FA"/></g>'
+      : '<path d="M'+(x-4)+' '+(y+14)+'L'+(x-(k==='beto'?17:12))+' '+(y+56)+'L'+(x+(k==='beto'?17:12))+' '+(y+56)+'L'+(x+4)+' '+(y+14)+'Z" fill="'+FAIS[k]+'" opacity=".22"/>';
+    return f+'<g transform="translate('+(x-w/2)+' '+(y+h)+') scale('+(w/100)+' '+(-h/80)+')">'+devSvg(k)+'</g>';
   }
   // le trépied et ses 8 accroches (slots : 8 clés ou null)
   function trepSvg(slots){
     let x='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 170"><path d="M60 128 L24 166 M60 128 L96 166 M60 128 L60 166" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round"/><rect x="57.5" y="12" width="5" height="118" rx="2" fill="#9CA3AF"/>';
     ACC_Y.forEach(y=>{ x+='<rect x="12" y="'+(y-3)+'" width="96" height="5" rx="2.5" fill="#9CA3AF"/>'; ACC_X.forEach(a=>{ x+='<circle cx="'+a+'" cy="'+(y-.5)+'" r="2.2" fill="#6B7280"/>'; }); });
-    (slots||[]).slice(0,ACC).forEach((k,i)=>{ if(k) x+=lumSvg(k,ACC_X[i%4],ACC_Y[Math.floor(i/4)]+2,.9,i%4<2?8:-8); });
+    (slots||[]).slice(0,ACC).forEach((k,i)=>{ if(k) x+=lumAccrochee(k,ACC_X[i%4],ACC_Y[Math.floor(i/4)]+2); });
     return x+'</svg>';
   }
-  function lumSeuleSvg(k){ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -4 60 66">'+lumSvg(k,0,0,1,0)+'</svg>'; }
   const microSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g transform="rotate(-20 32 32)"><rect x="27" y="26" width="10" height="34" rx="4" fill="#27272A" stroke="#9CA3AF" stroke-width="1.5"/><circle cx="32" cy="17" r="11" fill="#3F3F46" stroke="#9CA3AF" stroke-width="2"/><path d="M24 14h16M23 19h18M26 9h12" stroke="#71717A" stroke-width="1.4"/><rect x="29" y="40" width="6" height="2.5" rx="1" fill="#FF7A1A"/></g><g transform="translate(14 4) rotate(18 32 32)" opacity=".85"><rect x="27" y="26" width="10" height="34" rx="4" fill="#27272A" stroke="#9CA3AF" stroke-width="1.5"/><circle cx="32" cy="17" r="11" fill="#3F3F46" stroke="#9CA3AF" stroke-width="2"/><path d="M24 14h16M23 19h18M26 9h12" stroke="#71717A" stroke-width="1.4"/><rect x="29" y="40" width="6" height="2.5" rx="1" fill="#22D3EE"/></g></svg>';
   const SLOTS_PACK={ptl:['wzy',null,null,'wzy',null,'laser',null,null],ptm:['wzy','beto','beto','wzy',null,null,null,null]};
   const IMAGES={apero:['partybox-310'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-310'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee'],
@@ -873,31 +921,40 @@
     if(panier[k]>=(STOCK[k]||0)) return false;
     panier[k]++; return true;
   }
-  // configurateur « Crée ton trépied » (dans « Mon panier ») : touche une accroche, choisis sa lumière
+  // configurateur « Crée ton trépied » (dans « Mon panier ») : touche le + d'une accroche, 3 bulles s'ouvrent (lyre WZYBUTA, lyre Betopper, laser)
+  const NOM_COURT={wzy:'Faisceaux',beto:'Couleurs',laser:'Laser 3D'};   // mots courts dans les bulles (demande de Mistraloc) ; le nom complet reste dans la commande
+  const imgLum=k=>(window.PHOTOS_LUM&&window.PHOTOS_LUM[k])||IMG1[k];   // photo envoyée depuis l'admin, sinon le dessin
+  let trepVideOk=false;   // « continuer quand même » avec un trépied sans lumière
   function confHtml(){
     if(!panier.trep) return '';
     const n=nbLum(), max=ACC*panier.trep;
     let h='<div class="conf-trep" id="conf-trep"><p class="conf-t"><b>🎛️ Crée ton trépied</b><span>'+n+'/'+max+' accroches</span></p><div class="conf-zone"><img src="'+svgUri(trepSvg(SLOTS))+'" alt="Ton trépied avec '+n+' lumière'+(n>1?'s':'')+'">';
     SLOTS.slice(0,ACC).forEach((k,i)=>{
-      const x=ACC_X[i%4], y=ACC_Y[Math.floor(i/4)]+10;
+      const x=ACC_X[i%4], y=ACC_Y[Math.floor(i/4)]+11;
       h+='<button type="button" class="acc'+(k?' plein':'')+'" data-acc="'+i+'" aria-pressed="'+(accChoisie===i)+'" style="left:'+(x/120*100).toFixed(2)+'%;top:'+(y/170*100).toFixed(2)+'%" aria-label="Accroche '+(i+1)+(i<4?' (barre du haut)':' (barre du bas)')+' : '+(k?PACKS[k].name:'vide')+'">'+(k?'':'+')+'</button>';
     });
-    h+='</div>';
-    if(accChoisie!=null){
-      const cur=SLOTS[accChoisie];
-      h+='<div class="conf-choix"><p>Accroche '+(accChoisie+1)+' ('+(accChoisie<4?'barre du haut':'barre du bas')+') :</p>'+LUM.map(a=>{
+    if(accChoisie!=null&&accChoisie<SLOTS.length){
+      const i=accChoisie, cur=SLOTS[i], y=ACC_Y[Math.floor(i/4)]+11;
+      h+='<div class="bulles" style="top:calc('+(y/170*100).toFixed(2)+'% + 21px)" role="group" aria-label="Lumière de l\'accroche '+(i+1)+'">'+LUM.map(a=>{
         const reste=(STOCK[a]||0)-(panier[a]||0)+(cur===a?1:0);
-        return '<button type="button" data-lum="'+a+'" aria-pressed="'+(cur===a)+'"'+(reste>0?'':' disabled')+'>'+PACKS[a].name.replace(/^Lyre /,'Lyre ').replace(/ 150 W| LM0740| 3D RGB/,'')+' <small>'+(reste>0?PACKS[a].price:'plus en stock')+'</small></button>';
-      }).join('')+(cur?'<button type="button" data-lum="">Vider</button>':'')+'</div>';
+        return '<button type="button" class="bulle'+(cur===a?' on':'')+'" data-lum="'+a+'"'+(reste>0?'':' disabled')+' aria-label="'+PACKS[a].name+(reste>0?', '+PACKS[a].price+' le week-end':', plus en stock')+'"><img src="'+imgLum(a)+'" alt=""><b>'+NOM_COURT[a]+'</b><small>'+(reste>0?PACKS[a].price:'épuisé')+'</small></button>';
+      }).join('')+(cur?'<button type="button" class="bulle x" data-lum="" aria-label="Retirer la lumière de cette accroche"><span aria-hidden="true">×</span><b>Retirer</b><small>&nbsp;</small></button>':'')+'</div>';
     }
+    h+='</div>';
     h+=noteConf?'<p class="conf-note">'+noteConf+'</p>':'';
-    h+='<p class="conf-aide">'+(accChoisie==null?'Touche une accroche <b>+</b> pour y mettre une lumière. ':'')+'Stock : '+LUM.map(a=>STOCK[a]+' '+({wzy:'WZYBUTA',beto:'Betopper',laser:'laser'})[a]).join(', ')+'. Week-end : '+LUM.map(a=>({wzy:'WZYBUTA',beto:'Betopper',laser:'laser'})[a]+' '+PACKS[a].price).join(' · ')+'.</p></div>';
+    if(boiteVide.ici==='conf') h+=boiteVide();
+    h+='<p class="conf-aide">'+(accChoisie==null?'Touche un <b>+</b> pour accrocher une lumière. ':'Choisis ta lumière dans les bulles. ')+'<b>Faisceaux</b> : lyre qui balaie la piste · <b>Couleurs</b> : grands aplats de couleur · <b>Laser 3D</b> : motifs lumineux.</p></div>';
     noteConf='';
     return h;
   }
+  // message « ton trépied est vide » (trépied loué sans aucune lumière accrochée)
+  const trepVide=()=>cleOffre0()==='perso'&&panier.trep>0&&!nbLum()&&!trepVideOk;
+  function cleOffre0(){ return current==='perso'?'perso':current; }
+  function boiteVide(){ return '<div class="trep-vide" role="alert"><p>🎛️ <b>Ton trépied est vide</b> : aucune lumière n\'est accrochée. Continuer quand même ?</p><div><button type="button" class="btn" data-vide="ajout">Ajouter une lumière</button><button type="button" class="retour" data-vide="ok">Continuer quand même</button></div></div>'; }
+  boiteVide.ici='';
   // photo du site (images/…webp) ou photo envoyée depuis l'admin (adresse complète)
   const imgSrc=f=>/^(https?:|data:)/.test(f)?f:'images/'+f+'.webp';
-  PACKS.perso={name:'Mon panier',price:'0 €',sem:'0 €',items:[],why:'Choisis tes appareils : le total se calcule tout seul.'};
+  PACKS.perso={name:'Sur mesure',price:'0 €',sem:'0 €',items:[],why:'Ajoute ce que tu veux : enceintes, fumée, micros, trépied lumière… le total se calcule tout seul.'};
   PACKS.creer={name:'Crée ton trépied',price:'',sem:'',items:[],why:''};   // carte « Crée ton trépied » : ouvre « Mon panier » avec le trépied
   const prixNum=k=>parseFloat(PACKS[k].price.replace(/[^\d,.]/g,'').replace(',','.'))||0;
   const semNum=k=>parseFloat(String(PACKS[k].sem||PACKS[k].price).replace(/[^\d,.]/g,'').replace(',','.'))||0;
@@ -922,6 +979,7 @@
   function majPanier(anim){
     const box=document.getElementById('rPanier');
     syncSlots(); IMG1.trep=svgUri(trepSvg(SLOTS));
+    if(!panier.trep||nbLum()){ trepVideOk=false; boiteVide.ici=''; }
     box.innerHTML=Object.keys(panier).filter(k=>LUM.indexOf(k)<0).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'">'+(IMG1[k]?'<img src="'+imgSrc(IMG1[k])+'" alt="">':'<span class="ligne-ph" aria-hidden="true">🎛️</span>')+'<span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('')+confHtml();
     const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
     PACKS.perso.price=enEuros(total);
@@ -953,22 +1011,28 @@
     if(window.bkSync) window.bkSync();
   }
   // carte active de la rangée : « Crée ton trépied » quand « Mon panier » contient le trépied
-  const carteActive=()=>current==='perso'&&panier.trep?'creer':current;
+  const carteActive=()=>current;
   function majPresse(){ rail.querySelectorAll('.cp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===carteActive())); }
   const offreSelect=()=>document.getElementById('bk-offre');
+  let bullesDepuis=0;
+  document.addEventListener('click',e=>{ if(accChoisie!=null&&Date.now()-bullesDepuis>300&&!e.target.closest('#conf-trep')&&current==='perso'){ accChoisie=null; majPanier(false); } });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&accChoisie!=null&&current==='perso'){ accChoisie=null; majPanier(false); } });
+  const $reserver=()=>{ const r=document.getElementById('reserver'); if(r) r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); };
   document.getElementById('rPanier').addEventListener('click',e=>{
     const go=e.target.closest('button[data-pack-go]'); if(go){ show(go.dataset.packGo,false); return; }
-    const ac=e.target.closest('button[data-acc]'); if(ac){ const i=+ac.dataset.acc; accChoisie=accChoisie===i?null:i; majPanier(false); const z=document.getElementById('conf-trep'); if(z&&accChoisie!=null){ const c=z.querySelector('.conf-choix'); if(c&&c.getBoundingClientRect().bottom>innerHeight) c.scrollIntoView({block:'nearest',behavior:'smooth'}); } return; }
+    const vd=e.target.closest('button[data-vide]'); if(vd){ boiteVide.ici=''; if(vd.dataset.vide==='ok'){ trepVideOk=true; majPanier(false); location.hash='reserver'; $reserver(); } else { accChoisie=SLOTS.indexOf(null); majPanier(false); } return; }
+    const ac=e.target.closest('button[data-acc]'); if(ac){ const i=+ac.dataset.acc; accChoisie=accChoisie===i?null:i; boiteVide.ici=''; majPanier(false); const z=document.querySelector('#conf-trep .bulles'); if(z&&z.getBoundingClientRect().bottom>innerHeight) z.scrollIntoView({block:'nearest',behavior:'smooth'}); return; }
     const lu=e.target.closest('button[data-lum]'); if(lu&&accChoisie!=null){
       const a=lu.dataset.lum, i=accChoisie; SLOTS[i]=a||null;
       LUM.forEach(x=>panier[x]=SLOTS.filter(y=>y===x).length);
-      accChoisie=a?SLOTS.indexOf(null,i+1)>=0?SLOTS.indexOf(null,i+1):null:null;   // passe à l'accroche vide suivante
+      accChoisie=null;   // les bulles se referment ; le client touche le + suivant
       majPanier(); majAlerte(); return; }
+    if(accChoisie!=null&&e.target.closest('#conf-trep')){ accChoisie=null; majPanier(false); return; }   // toucher ailleurs dans le trépied : on referme les bulles
     const b=e.target.closest('button[data-k]'); if(!b) return;
     const k=b.dataset.k;
     if(+b.dataset.d>0) ajoutPanier(k); else panier[k]=Math.max(0,panier[k]-1);
     if(k==='trep'&&!panier.trep&&nbLum()){ LUM.forEach(a=>panier[a]=0); noteConf=''; }   // plus de trépied : plus de lumières (elles s'y accrochent)
-    if(k==='trep'&&+b.dataset.d>0&&panier.trep===1&&accChoisie==null) accChoisie=0;
+    if(k==='trep'&&+b.dataset.d>0&&panier.trep===1&&accChoisie==null){ accChoisie=0; bullesDepuis=Date.now(); }
     majPanier(); majAlerte();
   });
   const ORDRE=['apero','soiree','club','ptl','ptm','p310','p710','pult','fumee','micro','creer','perso'];
@@ -977,7 +1041,7 @@
   // ---- rangée de formules « Choisis ta formule » : cartes qui défilent au doigt (28/10) ----
   const rail=document.getElementById('cpRail'), flG=document.getElementById('cpG'), flD=document.getElementById('cpD');
   const reduitM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['ptl','Pack lumière','Trépied Laser'],['ptm','Pack lumière','Trépied Lumière'],['p310','À l\'unité','PartyBox 310'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Sur mesure','Crée ton trépied'],['perso','Sur mesure','Mon panier']];
+  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['ptl','Pack lumière','Trépied Laser'],['ptm','Pack lumière','Trépied Lumière'],['p310','À l\'unité','PartyBox 310'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Sur mesure','Crée ton trépied'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','ptl','ptm','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
   // cartes masquées depuis l'admin (Matériel › « Afficher sur le site » décoché) ; photos « en soirée » par formule
   const CACHES=new Set(), SITU={};
   function renderRail(){
@@ -1071,7 +1135,7 @@
     show(b.dataset.go,b.dataset.go===recommend());});
   document.getElementById('rPlus').addEventListener('click',e=>{const b=e.target.closest('button[data-plus]'); if(!b) return;
     if(b.dataset.plus==='soiree'){ show('soiree',false); return; }
-    if(b.dataset.plus==='perso-trep'){ const pk=current; Object.keys(panier).forEach(a=>panier[a]=0); Object.assign(panier,COMPO_K[pk]); SLOTS=(SLOTS_PACK[pk]||[]).slice(); accChoisie=SLOTS.indexOf(null); show('perso',false); return; }
+    if(b.dataset.plus==='perso-trep'){ const pk=current; Object.keys(panier).forEach(a=>panier[a]=0); Object.assign(panier,COMPO_K[pk]); SLOTS=(SLOTS_PACK[pk]||[]).slice(); accChoisie=null; show('perso',false); return; }
     if(current!=='perso'){ Object.keys(panier).forEach(a=>panier[a]=0); Object.assign(panier,COMPO_K[current]); }
     panier[b.dataset.plus==='micro'?'micro':'fumee']=1;
     if(current==='perso'){majPanier();majAlerte();} else show('perso',false);
@@ -1097,6 +1161,7 @@
   function show(key,isReco){
     if(key==='creer'){   // « Crée ton trépied » = « Mon panier » avec le trépied, première accroche prête
       if(!panier.trep&&STOCK.trep>0){ panier.trep=1; accChoisie=0; }
+      bullesDepuis=Date.now();
       key='perso';
       if(current==='perso'){ majPanier(); majAlerte(); majSitu(); return; }
     }
@@ -1515,6 +1580,11 @@
     if (el.focus && el.id !== 'cal' && el.type !== 'checkbox') setTimeout(() => el.focus({ preventScroll: true }), 300);
   }
   function wizSuivant(){
+    if (pas === 1 && trepVide() && periode()) {
+      let b = $('bk-trep-vide');
+      if (!b) { b = document.createElement('div'); b.id = 'bk-trep-vide'; $('bk-recap').after(b); }
+      b.innerHTML = boiteVide(); b.hidden = false; signaler(b); return false;
+    }
     const m = manque(pas);
     if (m) {
       $('bk-msg').hidden = true;
@@ -1606,7 +1676,13 @@
   ['bk-nom', 'bk-tel'].forEach(id => $(id).addEventListener('input', majBarre));
   $('bk-ok').addEventListener('change', majBarre);
 
-  window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } };
+  window.bkSync = ()=>{ if (window.packChoisi){ offreSel.value = window.packChoisi; maj(); dessiner(); } const tv = $('bk-trep-vide'); if (tv && !trepVide()) tv.hidden = true; };
+  document.addEventListener('click', e => {   // boîte « trépied vide » de l'étape 1
+    const v = e.target.closest('#bk-trep-vide [data-vide]'); if (!v) return;
+    $('bk-trep-vide').hidden = true;
+    if (v.dataset.vide === 'ok') { trepVideOk = true; wizSuivant(); }
+    else { show('creer', false); accChoisie = SLOTS.indexOf(null); bullesDepuis = Date.now(); majPanier(false); const z = $('conf-trep'); if (z) window.scrollTo({ top: z.getBoundingClientRect().top + scrollY - 80, behavior: reduit ? 'auto' : 'smooth' }); }
+  });
   offreSel.addEventListener('change', ()=>{ $('bk-liste-attente').hidden = true; maj(); dessiner(); });
   // changer de pack depuis le calendrier ; « Mon panier » vide : on remonte le composer
   $('bk-choix').addEventListener('click', e => {
@@ -1641,6 +1717,10 @@
   }
   document.querySelectorAll('.choice').forEach(c => c.addEventListener('click', syncFete));
   document.getElementById('g').addEventListener('input', syncFete);
+  document.getElementById('rBook').addEventListener('click', e => {
+    if (trepVide()) { e.preventDefault(); e.stopImmediatePropagation(); boiteVide.ici = 'conf'; accChoisie = null; majPanier(false);
+      const z = $('conf-trep'); if (z) window.scrollTo({ top: z.getBoundingClientRect().top + scrollY - 80, behavior: reduit ? 'auto' : 'smooth' }); }
+  }, true);
   document.getElementById('rBook').addEventListener('click', syncFete);
   syncFete();
 
@@ -1868,6 +1948,7 @@
       $('bk-submit').disabled = true;
     }
     const prix = c.prix || {}, photos = c.photos || {};
+    window.PHOTOS_LUM = { wzy: photos['Lyre WZYBUTA 150 W'], beto: photos['Lyre Betopper LM0740'], laser: photos['Laser KeoBin 3D RGB'] };   // vraies photos (admin › Matériel) dans les bulles du trépied
     document.querySelectorAll('.item[data-article]').forEach(it => {
       const a = it.dataset.article;
       if (prix[a] != null) it.querySelector('.prix').textContent = euros(prix[a]);
@@ -1990,7 +2071,7 @@
       const r = e.target.closest('[data-reserver]'), p = e.target.closest('[data-panier]'), cr = e.target.closest('[data-creer]');
       if (cr || (p && (LUM.indexOf(p.dataset.panier) >= 0 || p.dataset.panier === 'trep'))) {   // lumières : on ouvre le configurateur du trépied
         if (cr) show('creer', false);
-        else { const ok = ajoutPanier(p.dataset.panier); if (current === 'perso') { majPanier(); majAlerte(); } else show('perso', false); if (!ok && !noteConf) noteConf = 'Plus de ' + PACKS[p.dataset.panier].name + ' en stock.'; }
+        else { const ok = ajoutPanier(p.dataset.panier); bullesDepuis = Date.now(); if (current === 'perso') { majPanier(); majAlerte(); } else show('perso', false); if (!ok && !noteConf) noteConf = 'Plus de ' + PACKS[p.dataset.panier].name + ' en stock.'; }
         if (current === 'perso') { majPanier(); majAlerte(); }
         const z = $('conf-trep') || $('rPanier');
         window.scrollTo({ top: z.getBoundingClientRect().top + scrollY - 80, behavior: 'smooth' });
