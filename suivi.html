@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src https://script.google.com https://script.googleusercontent.com https://cdn.jsdelivr.net data: blob:; img-src 'self' data: blob: https://*.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; media-src 'self' blob: mediastream:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Suivre ma réservation · Mistraloc</title>
@@ -323,11 +324,14 @@
         '. Pose la carte à plat sur une table, bien éclairée, sans flash, et prends toute la carte.</div>';
       // 1. pièce d'identité
       h += '<div class="doc' + (cniOk ? ' fait' : '') + '"><h3>' + (cniOk ? '✅ ' : '1. ') + 'Ta pièce d\'identité</h3>';
-      if (cniOk) h += '<p>Reçue le ' + esc(d.verso || d.recto) + (d.piece ? ' (' + esc(d.piece.toLowerCase()) + ')' : '') + '. Elle sera effacée ' + esc(d.effacement) + ' jours après la reprise du matériel.</p>';
-      // pièce reçue : plus de « refaire » côté client (28/10, demande de Mistraloc) ; s'il faut une nouvelle photo, Mistraloc la redemande depuis l'admin
+      // 01/11 (demande de Mistraloc) : les photos se reprennent à volonté jusqu'à la signature du contrat ; ensuite la pièce est figée
+      // (le script refuse aussi un nouvel envoi), sauf si Mistraloc redemande une photo depuis l'admin
+      const cniFige = cniOk && (!!d.contrat || !d.signable) && !d.redemande;
+      if (cniOk) h += '<p>Reçue le ' + esc(d.verso || d.recto) + (d.piece ? ' (' + esc(d.piece.toLowerCase()) + ')' : '') + '. Elle sera effacée ' + esc(d.effacement) + ' jours après la reprise du matériel.' +
+        (cniFige || !d.actif ? '' : ' <button type="button" class="lien" id="cni-refaire">Reprendre les photos</button>') + '</p>';
       else if (d.recto && d.actif) h += '<p class="petit">Recto reçu le ' + esc(d.recto) + '. Il manque le verso.</p>';
       if (d.actif) h += '<div id="cni-form"' + (cniOk ? ' hidden' : '') + '>' +
-        '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite. Elle sert uniquement à ta location du ' +
+        '<p class="petit">Pose la carte à plat, bien éclairée, sans flash, et prends-la en entier. On vérifie la photo tout de suite, et tu peux la reprendre autant de fois que tu veux jusqu\'à la signature du contrat. Elle sert uniquement à ta location du ' +
         esc(j.date) + ' : rangée dans un dossier privé que seul Mistraloc peut ouvrir (jamais partagée, jamais envoyée par e-mail), et effacée ' + esc(d.effacement) + ' jours après la reprise.</p>' +
         '<label class="ch" for="cni-piece">Type de pièce</label><select id="cni-piece">' + PIECES.map(p => '<option' + (p === d.piece ? ' selected' : '') + '>' + esc(p) + '</option>').join('') + '</select>' +
         '<div class="guide-p" id="cni-guide" aria-label="Comment placer la pièce dans le cadre"></div>' +
@@ -417,6 +421,57 @@
       for (let a = g0 - 2; a <= g0 + 2; a += 0.5) { const e = energie(a); if (e > bestE) { bestE = e; best = a; } }
       return best;
     }
+    // ---- lecture du texte de la pièce DANS le téléphone (OCR Tesseract, la photo ne part nulle part ailleurs) ----
+    // 01/11 : une carte Vitale avait été acceptée → on refuse les cartes qui ne sont pas des pièces d'identité,
+    // et on demande une nouvelle photo si on ne lit aucune mention d'une pièce (au 2e essai : « Garder quand même », marquée « illisible » pour Mistraloc)
+    const OCR = { js: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js', sri: 'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F',
+                  w: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js', core: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1', lang: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/fra/4.0.0_best_int' };
+    let ocrPret = null;
+    function chargerOcr() {
+      if (!ocrPret) {
+        ocrPret = new Promise((ok, ko) => { if (window.Tesseract) return ok(); const s = document.createElement('script'); s.src = OCR.js; s.integrity = OCR.sri; s.crossOrigin = 'anonymous'; s.onload = ok; s.onerror = () => ko(new Error('ocr')); document.head.appendChild(s); })
+          .then(() => Tesseract.createWorker('fra', 1, { workerPath: OCR.w, corePath: OCR.core, langPath: OCR.lang }));
+        ocrPret.catch(() => { ocrPret = null; });
+      }
+      return ocrPret;
+    }
+    const delai = (ms, v) => new Promise(ok => setTimeout(() => ok(v), ms));
+    function classerPiece(texte) {
+      const T = String(texte || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[«‹]/g, '<');
+      const INTERDIT = [[/VITALE|ASSURANCE\s*MALADIE|AMELI|C\.?P\.?A\.?M/, 'une carte Vitale'], [/MUTUELLE|TIERS[\s-]*PAYANT|ORGANISME\s*COMPLEMENTAIRE/, 'une carte de mutuelle'],
+        [/NAVIGO|IMAGINE\s*R|ABONNEMENT/, 'une carte de transport'], [/CERTIFICAT\s*D.?IMMATRICULATION|CARTE\s*GRISE/, 'une carte grise'],
+        [/MASTERCARD|MAESTRO|AMERICAN\s*EXPRESS|PAYMENT|DEBIT/, 'une carte bancaire'], [/CARTE\s*(DE\s*)?FIDELITE|CARTE\s*ETUDIANT|STUDENT\s*CARD/, 'une carte de fidélité ou d\'étudiant']];
+      for (const [re, quoi] of INTERDIT) if (re.test(T)) return { verdict: 'interdit', quoi };
+      const OK = /IDENTIT|REPUBLIQUE|CARTE\s*NATIONALE|PASSEPORT|PASSPORT|TITRE\s*DE\s*SEJOUR|RESIDENCE\s*PERMIT|PERMIS\s*DE\s*CONDUIRE|DRIVING\s*LICEN|<{3,}|IDFRA|P<FRA|NATIONALIT|DATE\s*DE\s*NAISS|LIEU\s*DE\s*NAISS|DATE\s*D.?EXPIR|DATE\s*DE\s*DELIVR|AUTORITE|PREFECTURE|PREFET/;
+      return { verdict: OK.test(T) ? 'ok' : 'illisible' };
+    }
+    // part des pixels d'un vert franc (teinte 80°-170°, bien saturés) dans la partie centrale de la photo
+    function partVerte(src) {
+      const W = 160, H = Math.max(2, Math.round(src.height * W / src.width)), c = document.createElement('canvas'); c.width = W; c.height = H;
+      const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(src, 0, 0, W, H);
+      const px = g.getImageData(0, 0, W, H).data; let vert = 0, n = 0;
+      for (let y = Math.round(H * .1); y < H * .9; y++) for (let x = Math.round(W * .1); x < W * .9; x++) {
+        const i = 4 * (y * W + x), r = px[i] / 255, v = px[i + 1] / 255, b = px[i + 2] / 255, max = Math.max(r, v, b), min = Math.min(r, v, b), d = max - min; n++;
+        if (max < .2 || d / max < .35 || max !== v) continue;
+        const h = 60 * ((b - r) / d + 2); if (h >= 80 && h <= 170) vert++;
+      }
+      return n ? vert / n : 0;
+    }
+    async function verifierPiece(data) {
+      try {
+        const w = await Promise.race([chargerOcr(), delai(30000, null)]);
+        if (!w) return { verdict: 'non lue' };
+        const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = data; });
+        const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+        const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        const r = await Promise.race([w.recognize(c), delai(25000, null)]);
+        const v = r ? classerPiece(r.data.text) : { verdict: 'non lue' };
+        // aucune mention de pièce d'identité lue + carte surtout verte = carte Vitale (les pièces d'identité sont de tons pâles)
+        if (v.verdict !== 'ok' && v.verdict !== 'interdit' && partVerte(c) > 0.35) return { verdict: 'interdit', quoi: 'une carte Vitale' };
+        return v;
+      } catch (e) { return { verdict: 'non lue' }; }
+    }
     // photo ENVOYÉE : sans filigrane (28/10, demande de Mistraloc : il veut lire la carte dans l'admin, où le filigrane
     // est ajouté à l'affichage avec un bouton pour l'enlever), jusqu'à 2200 px, JPEG 0,92, sous 3,5 Mo
     function photoNette(img) {
@@ -464,32 +519,26 @@
       const d = j.docs, $ = id => document.getElementById(id);
       if (!d.actif) { brancherPdf(); return; }
       const besoin = { cni: !(d.recto && (d.verso || d.piece === 'Passeport')), ctr: d.signable && !d.contrat };
-      const photos = {}, envois = {};   // photos[face] = { data, sig, raisons, accepte } ; envois[face] = Promise de l'envoi
+      const photos = {}, envois = {}, illisibles = {};   // photos[face] = { data, sig, raisons, accepte, lecture } ; envois[face] = Promise de l'envoi
       const majBouton = () => {
         const b = $('tout-env'); if (!b) return;
         $('envoi').hidden = !(besoin.cni || besoin.ctr);
         b.textContent = besoin.cni && besoin.ctr ? 'Envoyer et signer ✓' : besoin.cni ? 'Envoyer ma pièce d\'identité ✓' : 'Signer mon contrat ✓';
       };
       majBouton();
+      if (besoin.cni || $('cni-refaire')) setTimeout(() => { chargerOcr().catch(() => {}); }, 1500);   // l'outil de lecture se télécharge pendant que le client lit
       // --- pièce d'identité ---
       const facesUtiles = () => $('cni-piece').value === 'Passeport' ? ['recto'] : ['recto', 'verso'];
       const majPasseport = () => { const p = $('cni-piece').value === 'Passeport'; $('tu-verso').hidden = p; $('cni-photos').classList.toggle('une', p); $('cni-guide').innerHTML = guidePiece($('cni-piece').value); };
       majPasseport(); $('cni-piece').addEventListener('change', majPasseport);
       if ($('cni-refaire')) $('cni-refaire').addEventListener('click', () => { $('cni-form').hidden = false; $('cni-refaire').hidden = true; besoin.cni = true; majBouton(); });
       const etat = (face, cls, html) => { const e = $('et-' + face); e.className = 'ph-etat ' + cls; e.innerHTML = html; };
-      // toutes les faces bonnes et envoyées : on fige la pièce (plus de caméra ni de « Toucher pour changer »)
-      const envoyees = {};
-      function verrouillerCni() {
-        if (!facesUtiles().every(f => photos[f] && photos[f].accepte && envoyees[f] === photos[f])) return;
-        ['cam-go', 'cni-guide'].forEach(id => { $(id).hidden = true; });
-        $('cni-piece').disabled = true;
-        facesUtiles().forEach(f => { const b = $('ph-' + f); b.disabled = true; const s = b.querySelector('small'); if (s) s.remove(); });
-      }
+      // 01/11 : plus de verrouillage après l'envoi d'une face : le client peut reprendre ses photos jusqu'à la signature du contrat
       function envoyerFace(face) {
         const ph = photos[face];
         etat(face, 'cours', '⏳ Envoi en cours…');
-        const p = post('docs_cni', { face, image: ph.data, piece: $('cni-piece').value })
-          .then(r => { if (!r.ok) throw new Error(r.erreur || 'erreur'); if (photos[face] === ph) { etat(face, 'ok', '✓ Photo nette, bien envoyée'); envoyees[face] = ph; verrouillerCni(); } return r; })
+        const p = post('docs_cni', { face, image: ph.data, piece: $('cni-piece').value, lecture: ph.lecture || 'non lue' })
+          .then(r => { if (!r.ok) throw new Error(r.erreur || 'erreur'); if (photos[face] === ph) etat(face, 'ok', ph.lecture === 'ok' ? '✓ Pièce reconnue, bien envoyée' : '✓ Photo bien envoyée'); return r; })
           .catch(err => { if (photos[face] === ph) etat(face, 'ko', '⚠ Envoi raté : ' + esc(msgErr(err, 'réseau')) + '. On réessaiera au moment d\'envoyer.'); throw err; });
         p.catch(() => {});
         envois[face] = { p, ph };
@@ -511,11 +560,11 @@
           const a = analyser(img);
           const autre = photos[face === 'recto' ? 'verso' : 'recto'];
           if (autre && a.sig.reduce((t, v, i) => t + Math.abs(v - autre.sig[i]), 0) / 256 < 8) a.raisons.push('double');
-          photos[face] = { data: photoNette(img), sig: a.sig, raisons: a.raisons, accepte: !a.raisons.length };
+          const ph = photos[face] = { data: photoNette(img), sig: a.sig, raisons: a.raisons, accepte: false, lecture: '' };
           const apercu = filigraner(img, 'MISTRALOC · location du ' + j.date + ' · copie non valable ailleurs');
           URL.revokeObjectURL(img.src);
           zone.querySelector('span').innerHTML = '<img src="' + apercu + '" alt="Aperçu ' + face + '"><small>Toucher pour changer</small>';
-          if (!a.raisons.length) { zone.classList.add('ok'); envoyerFace(face); }
+          if (!a.raisons.length) await lireEtEnvoyer(face, ph, false);
           else {
             zone.classList.add('bof');
             etat(face, 'ko', (a.raisons.join() === 'double' ? '⚠ C\'est encore la même face : 🔄 retourne ta carte et photographie l\'autre côté. '
@@ -525,10 +574,36 @@
           }
         } catch (err) { photos[face] = null; etat(face, 'ko', '⚠ Cette photo n\'a pas pu être lue. Essaie une autre photo (JPEG ou PNG).'); }
       }
+      // lecture du texte de la pièce, puis envoi ; force = le client a touché « Garder quand même »
+      async function lireEtEnvoyer(face, ph, force) {
+        const zone = $('ph-' + face);
+        let v = ph.verdict;   // une seule lecture par photo
+        if (!v) {
+          ph.enLecture = true; etat(face, 'cours', '🔎 Lecture de ta pièce…');
+          v = ph.verdict = await verifierPiece(ph.data);
+          ph.enLecture = false;
+        }
+        if (photos[face] !== ph) return;   // photo remplacée entre-temps
+        if (v.verdict === 'interdit') {
+          zone.classList.remove('ok'); zone.classList.add('bof');
+          etat(face, 'ko', '⛔ On dirait ' + esc(v.quoi) + ', pas une pièce d\'identité. Prends ta carte d\'identité, ton passeport, ton titre de séjour ou ton permis de conduire. <button type="button" class="lien" data-cam="' + face + '">Reprendre la photo</button>');
+          return;
+        }
+        if (v.verdict === 'illisible' && !force) {
+          if (!ph.compte) { ph.compte = true; illisibles[face] = (illisibles[face] || 0) + 1; }   // on compte les photos, pas les clics
+          zone.classList.remove('ok'); zone.classList.add('bof');
+          etat(face, 'ko', '⚠ On n\'arrive pas à lire ta pièce : pose-la bien à plat, bien éclairée, nette et sans reflet. <button type="button" class="lien" data-cam="' + face + '">Reprendre la photo</button>' +
+            (illisibles[face] >= 2 ? ' <button type="button" class="lien" data-garder="' + face + '">Garder quand même</button>' : ''));
+          return;
+        }
+        ph.lecture = v.verdict === 'ok' ? 'ok' : v.verdict === 'illisible' ? 'illisible' : 'non lue';
+        ph.accepte = true; zone.classList.remove('bof'); zone.classList.add('ok'); envoyerFace(face);
+      }
       $('cni-photos').addEventListener('click', e => {
         const b = e.target.closest('button[data-garder]'); if (!b) return;
-        const face = b.dataset.garder; if (!photos[face]) return;
-        photos[face].accepte = true; $('ph-' + face).classList.remove('bof'); envoyerFace(face);
+        const face = b.dataset.garder, ph = photos[face]; if (!ph || ph.enLecture) return;
+        // « Garder quand même » : accepte une photo imparfaite, mais une pièce illisible seulement après 2 essais (jamais une carte refusée)
+        lireEtEnvoyer(face, ph, !!(ph.verdict && ph.verdict.verdict === 'illisible' && (illisibles[face] || 0) >= 2));
       });
       // attend les envois de photos (relance une fois ceux qui ont raté) ; renvoie une erreur lisible ou ''
       async function attendrePhotos() {
@@ -559,6 +634,7 @@
       const verifierPhotos = () => {
         for (const f of facesUtiles()) {
           if (!photos[f] && !d[f]) { signaler($('ph-' + f)); erreur('m-env', 'Ajoute la photo ' + (f === 'recto' ? 'du recto' : 'du verso') + ' de ta pièce d\'identité.'); return false; }
+          if (photos[f] && photos[f].enLecture) { signaler($('tu-' + f)); erreur('m-env', 'On lit encore ta pièce (' + (f === 'recto' ? 'recto' : 'verso') + ') : une seconde…'); return false; }
           if (photos[f] && !photos[f].accepte) { signaler($('tu-' + f)); erreur('m-env', 'Reprends la photo ' + (f === 'recto' ? 'du recto' : 'du verso') + ', ou touche « Garder quand même ».'); return false; }
         }
         if (!facesUtiles().some(f => photos[f])) { signaler($('ph-recto')); erreur('m-env', 'Ajoute la photo de ta pièce d\'identité.'); return false; }
