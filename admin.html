@@ -382,6 +382,20 @@
           <small class="note" style="margin:0">Micro-entrepreneur qui ne facture pas la TVA : la mention habituelle est « TVA non applicable, art. 293 B du CGI ». Vérifie ton cas avec l'URSSAF ou ton comptable.</small></div>
         <button class="btn" type="submit">Enregistrer</button>
       </form>
+      <div class="panel" id="lo-sig">
+        <b>Ta signature sur les contrats</b>
+        <p class="note" style="margin:4px 0 10px">Signe une seule fois ici : ta signature est ajoutée <b>automatiquement</b> dans la case « Le Loueur » de chaque contrat, au moment où le client signe. Elle reste dans ton dossier privé Google Drive.</p>
+        <div id="lo-sig-apercu"></div>
+        <div id="lo-sig-zone" hidden>
+          <div class="field"><canvas class="pad" id="lo-pad" aria-label="Ta signature"></canvas><div class="pad-bas"><span>Signe avec ton doigt</span><button type="button" class="link" id="lo-sig-eff">Effacer</button></div></div>
+          <button class="btn" type="button" id="lo-sig-ok">Enregistrer ma signature</button>
+          <button class="btn ghost" type="button" id="lo-sig-annule" style="margin-top:8px">Annuler</button>
+        </div>
+        <div id="lo-sig-actions">
+          <button class="btn" type="button" id="lo-sig-dessin">✍️ Dessiner ma signature</button>
+          <button class="link" type="button" id="lo-sig-suppr" hidden style="margin-top:10px">Retirer ma signature des prochains contrats</button>
+        </div>
+      </div>
     </div>
 
     <div data-p="resa" hidden>
@@ -578,7 +592,7 @@
   const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
-    admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…',
+    admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…', admin_loueur_sig: 'Enregistrement de ta signature…',
     admin_facture: 'Création de la facture (PDF)…', admin_attente_suppr: 'Suppression…', admin_parrainage: 'Enregistrement du parrainage…' };
   let nAtt = 0, tAtt = null;
   function bloquer(on) {
@@ -764,6 +778,39 @@
       msg('m-admin', j.loueur.complet ? 'Enregistré : tes clients peuvent signer leur contrat en ligne et les factures sont activées.' : 'Enregistré, mais il manque encore le nom, le SIRET (14 chiffres) ou l\'adresse pour activer la signature et les factures.', true);
     } catch (err) { msg('m-admin', 'Pas enregistré : ' + (err.message || 'erreur') + '.'); }
   }); });
+  let loPad = null;
+  function afficherSig() {
+    const sig = etat.sigLoueur || '';
+    $('lo-sig-apercu').innerHTML = sig ? '<div style="background:#fff;border-radius:12px;padding:10px;margin-bottom:10px;text-align:center"><img src="' + sig + '" alt="Ta signature enregistrée" style="max-width:100%;height:90px;object-fit:contain"></div><p class="note" style="margin:0 0 10px">✅ Signature enregistrée : elle sera sur les prochains contrats signés (pas sur ceux déjà signés).</p>'
+      : '<p class="note" style="margin:0 0 10px">Pas encore de signature : la case « Le Loueur » indique seulement « Contrat proposé par le Loueur ».</p>';
+    $('lo-sig-dessin').textContent = sig ? '✍️ Refaire ma signature' : '✍️ Dessiner ma signature';
+    $('lo-sig-suppr').hidden = !sig;
+  }
+  function zoneSig(ouvrir) {
+    $('lo-sig-zone').hidden = !ouvrir; $('lo-sig-actions').hidden = ouvrir;
+    if (ouvrir) { const a = $('lo-pad'), n = a.cloneNode(false); a.replaceWith(n); loPad = cadreSignature(n); }
+  }
+  $('lo-sig-dessin').addEventListener('click', () => zoneSig(true));
+  $('lo-sig-annule').addEventListener('click', () => zoneSig(false));
+  $('lo-sig-eff').addEventListener('click', () => loPad && loPad.effacer());
+  $('lo-sig-ok').addEventListener('click', e => {
+    if (!loPad || loPad.vide()) { msg('m-admin', 'Signe dans le cadre blanc avant d\'enregistrer.'); return; }
+    occupe(e.currentTarget, async () => {
+      try {
+        const j = await appel('admin_loueur_sig', { signature: loPad.png() });
+        if (!j.ok) throw new Error(j.erreur);
+        etat.sigLoueur = j.sig; zoneSig(false); afficherSig();
+        msg('m-admin', 'Signature enregistrée : elle sera ajoutée sur chaque nouveau contrat signé.', true);
+      } catch (err) { msg('m-admin', 'Signature pas enregistrée : ' + (err.message || 'erreur') + '.'); }
+    });
+  });
+  $('lo-sig-suppr').addEventListener('click', e => {
+    if (!confirm('Retirer ta signature des prochains contrats ? (les contrats déjà signés ne changent pas)')) return;
+    occupe(e.currentTarget, async () => {
+      try { const j = await appel('admin_loueur_sig', { effacer: true }); if (!j.ok) throw new Error(j.erreur); etat.sigLoueur = ''; afficherSig(); msg('m-admin', 'Signature retirée.', true); }
+      catch (err) { msg('m-admin', 'Pas retirée : ' + (err.message || 'erreur') + '.'); }
+    });
+  });
   let urlVisu = null;
   function fermerVisu() { $('visu').hidden = true; $('visu-corps').innerHTML = ''; $('visu-corps').classList.remove('zoom'); if (urlVisu) { URL.revokeObjectURL(urlVisu); urlVisu = null; } if (urlFil) { URL.revokeObjectURL(urlFil); urlFil = null; } document.body.style.overflow = ''; }
   $('visu-x').addEventListener('click', fermerVisu);
@@ -1667,6 +1714,7 @@
   function afficherInfos() {
     const lo = etat.loueur || {};
     $('lo-nom').value = lo.nom || ''; $('lo-siret').value = lo.siret || ''; $('lo-adr').value = lo.adresse || ''; $('lo-med').value = lo.mediateur || ''; $('lo-tva').value = lo.tva || '';
+    afficherSig();
   }
 
   demarrer();
