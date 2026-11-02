@@ -33,6 +33,8 @@
   @media (min-width:600px){.tabs{grid-template-columns:repeat(5,1fr)}}
   .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
   @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  .pin-box{max-width:420px;margin:0 auto;text-align:center}.pin-box .ic{font-size:40px;line-height:1;margin-bottom:6px}.pin-box input{font-size:24px;letter-spacing:.35em;text-align:center}.pin-box .field{text-align:left}
+  .pin-barre{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;font-size:13px;color:var(--muted)}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
   .kpi small{display:block;color:var(--muted);font-weight:700;font-size:13px}
   .kpi b{font-family:"Bebas Neue";font-weight:400;font-size:40px;line-height:1.1;display:block}
@@ -611,13 +613,13 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   // 49 → « 49 € », 49.9 → « 49,90 € »
   const eur = v => { const x = Math.round(Number(v) * 100) / 100; return isNaN(x) ? '' : (Number.isInteger(x) ? String(x) : x.toFixed(2).replace('.', ',')) + ' €'; };
-  let token = null, etat = null;
+  let token = null, etat = null, revFin = 0;   // revFin : heure où les chiffres se reverrouillent sur cet écran
   try { token = sessionStorage.getItem('audioloc_admin'); } catch (e) {}
 
   // écran d'attente plein écran (page bloquée) quand le script Google met plus d'un instant à répondre.
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
   const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
-  const TEXTES = { admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
+  const TEXTES = { admin_pin: 'Vérification du code…', admin_pin_definir: 'Enregistrement du code…', admin_pin_code: 'Envoi du code…', admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_bon_cadeau: 'Création du bon cadeau…', admin_bon_suppr: 'Suppression du bon…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
     admin_doc_refuser: 'Envoi de la demande au client…', admin_edl: 'Création de l\'état des lieux (PDF avec les photos)…', admin_doc_voir: 'Ouverture du document…', admin_doc_garder: 'Enregistrement…', admin_doc_suppr: 'Suppression du document…', admin_loueur: 'Enregistrement de tes informations…', admin_loueur_sig: 'Enregistrement de ta signature…',
@@ -643,6 +645,7 @@
     };
     const j = SANS_ECRAN.includes(action) || !$('v-charge').hidden ? await f() : await patienter(TEXTES[action] || 'Un instant…', f);
     if (j.erreur === 'session') { deconnecte(); throw new Error('Session expirée, reconnecte-toi.'); }
+    if (etat && etat.revenus) revFin = Date.now() + (etat.pinMin || 30) * 60000;
     return j;
   }
   let tMsg = null;
@@ -727,6 +730,7 @@
     if (!garderMsg) msg('m-admin', '');
     if (t === 'visites') chargerVisites();
     if (t === 'accueil') afficherAccueil();
+    if (t === 'revenus') afficherRevenus();
     window.scrollTo({ top: 0, behavior: 'instant' });
     try { sessionStorage.setItem('mistraloc_onglet', t); } catch (e) {}
   }
@@ -1074,8 +1078,8 @@
     const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
     $('cl-kpis').innerHTML = kpi('Clients', tous.length, tous.filter(c => c.compte).length + ' avec un compte') +
       kpi('Fidèles', tous.filter(c => c.nb >= 2).length, '2 locations ou plus') +
-      kpi('Chiffre', eur(Math.round(ca)) || '0 €', nbLoc + ' location' + (nbLoc > 1 ? 's' : '') + ' validée' + (nbLoc > 1 ? 's' : '')) +
-      kpi('Panier moyen', nbLoc ? eur(Math.round(ca / nbLoc)) : '—', 'par location');
+      kpi('Chiffre', !etat.revenus ? '🔒' : eur(Math.round(ca)) || '0 €', nbLoc + ' location' + (nbLoc > 1 ? 's' : '') + ' validée' + (nbLoc > 1 ? 's' : '')) +
+      kpi('Panier moyen', !etat.revenus ? '🔒' : nbLoc ? eur(Math.round(ca / nbLoc)) : '—', !etat.revenus ? 'code dans Revenus' : 'par location');
     $('cl-filtres').innerHTML = FILTRES.map(([k, t]) => '<button type="button" data-f="' + k + '" aria-pressed="' + (k === filtreCl) + '">' + t + '<i>' + tous.filter(c => testFiltre(k, c)).length + '</i></button>').join('');
     const q = $('cl-q').value.trim(), tri = $('cl-tri').value;
     const l = tous.filter(c => testFiltre(filtreCl, c) && chercheCl(c, q)).sort((a, b) =>
@@ -1783,6 +1787,7 @@
     if (M) h += '<div class="section-t"><h2>Ce mois-ci</h2><button type="button" data-aller="revenus">Voir les revenus ›</button></div><div class="kpis">' +
       '<div class="kpi"><small>Chiffre</small><b>' + (eur(Math.round(M.ca)) || '0 €') + '</b><span>' + M.nb + ' location' + (M.nb > 1 ? 's' : '') + '</span></div>' +
       '<div class="kpi"><small>À venir</small><b>' + (eur(Math.round(etat.revenus.venir.ca)) || '0 €') + '</b><span>' + etat.revenus.venir.nb + ' confirmée' + (etat.revenus.venir.nb > 1 ? 's' : '') + '</span></div></div>';
+    if (!M) h += '<div class="section-t"><h2>Ce mois-ci</h2></div><button type="button" class="btn ghost" style="width:100%" data-aller="revenus">🔒 Chiffres protégés · taper mon code</button>';
     // liste d'attente
     const att = etat.attente || [];
     h += '<div class="section-t"><h2>Liste d\'attente</h2></div>' + (att.length ? '<div class="panel" style="padding:8px 16px">' + att.map(x => '<div class="att-l"><div><b>' + esc(dateFr(x.date)) + '</b> · ' + esc(x.offre.replace(/^Panier perso : /, '')) +
@@ -1819,15 +1824,18 @@
   /* ===== Revenus ===== */
   const moisFr = (cle, long) => new Date(cle + '-15T12:00').toLocaleDateString('fr-FR', long ? { month: 'long', year: 'numeric' } : { month: 'short' }).replace('.', '');
   function afficherRevenus() {
+    if (etat.revenus && revFin && Date.now() > revFin) etat.revenus = null;   // 30 min sans rien faire : on reverrouille
     const R = etat.revenus;
-    if (!R) { $('rev').innerHTML = '<div class="panel empty">Revenus indisponibles.</div>'; return; }
+    if (!R) { $('rev').innerHTML = ecranPin(); return; }
     const m = R.mois, cour = m[m.length - 1], max = Math.max(1, ...m.map(x => x.ca)), e0 = v => eur(Math.round(v)) || '0 €';
     const pc = v => String(v).replace('.', ',') + ' %';
     const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
     const barres = m.map(x => '<button type="button" data-info="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca) + ' · ' + x.nb + ' location' + (x.nb > 1 ? 's' : '') + (x.livr ? ' (dont ' + e0(x.livr) + ' de livraison)' : '') + (x.taux != null ? ' · remplissage ' + pc(x.taux) : '')) +
       '" aria-label="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca)) + '"><i style="height:' + (x.ca ? Math.max(3, Math.round(x.ca / max * 100)) : 0) + '%"></i></button>').join('');
     const tot = R.offres.reduce((s, o) => s + o.nb, 0) || 1;
-    $('rev').innerHTML = '<div class="kpis">' + kpi('Ce mois-ci', e0(cour.ca), cour.nb + ' location' + (cour.nb > 1 ? 's' : '')) + kpi('Année ' + R.annee.an, e0(R.annee.ca), R.annee.nb + ' location' + (R.annee.nb > 1 ? 's' : '')) +
+    $('rev').innerHTML = '<div class="pin-barre"><span>🔓 Chiffres déverrouillés · se reverrouillent après ' + (etat.pinMin || 30) + ' min sans activité</span><span><button type="button" class="link" data-pin-changer>Changer le code</button> · <button type="button" class="btn ghost small" data-pin-fermer>🔒 Verrouiller</button></span></div>' +
+      '<div class="panel" id="pin-chg" hidden><h2>Changer le code secret</h2><form id="f-pin-chg"><div class="field"><label for="pin-anc">Code actuel</label><input id="pin-anc" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div><div class="field"><label for="pin-n1">Nouveau code (4 à 8 chiffres)</label><input id="pin-n1" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div><div class="field"><label for="pin-n2">Nouveau code, encore une fois</label><input id="pin-n2" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div><button class="btn" type="submit">Enregistrer le nouveau code</button><p class="msg" id="m-pin-chg" hidden></p></form></div>' +
+      '<div class="kpis">' + kpi('Ce mois-ci', e0(cour.ca), cour.nb + ' location' + (cour.nb > 1 ? 's' : '')) + kpi('Année ' + R.annee.an, e0(R.annee.ca), R.annee.nb + ' location' + (R.annee.nb > 1 ? 's' : '')) +
       kpi('À venir', e0(R.venir.ca), R.venir.nb + ' confirmée' + (R.venir.nb > 1 ? 's' : '')) + kpi('Remplissage', cour.taux == null ? '—' : pc(cour.taux), 'ce mois-ci') + '</div>' +
       '<div class="panel"><h2>Chiffre par mois</h2><div class="graph" id="rev-graph">' + barres + '</div>' +
       '<div class="graph-axe"><span>' + esc(moisFr(m[0].cle)) + '</span><span>ce mois-ci</span></div><div class="graph-info" id="rev-info" aria-live="polite">Touche une barre pour voir le détail du mois.</div></div>' +
@@ -1840,6 +1848,69 @@
     const g = $('rev-graph'), montrer = b => { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); $('rev-info').textContent = b.dataset.info; };
     ['click', 'mouseover', 'focusin'].forEach(ev => g.addEventListener(ev, e => { const b = e.target.closest('button'); if (b) montrer(b); }));
   }
+
+  /* ===== code secret des chiffres : 2e verrou pour les revenus ===== */
+  const champPin = (id, label) => '<div class="field"><label for="' + id + '">' + label + '</label><input id="' + id + '" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="8" required></div>';
+  function ecranPin() {
+    if (!etat.pinDefini) return '<div class="panel pin-box"><div class="ic">🔐</div><h2>Protège tes chiffres</h2>' +
+      '<p class="note">Choisis un <b>code secret de 4 à 8 chiffres</b>. Il sera demandé pour voir ton chiffre d\'affaires, même si quelqu\'un ouvre ton admin avec ton téléphone déverrouillé.</p>' +
+      '<form id="f-pin-new">' + champPin('pin-c1', 'Ton code secret') + champPin('pin-c2', 'Encore une fois') +
+      '<button class="btn" type="submit" style="width:100%">Créer mon code</button><p class="msg" id="m-pin" hidden></p></form></div>';
+    return '<div class="panel pin-box"><div class="ic">🔒</div><h2>Tes chiffres sont protégés</h2><p class="note">Tape ton code secret pour voir ton chiffre d\'affaires.</p>' +
+      '<form id="f-pin">' + champPin('pin-v', 'Code secret') + '<button class="btn" type="submit" style="width:100%">Voir mes chiffres</button><p class="msg" id="m-pin" hidden></p></form>' +
+      '<p style="margin-top:14px"><button type="button" class="link" data-pin-oubli>Code oublié ?</button></p>' +
+      '<form id="f-pin-oubli" hidden><p class="note">On t\'a envoyé un code à 6 chiffres sur <b>audioloc13@gmail.com</b>.</p>' +
+      '<div class="field"><label for="pin-mail">Code reçu par e-mail</label><input id="pin-mail" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>' +
+      champPin('pin-o1', 'Nouveau code secret (4 à 8 chiffres)') + champPin('pin-o2', 'Encore une fois') +
+      '<button class="btn" type="submit" style="width:100%">Enregistrer et voir mes chiffres</button><p class="msg" id="m-pin-o" hidden></p></form></div>';
+  }
+  function chiffresOuverts(j) {
+    etat.revenus = j.revenus; etat.pinDefini = true; revFin = Date.now() + (etat.pinMin || 30) * 60000;
+    afficherRevenus(); afficherClients(); afficherAccueil();
+  }
+  $('rev').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target, bouton = f.querySelector('button[type=submit]'), v = id => ($(id) ? $(id).value.trim() : '');
+    occupe(bouton, async () => {
+      try {
+        if (f.id === 'f-pin') {
+          const j = await appel('admin_pin', { pin: v('pin-v') });
+          if (!j.ok) { $('pin-v').value = ''; $('pin-v').focus(); return msg('m-pin', j.erreur === 'aucun code' ? 'Aucun code n\'est encore créé : recharge la page.' : 'Refusé : ' + j.erreur + '.'); }
+          chiffresOuverts(j);
+        } else if (f.id === 'f-pin-new' || f.id === 'f-pin-oubli' || f.id === 'f-pin-chg') {
+          const [a, b, m] = f.id === 'f-pin-new' ? ['pin-c1', 'pin-c2', 'm-pin'] : f.id === 'f-pin-oubli' ? ['pin-o1', 'pin-o2', 'm-pin-o'] : ['pin-n1', 'pin-n2', 'm-pin-chg'];
+          if (v(a) !== v(b)) return msg(m, 'Les deux codes ne sont pas identiques.');
+          const donnees = { pin: v(a) };
+          if (f.id === 'f-pin-oubli') donnees.code = v('pin-mail');
+          if (f.id === 'f-pin-chg') donnees.ancien = v('pin-anc');
+          const j = await appel('admin_pin_definir', donnees);
+          if (!j.ok) return msg(m, 'Refusé : ' + j.erreur + '.');
+          chiffresOuverts(j);
+          msg('m-admin', f.id === 'f-pin-new' ? 'Code créé ! Retiens-le bien : il sera demandé pour voir tes chiffres.' : 'Nouveau code enregistré.', true);
+        }
+      } catch (err) { msg('m-admin', err.message || 'Erreur réseau.'); }
+    });
+  });
+  $('rev').addEventListener('click', async e => {
+    if (e.target.closest('[data-pin-changer]')) { const p = $('pin-chg'); p.hidden = !p.hidden; if (!p.hidden) $('pin-anc').focus(); return; }
+    if (e.target.closest('[data-pin-fermer]')) {
+      etat.revenus = null; revFin = 0;
+      afficherRevenus(); afficherClients(); afficherAccueil();
+      try { await appel('admin_pin_fermer'); } catch (err) {}
+      return;
+    }
+    const oubli = e.target.closest('[data-pin-oubli]');
+    if (oubli) occupe(oubli, async () => {
+      try {
+        const j = await appel('admin_pin_code');
+        if (!j.ok) return msg('m-pin', 'Pas envoyé : ' + j.erreur + '.');
+        $('f-pin-oubli').hidden = false; $('pin-mail').focus();
+      } catch (err) { msg('m-pin', 'Erreur réseau, réessaie.'); }
+    });
+  });
+  // en revenant sur « Revenus » après 30 min sans rien faire, l'écran se reverrouille
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && etat && etat.revenus && revFin && Date.now() > revFin) { etat.revenus = null; afficherRevenus(); afficherClients(); afficherAccueil(); } });
+
 
   /* ===== « Plus » : tuiles vers les autres réglages ===== */
   function afficherTuiles() {
