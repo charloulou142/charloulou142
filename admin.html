@@ -33,7 +33,18 @@
   @media (min-width:600px){.tabs{grid-template-columns:repeat(5,1fr)}}
   .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
   @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
-  .pin-box{max-width:420px;margin:0 auto;text-align:center}.pin-box .ic{font-size:40px;line-height:1;margin-bottom:6px}.pin-box input{font-size:24px;letter-spacing:.35em;text-align:center}.pin-box .field{text-align:left}
+  .pin-box{max-width:420px;margin:0 auto;text-align:center}.pin-box .ic{font-size:40px;line-height:1;margin-bottom:6px}.pin-box .field{text-align:left}
+  .digi-t{font-weight:700;margin:14px 0 12px}
+  .digi-pts{display:flex;justify-content:center;gap:14px;margin-bottom:20px}
+  .digi-pts i{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);transition:background .12s,border-color .12s,transform .12s}
+  .digi-pts i.on{background:var(--pink);border-color:var(--pink);transform:scale(1.1)}
+  .digi-pts.non{animation:digiNon .4s}
+  @keyframes digiNon{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+  .digi-k{display:grid;grid-template-columns:repeat(3,72px);justify-content:center;gap:14px 22px}
+  .digi-k button{width:72px;height:72px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:28px;font-weight:600;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .12s,transform .08s}
+  .digi-k button:active{background:var(--pink);color:#1A0B00;transform:scale(.94)}
+  .digi-k button.del{font-size:22px;border-color:transparent;background:transparent}
+  @media (prefers-reduced-motion:reduce){.digi-pts.non{animation:none}}
   .pin-barre{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;font-size:13px;color:var(--muted)}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
   .kpi small{display:block;color:var(--muted);font-weight:700;font-size:13px}
@@ -334,6 +345,15 @@
       <div class="msg" id="m-login" hidden></div>
       <button class="btn" type="submit">Se connecter</button>
       <p style="margin-top:12px"><button class="link" type="button" id="b-oubli">Mot de passe oublié ?</button></p>
+    </form>
+    <form class="panel" id="f-login-mail" hidden>
+      <p style="margin:0 0 12px"><b>🔐 Connexion par code e-mail</b><br><span class="note" style="margin:0">Après 3 erreurs, pour ta sécurité, le mot de passe est refusé 15 minutes. Connecte-toi avec un code envoyé sur <b>audioloc13@gmail.com</b>.</span></p>
+      <button class="btn ghost" type="button" id="b-lcode" style="width:100%">Recevoir mon code par e-mail</button>
+      <div id="lc-zone" hidden style="margin-top:14px">
+        <div class="field"><label for="lc-code">Code reçu par e-mail (6 chiffres)</label><input id="lc-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+        <button class="btn" type="submit" style="width:100%">Se connecter</button>
+      </div>
+      <div class="msg" id="m-lmail" hidden></div>
     </form>
   </section>
 
@@ -678,9 +698,25 @@
     msg('m-login', '');
     try {
       const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value });
-      if (!j.ok) return msg('m-login', 'Connexion refusée : ' + j.erreur + '.');
+      if (!j.ok) { msg('m-login', 'Connexion refusée : ' + j.erreur + '.'); if (j.parMail) { $('l-mdp').value = ''; $('f-login-mail').hidden = false; $('f-login-mail').scrollIntoView({ block: 'nearest' }); } return; }
       garder(j.token); $('l-mdp').value = ''; await charger();
     } catch (err) { msg('m-login', err.message || 'Erreur réseau.'); }
+  }); });
+  // connexion par code e-mail (obligatoire après 3 mauvais mots de passe)
+  $('b-lcode').addEventListener('click', e => occupe(e.currentTarget, async () => {
+    try {
+      const j = await appel('admin_login_mail');
+      if (!j.ok) return msg('m-lmail', 'Pas envoyé : ' + j.erreur + '.');
+      msg('m-lmail', 'Code envoyé ! Regarde ta boîte audioloc13@gmail.com (et les spams).', true);
+      $('lc-zone').hidden = false; $('lc-code').focus();
+    } catch (err) { msg('m-lmail', 'Erreur réseau, réessaie.'); }
+  }));
+  $('f-login-mail').addEventListener('submit', e => { e.preventDefault(); occupe(e.target.querySelector('button[type=submit]'), async () => {
+    try {
+      const j = await appel('admin_login', { code: $('lc-code').value.trim() });
+      if (!j.ok) return msg('m-lmail', 'Refusé : ' + j.erreur + '.');
+      garder(j.token); $('lc-code').value = ''; $('f-login-mail').hidden = true; msg('m-login', ''); await charger();
+    } catch (err) { msg('m-lmail', err.message || 'Erreur réseau.'); }
   }); });
   $('b-oubli').addEventListener('click', () => { $('setup-titre').textContent = 'Changer ton mot de passe'; $('retour-login').hidden = false; vue('setup'); });
   $('b-retour').addEventListener('click', () => vue('login'));
@@ -1826,7 +1862,7 @@
   function afficherRevenus() {
     if (etat.revenus && revFin && Date.now() > revFin) etat.revenus = null;   // 30 min sans rien faire : on reverrouille
     const R = etat.revenus;
-    if (!R) { $('rev').innerHTML = ecranPin(); return; }
+    if (!R || pin.mode === 'changer') { $('rev').innerHTML = ecranPin(); return; }
     const m = R.mois, cour = m[m.length - 1], max = Math.max(1, ...m.map(x => x.ca)), e0 = v => eur(Math.round(v)) || '0 €';
     const pc = v => String(v).replace('.', ',') + ' %';
     const kpi = (t, v, s) => '<div class="kpi"><small>' + t + '</small><b>' + v + '</b><span>' + s + '</span></div>';
@@ -1834,7 +1870,6 @@
       '" aria-label="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca)) + '"><i style="height:' + (x.ca ? Math.max(3, Math.round(x.ca / max * 100)) : 0) + '%"></i></button>').join('');
     const tot = R.offres.reduce((s, o) => s + o.nb, 0) || 1;
     $('rev').innerHTML = '<div class="pin-barre"><span>🔓 Chiffres déverrouillés · se reverrouillent après ' + (etat.pinMin || 30) + ' min sans activité</span><span><button type="button" class="link" data-pin-changer>Changer le code</button> · <button type="button" class="btn ghost small" data-pin-fermer>🔒 Verrouiller</button></span></div>' +
-      '<div class="panel" id="pin-chg" hidden><h2>Changer le code secret</h2><form id="f-pin-chg"><div class="field"><label for="pin-anc">Code actuel</label><input id="pin-anc" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div><div class="field"><label for="pin-n1">Nouveau code (4 à 8 chiffres)</label><input id="pin-n1" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div><div class="field"><label for="pin-n2">Nouveau code, encore une fois</label><input id="pin-n2" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div><button class="btn" type="submit">Enregistrer le nouveau code</button><p class="msg" id="m-pin-chg" hidden></p></form></div>' +
       '<div class="kpis">' + kpi('Ce mois-ci', e0(cour.ca), cour.nb + ' location' + (cour.nb > 1 ? 's' : '')) + kpi('Année ' + R.annee.an, e0(R.annee.ca), R.annee.nb + ' location' + (R.annee.nb > 1 ? 's' : '')) +
       kpi('À venir', e0(R.venir.ca), R.venir.nb + ' confirmée' + (R.venir.nb > 1 ? 's' : '')) + kpi('Remplissage', cour.taux == null ? '—' : pc(cour.taux), 'ce mois-ci') + '</div>' +
       '<div class="panel"><h2>Chiffre par mois</h2><div class="graph" id="rev-graph">' + barres + '</div>' +
@@ -1849,68 +1884,136 @@
     ['click', 'mouseover', 'focusin'].forEach(ev => g.addEventListener(ev, e => { const b = e.target.closest('button'); if (b) montrer(b); }));
   }
 
-  /* ===== code secret des chiffres : 2e verrou pour les revenus ===== */
-  const champPin = (id, label) => '<div class="field"><label for="' + id + '">' + label + '</label><input id="' + id + '" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="8" required></div>';
+  /* ===== code secret des chiffres : digicode à 6 chiffres (2e verrou pour les revenus) ===== */
+  // pin.mode : 'ouvrir' (taper le code) · 'creer' (1re fois) · 'changer' · 'oubli' (code e-mail puis nouveau code) · 'mail' (après 3 erreurs)
+  const pin = { mode: '', pas: 0, vals: [], saisie: '', codeMail: '', occupe: false };
+  function pinDepart() { Object.assign(pin, { mode: etat.pinDefini ? 'ouvrir' : 'creer', pas: 0, vals: [], saisie: '', codeMail: '' }); }
+  const TITRES_PIN = {
+    ouvrir: ['Tape ton code secret'],
+    creer: ['Choisis ton code secret', 'Confirme ton code'],
+    changer: ['Ton code actuel', 'Ton nouveau code', 'Confirme le nouveau code'],
+    oubli: ['Ton nouveau code', 'Confirme le nouveau code']
+  };
   function ecranPin() {
-    if (!etat.pinDefini) return '<div class="panel pin-box"><div class="ic">🔐</div><h2>Protège tes chiffres</h2>' +
-      '<p class="note">Choisis un <b>code secret de 4 à 8 chiffres</b>. Il sera demandé pour voir ton chiffre d\'affaires, même si quelqu\'un ouvre ton admin avec ton téléphone déverrouillé.</p>' +
-      '<form id="f-pin-new">' + champPin('pin-c1', 'Ton code secret') + champPin('pin-c2', 'Encore une fois') +
-      '<button class="btn" type="submit" style="width:100%">Créer mon code</button><p class="msg" id="m-pin" hidden></p></form></div>';
-    return '<div class="panel pin-box"><div class="ic">🔒</div><h2>Tes chiffres sont protégés</h2><p class="note">Tape ton code secret pour voir ton chiffre d\'affaires.</p>' +
-      '<form id="f-pin">' + champPin('pin-v', 'Code secret') + '<button class="btn" type="submit" style="width:100%">Voir mes chiffres</button><p class="msg" id="m-pin" hidden></p></form>' +
-      '<p style="margin-top:14px"><button type="button" class="link" data-pin-oubli>Code oublié ?</button></p>' +
-      '<form id="f-pin-oubli" hidden><p class="note">On t\'a envoyé un code à 6 chiffres sur <b>audioloc13@gmail.com</b>.</p>' +
-      '<div class="field"><label for="pin-mail">Code reçu par e-mail</label><input id="pin-mail" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>' +
-      champPin('pin-o1', 'Nouveau code secret (4 à 8 chiffres)') + champPin('pin-o2', 'Encore une fois') +
-      '<button class="btn" type="submit" style="width:100%">Enregistrer et voir mes chiffres</button><p class="msg" id="m-pin-o" hidden></p></form></div>';
+    if (!pin.mode || (pin.mode === 'ouvrir' && !etat.pinDefini) || (pin.mode === 'creer' && etat.pinDefini)) pinDepart();
+    const ic = pin.mode === 'creer' ? '🔐' : pin.mode === 'ouvrir' ? '🔒' : '🔑';
+    const tete = pin.mode === 'creer' ? '<h2>Protège tes chiffres</h2><p class="note">Choisis un <b>code de 6 chiffres</b>, comme un digicode. Il sera demandé pour voir ton chiffre d\'affaires.</p>'
+      : pin.mode === 'ouvrir' || pin.mode === 'mail' ? '<h2>Tes chiffres sont protégés</h2>'
+      : pin.mode === 'changer' ? '<h2>Changer le code</h2>' : '<h2>Code oublié</h2>';
+    let corps;
+    if (pin.mode === 'mail' || (pin.mode === 'oubli' && !pin.codeMail)) {
+      corps = (pin.mode === 'mail' ? '<p class="note"><b>3 erreurs :</b> pour ta sécurité, il faut maintenant un code envoyé sur <b>audioloc13@gmail.com</b>.</p>'
+          : '<p class="note">On t\'envoie un code à 6 chiffres sur <b>audioloc13@gmail.com</b>, puis tu choisis un nouveau code.</p>') +
+        '<button type="button" class="btn ghost" data-pin-mailcode style="width:100%">Recevoir mon code par e-mail</button>' +
+        '<form id="f-pin-mail" style="margin-top:12px"' + (pin.mailEnvoye ? '' : ' hidden') + '><div class="field"><label for="pin-mc">Code reçu par e-mail (6 chiffres)</label><input id="pin-mc" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>' +
+        '<button class="btn" type="submit" style="width:100%">' + (pin.mode === 'mail' ? 'Voir mes chiffres' : 'Continuer') + '</button></form>';
+    } else {
+      const titre = TITRES_PIN[pin.mode][pin.pas];
+      const pts = Array.from({ length: 6 }, (_, i) => '<i' + (i < pin.saisie.length ? ' class="on"' : '') + '></i>').join('');
+      const touches = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map(k => k === '' ? '<span></span>'
+        : '<button type="button" data-k="' + k + '"' + (k === 'del' ? ' aria-label="Effacer" class="del">⌫' : '>' + k) + '</button>').join('');
+      corps = '<p class="digi-t" id="digi-t">' + titre + '</p><div class="digi-pts" id="digi-pts" role="img" aria-label="' + pin.saisie.length + ' chiffre(s) sur 6">' + pts + '</div>' +
+        '<div class="digi-k" id="digi-k">' + touches + '</div>';
+    }
+    const liens = pin.mode === 'ouvrir' ? '<button type="button" class="link" data-pin-oubli>Code oublié ?</button>'
+      : pin.mode === 'changer' || pin.mode === 'oubli' ? '<button type="button" class="link" data-pin-annuler>Annuler</button>' : '';
+    return '<div class="panel pin-box"><div class="ic">' + ic + '</div>' + tete + corps + '<p class="msg" id="m-pin" hidden></p>' + (liens ? '<p style="margin-top:14px">' + liens + '</p>' : '') + '</div>';
+  }
+  function pinRedessiner(message, ok) { $('rev').innerHTML = ecranPin(); if (message) msg('m-pin', message, ok); }
+  function pinPoints() {
+    const p = $('digi-pts'); if (!p) return;
+    p.querySelectorAll('i').forEach((x, i) => x.classList.toggle('on', i < pin.saisie.length));
+    p.setAttribute('aria-label', pin.saisie.length + ' chiffre(s) sur 6');
+  }
+  function pinSecouer(message) {
+    pin.saisie = ''; pinPoints();
+    const p = $('digi-pts'); if (p) { p.classList.remove('non'); void p.offsetWidth; p.classList.add('non'); }
+    if (navigator.vibrate) try { navigator.vibrate(120); } catch (e) {}
+    msg('m-pin', message);
   }
   function chiffresOuverts(j) {
     etat.revenus = j.revenus; etat.pinDefini = true; revFin = Date.now() + (etat.pinMin || 30) * 60000;
+    pin.mode = ''; pin.mailEnvoye = false;
     afficherRevenus(); afficherClients(); afficherAccueil();
   }
-  $('rev').addEventListener('submit', e => {
-    e.preventDefault();
-    const f = e.target, bouton = f.querySelector('button[type=submit]'), v = id => ($(id) ? $(id).value.trim() : '');
-    occupe(bouton, async () => {
-      try {
-        if (f.id === 'f-pin') {
-          const j = await appel('admin_pin', { pin: v('pin-v') });
-          if (!j.ok) { $('pin-v').value = ''; $('pin-v').focus(); return msg('m-pin', j.erreur === 'aucun code' ? 'Aucun code n\'est encore créé : recharge la page.' : 'Refusé : ' + j.erreur + '.'); }
-          chiffresOuverts(j);
-        } else if (f.id === 'f-pin-new' || f.id === 'f-pin-oubli' || f.id === 'f-pin-chg') {
-          const [a, b, m] = f.id === 'f-pin-new' ? ['pin-c1', 'pin-c2', 'm-pin'] : f.id === 'f-pin-oubli' ? ['pin-o1', 'pin-o2', 'm-pin-o'] : ['pin-n1', 'pin-n2', 'm-pin-chg'];
-          if (v(a) !== v(b)) return msg(m, 'Les deux codes ne sont pas identiques.');
-          const donnees = { pin: v(a) };
-          if (f.id === 'f-pin-oubli') donnees.code = v('pin-mail');
-          if (f.id === 'f-pin-chg') donnees.ancien = v('pin-anc');
-          const j = await appel('admin_pin_definir', donnees);
-          if (!j.ok) return msg(m, 'Refusé : ' + j.erreur + '.');
-          chiffresOuverts(j);
-          msg('m-admin', f.id === 'f-pin-new' ? 'Code créé ! Retiens-le bien : il sera demandé pour voir tes chiffres.' : 'Nouveau code enregistré.', true);
-        }
-      } catch (err) { msg('m-admin', err.message || 'Erreur réseau.'); }
-    });
-  });
+  async function pinComplet(code) {
+    const etapes = TITRES_PIN[pin.mode].length;
+    pin.vals[pin.pas] = code; pin.saisie = '';
+    if (pin.pas < etapes - 1) { pin.pas++; return pinRedessiner(); }
+    // confirmation : les 2 derniers codes doivent être identiques
+    if (etapes > 1 && pin.vals[etapes - 1] !== pin.vals[etapes - 2]) { pin.pas = etapes - 2; pin.vals.length = pin.pas; pinRedessiner(); return pinSecouer('Les deux codes ne sont pas identiques, recommence.'); }
+    pin.occupe = true;
+    try {
+      let j;
+      if (pin.mode === 'ouvrir') j = await appel('admin_pin', { pin: code });
+      else {
+        const donnees = { pin: code };
+        if (pin.mode === 'changer') donnees.ancien = pin.vals[0];
+        if (pin.mode === 'oubli') donnees.code = pin.codeMail;
+        j = await appel('admin_pin_definir', donnees);
+      }
+      if (!j.ok) {
+        if (j.parMail) { pin.mode = 'mail'; pin.mailEnvoye = false; return pinRedessiner('Refusé : ' + j.erreur + '.'); }
+        if (pin.mode === 'oubli' && /e-mail|expiré/.test(j.erreur)) { pin.codeMail = ''; pin.pas = 0; pin.vals = []; return pinRedessiner('Refusé : ' + j.erreur + '.'); }
+        if (pin.mode !== 'ouvrir') { pin.pas = 0; pin.vals = []; pinRedessiner(); }
+        return pinSecouer('Refusé : ' + j.erreur + '.');
+      }
+      const avant = pin.mode;
+      chiffresOuverts(j);
+      if (avant !== 'ouvrir') msg('m-admin', avant === 'creer' ? 'Code créé ! Retiens-le bien : il sera demandé pour voir tes chiffres.' : 'Nouveau code enregistré.', true);
+    } catch (err) { pinSecouer(err.message || 'Erreur réseau.'); }
+    finally { pin.occupe = false; }
+  }
+  function pinTouche(k) {
+    if (pin.occupe || !$('digi-k')) return;
+    if (k === 'del') { pin.saisie = pin.saisie.slice(0, -1); return pinPoints(); }
+    if (!/^\d$/.test(k) || pin.saisie.length >= 6) return;
+    pin.saisie += k; pinPoints();
+    if (pin.saisie.length === 6) { const c = pin.saisie; setTimeout(() => pinComplet(c), 180); }
+  }
   $('rev').addEventListener('click', async e => {
-    if (e.target.closest('[data-pin-changer]')) { const p = $('pin-chg'); p.hidden = !p.hidden; if (!p.hidden) $('pin-anc').focus(); return; }
+    const k = e.target.closest('[data-k]'); if (k) return pinTouche(k.dataset.k);
+    if (e.target.closest('[data-pin-changer]')) { Object.assign(pin, { mode: 'changer', pas: 0, vals: [], saisie: '' }); $('rev').innerHTML = ecranPin(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
+    if (e.target.closest('[data-pin-annuler]')) { pinDepart(); return afficherRevenus(); }
+    if (e.target.closest('[data-pin-oubli]')) { Object.assign(pin, { mode: 'oubli', pas: 0, vals: [], saisie: '', codeMail: '', mailEnvoye: false }); return pinRedessiner(); }
     if (e.target.closest('[data-pin-fermer]')) {
-      etat.revenus = null; revFin = 0;
+      etat.revenus = null; revFin = 0; pinDepart();
       afficherRevenus(); afficherClients(); afficherAccueil();
       try { await appel('admin_pin_fermer'); } catch (err) {}
       return;
     }
-    const oubli = e.target.closest('[data-pin-oubli]');
-    if (oubli) occupe(oubli, async () => {
+    const mc = e.target.closest('[data-pin-mailcode]');
+    if (mc) occupe(mc, async () => {
       try {
         const j = await appel('admin_pin_code');
         if (!j.ok) return msg('m-pin', 'Pas envoyé : ' + j.erreur + '.');
-        $('f-pin-oubli').hidden = false; $('pin-mail').focus();
+        pin.mailEnvoye = true; $('f-pin-mail').hidden = false; $('pin-mc').focus();
+        msg('m-pin', 'Code envoyé ! Regarde ta boîte audioloc13@gmail.com (et les spams).', true);
       } catch (err) { msg('m-pin', 'Erreur réseau, réessaie.'); }
     });
   });
-  // en revenant sur « Revenus » après 30 min sans rien faire, l'écran se reverrouille
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && etat && etat.revenus && revFin && Date.now() > revFin) { etat.revenus = null; afficherRevenus(); afficherClients(); afficherAccueil(); } });
-
+  $('rev').addEventListener('submit', e => {
+    e.preventDefault();
+    if (e.target.id !== 'f-pin-mail') return;
+    const code = $('pin-mc').value.trim();
+    if (!/^\d{6}$/.test(code)) return msg('m-pin', 'Le code reçu par e-mail fait 6 chiffres.');
+    if (pin.mode === 'oubli') { pin.codeMail = code; pin.pas = 0; pin.vals = []; return pinRedessiner(); }   // le code e-mail est vérifié avec le nouveau code
+    occupe(e.target.querySelector('button[type=submit]'), async () => {
+      try {
+        const j = await appel('admin_pin', { code });
+        if (!j.ok) return msg('m-pin', 'Refusé : ' + j.erreur + '.');
+        chiffresOuverts(j);
+      } catch (err) { msg('m-pin', err.message || 'Erreur réseau.'); }
+    });
+  });
+  // clavier de l'ordinateur : chiffres et touche Effacer quand le digicode est affiché
+  document.addEventListener('keydown', e => {
+    if (!$('digi-k') || $('rev').closest('[data-p]').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (/^\d$/.test(e.key)) { e.preventDefault(); pinTouche(e.key); }
+    else if (e.key === 'Backspace') { e.preventDefault(); pinTouche('del'); }
+  });
+  // en revenant sur l'appli après 30 min sans rien faire, les chiffres se reverrouillent
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && etat && etat.revenus && revFin && Date.now() > revFin) { etat.revenus = null; pinDepart(); afficherRevenus(); afficherClients(); afficherAccueil(); } });
 
   /* ===== « Plus » : tuiles vers les autres réglages ===== */
   function afficherTuiles() {
