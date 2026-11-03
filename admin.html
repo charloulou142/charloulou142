@@ -355,9 +355,9 @@
   .ent-voile{position:fixed;inset:0;z-index:200;display:grid;place-items:center;align-content:center;gap:10px;color:#1A0B00;text-align:center;
     background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 45%),linear-gradient(135deg,#FF7A1A 0%,#FF5E8A 45%,#8B5CF6 100%)}
   .ent-voile svg{width:120px;height:96px;overflow:visible}
-  .ent-voile path{fill:none;stroke:#1A0B00;stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:trace 1s .25s cubic-bezier(.6,0,.2,1) forwards}
-  .ent-voile circle{fill:#22D3EE;transform-origin:92px 30px;transform:scale(0);animation:apparait .45s 1s cubic-bezier(.3,1.6,.5,1) forwards;filter:drop-shadow(0 0 8px rgba(34,211,238,.9))}
-  .ent-voile b{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,9vw,64px);line-height:1;opacity:0;animation:monteT .5s .55s cubic-bezier(.2,.8,.2,1) forwards}
+  .ent-voile path{fill:none;stroke:#1A0B00;stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:trace .55s .1s cubic-bezier(.6,0,.2,1) forwards}
+  .ent-voile circle{fill:#22D3EE;transform-origin:92px 30px;transform:scale(0);animation:apparait .35s .5s cubic-bezier(.3,1.6,.5,1) forwards;filter:drop-shadow(0 0 8px rgba(34,211,238,.9))}
+  .ent-voile b{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,9vw,64px);line-height:1;opacity:0;animation:monteT .4s .25s cubic-bezier(.2,.8,.2,1) forwards}
   .ent-voile small{font-weight:700;opacity:0;animation:monteT .5s .75s cubic-bezier(.2,.8,.2,1) forwards}
   @keyframes trace{to{stroke-dashoffset:0}}
   @keyframes apparait{to{transform:scale(1)}}
@@ -766,17 +766,17 @@
     const h = new Date().getHours(), salut = h >= 18 || h < 5 ? 'Bonsoir' : 'Bonjour';
     const v = document.createElement('div');
     v.className = 'ent-voile'; v.setAttribute('aria-hidden', 'true');
-    v.innerHTML = '<svg viewBox="0 0 100 80"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><b>' + salut + ' 👋</b><small>Bienvenue dans ton espace Mistraloc</small>';
+    v.innerHTML = '<svg viewBox="0 0 100 80"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><b>' + salut + ' 👋</b>';
     document.body.appendChild(v);
-    v.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)' }], { duration: 650, easing: 'cubic-bezier(.6,0,.2,1)' });
+    v.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)' }], { duration: 450, easing: 'cubic-bezier(.6,0,.2,1)' });
     const debut = Date.now();
     let ferme = false;
     const fermer = async () => {
       if (ferme) return; ferme = true;
-      const reste = 1500 - (Date.now() - debut);   // le temps de voir la vague se dessiner
+      const reste = 850 - (Date.now() - debut);   // le temps de voir la vague se dessiner (court : demande de l'utilisateur)
       if (reste > 0) await new Promise(ok => setTimeout(ok, reste));
       voileActif = false;
-      const anim = v.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 450, easing: 'ease-in', fill: 'forwards' });
+      const anim = v.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 300, easing: 'ease-in', fill: 'forwards' });
       const p = [...document.querySelectorAll('[data-p]')].find(x => !x.hidden);
       cascade(p);
       await new Promise(ok => { anim.onfinish = ok; setTimeout(ok, 700); });
