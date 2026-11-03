@@ -326,6 +326,36 @@
   .barre-taux{height:8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-top:4px}
   .barre-taux i{display:block;height:100%;background:var(--cyan)}
   [hidden]{display:none!important}
+  /* ===== effets de l'espace admin (03/11/2026) : arrivée, entrée après connexion, cascades, chiffres qui défilent ===== */
+  .aurora{position:fixed;inset:-25%;z-index:-1;pointer-events:none;opacity:.9;filter:blur(50px);
+    background:radial-gradient(circle at 20% 25%,rgba(255,122,26,.16),transparent 38%),radial-gradient(circle at 80% 30%,rgba(139,92,246,.18),transparent 40%),radial-gradient(circle at 50% 85%,rgba(34,211,238,.12),transparent 42%);
+    animation:aurora 24s ease-in-out infinite alternate}
+  :root[data-theme="light"] .aurora{opacity:.55}
+  @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .aurora{opacity:.55}}
+  @keyframes aurora{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(4%,-3%) rotate(8deg)}100%{transform:translate(-4%,3%) rotate(-6deg)}}
+  main{animation:arrivee .8s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes arrivee{from{opacity:0;transform:scale(.965);filter:blur(6px)}}
+  .btn{transition:transform .12s,filter .2s,box-shadow .2s}
+  .btn:active{transform:scale(.97)}
+  .btn:not(.ghost):hover{filter:brightness(1.06);box-shadow:0 8px 24px rgba(255,122,26,.25)}
+  .nav-admin button[aria-selected="true"] svg{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes pop{0%{transform:scale(.7)}100%{transform:scale(1)}}
+  .digi-pts.oui i{background:#22C55E;border-color:#22C55E;box-shadow:0 0 14px rgba(34,197,94,.7);transform:scale(1.25)}
+  /* voile d'entrée après la connexion */
+  .ent-voile{position:fixed;inset:0;z-index:200;display:grid;place-items:center;align-content:center;gap:10px;color:#1A0B00;text-align:center;
+    background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 45%),linear-gradient(135deg,#FF7A1A 0%,#FF5E8A 45%,#8B5CF6 100%)}
+  .ent-voile svg{width:120px;height:96px;overflow:visible}
+  .ent-voile path{fill:none;stroke:#1A0B00;stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:trace 1s .25s cubic-bezier(.6,0,.2,1) forwards}
+  .ent-voile circle{fill:#22D3EE;transform-origin:92px 30px;transform:scale(0);animation:apparait .45s 1s cubic-bezier(.3,1.6,.5,1) forwards;filter:drop-shadow(0 0 8px rgba(34,211,238,.9))}
+  .ent-voile b{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,9vw,64px);line-height:1;opacity:0;animation:monteT .5s .55s cubic-bezier(.2,.8,.2,1) forwards}
+  .ent-voile small{font-weight:700;opacity:0;animation:monteT .5s .75s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes trace{to{stroke-dashoffset:0}}
+  @keyframes apparait{to{transform:scale(1)}}
+  @keyframes monteT{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    .aurora,main,.nav-admin button[aria-selected="true"] svg{animation:none}
+    .btn,.btn:active{transition:none;transform:none}
+  }
 </style>
 </head>
 <body>
@@ -667,7 +697,7 @@
         body: JSON.stringify(Object.assign({ action, token }, donnees || {})) });
       return r.json();
     };
-    const j = SANS_ECRAN.includes(action) || !$('v-charge').hidden ? await f() : await patienter(TEXTES[action] || 'Un instant…', f);
+    const j = SANS_ECRAN.includes(action) || !$('v-charge').hidden || voileActif ? await f() : await patienter(TEXTES[action] || 'Un instant…', f);
     if (j.erreur === 'session') { deconnecte(); throw new Error('Session expirée, reconnecte-toi.'); }
     if (etat && etat.revenus) revFin = Date.now() + (etat.pinMin || 30) * 60000;
     return j;
@@ -679,7 +709,78 @@
     if (id === 'm-admin') { clearTimeout(tMsg); if (texte && ok) tMsg = setTimeout(() => { m.hidden = true; }, 7000); }
   }
   $('m-admin').addEventListener('click', e => { if (e.target.tagName !== 'A') $('m-admin').hidden = true; });
-  function vue(nom) { ['charge', 'login', 'setup', 'admin'].forEach(v => $('v-' + v).hidden = v !== nom); window.scrollTo(0, 0); }
+  function vue(nom) {
+    const avant = ['charge', 'login', 'setup', 'admin'].find(v => !$('v-' + v).hidden);
+    ['charge', 'login', 'setup', 'admin'].forEach(v => $('v-' + v).hidden = v !== nom); window.scrollTo(0, 0);
+    if (MOUV && nom !== avant && nom !== 'admin') $('v-' + nom).animate([{ opacity: 0, transform: 'scale(.97)', filter: 'blur(4px)' }, { opacity: 1, transform: 'none', filter: 'none' }], { duration: 500, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  }
+  /* ===== effets (03/11/2026) : tout est coupé si « réduire les animations » est activé sur l'appareil ===== */
+  const MOUV = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  let voileActif = false;
+  if (MOUV) { const a = document.createElement('div'); a.className = 'aurora'; a.setAttribute('aria-hidden', 'true'); document.body.prepend(a); }
+  // les éléments d'un écran montent un par un ; les chiffres défilent jusqu'à leur valeur ; les barres du graphique poussent
+  const CASCADE = '.kpi, .panel, .afaire > button, .tout-va, .bandeau, .section-t, .resa, .cli, .mat, .tuiles > *, .doc-l, .att-l, .pin-barre';
+  function cascade(racine) {
+    if (!MOUV || !racine || voileActif) return;
+    const els = [...racine.querySelectorAll(CASCADE)].filter(x => x.offsetParent !== null && !x.closest('.resa .det, details:not([open]) > *:not(summary)'))
+      .filter((x, i, l) => !l.some(y => y !== x && y.contains(x))).slice(0, 16);
+    els.forEach((x, i) => x.animate([{ opacity: 0, transform: 'translateY(16px) scale(.985)' }, { opacity: 1, transform: 'none' }],
+      { duration: 520, delay: 40 + i * 45, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+    racine.querySelectorAll('.graph i').forEach((x, i) => x.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }],
+      { duration: 700, delay: 200 + i * 40, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards', transformOrigin: 'bottom' }));
+    racine.querySelectorAll('.graph i').forEach(x => { x.style.transformOrigin = 'bottom'; });
+    racine.querySelectorAll('.kpi b').forEach((x, i) => compter(x, 250 + i * 60));
+  }
+  function compter(el, delai) {
+    const fin = el.textContent, m = fin.match(/^(\D*?)(\d(?:[\d\s  ]*\d)?(?:,\d+)?)(.*)$/);
+    if (!m) return;
+    const brut = m[2].replace(/[\s  ]/g, ''), cible = parseFloat(brut.replace(',', '.'));
+    if (!(cible > 0)) return;
+    const dec = (brut.split(',')[1] || '').length, duree = 900, t0 = performance.now() + delai;
+    const pas = t => {
+      if (el.textContent !== fin && el.dataset.compte !== '1') return;   // le contenu a été remplacé entre-temps
+      const k = Math.min(1, Math.max(0, (t - t0) / duree)), v = cible * (1 - Math.pow(1 - k, 3));
+      el.dataset.compte = '1';
+      el.textContent = k >= 1 ? fin : m[1] + v.toLocaleString('fr-FR', { minimumFractionDigits: dec, maximumFractionDigits: dec, useGrouping: /[\s  ]\d/.test(m[2]) }) + m[3];
+      if (k < 1) requestAnimationFrame(pas); else delete el.dataset.compte;
+    };
+    requestAnimationFrame(pas);
+    setTimeout(() => { el.textContent = fin; delete el.dataset.compte; }, delai + duree + 400);   // sécurité si l'onglet est en arrière-plan
+  }
+  // grande entrée après la connexion : voile aux couleurs Mistraloc qui part du bouton, vague du logo, « Bonjour »
+  function voileEntree(depuis) {
+    if (!MOUV) return { fermer: async () => {} };
+    voileActif = true;
+    const b = depuis && depuis.getBoundingClientRect ? depuis.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+    const x = b.left + b.width / 2, y = b.top + b.height / 2, r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    const h = new Date().getHours(), salut = h >= 18 || h < 5 ? 'Bonsoir' : 'Bonjour';
+    const v = document.createElement('div');
+    v.className = 'ent-voile'; v.setAttribute('aria-hidden', 'true');
+    v.innerHTML = '<svg viewBox="0 0 100 80"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><b>' + salut + ' 👋</b><small>Bienvenue dans ton espace Mistraloc</small>';
+    document.body.appendChild(v);
+    v.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)' }], { duration: 650, easing: 'cubic-bezier(.6,0,.2,1)' });
+    const debut = Date.now();
+    let ferme = false;
+    const fermer = async () => {
+      if (ferme) return; ferme = true;
+      const reste = 1500 - (Date.now() - debut);   // le temps de voir la vague se dessiner
+      if (reste > 0) await new Promise(ok => setTimeout(ok, reste));
+      voileActif = false;
+      const anim = v.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 450, easing: 'ease-in', fill: 'forwards' });
+      const p = [...document.querySelectorAll('[data-p]')].find(x => !x.hidden);
+      cascade(p);
+      await new Promise(ok => { anim.onfinish = ok; setTimeout(ok, 700); });
+      v.remove();
+    };
+    setTimeout(() => { if (!ferme) fermer(); }, 8000);   // sécurité : le voile ne reste jamais bloqué
+    return { fermer };
+  }
+  async function entrerAvecVoile(depuis) {
+    const v = voileEntree(depuis);
+    try { await charger(); } finally { await v.fermer(); }
+  }
+
+
   function garder(t) {
     token = t;
     try { t ? sessionStorage.setItem('audioloc_admin', t) : sessionStorage.removeItem('audioloc_admin'); } catch (e) {}
@@ -703,7 +804,7 @@
     try {
       const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value });
       if (!j.ok) { msg('m-login', 'Connexion refusée : ' + j.erreur + '.'); if (j.parMail) { $('l-mdp').value = ''; $('f-login-mail').hidden = false; $('f-login-mail').scrollIntoView({ block: 'nearest' }); } return; }
-      garder(j.token); $('l-mdp').value = ''; await charger();
+      garder(j.token); $('l-mdp').value = ''; await entrerAvecVoile(e.submitter || e.target.querySelector('button[type=submit]'));
     } catch (err) { msg('m-login', err.message || 'Erreur réseau.'); }
   }); });
   // connexion par code e-mail (obligatoire après 3 mauvais mots de passe)
@@ -719,7 +820,7 @@
     try {
       const j = await appel('admin_login', { code: $('lc-code').value.trim() });
       if (!j.ok) return msg('m-lmail', 'Refusé : ' + j.erreur + '.');
-      garder(j.token); $('lc-code').value = ''; $('f-login-mail').hidden = true; msg('m-login', ''); await charger();
+      garder(j.token); $('lc-code').value = ''; msg('m-login', ''); await entrerAvecVoile(e.target.querySelector('button[type=submit]')); $('f-login-mail').hidden = true;
     } catch (err) { msg('m-lmail', err.message || 'Erreur réseau.'); }
   }); });
   $('b-oubli').addEventListener('click', () => { $('setup-titre').textContent = 'Changer ton mot de passe'; $('retour-login').hidden = false; vue('setup'); });
@@ -739,7 +840,7 @@
     try {
       const j = await appel('admin_definir', { code: $('s-code').value, identifiant: $('s-id').value, motdepasse: $('s-mdp').value });
       if (!j.ok) return msg('m-setup', 'Refusé : ' + j.erreur + '.');
-      garder(j.token); e.target.reset(); await charger();
+      garder(j.token); await entrerAvecVoile(e.target.querySelector('button[type=submit]')); e.target.reset();
     } catch (err) { msg('m-setup', err.message || 'Erreur réseau.'); }
   }); });
 
@@ -771,6 +872,8 @@
     if (t === 'visites') chargerVisites();
     if (t === 'accueil') afficherAccueil();
     if (t === 'revenus') afficherRevenus();
+    cascade(document.querySelector('[data-p="' + t + '"]'));
+    if (MOUV && !voileActif) $('titre-admin').animate([{ opacity: 0, transform: 'translateX(-14px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
     window.scrollTo({ top: 0, behavior: 'instant' });
     try { sessionStorage.setItem('mistraloc_onglet', t); } catch (e) {}
   }
@@ -1939,6 +2042,7 @@
     etat.revenus = j.revenus; etat.pinDefini = true; revFin = Date.now() + (etat.pinMin || 30) * 60000;
     pin.mode = ''; pin.mailEnvoye = false;
     afficherRevenus(); afficherClients(); afficherAccueil();
+    cascade($('rev'));
   }
   async function pinComplet(code) {
     const etapes = TITRES_PIN[pin.mode].length;
@@ -1963,6 +2067,7 @@
         return pinSecouer('Refusé : ' + j.erreur + '.');
       }
       const avant = pin.mode;
+      if (MOUV && $('digi-pts')) { $('digi-pts').classList.add('oui'); await new Promise(ok => setTimeout(ok, 420)); }
       chiffresOuverts(j);
       if (avant !== 'ouvrir') msg('m-admin', avant === 'creer' ? 'Code créé ! Retiens-le bien : il sera demandé pour voir tes chiffres.' : 'Nouveau code enregistré.', true);
     } catch (err) { pinSecouer(err.message || 'Erreur réseau.'); }
