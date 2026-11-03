@@ -682,7 +682,7 @@
 
   // écran d'attente plein écran (page bloquée) quand le script Google met plus d'un instant à répondre.
   // Pas d'écran pour : changement de statut (affiché tout de suite), visites (chargées en fond), déconnexion, premier chargement (déjà animé).
-  const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client'];
+  const SANS_ECRAN = ['admin_statut', 'admin_visites', 'admin_logout', 'admin_note_client', 'admin_pin_fermer'];
   const TEXTES = { admin_pin: 'Vérification du code…', admin_pin_definir: 'Enregistrement du code…', admin_pin_code: 'Envoi du code…', admin_etat: 'Chargement des réservations…', admin_compte: 'Chargement…', admin_login: 'Connexion…', admin_code: 'Envoi du code…',
     admin_definir: 'Création du compte…', admin_pause: 'Enregistrement…', admin_prix: 'Enregistrement du stock et des prix…', admin_photo: 'Envoi de la photo…', admin_article: 'Enregistrement de l\'appareil…', admin_degressif: 'Enregistrement des réductions…', admin_article_ajout: 'Ajout de l\'appareil…', admin_promo: 'Enregistrement du code…', admin_bon_cadeau: 'Création du bon cadeau…', admin_bon_suppr: 'Suppression du bon…', admin_offre: 'Enregistrement de l\'offre…',
     admin_suppr_resa: 'Suppression de la réservation…', admin_compte_offres: 'Mise à jour du compte…', admin_compte_suppr: 'Suppression du compte…',
@@ -884,6 +884,7 @@
     offres: 'Offres et parrainage', docs: 'Documents', visites: 'Visites du site', pause: 'Pause du site', infos: 'Mes infos', avis: 'Avis clients' };
   const SOUS_PLUS = ['prix', 'photos', 'offres', 'docs', 'visites', 'pause', 'infos', 'avis'];
   function onglet(t, garderMsg) {
+    if (t !== 'revenus') verrouillerChiffres();   // demande de l'utilisateur : dès qu'on quitte Revenus, il faut retaper le code
     if (t === 'photos') t = 'prix';   // les photos sont maintenant dans « Matériel »
     const nav = SOUS_PLUS.includes(t) ? 'plus' : t;
     document.querySelectorAll('.nav-admin button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === nav));
@@ -1999,7 +2000,7 @@
     const barres = m.map(x => '<button type="button" data-info="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca) + ' · ' + x.nb + ' location' + (x.nb > 1 ? 's' : '') + (x.livr ? ' (dont ' + e0(x.livr) + ' de livraison)' : '') + (x.taux != null ? ' · remplissage ' + pc(x.taux) : '')) +
       '" aria-label="' + esc(moisFr(x.cle, true) + ' : ' + e0(x.ca)) + '"><i style="height:' + (x.ca ? Math.max(3, Math.round(x.ca / max * 100)) : 0) + '%"></i></button>').join('');
     const tot = R.offres.reduce((s, o) => s + o.nb, 0) || 1;
-    $('rev').innerHTML = '<div class="pin-barre"><span>🔓 Chiffres déverrouillés · se reverrouillent après ' + (etat.pinMin || 30) + ' min sans activité</span><span><button type="button" class="link" data-pin-changer>Changer le code</button> · <button type="button" class="btn ghost small" data-pin-fermer>🔒 Verrouiller</button></span></div>' +
+    $('rev').innerHTML = '<div class="pin-barre"><span>🔓 Chiffres déverrouillés · se reverrouillent dès que tu quittes cet onglet</span><span><button type="button" class="link" data-pin-changer>Changer le code</button> · <button type="button" class="btn ghost small" data-pin-fermer>🔒 Verrouiller</button></span></div>' +
       '<div class="kpis">' + kpi('Ce mois-ci', e0(cour.ca), cour.nb + ' location' + (cour.nb > 1 ? 's' : '')) + kpi('Année ' + R.annee.an, e0(R.annee.ca), R.annee.nb + ' location' + (R.annee.nb > 1 ? 's' : '')) +
       kpi('À venir', e0(R.venir.ca), R.venir.nb + ' confirmée' + (R.venir.nb > 1 ? 's' : '')) + kpi('Remplissage', cour.taux == null ? '—' : pc(cour.taux), 'ce mois-ci') + '</div>' +
       '<div class="panel"><h2>Chiffre par mois</h2><div class="graph" id="rev-graph">' + barres + '</div>' +
@@ -2061,6 +2062,13 @@
     if (navigator.vibrate) try { navigator.vibrate(120); } catch (e) {}
     msg('m-pin', message);
   }
+  // reverrouille les chiffres (bouton « Verrouiller », sortie de l'onglet Revenus, appli quittée) : il faut retaper le code
+  function verrouillerChiffres() {
+    if (!etat || !etat.revenus) return;
+    etat.revenus = null; revFin = 0; pinDepart();
+    afficherRevenus(); afficherClients(); afficherAccueil();
+    appel('admin_pin_fermer').catch(() => {});
+  }
   function chiffresOuverts(j) {
     etat.revenus = j.revenus; etat.pinDefini = true; revFin = Date.now() + (etat.pinMin || 30) * 60000;
     pin.mode = ''; pin.mailEnvoye = false;
@@ -2108,12 +2116,7 @@
     if (e.target.closest('[data-pin-changer]')) { Object.assign(pin, { mode: 'changer', pas: 0, vals: [], saisie: '' }); $('rev').innerHTML = ecranPin(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
     if (e.target.closest('[data-pin-annuler]')) { pinDepart(); return afficherRevenus(); }
     if (e.target.closest('[data-pin-oubli]')) { Object.assign(pin, { mode: 'oubli', pas: 0, vals: [], saisie: '', codeMail: '', mailEnvoye: false }); return pinRedessiner(); }
-    if (e.target.closest('[data-pin-fermer]')) {
-      etat.revenus = null; revFin = 0; pinDepart();
-      afficherRevenus(); afficherClients(); afficherAccueil();
-      try { await appel('admin_pin_fermer'); } catch (err) {}
-      return;
-    }
+    if (e.target.closest('[data-pin-fermer]')) return verrouillerChiffres();
     const mc = e.target.closest('[data-pin-mailcode]');
     if (mc) occupe(mc, async () => {
       try {
@@ -2145,6 +2148,9 @@
     else if (e.key === 'Backspace') { e.preventDefault(); pinTouche('del'); }
   });
   // en revenant sur l'appli après 30 min sans rien faire, les chiffres se reverrouillent
+  // appli quittée, téléphone verrouillé ou onglet du navigateur changé : on reverrouille tout de suite
+  document.addEventListener('visibilitychange', () => { if (document.hidden) verrouillerChiffres(); });
+  addEventListener('pagehide', () => verrouillerChiffres());
   document.addEventListener('visibilitychange', () => { if (!document.hidden && etat && etat.revenus && revFin && Date.now() > revFin) { etat.revenus = null; pinDepart(); afficherRevenus(); afficherClients(); afficherAccueil(); } });
 
   /* ===== « Plus » : tuiles vers les autres réglages ===== */
