@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mistraloc · Location d'enceintes de soirée</title>
-<meta name="description" content="Location d'enceintes JBL PartyBox et de machine à fumée RGB à Salon-de-Provence et alentours. Trouve le pack qu'il te faut et réserve sur WhatsApp.">
+<meta name="description" content="Location d'enceintes JBL PartyBox, jeux de lumière et machine à fumée à Salon-de-Provence et alentours. Réserve en ligne en 2 minutes, livraison ou retrait gratuit.">
 <!-- polices hébergées sur le site (licence SIL OFL, voir fonts/) : plus d'attente des serveurs de Google avant l'affichage -->
 <link rel="preload" href="fonts/source-sans-3-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -42,7 +42,10 @@
   })();
 </script>
 <link rel="stylesheet" href="style.css?v=7">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon-96.png" type="image/png" sizes="96x96">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="canonical" href="https://mistraloc.fr/">
 <meta name="theme-color" content="#0B0714" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F3EFF8" media="(prefers-color-scheme: light)">
@@ -50,7 +53,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mistraloc.fr/">
 <meta property="og:title" content="Mistraloc · Location d'enceintes de soirée">
-<meta property="og:description" content="Location d'enceintes JBL PartyBox et de machine à fumée RGB à Salon-de-Provence et alentours. Réservation sur WhatsApp.">
+<meta property="og:description" content="Location d'enceintes JBL PartyBox, jeux de lumière et machine à fumée à Salon-de-Provence et alentours. Réserve en ligne en 2 minutes, livraison ou retrait gratuit.">
 <meta property="og:locale" content="fr_FR">
 <style>
   .finder{display:grid;grid-template-columns:1fr 1.1fr;gap:26px;align-items:stretch}
@@ -663,6 +666,15 @@
   .mat-onglets button small{color:var(--muted);font-weight:600}
   .mat-onglets button[aria-selected="true"]{border-color:var(--pink);background:rgba(255,122,26,.14);box-shadow:0 0 16px rgba(255,122,26,.22)}
   @media (min-width:700px){.mat-onglets{justify-content:center}}
+  /* téléphone (04/11) : les onglets tiennent tous à l'écran, en petites cartes (icône au-dessus du nom), au lieu d'une rangée coupée à droite */
+  @media (max-width:699px){
+    .mat-onglets{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:6px;overflow:visible;padding:2px 0 6px}
+    .mat-onglets button{position:relative;flex-direction:column;justify-content:center;gap:2px;min-width:0;padding:10px 4px 8px;border-radius:16px;font-size:13px;line-height:1.15;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    .mat-onglets button > span{font-size:20px;line-height:1}
+    .mat-onglets button small{position:absolute;top:5px;right:7px;font-size:11px}
+    .mat-onglets button:hover{border-color:var(--line)}
+    .mat-onglets button[aria-selected="true"]{border-color:var(--pink)}
+  }
   #materiel .cat-titre{display:none}
   #materiel .hors-cat{display:none!important}
   @media (prefers-reduced-motion:reduce){.btn-go{animation:none}.esp-voile path{animation:none;stroke-dashoffset:0}.esp-voile circle{animation:none;transform:none}}
@@ -2489,18 +2501,23 @@
     const CATS = [['son', '🔊', 'Enceintes'], ['lum', '💡', 'Lumières'], ['fumee', '💨', 'Fumée'], ['micros', '🎤', 'Micros']];
     const catDe = n => /micro/i.test(n) ? 'micros' : /fum/i.test(n) ? 'fumee' : /lyre|laser|tr[ée]pied|lumi/i.test(n) ? 'lum' : 'son';
     const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let actif = 'son';
+    let actif = 'son', dernier = '';
     function maj(anim){
       const items = [...zone.querySelectorAll('.item')], nb = {};
       items.forEach(it => { const c = catDe(it.dataset.article || ''); it.dataset.cat = c; if (!it.hidden) nb[c] = (nb[c] || 0) + 1; });
       if (!nb[actif]) { const c = CATS.find(x => nb[x[0]]); actif = c ? c[0] : 'son'; }
-      bar.innerHTML = CATS.filter(c => nb[c[0]]).map(([k, i, t]) => '<button type="button" role="tab" data-mat="' + k + '" aria-selected="' + (k === actif) + '"><span aria-hidden="true">' + i + '</span>' + t + ' <small>' + nb[k] + '</small></button>').join('');
+      const vis = CATS.filter(c => nb[c[0]]);
+      const html = vis.map(([k, i, t]) => '<button type="button" role="tab" data-mat="' + k + '" aria-selected="' + (k === actif) + '"><span aria-hidden="true">' + i + '</span>' + t + ' <small>' + nb[k] + '</small></button>').join('');
+      // ne redessiner les onglets que s'ils ont changé : avant, chaque mise à jour des prix/photos au chargement les remplaçait
+      // sous le doigt du visiteur et son 1er toucher était perdu (bug signalé le 04/11)
+      if (html !== dernier) { bar.innerHTML = html; dernier = html; bar.style.setProperty('--n', vis.length); }
       items.forEach(it => it.classList.toggle('hors-cat', it.dataset.cat !== actif));
       const sous = zone.querySelector('.cat-sous'); if (sous) sous.classList.toggle('hors-cat', actif !== 'lum');
       if (anim && doux) items.filter(it => !it.hidden && it.dataset.cat === actif).forEach((it, i) => it.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: i * 50, easing: 'ease-out', fill: 'backwards' }));
     }
     bar.addEventListener('click', e => { const b = e.target.closest('[data-mat]'); if (!b || b.dataset.mat === actif) return; actif = b.dataset.mat; maj(true); });
-    const obs = new MutationObserver(() => maj(false));
+    let enAttente = false;
+    const obs = new MutationObserver(() => { if (enAttente) return; enAttente = true; requestAnimationFrame(() => { enAttente = false; maj(false); }); });
     zone.querySelectorAll('.cat').forEach(c => obs.observe(c, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }));
     maj(false);
   })();
