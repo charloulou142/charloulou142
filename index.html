@@ -403,6 +403,8 @@
   .bk-choix button:hover{border-color:var(--pink)}
   .bk-choix button[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#1A0B00}
   .recap-offre{padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin-bottom:16px;line-height:1.5}
+  .note320{margin:-6px 0 12px;padding:9px 12px;border-radius:12px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.35);font-size:14px;line-height:1.45}
+  .note320[hidden]{display:none}
   .recap-offre b{color:var(--text)} .recap-offre span{color:var(--muted)} .recap-offre a{color:var(--cyan);margin-left:6px;white-space:nowrap}
   .field[hidden]{display:none}
   .field.heure{margin-top:16px} .field.heure small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
@@ -801,6 +803,7 @@
         <button type="button" data-pack="apero">Apéro</button><button type="button" data-pack="soiree">Soirée</button><button type="button" data-pack="club">Club</button><button type="button" data-pack="p310">310</button><button type="button" data-pack="p710">710</button><button type="button" data-pack="pult">Ultimate</button><button type="button" data-pack="fumee">Fumée</button><button type="button" data-pack="ptl">Trépied Laser</button><button type="button" data-pack="ptm">Trépied Lumière</button><button type="button" data-pack="micro">Micros</button><button type="button" data-pack="perso">Mon panier</button>
       </div>
       <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Détails</a></div>
+      <p class="note320" id="bk-note320" hidden></p>
       <div class="field" hidden><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
@@ -907,7 +910,7 @@
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="mat-onglets" id="mat-onglets" role="tablist" aria-label="Catégories de matériel"></div>
   <div class="cat">
-    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 310<img src="images/partybox-310.webp" alt="JBL PartyBox 310" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 310</h3><p>240 W, lumières intégrées et batterie jusqu'à 18 h : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise.</p><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox Stage 320<img src="images/partybox-stage-320.webp" alt="JBL PartyBox Stage 320" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Stage 320</h3><p>240 W, lumières intégrées, batterie jusqu'à 18 h et roulettes : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise. Si les Stage 320 sont déjà prises ce soir-là, tu as une PartyBox 310 : même son, même prix.</p><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>dès <span class="prixsem">59,90 €</span> / soirée en semaine<br><small><span class="prix">79,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item" data-article="JBL PartyBox Ultimate"><div class="ph">Photo JBL PartyBox Ultimate<img src="images/partybox-ultimate.webp" alt="JBL PartyBox Ultimate" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox Ultimate</h3><p>1100 W, le haut de gamme JBL : grosse fête, mariage, grande salle. Se branche sur une prise secteur.</p><b>dès <span class="prixsem">79,90 €</span> / soirée en semaine<br><small><span class="prix">109,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item" data-article="Machine à fumée 2000 W RGB"><div class="ph">Photo machine à fumée<img src="images/machine-fumee.webp" alt="Machine à fumée 2000 W RGB" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>Machine à fumée 2000 W RGB</h3><p>Deux jets de fumée éclairés en couleurs, avec télécommande : l'effet boîte de nuit garanti.</p><b>dès <span class="prixsem">19,90 €</span> / soirée en semaine<br><small><span class="prix">24,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
@@ -972,8 +975,8 @@
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
-    <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 310 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages, et le Pack Club Ultimate (2 Ultimate) au-delà de 160 personnes (80 pour un mariage). Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
-    <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 310, non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée, les lyres et le laser. Les micros sans fil sont rechargeables.</p></details>
+    <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox Stage 320 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages, et le Pack Club Ultimate (2 Ultimate) au-delà de 160 personnes (80 pour un mariage). Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
+    <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox Stage 320 (et la 310), non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée, les lyres et le laser. Les micros sans fil sont rechargeables.</p></details>
     <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. En retrait, mêmes horaires : tu le récupères entre 17h00 et 19h30 et tu le rapportes avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
     <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins 2 heures avant la livraison ; sinon, appelle-nous au 06 22 12 39 63).</p></details>
     <details name="faq" class="plus"><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
@@ -1011,10 +1014,10 @@
 <script>
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
   const PACKS={
-    apero:{name:'Pack Apéro',price:'49,90 €',sem:'39,90 €',items:['1 JBL PartyBox 310 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
+    apero:{name:'Pack Apéro',price:'49,90 €',sem:'39,90 €',items:['1 JBL PartyBox Stage 320 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
     soiree:{name:'Pack Soirée',price:'94,90 €',sem:'69,90 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB'],why:'La vraie ambiance de soirée : gros son, lumières et fumée colorée.'},
     club:{name:'Pack Club',price:'159,90 €',sem:'119,90 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB'],why:'Pour les grandes fêtes : deux enceintes pour couvrir toute la salle.'},
-    p310:{name:'JBL PartyBox 310',price:'49,90 €',sem:'39,90 €',items:['240 W, lumières intégrées','Batterie jusqu\'à 18 h','Connexion Bluetooth'],why:'Juste l\'enceinte, parfaite pour un apéro ou une fête sans prise.'},
+    p310:{name:'JBL PartyBox 310',vu:'JBL PartyBox Stage 320',price:'49,90 €',sem:'39,90 €',items:['240 W, lumières intégrées','Batterie jusqu\'à 18 h, roulettes','Connexion Bluetooth'],why:'Juste l\'enceinte, parfaite pour un apéro ou une fête sans prise. Si les Stage 320 sont prises ce soir-là : une PartyBox 310, même son.'},
     p710:{name:'JBL PartyBox 710',price:'79,90 €',sem:'59,90 €',items:['800 W, basses profondes','Lumières intégrées','Se branche sur secteur'],why:'Juste l\'enceinte, pour faire danser une vraie soirée.'},
     pult:{name:'JBL PartyBox Ultimate',price:'109,90 €',sem:'79,90 €',items:['1100 W, le haut de gamme JBL','Show lumineux intégré','Se branche sur secteur'],why:'Juste l\'enceinte, pour une grosse fête, un mariage ou une grande salle.'},
     fumee:{name:'Machine à fumée 2000 W RGB',price:'24,90 €',sem:'19,90 €',items:['Deux jets de fumée éclairés en couleurs','Télécommande incluse'],why:'À ajouter à ta propre sono pour l\'effet boîte de nuit.'},
@@ -1022,7 +1025,7 @@
     ptl:{name:'Pack Trépied Laser',price:'79,90 €',sem:'59,90 €',items:['1 trépied à barres en T (jusqu\'à 3,51 m)','2 lyres WZYBUTA 150 W qui bougent','2 lasers 3D rouge, vert et bleu','Sacs de lestage et élingues de sécurité'],why:'L\'ambiance boîte de nuit : des faisceaux qui balaient la piste et deux lasers 3D.'},
     ptm:{name:'Pack Trépied Lumière',price:'79,90 €',sem:'59,90 €',items:['1 trépied à barres en T (jusqu\'à 3,51 m)','2 lyres WZYBUTA 150 W qui bougent','2 lyres Betopper 7 LED de 40 W','Sacs de lestage et élingues de sécurité'],why:'Le show lumière complet : faisceaux en mouvement et grands aplats de couleur.'},
     // packs son + lumière (01/11/2026, prix validés par Mistraloc, modifiables dans l'admin)
-    pamb:{name:'Pack Ambiance',price:'114,90 €',sem:'89,90 €',items:['1 JBL PartyBox 310 (240 W)','1 trépied lumière : 2 lyres WZYBUTA + 2 lyres Betopper','Sacs de lestage et élingues de sécurité'],why:'La PartyBox 310 et le trépied lumière : du bon son et un vrai show lumière pour un anniversaire ou une soirée entre amis.'},
+    pamb:{name:'Pack Ambiance',price:'114,90 €',sem:'89,90 €',items:['1 JBL PartyBox Stage 320 (240 W)','1 trépied lumière : 2 lyres WZYBUTA + 2 lyres Betopper','Sacs de lestage et élingues de sécurité'],why:'La PartyBox Stage 320 et le trépied lumière : du bon son et un vrai show lumière pour un anniversaire ou une soirée entre amis.'},
     psshow:{name:'Pack Soirée Show',price:'164,90 €',sem:'124,90 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB','1 trépied lumière : 2 lyres WZYBUTA + 2 lyres Betopper'],why:'Le Pack Soirée avec le trépied lumière : gros son, fumée colorée et faisceaux qui balaient la piste.'},
     pclas:{name:'Pack Club Laser',price:'229,90 €',sem:'174,90 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB','1 trépied laser : 2 lyres WZYBUTA + 2 lasers 3D'],why:'Deux PartyBox 710, la fumée et le trépied laser : l\'ambiance boîte de nuit pour les grandes fêtes.'},
     pults:{name:'Pack Ultimate Show',price:'199,90 €',sem:'149,90 €',items:['1 JBL PartyBox Ultimate (1100 W)','1 machine à fumée 2000 W RGB','1 trépied lumière : 2 lyres WZYBUTA + 2 lyres Betopper','2 micros sans fil JBL'],why:'Le haut de gamme JBL, la fumée, le trépied lumière et 2 micros sans fil pour les discours ou le karaoké.'},
@@ -1080,15 +1083,16 @@
   const microSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g transform="rotate(-20 32 32)"><rect x="27" y="26" width="10" height="34" rx="4" fill="#27272A" stroke="#9CA3AF" stroke-width="1.5"/><circle cx="32" cy="17" r="11" fill="#3F3F46" stroke="#9CA3AF" stroke-width="2"/><path d="M24 14h16M23 19h18M26 9h12" stroke="#71717A" stroke-width="1.4"/><rect x="29" y="40" width="6" height="2.5" rx="1" fill="#FF7A1A"/></g><g transform="translate(14 4) rotate(18 32 32)" opacity=".85"><rect x="27" y="26" width="10" height="34" rx="4" fill="#27272A" stroke="#9CA3AF" stroke-width="1.5"/><circle cx="32" cy="17" r="11" fill="#3F3F46" stroke="#9CA3AF" stroke-width="2"/><path d="M24 14h16M23 19h18M26 9h12" stroke="#71717A" stroke-width="1.4"/><rect x="29" y="40" width="6" height="2.5" rx="1" fill="#22D3EE"/></g></svg>';
   const SLOTS_PACK={ptl:['wzy',null,null,'wzy',null,'laser','laser',null],ptm:['wzy','beto','beto','wzy',null,null,null,null]};
   ['pamb','psshow','pults','pmar'].forEach(k=>SLOTS_PACK[k]=SLOTS_PACK.ptm); SLOTS_PACK.pclas=SLOTS_PACK.ptl; SLOTS_PACK.ppres=['wzy','beto','beto','wzy','laser',null,null,'laser'];
-  const IMAGES={apero:['partybox-310'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-310'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee'],
+  const IMAGES={apero:['partybox-stage-320'],soiree:['partybox-710','machine-fumee'],club:['partybox-710','partybox-710','machine-fumee'],p310:['partybox-stage-320'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee'],
     ptl:[svgUri(trepSvg(SLOTS_PACK.ptl))],ptm:[svgUri(trepSvg(SLOTS_PACK.ptm))],
-    pamb:['partybox-310',svgUri(trepSvg(SLOTS_PACK.ptm))],psshow:['partybox-710','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pclas:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl))],
+    pamb:['partybox-stage-320',svgUri(trepSvg(SLOTS_PACK.ptm))],psshow:['partybox-710','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pclas:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl))],
     pults:['partybox-ultimate','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pmar:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg(SLOTS_PACK.ptm))],
     ppres:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg(SLOTS_PACK.ppres))],pcult:['partybox-ultimate','partybox-ultimate','machine-fumee'],micro:[svgUri(microSvg)],creer:[svgUri(trepSvg(['wzy',null,null,'beto',null,'laser',null,null]))]};
   // Panier personnalisé : nombre maximum de chaque appareil (stock)
+  const VU=t=>String(t==null?'':t).replace(/JBL PartyBox 310/g,'JBL PartyBox Stage 320');   // nom montré au client
   const STOCK={p310:2,p710:2,pult:2,fumee:1,micro:1,trep:1,wzy:2,beto:2,laser:2}; // valeurs de secours : remplacées par le stock de l'espace admin au chargement
   const panier={p310:0,p710:0,pult:0,fumee:0,micro:0,trep:0,wzy:0,beto:0,laser:0};
-  const IMG1={p310:'partybox-310',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee',micro:svgUri(microSvg),trep:svgUri(trepSvg([])),wzy:svgUri(lumSeuleSvg('wzy')),beto:svgUri(lumSeuleSvg('beto')),laser:svgUri(lumSeuleSvg('laser'))};
+  const IMG1={p310:'partybox-stage-320',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee',micro:svgUri(microSvg),trep:svgUri(trepSvg([])),wzy:svgUri(lumSeuleSvg('wzy')),beto:svgUri(lumSeuleSvg('beto')),laser:svgUri(lumSeuleSvg('laser'))};
   // place de chaque lumière sur le trépied (le panier garde les quantités, SLOTS garde les places)
   let SLOTS=[], accChoisie=null, noteConf='';
   const nbLum=()=>LUM.reduce((t,a)=>t+(panier[a]||0),0);
@@ -1175,7 +1179,7 @@
     const box=document.getElementById('rPanier');
     syncSlots(); IMG1.trep=svgUri(trepSvg(SLOTS));
     if(!panier.trep||nbLum()){ trepVideOk=false; boiteVide.ici=''; }
-    box.innerHTML=Object.keys(panier).filter(k=>LUM.indexOf(k)<0).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'">'+(IMG1[k]?'<img src="'+imgSrc(IMG1[k])+'" alt="">':'<span class="ligne-ph" aria-hidden="true">🎛️</span>')+'<span class="nom">'+PACKS[k].name+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+PACKS[k].name+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+PACKS[k].name+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('')+confHtml();
+    box.innerHTML=Object.keys(panier).filter(k=>LUM.indexOf(k)<0).map(k=>'<div class="ligne'+(panier[k]?' on':'')+'">'+(IMG1[k]?'<img src="'+imgSrc(IMG1[k])+'" alt="">':'<span class="ligne-ph" aria-hidden="true">🎛️</span>')+'<span class="nom">'+VU(PACKS[k].name)+'<small>'+PACKS[k].price+' / soirée</small></span><span class="qte"><button type="button" data-k="'+k+'" data-d="-1" aria-label="Retirer '+VU(PACKS[k].name)+'"'+(panier[k]?'':' disabled')+'>−</button><output>'+panier[k]+'</output><button type="button" data-k="'+k+'" data-d="1" aria-label="Ajouter '+VU(PACKS[k].name)+'"'+(panier[k]<STOCK[k]?'':' disabled')+'>+</button></span></div>').join('')+confHtml();
     const total=Object.keys(panier).reduce((t,k)=>t+panier[k]*prixNum(k),0);
     PACKS.perso.price=enEuros(total);
     const semT=Object.keys(panier).reduce((t,k)=>t+panier[k]*semNum(k),0);
@@ -1237,7 +1241,7 @@
   // ---- rangée de formules « Choisis ta formule » : cartes qui défilent au doigt (28/10) ----
   const rail=document.getElementById('cpRail'), flG=document.getElementById('cpG'), flD=document.getElementById('cpD');
   const reduitM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['pcult','Pack','Club Ultimate'],['pamb','Pack show','Ambiance'],['psshow','Pack show','Soirée Show'],['pclas','Pack show','Club Laser'],['pults','Pack show','Ultimate Show'],['pmar','Pack show','Mariage'],['ppres','Pack show','Prestige'],['ptl','Pack lumière','Trépied Laser'],['ptm','Pack lumière','Trépied Lumière'],['p310','À l\'unité','PartyBox 310'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Sur mesure','Crée ton trépied'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','pcult','pamb','psshow','pclas','pults','pmar','ppres','ptl','ptm','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
+  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['pcult','Pack','Club Ultimate'],['pamb','Pack show','Ambiance'],['psshow','Pack show','Soirée Show'],['pclas','Pack show','Club Laser'],['pults','Pack show','Ultimate Show'],['pmar','Pack show','Mariage'],['ppres','Pack show','Prestige'],['ptl','Pack lumière','Trépied Laser'],['ptm','Pack lumière','Trépied Lumière'],['p310','À l\'unité','PartyBox Stage 320'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Sur mesure','Crée ton trépied'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','pcult','pamb','psshow','pclas','pults','pmar','ppres','ptl','ptm','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
   // cartes masquées depuis l'admin (Matériel › « Afficher sur le site » décoché) ; photos « en soirée » par formule
   const CACHES=new Set(), SITU={};
   // 01/11 : les formules sont rangées en 3 onglets (Son · Son + lumière · Lumière) ; « Sur mesure » est dans chaque onglet
@@ -1312,13 +1316,13 @@
     const el=document.getElementById('rAlerte'), k=current; if(!el||!k) return;
     const n=+g.value, besoin=kind==='mariage'?n*2:n, cap=capacite(k), r=recommend(), c=compoDe(k);
     const vide=k==='perso'&&!Object.keys(panier).some(a=>panier[a]);
-    const nomDe=x=>x==='perso'?'ton panier':'le '+PACKS[x].name;
-    const voir=r!==k?' <button type="button" data-go="'+r+'">Voir le '+PACKS[r].name+'</button>':'';
-    const deux310=STOCK.p310>=2?' <button type="button" data-go="2x310">Prendre 2 PartyBox 310</button>':'';
+    const nomDe=x=>x==='perso'?'ton panier':'le '+VU(PACKS[x].name);
+    const voir=r!==k?' <button type="button" data-go="'+r+'">Voir le '+VU(PACKS[r].name)+'</button>':'';
+    const deux310=STOCK.p310>=2?' <button type="button" data-go="2x310">Prendre 2 PartyBox Stage 320</button>':'';
     let h='';
     if(vide) h='';
     else if(!prise&&cap===0&&(c.trep||LUM.some(a=>c[a]))) h=LUM.some(a=>c[a])?'🔌 Les lumières se branchent sur une prise : il en faut une sur place (ou une rallonge).':'';
-    else if(!prise&&SECTEUR.some(a=>c[a])) h='🔌 Sans prise, '+(k==='perso'?'une partie de ton panier ne marchera pas':nomDe(k)+' ne marchera pas')+' : la PartyBox 710, l\'Ultimate, la machine à fumée et les lumières doivent être branchées. La <b>PartyBox 310</b> tient environ 18 h sur batterie.'+(n>20?deux310:' <button type="button" data-go="apero">Voir le Pack Apéro</button>');
+    else if(!prise&&SECTEUR.some(a=>c[a])) h='🔌 Sans prise, '+(k==='perso'?'une partie de ton panier ne marchera pas':nomDe(k)+' ne marchera pas')+' : la PartyBox 710, l\'Ultimate, la machine à fumée et les lumières doivent être branchées. La <b>PartyBox Stage 320</b> tient environ 18 h sur batterie.'+(n>20?deux310:' <button type="button" data-go="apero">Voir le Pack Apéro</button>');
     else if(cap===0&&(c.trep||LUM.some(a=>c[a]))) h='';   // lumières seules : pas d'alerte « pas de son »
     else if(cap===0&&c.micro&&!c.fumee) h='🎤 Les micros se branchent sur une PartyBox : prends une enceinte avec (ou utilise la tienne).'+voir;
     else if(cap===0) h='🔇 La machine à fumée ne fait pas de son : garde-la pour ta propre sono, ou prends une enceinte avec.'+voir;
@@ -1406,7 +1410,7 @@
     const perso=key==='perso';
     document.getElementById('rPanier').hidden=!perso;
     document.getElementById('rList').hidden=perso;
-    document.getElementById('rName').textContent=p.name;
+    document.getElementById('rName').textContent=VU(p.name);
     document.getElementById('rImg').classList.remove('n4');
     document.getElementById('rImg').innerHTML=(IMAGES[key]||[]).map(f=>'<img src="'+imgSrc(f)+'" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join('');
     document.getElementById('rWhy').textContent=p.why;
@@ -1487,7 +1491,7 @@
   function proposerAttente(k){
     attDate = k;
     const box = $('bk-liste-attente'); box.hidden = false;
-    $('att-titre').textContent = 'Le ' + jourTxt(k) + ' est complet pour : ' + offreSel.value.replace(/^Panier perso : /, '') + '.';
+    $('att-titre').textContent = 'Le ' + jourTxt(k) + ' est complet pour : ' + VU(offreSel.value.replace(/^Panier perso : /, '')) + '.';
     $('att-msg').textContent = '';
     const m = ($('bk-email') || {}).value; if (m && !$('att-mail').value) $('att-mail').value = m.trim();
     box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1645,6 +1649,21 @@
   const texteDegressif = () => '2e soirée −' + DEGR.r2 + ' %, 3e et 4e −' + DEGR.r3 + ' %, dès la 5e −' + DEGR.r5 + ' %';
   function majTextesDegressif(){ document.querySelectorAll('[data-degressif]').forEach(e => { e.textContent = texteDegressif(); }); }
 
+  // PartyBox sur batterie : le client voit « Stage 320 » (nom interne « JBL PartyBox 310 », un seul stock avec les 310)
+  function majNote320(p, k){
+    const n = $('bk-note320'); if (!n) return;
+    const besoin = k === 'perso' ? (panier.p310 || 0) : ((typeof COMPO_K !== 'undefined' && COMPO_K[k] && COMPO_K[k].p310) || 0);
+    let libres320 = 2, connu = !!(p && besoin);
+    if (connu) for (let i = 0; i < p.nuits; i++) {
+      const j = plusJ(p.start, i), d = cache[j.slice(0, 7)], r = d && d.reste && d.reste[j] && d.reste[j]['JBL PartyBox 310'];
+      if (r == null) { connu = false; break; }
+      libres320 = Math.min(libres320, Math.max(0, 2 - Math.max(0, (STOCK.p310 || 0) - r)));
+    }
+    n.hidden = !(connu && besoin > libres320);
+    if (!n.hidden) n.textContent = libres320 === 0
+      ? 'ℹ️ Ce soir-là, les Stage 320 sont déjà réservées : tu auras ' + (besoin > 1 ? besoin + ' PartyBox 310' : 'une PartyBox 310') + ', même son, même prix.'
+      : 'ℹ️ Ce soir-là, il ne reste qu\'une Stage 320 : tu auras 1 Stage 320 + ' + (besoin - 1) + ' PartyBox 310, même son, même prix.';
+  }
   function maj(){
     const h = $('bk-heure') && $('bk-heure').value, p = periode(), ret = enRetrait();
     $('bk-date-txt').textContent = p
@@ -1670,7 +1689,8 @@
     // récapitulatif « Tu réserves : … » (remplace l'ancien menu « Offre »)
     const o = offreSel.value, k = cleOffre(), perso = k === 'perso';
     const mic = micOffre();
-    $('bk-recap-nom').textContent = perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o.replace(MICRO_SUF, ' + 2 micros sans fil');
+    $('bk-recap-nom').textContent = VU(perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o.replace(MICRO_SUF, ' + 2 micros sans fil'));
+    majNote320(p, k);
     $('bk-recap-prix').textContent = k && PACKS[k] ? (mic ? '· ' + enEuros(prixNum(k) + prixNum('micro')) + '/soirée le week-end, ' + enEuros(semNum(k) + semNum('micro')) + ' en semaine'
       : '· ' + PACKS[k].price + '/soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '')) : '';
     // rangée de packs : bouton actif + le garder visible dans la ligne (sans faire bouger la page)
@@ -1834,7 +1854,7 @@
   function resume(){
     const p = periode(), l = livraison(), h = $('bk-heure').value;
     const blocs = [
-      ['Matériel', esc($('bk-recap-nom').textContent), 1],
+      ['Matériel', esc($('bk-recap-nom').textContent) + ($('bk-note320') && !$('bk-note320').hidden ? '<br><small>' + esc($('bk-note320').textContent) + '</small>' : ''), 1],
       ['Dates', p ? esc((l.retrait ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + (l.retrait ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
       l.retrait ? ['Retrait', 'Gratuit, à Salon-de-Provence (adresse envoyée à la confirmation)', 2]
                 : ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
@@ -1890,7 +1910,7 @@
       const li = $('wiz-etapes').querySelector('li[data-pas="' + pas + '"]');
       l.push('• Étape de la réservation : ' + pas + '/4' + (li ? ' (' + li.innerText.replace(/\s+/g, ' ').trim().replace(/^\d+\s*/, '') + ')' : ''));
     }
-    const o = offreSel.value; if (o && o !== 'Panier personnalisé') l.push('• Formule : ' + o.replace('Panier perso : ', 'Mon panier : '));
+    const o = offreSel.value; if (o && o !== 'Panier personnalisé') l.push('• Formule : ' + VU(o.replace('Panier perso : ', 'Mon panier : ')));
     const p = periode(); if (p) l.push('• Date : ' + jourTxt(p.start) + ' (' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + ')');
     const v = $('bk-lieu').value.trim(); if (enRetrait()) l.push('• Retrait à Salon-de-Provence'); else if (v) l.push('• Livraison : ' + v);
     const f = document.querySelector('.choice[aria-pressed="true"]'), g2 = document.getElementById('g');
