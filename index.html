@@ -2302,7 +2302,7 @@
     inn.appendChild(b);
     const act = el('div', 'item-actions');
     const r = el('a', 'btn', 'Réserver'); r.href = '#reserver'; r.dataset.reserver = k; r.appendChild(el('span', 'long', ' cet appareil'));
-    const pa = el('button', 'btn ghost'); pa.type = 'button'; pa.dataset.panier = k; pa.append('+ ', el('span', 'long', 'Ajouter au '), 'panier');
+    const pa = el('button', 'btn ghost'); pa.type = 'button'; pa.dataset.panier = k; pa.append(el('span')); pa.firstChild.append('+ ', el('span', 'long', 'Ajouter au '), 'panier');
     act.append(r, pa); inn.appendChild(act);
     art.append(box, inn); cat.appendChild(art);
   }
@@ -2320,8 +2320,8 @@
       it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions">' + (
         k === 'trep' ? '<button type="button" class="btn" data-creer>Crée ton trépied</button><a class="btn ghost" href="#trouver" data-reserver="ptm">Voir les packs</a>'
         : lum ? '<button type="button" class="btn" data-panier="' + k + '">+ Ajouter au trépied</button>'
-        : '<a class="btn" href="#reserver" data-reserver="' + k + '">Réserver<span class="long"> ' + (k === 'fumee' ? 'cette machine' : k === 'micro' ? 'ces micros' : 'cette enceinte') + '</span></a>' +
-          '<button type="button" class="btn ghost" data-panier="' + k + '">+ <span class="long">Ajouter au </span>panier</button>') + '</div>');
+        : '<a class="btn" href="#reserver" data-reserver="' + k + '"><span>Réserver<span class="long"> ' + (k === 'fumee' ? 'cette machine' : k === 'micro' ? 'ces micros' : 'cette enceinte') + '</span></span></a>' +
+          '<button type="button" class="btn ghost" data-panier="' + k + '"><span>+ <span class="long">Ajouter au </span>panier</span></button>') + '</div>');
     });
     const briller = el => { if (!el) return; el.classList.remove('surbrille'); void el.offsetWidth; el.classList.add('surbrille'); };
     zone.addEventListener('click', e => {
