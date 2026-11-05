@@ -156,7 +156,7 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   const $ = id => document.getElementById(id);
   const MOUV = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const TEXTES = { admin_login: 'Connexion…', admin_code: 'Envoi du code…', admin_login_mail: 'Envoi du code…', admin_definir: 'Création du compte…', admin_app: 'Ouverture de ton espace…' };
-  let token = null, voileActif = false, nAtt = 0, tAtt = null, ouvert = false;
+  let token = null, nAtt = 0, tAtt = null, ouvert = false;
   try { token = sessionStorage.getItem('audioloc_admin'); } catch (e) {}
 
   function bloquer(on) {
@@ -177,7 +177,7 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
         body: JSON.stringify(Object.assign({ action, token }, donnees || {})) });
       return r.json();
     };
-    return !$('v-charge').hidden || voileActif ? f() : patienter(TEXTES[action] || 'Un instant…', f);
+    return !$('v-charge').hidden ? f() : patienter(TEXTES[action] || 'Un instant…', f);
   }
   function msg(id, texte, ok) { const m = $(id); m.hidden = !texte; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.textContent = texte || ''; }
   function vue(nom) {
@@ -192,33 +192,6 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   }
   async function occupe(btn, f) { const t = btn.textContent; btn.disabled = true; btn.textContent = 'Patiente…'; try { await f(); } finally { btn.disabled = false; btn.textContent = t; } }
 
-  // grande entrée après la connexion : voile aux couleurs Mistraloc qui part du bouton, vague du logo, « Bonjour »
-  function voileEntree(depuis) {
-    if (!MOUV) return { fermer: async () => {} };
-    voileActif = true;
-    const b = depuis && depuis.getBoundingClientRect ? depuis.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
-    const x = b.left + b.width / 2, y = b.top + b.height / 2, r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    const h = new Date().getHours(), salut = h >= 18 || h < 5 ? 'Bonsoir' : 'Bonjour';
-    const v = document.createElement('div');
-    v.className = 'ent-voile'; v.setAttribute('aria-hidden', 'true');
-    v.innerHTML = '<svg viewBox="0 0 100 80"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><b>' + salut + ' 👋</b>';
-    document.body.appendChild(v);
-    v.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)' }], { duration: 450, easing: 'cubic-bezier(.6,0,.2,1)' });
-    const debut = Date.now();
-    let ferme = false;
-    const fermer = async () => {
-      if (ferme) return; ferme = true;
-      const reste = 500 - (Date.now() - debut);   // court (demande de l'utilisateur, 05/11)
-      if (reste > 0) await new Promise(ok => setTimeout(ok, reste));
-      voileActif = false;
-      const anim = v.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 250, easing: 'ease-in', fill: 'forwards' });
-      await new Promise(ok => { anim.onfinish = ok; setTimeout(ok, 600); });
-      v.remove();
-    };
-    setTimeout(() => { if (!ferme) fermer(); }, 12000);   // sécurité : le voile ne reste jamais bloqué
-    return { fermer };
-  }
-
   // reçoit le panneau privé et le met en place (une seule fois par page)
   function installer(j) {
     if (ouvert) return; ouvert = true;
@@ -231,23 +204,19 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
     const s = document.createElement('script'); s.textContent = j.js; document.body.appendChild(s);
   }
   async function ouvrir(depuis) {
-    const v = depuis ? voileEntree(depuis) : null;
-    let fin = null;
-    if (v) {   // le « Bonjour » ne dure qu'un instant ; la vague de chargement prend le relais si le panneau n'est pas prêt
-      $('v-charge').hidden = false; $('v-login').hidden = true; $('v-setup').hidden = true;
-      fin = v.fermer();
-    }
+    // pas d'écran de bienvenue (retiré à la demande de l'utilisateur, 05/11) : juste la vague de chargement
+    const v = !!depuis;
+    if (v) { $('v-charge').hidden = false; $('v-login').hidden = true; $('v-setup').hidden = true; window.scrollTo(0, 0); }
     try {
       const j = await appel('admin_app');
       if (!j.ok) {
         if (j.erreur === 'session') { garder(null); await accueil(); return false; }
         throw new Error(j.erreur || 'Ouverture impossible.');
       }
-      if (fin) await fin;
       installer(j);
       return true;
     } catch (err) {
-      if (v) { await fin; $('v-charge').hidden = true; vue('login'); }
+      if (v) { $('v-charge').hidden = true; vue('login'); }
       throw err;
     }
   }
