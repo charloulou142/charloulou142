@@ -208,11 +208,11 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
     let ferme = false;
     const fermer = async () => {
       if (ferme) return; ferme = true;
-      const reste = 850 - (Date.now() - debut);
+      const reste = 500 - (Date.now() - debut);   // court (demande de l'utilisateur, 05/11)
       if (reste > 0) await new Promise(ok => setTimeout(ok, reste));
       voileActif = false;
-      const anim = v.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 300, easing: 'ease-in', fill: 'forwards' });
-      await new Promise(ok => { anim.onfinish = ok; setTimeout(ok, 700); });
+      const anim = v.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 250, easing: 'ease-in', fill: 'forwards' });
+      await new Promise(ok => { anim.onfinish = ok; setTimeout(ok, 600); });
       v.remove();
     };
     setTimeout(() => { if (!ferme) fermer(); }, 12000);   // sécurité : le voile ne reste jamais bloqué
@@ -232,17 +232,24 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   }
   async function ouvrir(depuis) {
     const v = depuis ? voileEntree(depuis) : null;
+    let fin = null;
+    if (v) {   // le « Bonjour » ne dure qu'un instant ; la vague de chargement prend le relais si le panneau n'est pas prêt
+      $('v-charge').hidden = false; $('v-login').hidden = true; $('v-setup').hidden = true;
+      fin = v.fermer();
+    }
     try {
       const j = await appel('admin_app');
       if (!j.ok) {
         if (j.erreur === 'session') { garder(null); await accueil(); return false; }
         throw new Error(j.erreur || 'Ouverture impossible.');
       }
+      if (fin) await fin;
       installer(j);
-      // on attend que le panneau soit affiché avant de lever le voile
-      for (let i = 0; i < 80 && !(($('v-admin') || {}).hidden === false); i++) await new Promise(ok => setTimeout(ok, 100));
       return true;
-    } finally { if (v) await v.fermer(); }
+    } catch (err) {
+      if (v) { await fin; $('v-charge').hidden = true; vue('login'); }
+      throw err;
+    }
   }
   async function accueil() {
     const c = await appel('admin_compte');
