@@ -73,19 +73,11 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
 .btn{transition:transform .12s,filter .2s,box-shadow .2s}
 .btn:active{transform:scale(.97)}
 .btn:not(.ghost):hover{filter:brightness(1.06);box-shadow:0 8px 24px rgba(255,122,26,.25)}
-/* voile d'entrée après la connexion */
-  .ent-voile{position:fixed;inset:0;z-index:200;display:grid;place-items:center;align-content:center;gap:10px;color:#1A0B00;text-align:center;
-    background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 45%),linear-gradient(135deg,#FF7A1A 0%,#FF5E8A 45%,#8B5CF6 100%)}
-.ent-voile svg{width:120px;height:96px;overflow:visible}
-.ent-voile path{fill:none;stroke:#1A0B00;stroke-width:10;stroke-linecap:round;stroke-dasharray:110;stroke-dashoffset:110;animation:trace .55s .1s cubic-bezier(.6,0,.2,1) forwards}
-.ent-voile circle{fill:#22D3EE;transform-origin:92px 30px;transform:scale(0);animation:apparait .35s .5s cubic-bezier(.3,1.6,.5,1) forwards;filter:drop-shadow(0 0 8px rgba(34,211,238,.9))}
-.ent-voile b{font-family:"Bebas Neue";font-weight:400;font-size:clamp(40px,9vw,64px);line-height:1;opacity:0;animation:monteT .4s .25s cubic-bezier(.2,.8,.2,1) forwards}
-.ent-voile small{font-weight:700;opacity:0;animation:monteT .5s .75s cubic-bezier(.2,.8,.2,1) forwards}
-@keyframes trace{to{stroke-dashoffset:0}}
-@keyframes apparait{to{transform:scale(1)}}
-@keyframes monteT{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){main > section,#v-admin > *{animation:none}
 .btn,.btn:active{transition:none;transform:none}}
+#l-mdp:-webkit-autofill{animation-name:remplissageAuto;animation-duration:.01s}
+#l-mdp:autofill{animation-name:remplissageAuto;animation-duration:.01s}
+@keyframes remplissageAuto{from{outline-color:transparent}to{outline-color:transparent}}
 </style>
 </head>
 <body>
@@ -190,13 +182,18 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
     try { t ? sessionStorage.setItem('audioloc_admin', t) : sessionStorage.removeItem('audioloc_admin'); } catch (e) {}
     try { if (t) localStorage.setItem('audioloc_moi', '1'); } catch (e) {}   // ne pas compter mes propres visites sur cet appareil
   }
-  async function occupe(btn, f) { const t = btn.textContent; btn.disabled = true; btn.textContent = 'Patiente…'; try { await f(); } finally { btn.disabled = false; btn.textContent = t; } }
+  async function occupe(btn, f) { const t = btn.textContent; btn.dataset.txt = t; btn.disabled = true; btn.textContent = 'Patiente…'; try { await f(); } finally { btn.disabled = false; btn.textContent = t; } }
 
   // reçoit le panneau privé et le met en place (une seule fois par page)
   function installer(j) {
     if (ouvert) return; ouvert = true;
     // les écrans de connexion sont remplacés par des copies « neuves » : le panneau y branche ses propres boutons
-    ['v-login', 'v-setup'].forEach(id => { const e = $(id); e.replaceWith(e.cloneNode(true)); });
+    ['v-login', 'v-setup'].forEach(id => {
+      const e = $(id), c = e.cloneNode(true);
+      // le bouton qui a servi à se connecter est encore « Patiente… » : la copie repart avec un bouton normal
+      c.querySelectorAll('button[data-txt]').forEach(b => { b.textContent = b.dataset.txt; b.disabled = false; delete b.dataset.txt; });
+      e.replaceWith(c);
+    });
     const st = document.createElement('style'); st.textContent = j.css; document.head.appendChild(st);
     $('v-setup').insertAdjacentHTML('afterend', j.htmlMain);
     $('attente').insertAdjacentHTML('beforebegin', j.htmlApres);
@@ -238,6 +235,26 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
       garder(j.token); $('l-mdp').value = ''; await ouvrir(b);
     } catch (err) { msg('m-login', err.message || 'Erreur réseau.'); }
   }); });
+  // remplissage automatique (Face ID, trousseau, gestionnaire de mots de passe) : la connexion part toute seule.
+  // Repéré par un mot de passe qui arrive d'un coup (pas lettre par lettre) ou par le style :-webkit-autofill.
+  // Aussi utilisé par le panneau pour l'écran de connexion après une déconnexion.
+  window.mistralocAutoConnexion = function (form) {
+    const id = form.querySelector('#l-id'), mdp = form.querySelector('#l-mdp');
+    if (!id || !mdp) return;
+    let avant = mdp.value.length, prevu = null;
+    const envoyer = () => {
+      clearTimeout(prevu);
+      prevu = setTimeout(() => {
+        const b = form.querySelector('button[type=submit]');
+        if (id.value.trim() && mdp.value && b && !b.disabled && form.offsetParent !== null) form.requestSubmit(b);
+      }, 300);
+    };
+    const verifier = () => { const n = mdp.value.length; if (n - avant >= 4 && id.value.trim()) envoyer(); avant = n; };
+    mdp.addEventListener('input', verifier);
+    mdp.addEventListener('change', verifier);
+    mdp.addEventListener('animationstart', e => { if (e.animationName === 'remplissageAuto') { avant = mdp.value.length; envoyer(); } });
+  };
+  window.mistralocAutoConnexion($('f-login'));
   // connexion par code e-mail (obligatoire après 3 mauvais mots de passe)
   $('b-lcode').addEventListener('click', e => occupe(e.currentTarget, async () => {
     try {
