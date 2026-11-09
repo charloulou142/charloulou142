@@ -659,6 +659,16 @@
   .btn-go{font-size:18px;padding:17px 30px;animation:goPulse 2.6s ease-out infinite}
   @keyframes goPulse{0%{box-shadow:0 0 0 0 rgba(255,122,26,.45)}70%,100%{box-shadow:0 0 0 16px rgba(255,122,26,0)}}
   .go-sous{margin:14px auto 0!important;font-size:14px!important;color:var(--muted);text-align:center}
+  /* 10/11 (test « visiteurs ») : conseil selon le nombre d'invités, zone de livraison et téléphone visibles dès le haut */
+  .go-plus{list-style:none;margin:18px auto 0;padding:0;max-width:560px;display:grid;gap:8px;text-align:left;font-size:14.5px;line-height:1.45;color:var(--muted)}
+  .go-plus li{display:flex;gap:10px;align-items:flex-start;padding:9px 14px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+  .go-plus li > span:first-child{font-size:17px;line-height:1.3}
+  .go-plus b{color:var(--text);font-weight:700}
+  .go-plus a{color:var(--cyan);font-weight:700;white-space:nowrap}
+  .item-inv{display:inline-block;align-self:flex-start;margin:0 0 4px;font-size:12px;font-weight:700;color:var(--text);padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(34,211,238,.10)}
+  .item.pack .ph{display:flex;gap:2px;align-items:center;justify-content:center;padding:10px 6px}
+  .item.pack .ph img{position:static;inset:auto;flex:1 1 0;min-width:0;width:auto;max-width:50%;height:100%;object-fit:contain}
+  .item.pack ul{margin:2px 0 10px;padding-left:18px;font-size:14px;color:var(--muted)}
   .reprise-accueil{padding-top:18px}
   .cta-centre{text-align:center;margin-top:30px}
   /* « Le matériel » rangé par catégories (01/11) : une seule catégorie affichée à la fois */
@@ -700,6 +710,11 @@
     <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
     <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · livraison dès 5 € ou retrait gratuit · réservation en 2 minutes.</p>
+    <ul class="go-plus">
+      <li><span aria-hidden="true">👥</span><span><b>Pas besoin de s'y connaître :</b> dis-nous combien vous serez, on te conseille le bon matériel.</span></li>
+      <li><span aria-hidden="true">📍</span><span><b>Livré à Salon, Istres, Miramas, Pélissanne, Lambesc, Saint-Martin-de-Crau…</b> (jusqu'à 25 km de Salon) · <a href="livraison.html">Voir les villes →</a></span></li>
+      <li><span aria-hidden="true">📞</span><span>Une question ? <a href="tel:+33622123963">06 22 12 39 63</a> · <a href="https://wa.me/33622123963?text=Bonjour%20Mistraloc%2C%20j%27ai%20une%20question." target="_blank" rel="noopener">WhatsApp</a></span></li>
+    </ul>
     <p class="go-cadeau"><a href="offrir.html">🎁 Offrir une soirée en cadeau →</a></p>
   </div>
 </header>
@@ -909,6 +924,15 @@
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="mat-onglets" id="mat-onglets" role="tablist" aria-label="Catégories de matériel"></div>
+  <!-- packs (10/11, test « visiteurs ») : les prix suivent l'admin, comme le reste du catalogue -->
+  <div class="cat cat-packs">
+    <article class="item pack" data-article="Pack Soirée" data-pack="soiree"><div class="ph"></div><div class="in"><h3>Pack Soirée</h3><ul><li>1 JBL PartyBox 710 (800 W)</li><li>1 machine à fumée 2000 W RGB</li></ul><b>dès <span class="prixsem">69,90 €</span> / soirée en semaine<br><small><span class="prix">94,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item pack" data-article="Pack Club" data-pack="club"><div class="ph"></div><div class="in"><h3>Pack Club</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li><li>1 machine à fumée 2000 W RGB</li></ul><b>dès <span class="prixsem">119,90 €</span> / soirée en semaine<br><small><span class="prix">159,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item pack" data-article="Pack Ambiance" data-pack="pamb"><div class="ph"></div><div class="in"><h3>Pack Ambiance</h3><ul><li>1 JBL PartyBox 320 (240 W)</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">89,90 €</span> / soirée en semaine<br><small><span class="prix">114,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item pack" data-article="Pack Soirée Show" data-pack="psshow"><div class="ph"></div><div class="in"><h3>Pack Soirée Show</h3><ul><li>1 JBL PartyBox 710 (800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">124,90 €</span> / soirée en semaine<br><small><span class="prix">164,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item pack" data-article="Pack Club Laser" data-pack="pclas"><div class="ph"></div><div class="in"><h3>Pack Club Laser</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">174,90 €</span> / soirée en semaine<br><small><span class="prix">229,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item pack" data-article="Pack Mariage" data-pack="pmar"><div class="ph"></div><div class="in"><h3>Pack Mariage</h3><ul><li>2 JBL PartyBox Ultimate (2 × 1100 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li><li>2 micros sans fil JBL</li></ul><b>dès <span class="prixsem">219,90 €</span> / soirée en semaine<br><small><span class="prix">294,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+  </div>
   <div class="cat">
     <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 320<img src="images/partybox-stage-320.webp" alt="JBL PartyBox 320" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 320</h3><p>240 W, lumières intégrées, batterie jusqu'à 18 h et roulettes : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise. Si les PartyBox 320 sont déjà prises ce soir-là, tu as une PartyBox 310 : même son, même prix.</p><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item" data-article="JBL PartyBox 710"><div class="ph">Photo JBL PartyBox 710<img src="images/partybox-710.webp" alt="JBL PartyBox 710" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 710</h3><p>800 W et des basses profondes pour faire danser une vraie soirée. Se branche sur une prise secteur.</p><b>dès <span class="prixsem">59,90 €</span> / soirée en semaine<br><small><span class="prix">79,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
@@ -2275,6 +2299,8 @@
       if (tag && f.alim && !/^n\d/.test(k)) { tag.className = 'item-tag' + (f.alim === 'Batterie' ? ' bat' : ''); tag.textContent = f.alim === 'Batterie' ? (k === 'p310' ? '🔋 Sur batterie (~18 h)' : '🔋 Sur batterie') : '🔌 Prise nécessaire'; }
       if (f.visible === false) { CACHES.add(k); if (it) it.hidden = true; }
     });
+    // nombre d'invités conseillé (réglable dans l'admin › Matériel) affiché sur les enceintes du catalogue
+    document.querySelectorAll('#materiel .item[data-cap] .item-inv').forEach(t => { const v = CAP[t.closest('.item').dataset.cap]; if (v > 0) t.textContent = '👥 Conseillé jusqu\'à ~' + v + ' invités'; });
     Object.keys(situ).forEach(nom => { if (CLE_DE[nom]) SITU[CLE_DE[nom]] = situ[nom]; });
     renderRail(); majSitu();
     if (change) { const k = document.querySelector('#cpRail .cp[aria-pressed="true"]'); if (k) majPrixPack(k.dataset.pack); else majCartes(); maj(); }
@@ -2289,7 +2315,7 @@
 
   // carte du catalogue pour un appareil ajouté depuis l'admin (même présentation que les autres)
   function ajouterCarteCatalogue(k, nom, f, ph, p, ps) {
-    const cat = document.querySelector('#materiel .cat'); if (!cat) return;
+    const cat = document.querySelector('#materiel .cat:not(.cat-packs)'); if (!cat) return;
     const el = (tag, cls, txt) => { const x = document.createElement(tag); if (cls) x.className = cls; if (txt != null) x.textContent = txt; return x; };
     const art = el('article', 'item'); art.dataset.article = nom;
     const box = el('div', 'ph' + (ph ? ' photo' : ''), ph ? null : 'Photo à venir');
@@ -2312,8 +2338,15 @@
     const CLE = { 'JBL PartyBox 310': 'p310', 'JBL PartyBox 710': 'p710', 'JBL PartyBox Ultimate': 'pult', 'Machine à fumée 2000 W RGB': 'fumee',
                   'Trépied à lumières': 'trep', 'Lyre WZYBUTA 150 W': 'wzy', 'Lyre Betopper LM0740': 'beto', 'Laser KeoBin 3D RGB': 'laser', 'Paire de micros sans fil JBL': 'micro' };
     const zone = document.getElementById('materiel'); if (!zone) return;
+    // packs : petites images du contenu + bouton qui ouvre la réservation (comme les autres boutons du catalogue, sans présélection)
+    zone.querySelectorAll('.item.pack[data-pack]').forEach(it => {
+      const ph = it.querySelector('.ph');
+      [...new Set(IMAGES[it.dataset.pack] || [])].slice(0, 3).forEach(f => { const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.src = imgSrc(f); ph.appendChild(img); });
+      it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions"><a class="btn" href="#trouver" data-esp-go>Choisir ce pack →</a></div>');
+    });
     zone.querySelectorAll('.item[data-article]').forEach(it => {
       const k = CLE[it.dataset.article]; if (!k) return;
+      if (CAP[k] > 0) { it.dataset.cap = k; it.querySelector('h3').insertAdjacentHTML('afterend', '<span class="item-inv">👥 Conseillé jusqu\'à ~' + CAP[k] + ' invités</span>'); }
       const ph = it.querySelector('.ph[data-dessin]');
       if (ph) { const img = new Image(); img.alt = it.dataset.article; img.src = k === 'trep' ? svgUri(trepSvg()) : IMG1[k]; ph.textContent = ''; ph.appendChild(img); }
       const lum = LUM.indexOf(k) >= 0;
@@ -2519,10 +2552,10 @@
   // « Le matériel » rangé par catégories : Enceintes · Lumières · Fumée · Micros (un appareil ajouté dans l'admin est classé d'après son nom)
   (() => {
     const zone = document.getElementById('materiel'), bar = document.getElementById('mat-onglets'); if (!zone || !bar) return;
-    const CATS = [['son', '🔊', 'Enceintes'], ['lum', '💡', 'Lumières'], ['fumee', '💨', 'Fumée'], ['micros', '🎤', 'Micros']];
-    const catDe = n => /micro/i.test(n) ? 'micros' : /fum/i.test(n) ? 'fumee' : /lyre|laser|tr[ée]pied|lumi/i.test(n) ? 'lum' : 'son';
+    const CATS = [['packs', '✨', 'Packs'], ['son', '🔊', 'Enceintes'], ['lum', '💡', 'Lumières'], ['fumee', '💨', 'Fumée'], ['micros', '🎤', 'Micros']];
+    const catDe = n => /^pack/i.test(n) ? 'packs' : /micro/i.test(n) ? 'micros' : /fum/i.test(n) ? 'fumee' : /lyre|laser|tr[ée]pied|lumi/i.test(n) ? 'lum' : 'son';
     const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let actif = 'son', dernier = '';
+    let actif = 'packs', dernier = '';
     function maj(anim){
       const items = [...zone.querySelectorAll('.item')], nb = {};
       items.forEach(it => { const c = catDe(it.dataset.article || ''); it.dataset.cat = c; if (!it.hidden) nb[c] = (nb[c] || 0) + 1; });
