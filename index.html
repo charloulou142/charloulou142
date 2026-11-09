@@ -669,6 +669,14 @@
   .item.pack .ph{display:flex;gap:2px;align-items:center;justify-content:center;padding:10px 6px}
   .item.pack .ph img{position:static;inset:auto;flex:1 1 0;min-width:0;width:auto;max-width:50%;height:100%;object-fit:contain}
   .item.pack ul{margin:2px 0 10px;padding-left:18px;font-size:14px;color:var(--muted)}
+  .item.pack .pack-opt{margin:0 0 10px;font-size:13px;color:var(--muted)}
+  .item.pack .pack-opt b{color:var(--text)}
+  /* téléphone : images du pack en bande au-dessus du texte (tout le contenu se voit, ex. les 2 × 710 du Pack Club) */
+  @media (max-width:700px){
+    #materiel .item.pack{grid-template-columns:1fr}
+    #materiel .item.pack .ph{min-height:0;height:118px;padding:10px 12px}
+    #materiel .item.pack .in{padding:12px 14px 14px}
+  }
   .reprise-accueil{padding-top:18px}
   .cta-centre{text-align:center;margin-top:30px}
   /* « Le matériel » rangé par catégories (01/11) : une seule catégorie affichée à la fois */
@@ -2299,6 +2307,8 @@
       if (tag && f.alim && !/^n\d/.test(k)) { tag.className = 'item-tag' + (f.alim === 'Batterie' ? ' bat' : ''); tag.textContent = f.alim === 'Batterie' ? (k === 'p310' ? '🔋 Sur batterie (~18 h)' : '🔋 Sur batterie') : '🔌 Prise nécessaire'; }
       if (f.visible === false) { CACHES.add(k); if (it) it.hidden = true; }
     });
+    // option micros des packs : prix de l'admin, ligne cachée si les micros ne sont plus proposés
+    document.querySelectorAll('#materiel [data-prix-micro]').forEach(s => { s.textContent = PACKS.micro.sem; const sm = (c.stock || {})['Paire de micros sans fil JBL']; s.closest('.pack-opt').hidden = (sm != null && !(Number(sm) > 0)) || CACHES.has('micro'); });
     // nombre d'invités conseillé (réglable dans l'admin › Matériel) affiché sur les enceintes du catalogue
     document.querySelectorAll('#materiel .item[data-cap] .item-inv').forEach(t => { const v = CAP[t.closest('.item').dataset.cap]; if (v > 0) t.textContent = '👥 Conseillé jusqu\'à ~' + v + ' invités'; });
     Object.keys(situ).forEach(nom => { if (CLE_DE[nom]) SITU[CLE_DE[nom]] = situ[nom]; });
@@ -2340,9 +2350,12 @@
     const zone = document.getElementById('materiel'); if (!zone) return;
     // packs : petites images du contenu + bouton qui ouvre la réservation (comme les autres boutons du catalogue, sans présélection)
     zone.querySelectorAll('.item.pack[data-pack]').forEach(it => {
-      const ph = it.querySelector('.ph');
-      [...new Set(IMAGES[it.dataset.pack] || [])].slice(0, 3).forEach(f => { const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.src = imgSrc(f); ph.appendChild(img); });
-      it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions"><a class="btn" href="#trouver" data-esp-go>Choisir ce pack →</a></div>');
+      // une image par appareil du pack (2 × 710 = 2 images), dans l'ordre son → fumée → lumière → micros
+      const ph = it.querySelector('.ph'), c = PACK_COMPO[it.dataset.pack] || {};
+      ['p310', 'p710', 'pult', 'fumee', 'trep', 'micro'].forEach(a => { for (let i = 0; i < (c[a] || 0); i++) { const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.src = imgSrc(IMG1[a]); ph.appendChild(img); } });
+      // micros : option proposée sur les packs avec PartyBox qui ne les incluent pas (case à cocher pendant la réservation)
+      const opt = !c.micro && (c.p310 || c.p710 || c.pult) ? '<p class="pack-opt">🎤 En option : <b>2 micros sans fil</b>, +<span data-prix-micro>' + PACKS.micro.sem + '</span> en semaine</p>' : '';
+      it.querySelector('.in').insertAdjacentHTML('beforeend', opt + '<div class="item-actions"><a class="btn" href="#trouver" data-esp-go>Choisir ce pack →</a></div>');
     });
     zone.querySelectorAll('.item[data-article]').forEach(it => {
       const k = CLE[it.dataset.article]; if (!k) return;
