@@ -996,7 +996,7 @@
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
-    <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 320 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages, et le Pack Club Ultimate (2 Ultimate) au-delà de 160 personnes (80 pour un mariage). Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
+    <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 320 (Pack Apéro) pour un petit comité jusqu'à une trentaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages, et le Pack Club Ultimate (2 Ultimate) au-delà de 160 personnes (80 pour un mariage). Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
     <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 320 (et la 310), non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée, les lyres et le laser. Les micros sans fil sont rechargeables.</p></details>
     <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. En retrait, mêmes horaires : tu le récupères entre 17h00 et 19h30 et tu le rapportes avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
     <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins 2 heures avant la livraison ; sinon, appelle-nous au 06 22 12 39 63).</p></details>
@@ -1323,7 +1323,7 @@
   }
   // ---- alerte « ce choix risque d'être juste pour ton nombre d'invités » ----
   // invités conseillés par appareil (mêmes repères que la recommandation : 310 ≈ 20, 710 ≈ 80 ; Ultimate ≈ 120 = estimation) ; mariage = on compte double
-  const CAP={p310:20,p710:80,pult:120,fumee:0};
+  const CAP={p310:30,p710:80,pult:120,fumee:0};   // 320 : 20 → 30 le 10/11 (accord de Mistraloc)
   // OPTION MICROS sur un pack (01/11) : l'offre envoyée devient « Pack … + Paire de micros sans fil JBL » (même nom côté script)
   const MICRO_SUF=' + Paire de micros sans fil JBL';
   let avecMicros=false;
@@ -1410,7 +1410,7 @@
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
   // pack masqué depuis l'admin : on conseille le plus grand pack encore affiché
   function recommend(){let r=reco0(); const ordre=['pcult','club','soiree','apero']; if(typeof CACHES!=='undefined'&&CACHES.has(r)){ const i=ordre.indexOf(r); r=ordre.slice(i).concat(ordre.slice(0,i).reverse()).find(x=>!CACHES.has(x))||r; } return r;}
-  function reco0(){const n=+g.value; if(typeof prise!=='undefined'&&!prise) return 'apero'; if(kind==='mariage') return n<=40?'soiree':n<=80?'club':'pcult'; if(n>160) return 'pcult'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
+  function reco0(){const n=+g.value; if(typeof prise!=='undefined'&&!prise) return 'apero'; if(kind==='mariage') return n<=40?'soiree':n<=80?'club':'pcult'; if(n>160) return 'pcult'; if(n>80) return 'club'; if(n<=30) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
   function show(key,isReco){
     if(key==='creer'){   // « Crée ton trépied » = « Mon panier » avec le trépied, première accroche prête
       if(!panier.trep&&STOCK.trep>0) panier.trep=1;
