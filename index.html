@@ -745,8 +745,10 @@
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
     <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · livraison dès 5 € ou retrait gratuit · réservation en 2 minutes.</p>
     <ul class="go-plus">
-      <li><span aria-hidden="true">👥</span><span><b>Pas besoin de s'y connaître :</b> dis-nous combien vous serez, on te conseille le bon matériel.</span></li>
-      <li><span aria-hidden="true">📍</span><span><b>Livré à Salon, Istres, Miramas, Pélissanne, Lambesc, Saint-Martin-de-Crau…</b> (jusqu'à 25 km de Salon) · <a href="livraison.html">Voir les villes →</a></span></li>
+      <li><span aria-hidden="true">👥</span><span><b>Pas besoin de s'y connaître :</b> dis-nous combien vous serez, on te conseille le bon matériel. Tout se connecte en Bluetooth et on t'explique tout à la livraison.</span></li>
+      <li><span aria-hidden="true">📍</span><span><b>Livré à Salon, Istres, Miramas, Pélissanne, Lambesc, Lançon, Berre, Rognac, Grans, Eyguières, Saint-Chamas, Saint-Martin-de-Crau…</b> (jusqu'à 25 km de Salon) · <a href="livraison.html">Voir les villes →</a></span></li>
+      <li><span aria-hidden="true">💰</span><span><b>Livraison de 5 € (Salon) à 35 € maximum</b> selon ta ville, ou retrait gratuit. Caution par chèque ou espèces, rendue au retour du matériel.</span></li>
+      <li><span aria-hidden="true">🔋</span><span><b>Pas de prise sur place ?</b> La PartyBox 320 du Pack Apéro tient jusqu'à 18 h sur batterie.</span></li>
       <li><span aria-hidden="true">📞</span><span>Une question ? <a href="tel:+33622123963">06 22 12 39 63</a> · <a href="https://wa.me/33622123963?text=Bonjour%20Mistraloc%2C%20j%27ai%20une%20question." target="_blank" rel="noopener">WhatsApp</a></span></li>
     </ul>
     <p class="go-cadeau"><a href="offrir.html">🎁 Offrir une soirée en cadeau →</a></p>
@@ -2392,6 +2394,9 @@
       // une image par appareil du pack (2 × 710 = 2 images), dans l'ordre son → fumée → lumière → micros
       const ph = it.querySelector('.ph'), c = COMPO_K[it.dataset.pack] || {};
       ['p310', 'p710', 'pult', 'fumee', 'trep', 'micro'].forEach(a => { for (let i = 0; i < (c[a] || 0); i++) { const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.src = imgSrc(IMG1[a]); ph.appendChild(img); } });
+      // nombre d'invités conseillé = somme des enceintes du pack (même CAP que les enceintes seules)
+      const cap = ['p310', 'p710', 'pult'].reduce((s, a) => s + (c[a] || 0) * (CAP[a] || 0), 0);
+      if (cap > 0) it.querySelector('h3').insertAdjacentHTML('afterend', '<span class="item-inv">👥 Conseillé jusqu\'à ~' + cap + ' invités</span>');
       // micros : option proposée sur les packs avec PartyBox qui ne les incluent pas (case à cocher pendant la réservation)
       const opt = !c.micro && (c.p310 || c.p710 || c.pult) ? '<p class="pack-opt">🎤 En option : <b>2 micros sans fil</b>, +<span data-prix-micro>' + PACKS.micro.sem + '</span> en semaine</p>' : '';
       it.querySelector('.in').insertAdjacentHTML('beforeend', opt + '<div class="item-actions"><a class="btn" href="#trouver" data-esp-go>Choisir ce pack →</a></div>');
