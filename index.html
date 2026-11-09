@@ -673,13 +673,35 @@
   /* packs classés par enceinte (320 → 710 → Ultimate) : un titre par groupe, sur toute la largeur */
   #materiel .pack-groupe{grid-column:1/-1;margin:14px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:18px}
   #materiel .pack-groupe:first-child{margin-top:0}
+  #materiel .pack-rang{display:contents}   /* ordinateur : les cartes restent dans la grille normale */
+  #materiel .pack-groupe small.glisse{display:none;margin-left:auto;color:var(--cyan)}
   #materiel .pack-groupe small{font-size:13px;font-weight:600;color:var(--muted)}
   .item.pack .pack-opt b{color:var(--text)}
   /* téléphone : images du pack en bande au-dessus du texte (tout le contenu se voit, ex. les 2 × 710 du Pack Club) */
   @media (max-width:700px){
     #materiel .item.pack{grid-template-columns:1fr}
-    #materiel .item.pack .ph{min-height:0;height:118px;padding:10px 12px}
-    #materiel .item.pack .in{padding:12px 14px 14px}
+    #materiel .item.pack .ph{min-height:0;height:82px;padding:6px 12px}
+    #materiel .item.pack .in{padding:10px 12px 12px}
+    /* compact (10/11, demande de Mistraloc) : contenu sur une ligne « A + B + C », prix sur une ligne, bouton plus fin */
+    #materiel .item.pack ul{list-style:none;padding:0;margin:2px 0 6px;font-size:13px;line-height:1.4;display:flex;flex-wrap:wrap}
+    #materiel .item.pack li{margin-right:5px}
+    #materiel .item.pack li+li::before{content:"+\00a0"}
+    #materiel .item.pack .in b{font-size:14px}
+    #materiel .item.pack .in b br{display:none}
+    #materiel .item.pack .in b small::before{content:" · "}
+    #materiel .item.pack .pack-opt{font-size:12px;margin:4px 0 8px}
+    #materiel .item.pack .item-actions{padding-top:0}
+    #materiel .item.pack .item-actions .btn{padding:9px 14px;font-size:14px}
+    #materiel .pack-groupe{font-size:16px;margin-top:10px}
+    /* chaque groupe = une rangée qu'on fait glisser (la carte suivante dépasse pour montrer qu'il y en a d'autres) */
+    #materiel .pack-rang{display:flex;gap:10px;min-width:0;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:2px 20px 6px;scroll-padding:0 20px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    #materiel .pack-rang::-webkit-scrollbar{display:none}
+    #materiel .pack-rang .item.pack{flex:0 0 82%;scroll-snap-align:start}
+    #materiel .pack-rang .item.pack:only-child{flex-basis:100%}
+    #materiel .pack-groupe{flex-wrap:nowrap;white-space:nowrap;min-width:0;overflow:hidden}
+    #materiel .pack-groupe small{min-width:0;overflow:hidden;text-overflow:ellipsis}
+    #materiel .pack-groupe small.glisse{display:inline;flex:none}
+    #materiel .pack-groupe small.glisse[hidden]{display:none}
   }
   .reprise-accueil{padding-top:18px}
   .cta-centre{text-align:center;margin-top:30px}
@@ -938,19 +960,25 @@
   <div class="mat-onglets" id="mat-onglets" role="tablist" aria-label="Catégories de matériel"></div>
   <!-- packs (10/11, test « visiteurs ») : les prix suivent l'admin, comme le reste du catalogue -->
   <div class="cat cat-packs">
-    <h3 class="pack-groupe"><span>🔊 Avec la PartyBox 320</span> <small>240 W · petites fêtes</small></h3>
+    <h3 class="pack-groupe"><span>🔊 Avec la PartyBox 320</span> <small>240 W · petites fêtes</small><small class="glisse" aria-hidden="true">glisse →</small></h3>
+    <div class="pack-rang">
     <article class="item pack" data-article="Pack Apéro" data-pack="apero"><div class="ph"></div><div class="in"><h3>Pack Apéro</h3><ul><li>1 JBL PartyBox 320 (240 W, sur batterie)</li></ul><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Ambiance" data-pack="pamb"><div class="ph"></div><div class="in"><h3>Pack Ambiance</h3><ul><li>1 JBL PartyBox 320 (240 W)</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">89,90 €</span> / soirée en semaine<br><small><span class="prix">114,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
-    <h3 class="pack-groupe"><span>🔊 Avec la PartyBox 710</span> <small>800 W · vraies soirées</small></h3>
+    </div>
+    <h3 class="pack-groupe"><span>🔊 Avec la PartyBox 710</span> <small>800 W · vraies soirées</small><small class="glisse" aria-hidden="true">glisse →</small></h3>
+    <div class="pack-rang">
     <article class="item pack" data-article="Pack Soirée" data-pack="soiree"><div class="ph"></div><div class="in"><h3>Pack Soirée</h3><ul><li>1 JBL PartyBox 710 (800 W)</li><li>1 machine à fumée 2000 W RGB</li></ul><b>dès <span class="prixsem">69,90 €</span> / soirée en semaine<br><small><span class="prix">94,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Soirée Show" data-pack="psshow"><div class="ph"></div><div class="in"><h3>Pack Soirée Show</h3><ul><li>1 JBL PartyBox 710 (800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">124,90 €</span> / soirée en semaine<br><small><span class="prix">164,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Club" data-pack="club"><div class="ph"></div><div class="in"><h3>Pack Club</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li><li>1 machine à fumée 2000 W RGB</li></ul><b>dès <span class="prixsem">119,90 €</span> / soirée en semaine<br><small><span class="prix">159,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Club Laser" data-pack="pclas"><div class="ph"></div><div class="in"><h3>Pack Club Laser</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">174,90 €</span> / soirée en semaine<br><small><span class="prix">229,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
-    <h3 class="pack-groupe"><span>🔊 Avec la PartyBox Ultimate</span> <small>1100 W · grandes fêtes et mariages</small></h3>
+    </div>
+    <h3 class="pack-groupe"><span>🔊 Avec la PartyBox Ultimate</span> <small>1100 W · grandes fêtes et mariages</small><small class="glisse" aria-hidden="true">glisse →</small></h3>
+    <div class="pack-rang">
     <article class="item pack" data-article="Pack Ultimate Show" data-pack="pults"><div class="ph"></div><div class="in"><h3>Pack Ultimate Show</h3><ul><li>1 JBL PartyBox Ultimate (1100 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li><li>2 micros sans fil JBL</li></ul><b>dès <span class="prixsem">149,90 €</span> / soirée en semaine<br><small><span class="prix">199,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Club Ultimate" data-pack="pcult"><div class="ph"></div><div class="in"><h3>Pack Club Ultimate</h3><ul><li>2 JBL PartyBox Ultimate (2 × 1100 W)</li><li>1 machine à fumée 2000 W RGB</li></ul><b>dès <span class="prixsem">154,90 €</span> / soirée en semaine<br><small><span class="prix">209,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Mariage" data-pack="pmar"><div class="ph"></div><div class="in"><h3>Pack Mariage</h3><ul><li>2 JBL PartyBox Ultimate (2 × 1100 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li><li>2 micros sans fil JBL</li></ul><b>dès <span class="prixsem">219,90 €</span> / soirée en semaine<br><small><span class="prix">294,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Prestige" data-pack="ppres"><div class="ph"></div><div class="in"><h3>Pack Prestige</h3><ul><li>2 JBL PartyBox Ultimate (2 × 1100 W)</li><li>1 machine à fumée 2000 W RGB</li><li>2 trépieds lumière 6 têtes (12 têtes mobiles)</li><li>2 micros sans fil JBL</li></ul><b>dès <span class="prixsem">254,90 €</span> / soirée en semaine<br><small><span class="prix">339,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    </div>
   </div>
   <div class="cat">
     <article class="item" data-article="JBL PartyBox 310"><div class="ph">Photo JBL PartyBox 320<img src="images/partybox-stage-320.webp" alt="JBL PartyBox 320" loading="lazy" onerror="this.remove()"></div><div class="in"><h3>JBL PartyBox 320</h3><p>240 W, lumières intégrées, batterie jusqu'à 18 h et roulettes : parfaite pour un apéro, un anniversaire ou une fête en extérieur sans prise. Si les PartyBox 320 sont déjà prises ce soir-là, tu as une PartyBox 310 : même son, même prix.</p><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
@@ -2592,7 +2620,11 @@
       items.forEach(it => it.classList.toggle('hors-cat', it.dataset.cat !== actif));
       const sous = zone.querySelector('.cat-sous'); if (sous) sous.classList.toggle('hors-cat', actif !== 'lum');
       // titres des groupes de packs : seulement dans l'onglet Packs, et cachés si tous les packs du groupe sont masqués dans l'admin
-      zone.querySelectorAll('.pack-groupe').forEach(h => { let n = 0; for (let x = h.nextElementSibling; x && !x.classList.contains('pack-groupe'); x = x.nextElementSibling) if (!x.hidden) n++; h.classList.toggle('hors-cat', actif !== 'packs' || !n); });
+      zone.querySelectorAll('.pack-groupe').forEach(h => {
+        const rang = h.nextElementSibling, n = rang ? rang.querySelectorAll('.item:not([hidden])').length : 0;
+        h.classList.toggle('hors-cat', actif !== 'packs' || !n);
+        const g = h.querySelector('.glisse'); if (g) g.hidden = n < 2;   // « glisse → » seulement s'il y a plusieurs packs
+      });
       if (anim && doux) items.filter(it => !it.hidden && it.dataset.cat === actif).forEach((it, i) => it.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: i * 50, easing: 'ease-out', fill: 'backwards' }));
     }
     bar.addEventListener('click', e => { const b = e.target.closest('[data-mat]'); if (!b || b.dataset.mat === actif) return; actif = b.dataset.mat; maj(true); });
