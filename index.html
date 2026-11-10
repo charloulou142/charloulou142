@@ -1937,7 +1937,7 @@
   function resume(){
     const p = periode(), l = livraison(), h = $('bk-heure').value;
     const blocs = [
-      ['Matériel', esc($('bk-recap-nom').textContent) + ($('bk-note320') && !$('bk-note320').hidden ? '<br><small>' + esc($('bk-note320').textContent) + '</small>' : ''), 1],
+      ['Matériel', esc($('bk-recap-nom').textContent) + ($('bk-note320') && !$('bk-note320').hidden ? '<br><small>' + esc($('bk-note320').textContent) + '</small>' : ''), 'pack'],
       ['Dates', p ? esc((l.retrait ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + (l.retrait ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
       l.retrait ? ['Retrait', 'Gratuit, à Salon-de-Provence (adresse envoyée à la confirmation)', 2]
                 : ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
@@ -1947,7 +1947,12 @@
     $('bk-resume').innerHTML = blocs.map((b, i) => '<div class="bloc" style="--i:' + i + '"><div><span>' + b[0] + '</span><p>' + b[1] + '</p></div><button type="button" data-aller="' + b[2] + '">Modifier</button></div>').join('') +
       '<div class="devis">' + $('bk-devis').innerHTML + '</div>';
   }
-  $('bk-resume').addEventListener('click', e => { const b = e.target.closest('[data-aller]'); if (b) allerA(+b.dataset.aller, true); });
+  // « Modifier » du matériel : retour au choix du pack (étape 4 de l'espace), la date choisie est gardée
+  $('bk-resume').addEventListener('click', e => {
+    const b = e.target.closest('[data-aller]'); if (!b) return;
+    if (b.dataset.aller === 'pack') { allerA(1); if (window.espPack) window.espPack(); return; }
+    allerA(+b.dataset.aller, true);
+  });
   $('wiz-suiv').addEventListener('click', wizSuivant);
   $('wiz-prec').addEventListener('click', () => allerA(pas - 1));
   // fil d'étapes : on peut revenir sur une étape déjà faite
@@ -2490,6 +2495,7 @@
     function allerResa(sil){ phase = 'resa'; fq = 4; majTete(); window.scrollTo(0, 0); if (!sil) entree($e('wiz'), 1); }
     const aller = (c, sil) => c === 'resa' ? allerResa(sil) : allerFq(c, sil);
     window.espResa = () => { if (ouvert) allerResa(); };
+    window.espPack = () => { if (ouvert) allerFq(4); };
     const reprendre = () => {
       if (!vu) return 1;
       if (pasResa() === 5) { $e('bk-encore').click(); return 1; }   // demande déjà envoyée : on repart du début
