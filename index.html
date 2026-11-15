@@ -177,6 +177,8 @@
   .legend i.lg-conf{border:2px dashed #A78BFA;background:color-mix(in srgb,#A78BFA 16%,var(--bg))}
   .legend i.lg-complet{border:1px solid rgba(248,113,113,.45);background:repeating-linear-gradient(135deg,rgba(248,113,113,.25) 0 3px,transparent 3px 6px),var(--bg)}
   .chosen{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,122,26,.10);border:1px solid rgba(255,122,26,.35);font-weight:700}
+  .caution-info{margin-top:10px;padding:9px 12px;border-radius:10px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.35);font-size:14px;line-height:1.4}
+  .chosen.ok{background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.45)}   /* 16/11 : date choisie = cyan, l'orange faisait penser à une erreur */
   .consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);margin:6px 0 16px}
   .consent input{margin-top:4px;width:18px;height:18px;accent-color:var(--pink)}
   .msg{margin-top:14px;padding:14px;border-radius:12px;font-weight:600}
@@ -1347,7 +1349,7 @@
     rail.innerHTML=CARTES.filter(c=>!CACHES.has(c[0])&&(c[0]==='perso'||grpDe(c[0])===ONGLET)).map(([k,t,n])=>'<button type="button" class="cp" data-pack="'+k+'" aria-pressed="'+(k===carteActive())+'"><span class="cp-reco">Conseillé</span><span class="cp-img" aria-hidden="true">'+
       (k==='perso'?'<span class="cp-plus">+</span>':(IMAGES[k]||[]).length?(IMAGES[k]||[]).map(f=>'<img src="'+imgSrc(f)+'" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join(''):'<span class="cp-plus">🎛️</span>')+
       '</span><span class="cp-t">'+t+'</span><b>'+n+'</b><span class="cp-p"></span></button>').join('');
-    try{ const r=recommend(); rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',c.dataset.pack===r)); }catch(e){}   // au 1er affichage, le curseur n'existe pas encore
+    try{ rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',estReco(c.dataset.pack))); }catch(e){}   // au 1er affichage, le curseur n'existe pas encore
     majCartes(); if(typeof majFleches==='function') majFleches();
   }
   renderRail();
@@ -1469,6 +1471,8 @@
   addEventListener('resize',pills);
   const g=document.getElementById('g'), gOut=document.getElementById('gOut');
   // pack masqué depuis l'admin : on conseille le plus grand pack encore affiché
+  const RECO_SL = { apero: 'pamb', soiree: 'psshow', club: 'pclas', pcult: 'pmar' };   // 16/11 : même son, avec le trépied lumière
+  function estReco(k){ const r = recommend(); return k === r || (typeof prise === 'undefined' || prise) && k === RECO_SL[r]; }
   function recommend(){let r=reco0(); const ordre=['pcult','club','soiree','apero']; if(typeof CACHES!=='undefined'&&CACHES.has(r)){ const i=ordre.indexOf(r); r=ordre.slice(i).concat(ordre.slice(0,i).reverse()).find(x=>!CACHES.has(x))||r; } return r;}
   function reco0(){const n=+g.value; if(typeof prise!=='undefined'&&!prise) return 'apero'; if(kind==='mariage') return n<=40?'soiree':n<=80?'club':'pcult'; if(n>160) return 'pcult'; if(n>80) return 'club'; if(n<=20) return 'apero'; return 'soiree';}   // mariage : jamais l'Apéro, Club au-delà de 40 invités
   function show(key,isReco){
@@ -1485,7 +1489,7 @@
   function show0(key,isReco){
     const p=PACKS[key];
     const gk=grpDe(key); if(gk&&gk!==ONGLET){ ONGLET=gk; renderRail(); }   // la formule choisie est toujours visible
-    rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',c.dataset.pack===recommend()));
+    rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',estReco(c.dataset.pack)));
     if(key===current&&key==='perso') return;
     document.getElementById('rTag').textContent=isReco?'Recommandé pour toi':'Autre formule';
     if(key===current) return; // même pack (ex. curseur déplacé sans changer de palier) : on ne relance pas l'animation
@@ -1717,6 +1721,15 @@
   const remiseRang = i => i === 0 ? 0 : (i === 1 ? DEGR.r2 : i <= 3 ? DEGR.r3 : DEGR.r5) / 100;
   function cleOffre(){ const o = offreSel.value; if (o.indexOf('Panier perso') === 0) return 'perso'; const b = o.endsWith(MICRO_SUF) ? o.slice(0, -MICRO_SUF.length) : o; return Object.keys(PACKS).find(c => PACKS[c].name === b); }
   const micOffre = () => offreSel.value.endsWith(MICRO_SUF);
+  // 16/11 : caution à prévoir (mêmes montants que la FAQ : environ la moitié de la valeur du matériel)
+  const CAUTION = { p310: 200, p710: 200, pult: 350, fumee: 50, micro: 50, trep: 100 };
+  function cautionOffre(){
+    const k = cleOffre(); if (!k) return 0;
+    const c = k === 'perso' ? panier : (COMPO_K[k] || {});
+    let s = Object.keys(c).reduce((x, a) => x + (CAUTION[a] || 0) * (c[a] || 0), 0);
+    if (micOffre() && !c.micro) s += CAUTION.micro;
+    return s;
+  }
   function prixSoirees(p){
     const k = cleOffre(); if (!k || !p) return null;
     const l = [];
@@ -1751,8 +1764,9 @@
   }
   function maj(){
     const h = $('bk-heure') && $('bk-heure').value, p = periode(), ret = enRetrait();
+    $('bk-date-txt').classList.toggle('ok', !!p);
     $('bk-date-txt').textContent = p
-      ? (ret ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
+      ? '✅ ' + (ret ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + (h ? ' à ' + h.replace(':', 'h') : ' entre 17h00 et 19h30') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') +
         (ret ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00'
       : 'Clique sur une date du calendrier.';
     // étape 2 : champs et textes selon livraison / retrait
@@ -1788,6 +1802,7 @@
     t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
                   : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
                   : l.etat === 'choix' ? 'Le ' + l.cp + ' correspond à : ' + l.liste.join(', ') + '. Choisis ta commune dans la liste.'
+                  : l.etat === 'devis' && document.activeElement === $('bk-lieu') ? 'Continue d\'écrire ou choisis ta ville dans la liste.'
                   : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
                   : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu\'à 25 km de Salon.';
     t.style.color = l.etat === 'loin' || l.etat === 'choix' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' || l.etat === 'choix' ? '700' : '';
@@ -1803,7 +1818,8 @@
                    : ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville')) +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, puis ' + texteDegressif() + '. ' : '') +
-        'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Hors caution. Prix confirmé avec toi par téléphone ou WhatsApp.</small>';
+        'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Prix confirmé avec toi par téléphone ou WhatsApp.</small>' +
+        (cautionOffre() ? '<div class="caution-info">🔒 <b>Caution à prévoir : ' + enEuros(cautionOffre()) + '</b> par chèque ou en espèces, rendue au retour du matériel.</div>' : '');
       // le total « saute » quand il change
       const tb = box.querySelector('.tot b');
       if (tb && box.dataset.total && box.dataset.total !== tb.textContent) { tb.classList.remove('bump'); void tb.offsetWidth; tb.classList.add('bump'); }
@@ -2049,6 +2065,7 @@
     await cliquer(k);
   });
   $('bk-lieu').addEventListener('input', maj);
+  $('bk-lieu').addEventListener('blur', maj);   // 16/11 : le message « pas dans notre liste » n'apparaît qu'en quittant le champ
   document.querySelectorAll('input[name="bk-mode"]').forEach(r => r.addEventListener('change', () => { document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir')); maj(); }));
   $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
   // arrivée depuis une page de ville (?ville=Istres#reserver) : commune de livraison déjà remplie
