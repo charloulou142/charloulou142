@@ -472,6 +472,7 @@
   .cp b{font-size:15px;line-height:1.2;white-space:nowrap}
   .cp-p{font-size:13px;color:var(--muted);white-space:nowrap;margin-top:2px}
   .cp-p strong{color:var(--text);font-size:14px}
+  .cp-c{font-size:11.5px;line-height:1.3;color:var(--text);opacity:.85;margin-top:3px;white-space:normal}   /* 16/11 : ce qu'il y a dans la formule (test visiteurs : 25/30 ne le savaient pas) */
   .cp-reco{position:absolute;top:-9px;right:8px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:var(--cyan);color:#06222A;display:none}
   .cp.reco .cp-reco{display:block}
   .cp-fl{display:none;position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:20px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 4px 12px rgba(0,0,0,.3)}
@@ -531,10 +532,10 @@
   .cp-fl{display:none!important}
   /* ordi : texte à gauche, image à droite (plus grande) */
   @media (min-width:720px){
-    .cp{display:grid;grid-template-columns:minmax(0,1fr) 46%;grid-template-rows:auto auto 1fr;column-gap:8px;align-items:start;padding:12px 12px 12px 14px;min-height:96px}
-    .cp-t,.cp b,.cp-p{grid-column:1}
-    .cp-t{grid-row:1;margin-top:4px}.cp b{grid-row:2}.cp-p{grid-row:3;align-self:end}
-    .cp-img{grid-column:2;grid-row:1/4;height:78px;margin:0;align-self:center;justify-content:center;align-items:center}
+    .cp{display:grid;grid-template-columns:minmax(0,1fr) 46%;grid-template-rows:auto auto auto 1fr;column-gap:8px;align-items:start;padding:12px 12px 12px 14px;min-height:96px}
+    .cp-t,.cp b,.cp-p,.cp-c{grid-column:1}
+    .cp-t{grid-row:1;margin-top:4px}.cp b{grid-row:2}.cp-c{grid-row:3}.cp-p{grid-row:4;align-self:end}
+    .cp-img{grid-column:2;grid-row:1/5;height:78px;margin:0;align-self:center;justify-content:center;align-items:center}
     .cp-img img{max-width:60%}
     .cp-plus{width:48px;height:48px}
   }
@@ -1329,7 +1330,7 @@
   // ---- rangée de formules « Choisis ta formule » : cartes qui défilent au doigt (28/10) ----
   const rail=document.getElementById('cpRail'), flG=document.getElementById('cpG'), flD=document.getElementById('cpD');
   const reduitM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['pcult','Pack','Club Ultimate'],['pamb','Pack show','Ambiance'],['psshow','Pack show','Soirée Show'],['pclas','Pack show','Club Laser'],['pults','Pack show','Ultimate Show'],['pmar','Pack show','Mariage'],['ppres','Pack show','Prestige'],['p310','À l\'unité','PartyBox 320'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Lumière','Trépied lumière'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','pcult','pamb','psshow','pclas','pults','pmar','ppres','creer','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
+  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['pcult','Pack','Club Ultimate'],['pamb','Pack','Ambiance'],['psshow','Pack','Soirée Show'],['pclas','Pack','Club Laser'],['pults','Pack','Ultimate Show'],['pmar','Pack','Mariage'],['ppres','Pack','Prestige'],['p310','À l\'unité','PartyBox 320'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Lumière','Trépied lumière'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','pcult','pamb','psshow','pclas','pults','pmar','ppres','creer','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
   // cartes masquées depuis l'admin (Matériel › « Afficher sur le site » décoché) ; photos « en soirée » par formule
   const CACHES=new Set(), SITU={};
   // 01/11 : les formules sont rangées en 3 onglets (Son · Son + lumière · Lumière) ; « Sur mesure » est dans chaque onglet
@@ -1343,16 +1344,33 @@
     ongBar.innerHTML=vis.map(([g,n])=>'<button type="button" role="tab" data-ong="'+g[0]+'" aria-selected="'+(g[0]===ONGLET)+'">'+g[1]+' <small>'+n+'</small></button>').join('');
     ongBar.hidden=vis.length<2;
   }
-  ongBar.addEventListener('click',e=>{const b=e.target.closest('button[data-ong]'); if(!b||b.dataset.ong===ONGLET) return; ONGLET=b.dataset.ong; renderRail();});
+  ongBar.addEventListener('click',e=>{const b=e.target.closest('button[data-ong]'); if(!b||b.dataset.ong===ONGLET) return; ONGLET=b.dataset.ong; renderRail();
+    if(!rail.querySelector('.cp[aria-pressed="true"]')){ const c=rail.querySelector('.cp.reco:not([data-pack="perso"])')||rail.querySelector('.cp:not([data-pack="perso"])'); if(c) c.click(); }   // 16/11 : le détail suit l'onglet
+  });
   function renderRail(){
     renderOnglets();
     rail.innerHTML=CARTES.filter(c=>!CACHES.has(c[0])&&(c[0]==='perso'||grpDe(c[0])===ONGLET)).map(([k,t,n])=>'<button type="button" class="cp" data-pack="'+k+'" aria-pressed="'+(k===carteActive())+'"><span class="cp-reco">Conseillé</span><span class="cp-img" aria-hidden="true">'+
       (k==='perso'?'<span class="cp-plus">+</span>':(IMAGES[k]||[]).length?(IMAGES[k]||[]).map(f=>'<img src="'+imgSrc(f)+'" alt=""'+(f==='machine-fumee'?' class="fm"':'')+'>').join(''):'<span class="cp-plus">🎛️</span>')+
-      '</span><span class="cp-t">'+t+'</span><b>'+n+'</b><span class="cp-p"></span></button>').join('');
+      '</span><span class="cp-t">'+t+'</span><b>'+n+'</b><span class="cp-c">'+contenuCarte(k)+'</span><span class="cp-p"></span></button>').join('');
     try{ rail.querySelectorAll('.cp').forEach(c=>c.classList.toggle('reco',estReco(c.dataset.pack))); }catch(e){}   // au 1er affichage, le curseur n'existe pas encore
     majCartes(); if(typeof majFleches==='function') majFleches();
   }
   renderRail();
+  // 16/11 : contenu de chaque formule en mots simples + invités conseillés (mêmes repères que CAP plus bas)
+  function contenuCarte(k){
+    const CAP_C={p310:20,p710:80,pult:120};   // dans la fonction : la rangée est dessinée avant cette ligne
+    if(k==='perso') return 'Tu choisis chaque appareil';
+    if(k==='creer') return 'Lumières seules, sans son';
+    const c=k==='apero'?{p310:1}:PACK_COMPO[k]; if(!c) return '';
+    const l=[], n=(q,un,pl)=>q+' '+(q>1?pl:un);
+    if(c.p310) l.push(n(c.p310,'petite enceinte sur batterie','petites enceintes sur batterie'));
+    if(c.p710) l.push(n(c.p710,'grosse enceinte','grosses enceintes'));
+    if(c.pult) l.push(n(c.pult,'très grosse enceinte','très grosses enceintes'));
+    if(c.trep) l.push(c.trep>1?c.trep+' trépieds lumière':'lumières');
+    if(c.fumee) l.push('fumée'); if(c.micro) l.push('micros');
+    const inv=Object.keys(CAP_C).reduce((t,a)=>t+CAP_C[a]*(c[a]||0),0);
+    return l.join(' + ')+(inv?' · ~'+inv+' invités':'');
+  }
   function majCartes(){
     rail.querySelectorAll('.cp').forEach(c=>{
       const k=c.dataset.pack, we=prixNum(k), se=semNum(k), bas=se>0&&se<we?se:we;
