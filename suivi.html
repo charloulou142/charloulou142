@@ -71,6 +71,13 @@
   .annul button:disabled{opacity:.5;cursor:default}
   .annul p{color:var(--muted);font-size:13px;margin-top:8px}
   .erreur{color:#F87171;font-weight:600}
+  /* caution par carte (Stripe) — 16/11/2026 */
+  .caution{margin-top:22px;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--bg);scroll-margin-top:90px}
+  .caution.ok{border-color:#34D399}
+  .caution h3{margin:0 0 6px;font-size:18px}
+  .caution p{margin:6px 0}
+  .caution button{margin-top:8px;border:0;border-radius:999px;padding:13px 20px;font:inherit;font-weight:700;background:var(--pink);color:#1A0B00;cursor:pointer;width:100%;max-width:360px}
+  .caution button:disabled{opacity:.6;cursor:default}
   /* documents : pièce d'identité + contrat signé (27/10/2026) */
   .docs{margin-top:24px;padding-top:20px;border-top:1px solid var(--line);scroll-margin-top:90px}
   .docs h2{font-size:22px;margin:0 0 2px}
@@ -226,9 +233,11 @@
           (j.total ? '<dt>Total</dt><dd>' + esc(j.total) + ' <small style="font-weight:400;color:var(--muted)">hors caution</small></dd>' : '') + '</dl>' +
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
           (j.parrain ? htmlParrain(j.parrain) : '') +
+          (j.caution ? htmlCaution(j.caution) : '') +
           (j.docs ? htmlDocs(j) : '') +
           (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
         if (j.docs) brancherDocs(j);
+        brancherCaution();
         const bp = document.getElementById('p-copier');
         if (bp) bp.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(j.parrain.code); bp.textContent = 'Code copié ✓'; } catch (e) { window.prompt('Copie ton code :', j.parrain.code); }
@@ -251,6 +260,37 @@
       } catch (e) {
         carte.innerHTML = '<p>Réservation introuvable pour ce lien. Contacte-nous et on vérifie tout de suite.</p>';
       }
+    }
+    /* ----- caution par carte (Stripe, 16/11/2026) : l'argent est seulement bloqué, puis libéré au retour du matériel ----- */
+    const retourCaution = new URLSearchParams(location.search).get('caution');
+    function htmlCaution(c) {
+      const m = esc(String(c.montant).replace('.', ',')).replace(/,(\d)$/, ',$10') + ' €', test = c.test ? ' <small class="petit">(mode test)</small>' : '';
+      if (c.etat === 'bloquee') return '<div class="caution ok" id="caution"><h3>💳 Caution bloquée ✓' + test + '</h3><p><b>' + m + '</b> sont bloqués sur ta carte : <b>rien n\'est débité</b>. On les libère quand tu rends le matériel en bon état.</p></div>';
+      if (c.etat === 'liberee') return '<div class="caution ok" id="caution"><h3>💳 Caution libérée ✓' + test + '</h3><p>Le blocage de ' + m + ' sur ta carte est levé. Selon ta banque, ça peut prendre quelques jours pour apparaître.</p></div>';
+      if (c.etat === 'encaissee') return '<div class="caution" id="caution"><h3>💳 Caution' + test + '</h3><p>' + esc(String(c.encaisse).replace('.', ',')) + ' € ont été encaissés sur ta caution (dégât constaté). Le reste du blocage est levé. Une question ? Appelle-nous au 06 22 12 39 63.</p></div>';
+      const info = retourCaution === 'annulee' ? '<p class="erreur">Le blocage n\'a pas été fait. Tu peux réessayer quand tu veux.</p>' : '';
+      if (c.possible) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3>' + info +
+        '<p>Bloque-la par carte en 1 minute : <b>rien n\'est débité</b>, le montant est seulement bloqué sur ta carte pendant la location, puis libéré quand tu rends le matériel en bon état.</p>' +
+        '<button type="button" id="b-caution">Bloquer ma caution par carte →</button>' +
+        '<p class="petit">Paiement sécurisé par Stripe : on ne voit jamais ton numéro de carte. Tu préfères les espèces ou un chèque ? Pas de souci, ça se règle à la livraison.</p><p class="erreur" id="m-caution" hidden></p></div>';
+      if (c.des) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3><p>Tu pourras la bloquer par carte à partir du <b>' + esc(c.des) + '</b> (un blocage dure 7 jours). Rien n\'est débité. Sinon : espèces ou chèque à la livraison.</p></div>';
+      return '';
+    }
+    function brancherCaution() {
+      const b = document.getElementById('b-caution');
+      if (b) b.addEventListener('click', async () => {
+        b.disabled = true; b.textContent = 'Ouverture du paiement sécurisé…';
+        try {
+          const r = await patienter('Ouverture du paiement sécurisé…', async () => (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'caution_ouvrir', t }) })).json());
+          if (!r.ok || !/^https:\/\/checkout\.stripe\.com\//.test(r.url || '')) throw new Error(r.erreur || 'erreur');
+          location.href = r.url;
+        } catch (err) {
+          b.disabled = false; b.textContent = 'Bloquer ma caution par carte →';
+          const m = document.getElementById('m-caution'); m.hidden = false;
+          m.textContent = err.message && err.message !== 'erreur' ? err.message : 'Le paiement sécurisé ne répond pas. Réessaie dans un instant ou appelle-nous.';
+        }
+      });
+      if (retourCaution && document.getElementById('caution')) document.getElementById('caution').scrollIntoView({ behavior: 'smooth' });
     }
     /* ----- « Avant la livraison » : pièce d'identité + contrat signé, envoyés avec UN seul bouton ----- */
     // Les photos partent en arrière-plan dès qu'elles sont choisies (et vérifiées), pendant que le client lit et signe :
