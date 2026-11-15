@@ -490,6 +490,7 @@
   @media (max-width:400px){ .r-tarif .btn{flex:1 1 100%;text-align:center} }
   .alerte-inv{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(250,204,21,.10);border:1px solid rgba(250,204,21,.5);color:var(--text)}
   .alerte-inv[hidden]{display:none}
+  .note-puissance{margin:2px 10px 12px;font-size:13px;line-height:1.4;color:var(--muted)}
   .alerte-inv button,.plus-fumee button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
   .plus-fumee{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(139,92,246,.10);border:1px dashed rgba(139,92,246,.55);color:var(--text)}
   .plus-fumee[hidden]{display:none}
@@ -823,6 +824,7 @@
           <button type="button" class="cp-fl g" id="cpG" aria-label="Formules précédentes" hidden>‹</button>
           <button type="button" class="cp-fl d" id="cpD" aria-label="Formules suivantes">›</button>
         </div>
+        <p class="note-puissance">💡 Le nombre d'invités est un repère : tout dépend du son que tu veux. Pour une musique d'ambiance, un pack plus petit suffit. Pour faire danser tout le monde, prends le pack au-dessus.</p>
         <p class="alerte-inv" id="rAlerte" role="status" hidden></p>
         <p class="plus-fumee" id="rPlus" hidden></p>
         <div class="r-tarif">
@@ -1437,14 +1439,13 @@
     el.innerHTML=h; el.hidden=!h;
     majPlus(h);
   }
-  // une enceinte seule : on propose la machine à fumée (seulement s'il y a une prise et pas déjà d'alerte)
+  // lumières sans fumée : on propose la machine à fumée (seulement s'il y a une prise et pas déjà d'alerte)
   function majPlus(alerte){
     const el=document.getElementById('rPlus'), k=current, c=compoDe(k);
     let h='';
-    if(prise&&!alerte&&STOCK.fumee>0&&!c.fumee&&(c.p310||c.p710||c.pult)&&!SL_COMPO[k]){
-      const prixF=enEuros(semNum('fumee'));
-      if(k==='p710') h='✨ Avec la machine à fumée, c\'est le <b>Pack Soirée</b> : dès '+enEuros(semNum('soiree'))+' au lieu de '+enEuros(semNum('p710')+semNum('fumee'))+'. <button type="button" data-plus="soiree">Voir le Pack Soirée</button>';
-      else h='✨ Ajoute la <b>machine à fumée</b> (fumée colorée, effet boîte de nuit) : <b>+'+prixF+'</b> en semaine. <button type="button" data-plus="fumee">Ajouter la fumée</button>';
+    // 16/11 (demande de Mistraloc) : la fumée n'est plus proposée avec une enceinte seule, seulement avec les lumières (elle fait ressortir les faisceaux)
+    if(prise&&!alerte&&STOCK.fumee>0&&!c.fumee&&c.trep&&!SL_COMPO[k]){
+      h='✨ Ajoute la <b>machine à fumée</b> : les faisceaux des lumières se voient bien mieux dans la fumée. <b>+'+enEuros(semNum('fumee'))+'</b> en semaine. <button type="button" data-plus="fumee">Ajouter la fumée</button>';
     }
     // micros : proposés avec une enceinte (dans un Pack Soirée / Club, on les ajoute sur demande pour garder le prix du pack)
     if((!alerte||microsPossibles(k))&&STOCK.micro>0&&!c.micro&&(c.p310||c.p710||c.pult)){   // la case micros reste visible même avec une alerte (sinon des micros cochés seraient cachés)
