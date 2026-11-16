@@ -490,6 +490,20 @@
   @media (max-width:400px){ .r-tarif .btn{flex:1 1 100%;text-align:center} }
   .alerte-inv{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(250,204,21,.10);border:1px solid rgba(250,204,21,.5);color:var(--text)}
   .alerte-inv[hidden]{display:none}
+  /* 16/11 : vraies vidéos du matériel (section « En vrai, ça donne ça ») */
+  .effet h2{margin-bottom:6px}
+  .effet-rang{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0 8px}
+  .effet-c{margin:0;border-radius:18px;overflow:hidden;background:var(--bg2);border:1px solid var(--line);display:flex;flex-direction:column}
+  .effet-c video{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:#0B0714}
+  .effet-c figcaption{padding:10px 12px 12px;font-size:14px;line-height:1.4}
+  .effet-c figcaption b{display:block;font-size:15px;margin-bottom:2px}
+  .effet-cta{text-align:center;margin-top:14px}
+  .effet-note{color:var(--muted);font-size:13px;text-align:center;margin:8px 0 0}
+  @media (max-width:760px){
+    .effet-rang{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:14px -16px 6px;padding:0 16px 6px;scrollbar-width:none}
+    .effet-rang::-webkit-scrollbar{display:none}
+    .effet-c{flex:0 0 62%;scroll-snap-align:start}
+  }
   .note-puissance{margin:2px 10px 12px;font-size:13px;line-height:1.4;color:var(--muted)}
   .alerte-inv button,.plus-fumee button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
   .plus-fumee{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(139,92,246,.10);border:1px dashed rgba(139,92,246,.55);color:var(--text)}
@@ -756,6 +770,7 @@
       <li><span aria-hidden="true">👥</span><span><b>Pas besoin de s'y connaître :</b> dis-nous combien vous serez, on te conseille le bon matériel. En livraison, on installe tout chez toi ; en retrait, on t'explique tout sur place.</span></li>
       <li><span aria-hidden="true">📍</span><span><b>Livré à Salon, Istres, Miramas, Pélissanne, Lambesc, Lançon, Berre, Rognac, Grans, Eyguières, Saint-Chamas, Saint-Martin-de-Crau…</b> (jusqu'à 25 km de Salon) · <a href="livraison.html">Voir les villes →</a></span></li>
       <li><span aria-hidden="true">💰</span><span><b>Livraison de 5 € (Salon) à 35 € maximum</b> selon ta ville, ou retrait gratuit. Caution par carte (bloquée, rien n'est débité), chèque ou espèces (200 € pour une PartyBox 320), rendue au retour du matériel.</span></li>
+      <li><span aria-hidden="true">📱</span><span><b>Les lumières se pilotent depuis ton téléphone :</b> ambiances, couleurs, moments spéciaux (entrée des mariés, gâteau…). <a href="#effet">Voir en vidéo</a></span></li>
       <li><span aria-hidden="true">🔋</span><span><b>Pas de prise sur place ?</b> La PartyBox 320 du Pack Apéro tient jusqu'à 18 h sur batterie.</span></li>
       <li><span aria-hidden="true">📞</span><span>Une question ? <a href="tel:+33622123963">06 22 12 39 63</a> · <a href="https://wa.me/33622123963?text=Bonjour%20Mistraloc%2C%20j%27ai%20une%20question." target="_blank" rel="noopener">WhatsApp</a></span></li>
     </ul>
@@ -965,6 +980,14 @@
   </div>
 </div>
 
+<section id="effet" class="effet"><div class="wrap">
+  <h2>En vrai, ça donne ça 🎬</h2>
+  <p class="lead">Filmé chez nous, avec notre matériel : les trépieds lumière, les lasers, la fumée et les PartyBox.</p>
+  <div class="effet-rang"><figure class="effet-c"><video src="videos/appli.mp4" poster="videos/appli.jpg" muted loop playsinline preload="none" aria-label="📱 Tu pilotes tout depuis ton téléphone"></video><figcaption><b>📱 Tu pilotes tout depuis ton téléphone</b>Ambiances, couleurs, « Entrée des mariés », « Gâteau », « Montée + drop »… en un clic.</figcaption></figure><figure class="effet-c"><video src="videos/couleurs.mp4" poster="videos/couleurs.jpg" muted loop playsinline preload="none" aria-label="🎨 Une couleur, un clic"></video><figcaption><b>🎨 Une couleur, un clic</b>Tu choisis la couleur ou l'effet, toute la salle change.</figcaption></figure><figure class="effet-c"><video src="videos/show.mp4" poster="videos/show.jpg" muted loop playsinline preload="none" aria-label="💨 Fumée + lasers"></video><figcaption><b>💨 Fumée + lasers</b>La machine à fumée fait ressortir les faisceaux et les lasers.</figcaption></figure><figure class="effet-c"><video src="videos/scene.mp4" poster="videos/scene.jpg" muted loop playsinline preload="none" aria-label="✨ 2 enceintes + 2 trépieds"></video><figcaption><b>✨ 2 enceintes + 2 trépieds</b>La configuration des grandes fêtes et des mariages.</figcaption></figure></div>
+  <p class="effet-note">L'appli marche avec nos trépieds lumière : on te montre tout à la livraison.</p>
+  <p class="effet-cta"><a class="btn" href="#trouver" data-esp-go>Je veux le même effet →</a></p>
+</div></section>
+
 <section id="materiel"><div class="wrap">
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
@@ -1068,7 +1091,7 @@
     <details name="faq" class="plus"><summary>Comment je suis ma réservation ?</summary><p>Après ta demande, tu reçois un lien personnel (par e-mail si tu nous l'as laissé, sinon par WhatsApp). Il montre l'état de ta réservation : reçue, confirmée, livrée, terminée.</p></details>
     <details name="faq" class="plus"><summary>Vous louez des micros ?</summary><p>Oui : une paire de micros sans fil JBL (<span data-prix-we="micro">12,90 €</span> le week-end, <span data-prix-sem="micro">9,90 €</span> en semaine). Ils se branchent sur la PartyBox, pour les discours, le karaoké ou un mariage. Coche « Ajouter les 2 micros sans fil » sous ton pack, ou ajoute-les dans « Compose ta soirée ».</p></details>
     <details name="faq" class="plus"><summary>Peut-on offrir une soirée ?</summary><p>Oui, avec un <b>bon cadeau Mistraloc</b> : tu choisis le montant, tu le règles en main propre ou par virement, et tu reçois un joli bon avec un code à offrir. <a href="offrir.html">Comment offrir une soirée</a></p></details>
-    <details name="faq" class="plus"><summary>Comment marchent les lumières ?</summary><p>Notre trépied lumière est tout-en-un : une barre de 6 têtes mobiles sur pied (jusqu'à 2,33 m) avec faisceaux de couleur, stroboscope et lasers. Il suffit de le brancher sur une prise. Prends-le seul (onglet « 💡 Lumière » dans <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a>, 1 ou 2 trépieds), ou dans un pack « Son + lumière » avec une enceinte.</p></details>
+    <details name="faq" class="plus"><summary>Comment marchent les lumières ?</summary><p>Notre trépied lumière est tout-en-un : une barre de 6 têtes mobiles sur pied (jusqu'à 2,33 m) avec faisceaux de couleur, stroboscope et lasers. Il suffit de le brancher sur une prise, et tu le pilotes <b>depuis ton téléphone</b> avec notre appli : ambiances, couleurs, effets qui suivent la musique, moments spéciaux (entrée des mariés, gâteau…). On te montre tout à la livraison. Prends-le seul (onglet « 💡 Lumière » dans <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a>, 1 ou 2 trépieds), ou dans un pack « Son + lumière » avec une enceinte.</p></details>
   </div>
   <button type="button" class="faq-plus" onclick="this.previousElementSibling.classList.add('tout');this.remove()">Voir les 9 autres questions ↓</button>
   <p style="margin-top:26px">Encore une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener" style="color:var(--cyan)">Écris-nous sur WhatsApp</a> · <a href="comment-ca-marche.html" style="color:var(--cyan)">Comment ça marche</a> · <a href="conditions.html" style="color:var(--cyan)">Conditions de location</a></p>
@@ -2699,6 +2722,25 @@
     let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
     fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
   })();
+</script>
+
+<script>
+/* 16/11 : les vidéos ne se chargent et ne tournent que quand elles sont à l'écran (et jamais si « réduire les animations ») */
+(function(){
+  var vids = document.querySelectorAll('#effet video');
+  if (!vids.length) return;
+  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (calme) { vids.forEach(function(v){ v.controls = true; }); return; }
+  if (!('IntersectionObserver' in window)) { vids.forEach(function(v){ v.preload = 'metadata'; v.play().catch(function(){}); }); return; }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      var v = e.target;
+      if (e.isIntersecting && !document.body.classList.contains('esp')) { if (v.preload === 'none') v.preload = 'auto'; var p = v.play(); if (p) p.catch(function(){}); }
+      else v.pause();
+    });
+  }, { threshold: 0.35 });
+  vids.forEach(function(v){ io.observe(v); });
+})();
 </script>
 </body>
 </html>
