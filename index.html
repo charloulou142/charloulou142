@@ -508,6 +508,9 @@
   .alerte-inv button,.plus-fumee button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
   .plus-fumee{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(139,92,246,.10);border:1px dashed rgba(139,92,246,.55);color:var(--text)}
   .plus-fumee[hidden]{display:none}
+  .effet-info{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.45;background:rgba(255,122,26,.10);border:1px solid rgba(255,122,26,.5);color:var(--text)}
+  .effet-info[hidden]{display:none}
+  .effet-info button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--pink);text-decoration:underline;cursor:pointer}
   .opt-micros{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
   .opt-micros input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:var(--pink);cursor:pointer}
   /* configurateur « Crée ton trépied » (01/11) */
@@ -840,6 +843,7 @@
           <button type="button" class="cp-fl d" id="cpD" aria-label="Formules suivantes">›</button>
         </div>
         <p class="note-puissance">💡 Le nombre d'invités est un repère : tout dépend du son que tu veux. Pour une musique d'ambiance, un pack plus petit suffit. Pour faire danser tout le monde, prends le pack au-dessus.</p>
+        <p class="effet-info" id="rEffet" role="status" hidden></p>
         <p class="alerte-inv" id="rAlerte" role="status" hidden></p>
         <p class="plus-fumee" id="rPlus" hidden></p>
         <div class="r-tarif">
@@ -884,7 +888,7 @@
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
           <option>JBL PartyBox 310</option><option>JBL PartyBox 710</option><option>JBL PartyBox Ultimate</option>
           <option>Machine à fumée 2000 W RGB</option>
-          <option>Pack Ambiance</option><option>Pack Soirée Show</option><option>Pack Club Laser</option><option>Pack Ultimate Show</option><option>Pack Mariage</option><option>Pack Prestige</option><option>Pack Club Ultimate</option>
+          <option>Pack Ambiance</option><option>Pack Soirée Show</option><option>Pack Club Laser</option><option>Pack Scène</option><option>Pack Ultimate Show</option><option>Pack Mariage</option><option>Pack Prestige</option><option>Pack Club Ultimate</option>
           <option>Trépied à lumières</option><option>Paire de micros sans fil JBL</option>
         </select></div>
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
@@ -985,7 +989,7 @@
   <p class="lead">Filmé chez nous, avec notre matériel : les trépieds lumière, les lasers, la fumée et les PartyBox.</p>
   <div class="effet-rang"><figure class="effet-c"><video src="videos/effet.mp4" poster="videos/effet.jpg" muted loop playsinline preload="none" aria-label="Un clic sur le téléphone et le show démarre"></video><figcaption><b>📱 Un clic sur ton téléphone… et le show démarre</b>Ambiances, couleurs, « Entrée des mariés », « Gâteau », effets qui suivent la musique… tout se pilote depuis l'appli.</figcaption></figure><figure class="effet-c"><video src="videos/couleurs.mp4" poster="videos/couleurs.jpg" muted loop playsinline preload="none" aria-label="🎨 Une couleur, un clic"></video><figcaption><b>🎨 Une couleur, un clic</b>Tu choisis la couleur ou l'effet, toute la salle change.</figcaption></figure><figure class="effet-c"><video src="videos/show.mp4" poster="videos/show.jpg" muted loop playsinline preload="none" aria-label="💨 Fumée + lasers"></video><figcaption><b>💨 Fumée + lasers</b>La machine à fumée fait ressortir les faisceaux et les lasers.</figcaption></figure><figure class="effet-c"><video src="videos/scene.mp4" poster="videos/scene.jpg" muted loop playsinline preload="none" aria-label="✨ 2 enceintes + 2 trépieds"></video><figcaption><b>✨ 2 enceintes + 2 trépieds</b>La configuration des grandes fêtes et des mariages.</figcaption></figure></div>
   <p class="effet-note">L'appli marche avec nos trépieds lumière : on te montre tout à la livraison.</p>
-  <p class="effet-cta"><a class="btn" href="#trouver" data-esp-go>Je veux le même effet →</a></p>
+  <p class="effet-cta"><a class="btn" href="#trouver" data-esp-go data-effet>Je veux le même effet →</a></p>
 </div></section>
 
 <section id="materiel"><div class="wrap">
@@ -1005,6 +1009,7 @@
     <article class="item pack" data-article="Pack Soirée Show" data-pack="psshow"><div class="ph"></div><div class="in"><h3>Pack Soirée Show</h3><ul><li>1 JBL PartyBox 710 (800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">124,90 €</span> / soirée en semaine<br><small><span class="prix">164,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Club" data-pack="club"><div class="ph"></div><div class="in"><h3>Pack Club</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li></ul><b>dès <span class="prixsem">109,90 €</span> / soirée en semaine<br><small><span class="prix">149,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     <article class="item pack" data-article="Pack Club Laser" data-pack="pclas"><div class="ph"></div><div class="in"><h3>Pack Club Laser</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>1 trépied lumière 6 têtes (lasers, stroboscope)</li></ul><b>dès <span class="prixsem">174,90 €</span> / soirée en semaine<br><small><span class="prix">229,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
+    <article class="item pack" data-article="Pack Scène" data-pack="pscene"><div class="ph"></div><div class="in"><h3>Pack Scène</h3><ul><li>2 JBL PartyBox 710 (2 × 800 W)</li><li>1 machine à fumée 2000 W RGB</li><li>2 trépieds lumière 6 têtes (12 têtes mobiles)</li></ul><b>dès <span class="prixsem">214,90 €</span> / soirée en semaine<br><small><span class="prix">289,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
     </div>
     <h3 class="pack-groupe"><span>🔊 Avec la PartyBox Ultimate</span> <small>1100 W · grandes fêtes et mariages</small><small class="glisse" aria-hidden="true">glisse →</small></h3>
     <div class="pack-rang">
@@ -1137,6 +1142,7 @@
     pamb:{name:'Pack Ambiance',price:'134,90 €',sem:'104,90 €',items:['1 JBL PartyBox 320 (240 W)','1 trépied lumière : 6 têtes mobiles, lasers et stroboscope','1 machine à fumée 2000 W RGB'],why:'La PartyBox 320, le trépied lumière et la fumée : du bon son et un vrai show lumière pour un anniversaire ou une soirée entre amis.'},
     psshow:{name:'Pack Soirée Show',price:'164,90 €',sem:'124,90 €',items:['1 JBL PartyBox 710 (800 W)','1 machine à fumée 2000 W RGB','1 trépied lumière : 6 têtes mobiles, lasers et stroboscope'],why:'Le Pack Soirée avec le trépied lumière : gros son, fumée colorée et faisceaux qui balaient la piste.'},
     pclas:{name:'Pack Club Laser',price:'229,90 €',sem:'174,90 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB','1 trépied lumière : 6 têtes mobiles, lasers et stroboscope'],why:'Deux PartyBox 710, la fumée et le trépied lumière avec ses lasers : l\'ambiance boîte de nuit pour les grandes fêtes.'},
+    pscene:{name:'Pack Scène',price:'289,90 €',sem:'214,90 €',items:['2 JBL PartyBox 710 (2 × 800 W)','1 machine à fumée 2000 W RGB','2 trépieds lumière : 12 têtes mobiles, lasers et stroboscopes'],why:'La scène de notre vidéo : une PartyBox 710 de chaque côté, 2 trépieds lumière et la fumée. Le grand show pour les belles fêtes.'},
     pults:{name:'Pack Ultimate Show',price:'199,90 €',sem:'149,90 €',items:['1 JBL PartyBox Ultimate (1100 W)','1 machine à fumée 2000 W RGB','1 trépied lumière : 6 têtes mobiles, lasers et stroboscope','2 micros sans fil JBL'],why:'Le haut de gamme JBL, la fumée, le trépied lumière et 2 micros sans fil pour les discours ou le karaoké.'},
     pmar:{name:'Pack Mariage',price:'294,90 €',sem:'219,90 €',items:['2 JBL PartyBox Ultimate (2 × 1100 W)','1 machine à fumée 2000 W RGB','1 trépied lumière : 6 têtes mobiles, lasers et stroboscope','2 micros sans fil JBL'],why:'Deux PartyBox Ultimate pour couvrir toute la salle, la fumée, le trépied lumière et 2 micros pour les discours.'},
     ppres:{name:'Pack Prestige',price:'339,90 €',sem:'254,90 €',items:['2 JBL PartyBox Ultimate (2 × 1100 W)','1 machine à fumée 2000 W RGB','2 trépieds lumière : 12 têtes mobiles, lasers et stroboscopes','2 micros sans fil JBL'],why:'Tout notre matériel de show : deux PartyBox Ultimate, la fumée, 2 trépieds lumière (12 têtes mobiles) et 2 micros sans fil.'},
@@ -1195,10 +1201,10 @@
   }
   const microSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g transform="rotate(-20 32 32)"><rect x="27" y="26" width="10" height="34" rx="4" fill="#27272A" stroke="#9CA3AF" stroke-width="1.5"/><circle cx="32" cy="17" r="11" fill="#3F3F46" stroke="#9CA3AF" stroke-width="2"/><path d="M24 14h16M23 19h18M26 9h12" stroke="#71717A" stroke-width="1.4"/><rect x="29" y="40" width="6" height="2.5" rx="1" fill="#FF7A1A"/></g><g transform="translate(14 4) rotate(18 32 32)" opacity=".85"><rect x="27" y="26" width="10" height="34" rx="4" fill="#27272A" stroke="#9CA3AF" stroke-width="1.5"/><circle cx="32" cy="17" r="11" fill="#3F3F46" stroke="#9CA3AF" stroke-width="2"/><path d="M24 14h16M23 19h18M26 9h12" stroke="#71717A" stroke-width="1.4"/><rect x="29" y="40" width="6" height="2.5" rx="1" fill="#22D3EE"/></g></svg>';
   const SLOTS_PACK={ptl:['wzy',null,null,'wzy',null,'laser','laser',null],ptm:['wzy','beto','beto','wzy',null,null,null,null]};
-  ['pamb','psshow','pults','pmar'].forEach(k=>SLOTS_PACK[k]=SLOTS_PACK.ptm); SLOTS_PACK.pclas=SLOTS_PACK.ptl; SLOTS_PACK.ppres=['wzy','beto','beto','wzy','laser',null,null,'laser'];
+  ['pamb','psshow','pults','pmar'].forEach(k=>SLOTS_PACK[k]=SLOTS_PACK.ptm); SLOTS_PACK.pclas=SLOTS_PACK.ptl; SLOTS_PACK.pscene=SLOTS_PACK.ptl; SLOTS_PACK.ppres=['wzy','beto','beto','wzy','laser',null,null,'laser'];
   const IMAGES={apero:['partybox-stage-320'],soiree:['partybox-710'],club:['partybox-710','partybox-710'],p310:['partybox-stage-320'],p710:['partybox-710'],pult:['partybox-ultimate'],fumee:['machine-fumee'],
     ptl:[svgUri(trepSvg(SLOTS_PACK.ptl))],ptm:[svgUri(trepSvg(SLOTS_PACK.ptm))],
-    pamb:['partybox-stage-320','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],psshow:['partybox-710','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pclas:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl))],
+    pamb:['partybox-stage-320','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],psshow:['partybox-710','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pclas:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl))],pscene:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl)),svgUri(trepSvg(SLOTS_PACK.ptl))],
     pults:['partybox-ultimate','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pmar:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg(SLOTS_PACK.ptm))],
     ppres:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg()),svgUri(trepSvg())],pcult:['partybox-ultimate','partybox-ultimate'],micro:[svgUri(microSvg)],creer:[svgUri(trepSvg())]};
   // Panier personnalisé : nombre maximum de chaque appareil (stock)
@@ -1271,7 +1277,7 @@
   const enEuros=v=>{const x=Math.round(v*100)/100; return (Number.isInteger(x)?String(x):x.toFixed(2).replace('.',','))+' €';};
   // sous le prix : tarif semaine + économie d'un pack par rapport aux mêmes appareils à l'unité
   // packs son + lumière : contenu (mêmes clés que « Mon panier »)
-  const SL_COMPO={pamb:{p310:1,fumee:1,trep:1},psshow:{p710:1,fumee:1,trep:1},pclas:{p710:2,fumee:1,trep:1},
+  const SL_COMPO={pamb:{p310:1,fumee:1,trep:1},psshow:{p710:1,fumee:1,trep:1},pclas:{p710:2,fumee:1,trep:1},pscene:{p710:2,fumee:1,trep:2},
     pults:{pult:1,fumee:1,trep:1,micro:1},pmar:{pult:2,fumee:1,trep:1,micro:1},
     ppres:{pult:2,fumee:1,trep:2,micro:1},pcult:{pult:2}};   // 16/11 : packs son sans fumée, Ambiance avec
   const PACK_COMPO=Object.assign({soiree:{p710:1},club:{p710:2}},SL_COMPO);
@@ -1349,17 +1355,17 @@
     if(k==='trep'&&+b.dataset.d>0&&panier.trep===1&&accChoisie==null){ accChoisie=0; bullesDepuis=Date.now(); }
     majPanier(); majAlerte();
   });
-  const ORDRE=['apero','soiree','club','pcult','pamb','psshow','pclas','pults','pmar','ptl','ptm','p310','p710','pult','fumee','micro','creer','perso'];
+  const ORDRE=['apero','soiree','club','pcult','pamb','psshow','pclas','pscene','pults','pmar','ptl','ptm','p310','p710','pult','fumee','micro','creer','perso'];
   const result=document.querySelector('.result');
   document.querySelectorAll('.switch').forEach(sw=>sw.insertAdjacentHTML('afterbegin','<span class="pill" aria-hidden="true"></span>'));
   // ---- rangée de formules « Choisis ta formule » : cartes qui défilent au doigt (28/10) ----
   const rail=document.getElementById('cpRail'), flG=document.getElementById('cpG'), flD=document.getElementById('cpD');
   const reduitM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['pcult','Pack','Club Ultimate'],['pamb','Pack','Ambiance'],['psshow','Pack','Soirée Show'],['pclas','Pack','Club Laser'],['pults','Pack','Ultimate Show'],['pmar','Pack','Mariage'],['ppres','Pack','Prestige'],['p310','À l\'unité','PartyBox 320'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Lumière','Trépied lumière'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','pcult','pamb','psshow','pclas','pults','pmar','ppres','creer','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
+  const CARTES=[['apero','Pack','Apéro'],['soiree','Pack','Soirée'],['club','Pack','Club'],['pcult','Pack','Club Ultimate'],['pamb','Pack','Ambiance'],['psshow','Pack','Soirée Show'],['pclas','Pack','Club Laser'],['pscene','Pack','Scène'],['pults','Pack','Ultimate Show'],['pmar','Pack','Mariage'],['ppres','Pack','Prestige'],['p310','À l\'unité','PartyBox 320'],['p710','À l\'unité','PartyBox 710'],['pult','À l\'unité','Ultimate'],['fumee','À l\'unité','Fumée'],['micro','À l\'unité','2 micros'],['creer','Lumière','Trépied lumière'],['perso','Sur mesure','Compose ta soirée']].filter(c=>['apero','soiree','club','pcult','pamb','psshow','pclas','pscene','pults','pmar','ppres','creer','perso'].indexOf(c[0])>=0);   // 01/11 : packs + une seule option « Sur mesure » (le reste s'ajoute dans le panier)
   // cartes masquées depuis l'admin (Matériel › « Afficher sur le site » décoché) ; photos « en soirée » par formule
   const CACHES=new Set(), SITU={};
   // 01/11 : les formules sont rangées en 3 onglets (Son · Son + lumière · Lumière) ; « Sur mesure » est dans chaque onglet
-  const GROUPES=[['son','🔊 Son',['apero','soiree','club','pcult']],['sl','✨ Son + lumière',['pamb','psshow','pclas','pults','pmar','ppres']],['lum','💡 Lumière',['creer']]];
+  const GROUPES=[['son','🔊 Son',['apero','soiree','club','pcult']],['sl','✨ Son + lumière',['pamb','psshow','pclas','pscene','pults','pmar','ppres']],['lum','💡 Lumière',['creer']]];
   const grpDe=k=>{const g=GROUPES.find(x=>x[2].indexOf(k)>=0); return g?g[0]:k==='perso'?null:'son';};   // appareil ajouté dans l'admin : onglet Son
   let ONGLET='son';
   const ongBar=document.getElementById('cpOnglets');
@@ -1556,6 +1562,44 @@
     window.packChoisi=optionOffre(nomOffre(key));
     if (window.bkSync) window.bkSync();
   }
+
+  // 16/11 (demande de Mistraloc) : « Je veux le même effet » (vidéo) → à l'étape « Ton pack », le pack de la vidéo est choisi selon les invités :
+  // Pack Scène (2 × 710 + 2 trépieds) ou Pack Prestige (2 Ultimate + 2 trépieds) pour les grandes fêtes ; un seul trépied possible (Club Laser / Mariage).
+  window.effetVoulu = false; window.effetManuel = false;
+  const EFFET_1T = { pscene: 'pclas', ppres: 'pmar' }, EFFET_2T = { pclas: 'pscene', pmar: 'ppres' };
+  function effetPack(){ return reco0() === 'pcult' ? 'ppres' : 'pscene'; }
+  window.effetAuto = function(){
+    if (!window.effetVoulu || window.effetManuel) return;
+    const k = effetPack(); if (CACHES.has(k)) return;
+    show(k, true); majEffet();
+  };
+  function majEffet(){
+    const el = document.getElementById('rEffet'), k = current;
+    let h = '';
+    if (window.effetVoulu && !CACHES.has(k)) {
+      const ec = (a, b) => enEuros(Math.max(0, Math.round((semNum(a) - semNum(b)) * 100) / 100));
+      if (EFFET_1T[k] && !CACHES.has(EFFET_1T[k])) {
+        const u = EFFET_1T[k];
+        h = '🎬 <b>C\'est l\'effet de la vidéo</b> : ' + (k === 'ppres' ? 'en version grande fête, avec 2 PartyBox Ultimate, ' : '2 PartyBox 710, ') + '2 trépieds lumière et la fumée.' +
+          '<br>Un seul trépied te suffit ? <button type="button" data-effet-k="' + u + '">Prendre le ' + PACKS[u].name + ' (1 trépied, −' + ec(k, u) + ')</button>';
+      } else if (EFFET_2T[k] && !CACHES.has(EFFET_2T[k])) {
+        const u = EFFET_2T[k];
+        h = '💡 Ici, 1 seul trépied lumière. Pour l\'effet complet de la vidéo (2 trépieds) : <button type="button" data-effet-k="' + u + '">Repasser au ' + PACKS[u].name + ' (+' + ec(u, k) + ')</button>';
+      }
+    }
+    el.innerHTML = h; el.hidden = !h;
+    if (h && EFFET_1T[k]) document.getElementById('rTag').textContent = '🎬 L\'effet de la vidéo';
+  }
+  document.getElementById('rEffet').addEventListener('click', e => {
+    const b = e.target.closest('button[data-effet-k]'); if (!b) return;
+    window.effetManuel = true; show(b.dataset.effetK, false); majEffet();
+  });
+  // un choix fait par le client lui-même (carte, onglet) : on ne choisit plus à sa place, et l'encadré suit
+  rail.addEventListener('click', e => { if (e.target.closest('.cp')) { window.effetManuel = true; majEffet(); } });
+  ongBar.addEventListener('click', () => { window.effetManuel = true; setTimeout(majEffet, 0); });
+  { const s0 = show; show = function(k, r){ s0(k, r); try { majEffet(); } catch (e) {} }; }
+  { const u0 = update; update = function(){ window.effetManuel = false; u0(); }; }
+  { const r0 = estReco; estReco = function(k){ return window.effetVoulu ? k === effetPack() : r0(k); }; }   // « Conseillé » sur le pack de la vidéo   // nouvelles réponses : on repropose le pack de la vidéo
   function update(){g.style.setProperty('--p',((g.value-g.min)/(g.max-g.min)*100)+'%');gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
   document.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed',x===c));kind=c.dataset.k;update();}));
   g.addEventListener('input',update);
@@ -2340,7 +2384,7 @@
   // Réglages gérés depuis l'espace admin (pause, prix, photos). Si le serveur ne répond pas, la page garde ses valeurs par défaut.
   const euros = enEuros;
   const PACK_CLE = { apero: 'Pack Apéro', soiree: 'Pack Soirée', club: 'Pack Club', p310: 'JBL PartyBox 310', p710: 'JBL PartyBox 710', pult: 'JBL PartyBox Ultimate', fumee: 'Machine à fumée 2000 W RGB',
-    pamb: 'Pack Ambiance', psshow: 'Pack Soirée Show', pclas: 'Pack Club Laser', pults: 'Pack Ultimate Show', pmar: 'Pack Mariage', ppres: 'Pack Prestige', pcult: 'Pack Club Ultimate',
+    pamb: 'Pack Ambiance', psshow: 'Pack Soirée Show', pclas: 'Pack Club Laser', pscene: 'Pack Scène', pults: 'Pack Ultimate Show', pmar: 'Pack Mariage', ppres: 'Pack Prestige', pcult: 'Pack Club Ultimate',
     ptl: 'Pack Trépied Laser', ptm: 'Pack Trépied Lumière', trep: 'Trépied à lumières', wzy: 'Lyre WZYBUTA 150 W', beto: 'Lyre Betopper LM0740', laser: 'Laser KeoBin 3D RGB', micro: 'Paire de micros sans fil JBL' };
   fetch(API + '?action=config').then(r => r.json()).then(c => {
     if (!c || !c.ok) return;
@@ -2551,6 +2595,7 @@
     function allerFq(n, sil){
       const sens = phase === 'resa' || n < fq ? -1 : 1;
       phase = 'pack'; fq = n; majTete(); window.scrollTo(0, 0);
+      if (n === 4 && window.effetAuto) window.effetAuto();
       if (!sil) entree(n === 4 ? document.querySelector('#trouver .result') : document.querySelector('#trouver .fq[data-fq="' + n + '"]'), sens);
     }
     function allerResa(sil){ phase = 'resa'; fq = 4; majTete(); window.scrollTo(0, 0); if (!sil) entree($e('wiz'), 1); }
@@ -2636,6 +2681,7 @@
         if (cat) cible = 1;   // bouton du catalogue : on commence à l'étape 1, sans rien choisir à la place du client
         else if (autre) cible = autre.id === 'bk-reprise-ok' ? 'resa' : reprendre();
         else if (a) cible = reprendre();
+        if (a && !cat && !autre) { window.effetVoulu = a.hasAttribute('data-effet'); window.effetManuel = false; }
         if (cible == null) return;
         e.preventDefault(); e.stopPropagation();
         if (anime) return;   // animation d'ouverture / fermeture en cours
