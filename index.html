@@ -2,7 +2,7 @@
 <!-- © 2026 Mistraloc – Tous droits réservés. Le code, le design, les textes et le fonctionnement de ce site sont protégés par le droit d’auteur (Code de la propriété intellectuelle, art. L.122-4 et L.335-2). Toute reproduction ou copie, même partielle, est interdite sans autorisation écrite. -->
 <html lang="fr">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data: blob: https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src https://script.google.com https://script.googleusercontent.com https://api-adresse.data.gouv.fr https://router.project-osrm.org; img-src 'self' data: blob: https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Location d'enceintes à Salon-de-Provence · Mistraloc</title>
@@ -248,6 +248,14 @@
   #reserver .veille{margin-top:10px;font-size:13px}
   #reserver .row2.livr{margin-top:10px}
   #reserver .livr-txt{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin:-2px 0 0}
+  /* 17/11 : suggestions d'adresse (Base Adresse Nationale) */
+  #reserver .adr-boite{position:relative}
+  #reserver .adr-liste{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;list-style:none;margin:0;padding:4px;border-radius:12px;
+    background:var(--card,#160F24);border:1px solid var(--line,rgba(255,255,255,.14));box-shadow:0 12px 30px rgba(0,0,0,.35);max-height:280px;overflow:auto}
+  #reserver .adr-liste[hidden]{display:none}
+  #reserver .adr-liste li{padding:9px 10px;border-radius:9px;cursor:pointer;font-size:14px;line-height:1.25}
+  #reserver .adr-liste li small{display:block;color:var(--muted);font-size:12px}
+  #reserver .adr-liste li:hover,#reserver .adr-liste li[aria-selected="true"]{background:color-mix(in srgb,var(--pink) 18%,transparent)}
   /* retrait gratuit ou livraison (étape 2) */
   #reserver .mode{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px}
   #reserver .mode label{display:flex;flex-direction:column;gap:2px;padding:12px;border:1.5px solid var(--line,rgba(255,255,255,.14));border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s}
@@ -770,7 +778,7 @@
     <h1><span class="eyebrow">Location d'enceintes &amp; lumière · <span style="white-space:nowrap">Salon-de-Provence</span> <span style="white-space:nowrap">et alentours</span></span> Ta fête,<br><em>en grand.</em></h1>
     <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
-    <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · livraison dès 5 € ou retrait gratuit · réservation en 2 minutes.</p>
+    <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · livraison et installation dès 10 € ou retrait gratuit · réservation en 2 minutes.</p>
     <ul class="go-plus">
       <li><span aria-hidden="true">👥</span><span><b>Pas besoin de s'y connaître :</b> dis-nous combien vous serez, on te conseille le bon matériel. En livraison, on installe tout chez toi ; en retrait, on t'explique tout sur place.</span></li>
       <li><span aria-hidden="true">📍</span><span><b>Livré à Salon, Istres, Miramas, Pélissanne, Lambesc, Lançon, Berre, Rognac, Grans, Eyguières, Saint-Chamas, Saint-Martin-de-Crau…</b> (jusqu'à 25 km de Salon) · <a href="livraison.html">Voir les villes →</a></span></li>
@@ -913,16 +921,17 @@
       <h3>Livraison ou retrait</h3>
       <p class="sous" id="bk-pas2-date"></p>
       <div class="mode" role="radiogroup" aria-label="Livraison ou retrait">
-        <label><input type="radio" name="bk-mode" value="livraison" checked><b>🚗 Livraison</b><small>Chez toi ou sur le lieu de la fête · <em>dès 5 €</em></small></label>
+        <label><input type="radio" name="bk-mode" value="livraison" checked><b>🚗 Livraison</b><small>Livrée et installée chez toi · <em>dès 10 €</em></small></label>
         <label><input type="radio" name="bk-mode" value="retrait"><b>📍 Retrait</b><small>Tu viens le chercher à Salon-de-Provence · <em>gratuit</em></small></label>
       </div>
       <div class="field"><label for="bk-heure" id="bk-heure-lbl">Heure de livraison *</label>
         <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
         <small class="livr-txt" id="bk-heure-txt">On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.</small></div>
-      <div class="field" id="bk-lieu-champ"><label for="bk-lieu">Ville ou code postal de livraison *</label>
-        <input id="bk-lieu" list="bk-villes" maxlength="80" placeholder="ex. Pélissanne ou 13330" autocomplete="address-level2">
+      <div class="field" id="bk-lieu-champ"><label for="bk-lieu">Adresse de livraison *</label>
+        <div class="adr-boite"><input id="bk-lieu" maxlength="120" placeholder="ex. 12 rue des Lilas, Pélissanne" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="bk-adr-liste">
+        <ul class="adr-liste" id="bk-adr-liste" role="listbox" hidden></ul></div>
         <datalist id="bk-villes"></datalist>
-        <small class="livr-txt" id="bk-livr-txt">Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu'à 25 km de Salon.</small></div>
+        <small class="livr-txt" id="bk-livr-txt">Livraison, installation et reprise : 10 € + 1,80 € par km depuis Salon (moitié prix dès 150 € de location), jusqu'à 25 km. Ex. : Salon ≈ 10-15 €, Pélissanne 24 €, Miramas 32 €.</small></div>
       <div class="devis" id="bk-devis" hidden></div>
      </div>
      <div class="wiz-pas" data-pas="3" hidden>
@@ -1078,7 +1087,7 @@
 
 <section id="local"><div class="wrap"><div class="seo-local">
   <h2>Location d'enceintes à Salon-de-Provence</h2>
-  <p>Mistraloc loue des enceintes JBL PartyBox (320, 710 et Ultimate), un trépied lumière et une machine à fumée pour tes anniversaires, mariages et soirées à <a href="location-sono-salon-de-provence.html">Salon-de-Provence</a> et jusqu'à 25 km autour : Pélissanne, Lançon, Miramas, Istres, Grans, Eyguières, Lambesc… La location se fait à la soirée, dès <b data-prix-sem="apero">39,90 €</b> en semaine. On te livre et on installe chez toi (dès 5 € à Salon), ou tu viens chercher le matériel gratuitement. Tu dis combien vous serez, on te conseille la bonne enceinte, et tu réserves en ligne en 2 minutes. <a href="livraison.html">Voir la zone de livraison →</a></p>
+  <p>Mistraloc loue des enceintes JBL PartyBox (320, 710 et Ultimate), un trépied lumière et une machine à fumée pour tes anniversaires, mariages et soirées à <a href="location-sono-salon-de-provence.html">Salon-de-Provence</a> et jusqu'à 25 km autour : Pélissanne, Lançon, Miramas, Istres, Grans, Eyguières, Lambesc… La location se fait à la soirée, dès <b data-prix-sem="apero">39,90 €</b> en semaine. On te livre et on installe chez toi (dès 10 €, moitié prix dès 150 € de location), ou tu viens chercher le matériel gratuitement. Tu dis combien vous serez, on te conseille la bonne enceinte, et tu réserves en ligne en 2 minutes. <a href="livraison.html">Voir la zone de livraison →</a></p>
 </div></div></section>
 
 <section id="faq"><div class="wrap center">
@@ -1086,7 +1095,7 @@
   <div class="faq" style="text-align:left;margin-top:30px">
     <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : en livraison, on installe tout chez toi et on vérifie que ça marche ; en retrait, on t'explique tout sur place. Ensuite tu connectes ton téléphone en Bluetooth.</p></details>
     <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui, environ la moitié de la valeur du matériel : 200 € par PartyBox 320 ou 710, 350 € par PartyBox Ultimate, 50 € pour la machine à fumée ou les micros, 100 € par trépied lumière. Pour un pack, on additionne (Pack Club : 400 €). Tu peux la bloquer par carte depuis ton lien de suivi, quelques jours avant (le montant est seulement bloqué, rien n'est débité), ou la laisser par chèque ou en espèces. Elle t'est rendue (ou le blocage levé) au retour du matériel.</p></details>
-    <details name="faq"><summary>Vous livrez ?</summary><p>Oui, on livre et on reprend le matériel : 5 € dans Salon-de-Provence, 5 € + 1,20 € par km ailleurs, jusqu'à 25 km de Salon (par exemple 15 € à Pélissanne, 19 € à Miramas, 33 € à Istres). Le prix exact s'affiche quand tu choisis ta ville. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
+    <details name="faq"><summary>Vous livrez ?</summary><p>Oui : on livre, on installe et on reprend le matériel le lendemain, jusqu'à 25 km de Salon-de-Provence. Prix : 10 € + 1,80 € par km depuis le centre de Salon (environ 10 à 15 € dans Salon, 24 € à Pélissanne, 32 € à Miramas, environ 50 € à Istres), et <b>moitié prix dès 150 € de location</b>. Le prix exact s'affiche dès que tu choisis ton adresse. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
@@ -1627,7 +1636,7 @@
   const auj = new Date(); auj.setHours(0,0,0,0);
   let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), cache = {};
   let debut = null, fin = null;             // première et dernière soirée de la fête (aaaa-mm-jj)
-  let LIVR = { base: 5, km: 1.2, maxKm: 25 }, REMISE = 0.2, DEGR = { r2: 20, r3: 35, r5: 50 };   // remplacés par les réglages du script au chargement
+  let LIVR = { base: 10, km: 1.8, maxKm: 25, demi: 150 }, REMISE = 0.2, DEGR = { r2: 20, r3: 35, r5: 50 };   // remplacés par les réglages du script au chargement
   const NUITS_MAX = 7;
   const $ = id => document.getElementById(id);
   const offreSel = $('bk-offre');
@@ -1800,19 +1809,81 @@
   // retrait gratuit à Salon-de-Provence (demande de Mistraloc, 31/10) : l'adresse exacte est envoyée à la confirmation
   const enRetrait = () => { const m = document.querySelector('input[name="bk-mode"]:checked'); return !!m && m.value === 'retrait'; };
   const LIEU_RETRAIT = 'Retrait à Salon-de-Provence';
+  // 17/11 : ADRESSE EXACTE (Base Adresse Nationale, service public) + distance par la route depuis le centre de Salon (OSRM) ;
+  // formule A : 10 € + 1,80 €/km, moitié prix dès 150 € de location. Le script recalcule tout lui-même.
+  const CENTRE = { lat: 43.6403, lon: 5.0973 };
+  let ADR = null;   // { label, ville, lat, lon, km, src, calcul }
+  function prixLivr(km){
+    const p = periode(), l0 = p ? prixLocation(p) : null, loc = l0 == null ? null : l0 - remiseSur(l0);
+    const plein = LIVR.base + LIVR.km * km, demi = loc != null && loc >= (LIVR.demi || 150);
+    return { prix: Math.round(demi ? plein / 2 : plein), demi };
+  }
   function livraison(){
     if (enRetrait()) return { etat: 'ok', retrait: true, nom: LIEU_RETRAIT, km: 0, prix: 0 };
-    const txt = $('bk-lieu').value.trim(), r = chercheVille(txt), v = typeof r === 'string' ? r : null;
+    const txt = $('bk-lieu').value.trim();
     if (!txt) return { etat: 'vide' };
-    if (Array.isArray(r)) {
-      const dedans = r.filter(n => VILLES[n] <= LIVR.maxKm);
-      if (!dedans.length) { const n = r.slice().sort((a, b) => VILLES[a] - VILLES[b])[0]; return { etat: 'loin', nom: n, km: VILLES[n] }; }
-      return { etat: 'choix', nom: txt, liste: dedans, cp: txt.match(/\d{5}/)[0] };
-    }
-    if (!v) return { etat: 'devis', nom: txt };
-    const km = VILLES[v];
-    if (km > LIVR.maxKm) return { etat: 'loin', nom: v, km };   // on ne livre pas au-delà de 25 km
-    return { etat: 'ok', nom: v, km, prix: km === 0 ? LIVR.base : Math.round(LIVR.base + LIVR.km * km) };
+    if (!ADR || ADR.label !== txt) return { etat: 'choisir', nom: txt };   // adresse tapée mais pas choisie dans la liste
+    if (ADR.calcul) return { etat: 'calcul', nom: ADR.label };
+    const zone = VILLES[ADR.ville] != null ? VILLES[ADR.ville] <= LIVR.maxKm : ADR.km != null && ADR.km <= LIVR.maxKm + 2;
+    if (!zone) return { etat: 'loin', nom: ADR.ville || ADR.label, km: VILLES[ADR.ville] != null ? VILLES[ADR.ville] : Math.round(ADR.km) };
+    if (ADR.km == null) return { etat: 'devis', nom: ADR.label };
+    const pr = prixLivr(ADR.km);
+    return { etat: 'ok', nom: ADR.label, ville: ADR.ville, km: Math.round(ADR.km * 10) / 10, prix: pr.prix, demi: pr.demi };
+  }
+  async function kmRoute(lat, lon){
+    try {
+      const r = await fetch('https://router.project-osrm.org/route/v1/driving/' + CENTRE.lon + ',' + CENTRE.lat + ';' + lon + ',' + lat + '?overview=false');
+      const j = await r.json();
+      return j.code === 'Ok' && j.routes && j.routes[0] ? Math.round(j.routes[0].distance / 100) / 10 : null;
+    } catch (e) { return null; }
+  }
+  async function choisirAdresse(f){
+    const g = f.geometry.coordinates, pr = f.properties;
+    // rue connue sans le numéro : on garde le numéro tapé par le client (« 12 » + « Rue des Lilas 13330 Pélissanne »)
+    const num = (($('bk-lieu').value.match(/^\s*(\d+\s*(bis|ter)?)\b/i) || [])[1] || '').trim();
+    const label = pr.type === 'street' && num ? num + ' ' + pr.label : pr.label;
+    ADR = { label, ville: pr.city, lat: g[1], lon: g[0], km: null, calcul: true };
+    $('bk-lieu').value = label; fermerAdr(); maj();
+    const a = ADR, km = await kmRoute(a.lat, a.lon);
+    if (ADR !== a) return;
+    a.km = km != null ? km : (VILLES[a.ville] != null ? VILLES[a.ville] : null);
+    a.calcul = false; maj();
+  }
+  let adrTimer = 0, adrRes = [], adrSel = -1;
+  function fermerAdr(){ $('bk-adr-liste').hidden = true; $('bk-lieu').setAttribute('aria-expanded', 'false'); adrSel = -1; }
+  function montrerAdr(){
+    const ul = $('bk-adr-liste');
+    ul.innerHTML = adrRes.map((f, i) => '<li role="option" id="adr-o' + i + '" data-i="' + i + '"' + (i === adrSel ? ' aria-selected="true"' : '') + '>' +
+      esc(f.properties.name) + '<small>' + esc(f.properties.postcode + ' ' + f.properties.city) + '</small></li>').join('');
+    ul.hidden = !adrRes.length; $('bk-lieu').setAttribute('aria-expanded', String(!!adrRes.length));
+  }
+  // communes de la zone citées dans le texte (« … Pélissanne », « … sal » → Salon) : on cherche alors l'adresse dans leur code postal,
+  // sinon la Base Adresse propose des rues de toute la France
+  function villesDans(q){
+    const n = norme(q), mots = q.split(/[\s,]+/).filter(Boolean), der = norme(mots[mots.length - 1] || '');
+    const zone = Object.keys(VILLES).filter(v => VILLES[v] <= LIVR.maxKm && CODES[v]);
+    const alias = Object.keys(ALIAS).filter(a => n.indexOf(a) >= 0).map(a => ALIAS[a]);
+    const r = zone.filter(v => n.indexOf(norme(v)) >= 0 || alias.indexOf(v) >= 0 || (der.length >= 3 && mots.length > 1 && norme(v).indexOf(der) === 0));
+    return r.slice(0, 3);
+  }
+  let adrAucun = false;
+  function chercherAdr(){
+    clearTimeout(adrTimer);
+    const q = $('bk-lieu').value.trim();
+    if (q.length < 4) { adrRes = []; adrAucun = false; fermerAdr(); return; }
+    adrTimer = setTimeout(async () => {
+      const base = 'https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(q);
+      const vs = villesDans(q), cps = [...new Set(vs.flatMap(v => CODES[v]))].slice(0, 4);
+      const urls = cps.length ? cps.map(c => base + '&limit=5&postcode=' + c) : [base + '&limit=15&lat=' + CENTRE.lat + '&lon=' + CENTRE.lon];
+      try {
+        const js = await Promise.all(urls.map(u => fetch(u).then(r => r.json()).catch(() => ({ features: [] }))));
+        if ($('bk-lieu').value.trim() !== q) return;
+        const vu = {};
+        adrRes = js.flatMap(j => j.features || []).filter(f => /^(13|84)/.test(f.properties.postcode || '') && !vu[f.properties.id] && (vu[f.properties.id] = 1))
+                   .sort((a, b) => b.properties.score - a.properties.score).slice(0, 6);
+        adrAucun = !adrRes.length; adrSel = -1; montrerAdr(); maj();
+      } catch (e) { adrRes = []; fermerAdr(); }
+    }, 250);
   }
 
   // ---- prix : soirée du vendredi ou du samedi = tarif week-end, sinon tarif semaine ----
@@ -1898,13 +1969,17 @@
     if (actif && (actif.offsetLeft < choix.scrollLeft || actif.offsetLeft + actif.offsetWidth > choix.scrollLeft + choix.clientWidth)) choix.scrollLeft = actif.offsetLeft - 8;
     // livraison + total
     const l = livraison(), t = $('bk-livr-txt');
-    t.textContent = l.etat === 'ok' ? 'Livraison et reprise à ' + l.nom + (l.km ? ' (' + l.km + ' km de Salon)' : '') + ' : ' + enEuros(l.prix) + '.'
-                  : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.'
-                  : l.etat === 'choix' ? 'Le ' + l.cp + ' correspond à : ' + l.liste.join(', ') + '. Choisis ta commune dans la liste.'
-                  : l.etat === 'devis' && document.activeElement === $('bk-lieu') ? 'Continue d\'écrire ou choisis ta ville dans la liste.'
-                  : l.etat === 'devis' ? 'Ville pas dans notre liste : on te confirme au téléphone si on peut livrer (jusqu\'à ' + LIVR.maxKm + ' km de Salon).'
-                  : 'Salon-de-Provence : 5 €. Ailleurs : 5 € + 1,20 € par km, jusqu\'à 25 km de Salon.';
-    t.style.color = l.etat === 'loin' || l.etat === 'choix' ? 'var(--pink)' : ''; t.style.fontWeight = l.etat === 'loin' || l.etat === 'choix' ? '700' : '';
+    const bareme = 'Livraison, installation et reprise : 10 € + 1,80 € par km depuis Salon (moitié prix dès ' + (LIVR.demi || 150) + ' € de location), jusqu\'à ' + LIVR.maxKm + ' km. Ex. : Salon ≈ 10-15 €, Pélissanne 24 €, Miramas 32 €.';
+    t.textContent = l.etat === 'ok' ? '✅ Livraison, installation et reprise (' + String(l.km).replace('.', ',') + ' km de Salon) : ' + enEuros(l.prix) + (l.demi ? ' (moitié prix 🎉)' : '') + '.'
+                  : l.etat === 'calcul' ? 'Calcul de la distance…'
+                  : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km. Le retrait à Salon reste gratuit.'
+                  : l.etat === 'choisir' && adrAucun ? 'Adresse pas trouvée : écris le numéro, la rue PUIS la ville (ex. 12 rue des Lilas, Pélissanne).'
+                  : l.etat === 'choisir' && document.activeElement === $('bk-lieu') ? 'Continue d\'écrire puis choisis ton adresse dans la liste.'
+                  : l.etat === 'choisir' ? 'Choisis ton adresse dans la liste qui s\'affiche (tape le numéro, la rue et la ville).'
+                  : l.etat === 'devis' ? 'On n\'a pas pu calculer la distance : on te confirme le prix de livraison au téléphone.'
+                  : bareme;
+    const rouge = l.etat === 'loin' || (l.etat === 'choisir' && document.activeElement !== $('bk-lieu'));
+    t.style.color = rouge ? 'var(--pink)' : ''; t.style.fontWeight = rouge || l.etat === 'ok' ? '700' : '';
     const loc0 = prixLocation(p), rem = remiseSur(loc0), loc = loc0 == null ? null : Math.round((loc0 - rem) * 100) / 100, box = $('bk-devis');
     box.hidden = !p || loc == null;
     if (!box.hidden) {
@@ -1914,7 +1989,7 @@
         (red > 0 ? ligne('Réduction ' + p.nuits + ' soirées', '−' + enEuros(red), 'promo') : '') +
         (rem ?ligne('Code ' + esc(promoActif.code) + ' (' + esc(promoActif.libelle) + ')', '−' + enEuros(rem), 'promo') : '') +
         (l.retrait ? ligne('Retrait à Salon-de-Provence', 'gratuit')
-                   : ligne('Livraison et reprise', l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : 'choisis ta ville')) +
+                   : ligne('Livraison, installation et reprise' + (l.etat === 'ok' && l.demi ? ' (moitié prix)' : ''), l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : l.etat === 'calcul' ? 'calcul…' : 'indique ton adresse')) +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, puis ' + texteDegressif() + '. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Prix confirmé avec toi par téléphone ou WhatsApp.</small>' +
@@ -1989,8 +2064,9 @@
     if (n === 2 && $('bk-heure').value && periode() && heuresPossibles(periode().start).indexOf(Number($('bk-heure').value.slice(0, 2)) * 60 + Number($('bk-heure').value.slice(3))) < 0) return { el: $('bk-heure'), txt: 'Cette heure est trop proche (il faut au moins 2 h) : choisis-en une autre ou appelle-nous au 06 22 12 39 63.' };
     if (n === 2) {
       if (!$('bk-heure').value) return { el: $('bk-heure'), txt: 'Choisis l\'heure de livraison.' };
-      if (l.etat === 'vide') return { el: $('bk-lieu'), txt: 'Indique la ville ou le code postal de livraison.' };
-      if (l.etat === 'choix') return { el: $('bk-lieu'), txt: 'Le ' + l.cp + ' correspond à plusieurs communes (' + l.liste.join(', ') + ') : écris ou choisis la tienne.' };
+      if (l.etat === 'vide') return { el: $('bk-lieu'), txt: 'Indique l\'adresse de livraison (numéro, rue et ville).' };
+      if (l.etat === 'choisir') return { el: $('bk-lieu'), txt: 'Choisis ton adresse dans la liste des suggestions (sinon on ne peut pas calculer la livraison).' };
+      if (l.etat === 'calcul') return { el: $('bk-lieu'), txt: 'Un instant, on calcule la distance…' };
       if (l.etat === 'loin') return { el: $('bk-lieu'), txt: 'On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.' };
     }
     if (n === 3) {
@@ -2093,7 +2169,7 @@
     const nom = $('bk-recap-nom').textContent;
     $('bt-quoi').textContent = nom + (p ? ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') : '');
     $('bt-prix').textContent = p && loc != null
-      ? (l.etat === 'ok' ? 'Total ' + enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'vide' || l.etat === 'devis' || l.etat === 'choix' ? ' + livraison' : ''))
+      ? (l.etat === 'ok' ? 'Total ' + enEuros(loc + l.prix) : enEuros(loc) + (l.etat !== 'loin' ? ' + livraison' : ''))
       : k && PACKS[k] && prixNum(k) > 0 ? 'dès ' + (PACKS[k].sem && semNum(k) < prixNum(k) ? PACKS[k].sem : PACKS[k].price) + ' / soirée' : 'Compose ton panier';
     $('bt-btn').textContent = etapeSuivante().txt;
     $('wiz-suiv').textContent = etapeSuivante().txt + ' →';
@@ -2163,12 +2239,20 @@
     if (await statutK(k) === 'complet') { aide('Le ' + jourTxt(k) + ' n\'est pas disponible pour ce matériel.'); return; }
     await cliquer(k);
   });
-  $('bk-lieu').addEventListener('input', maj);
-  $('bk-lieu').addEventListener('blur', maj);   // 16/11 : le message « pas dans notre liste » n'apparaît qu'en quittant le champ
+  $('bk-lieu').addEventListener('input', () => { chercherAdr(); maj(); });
+  $('bk-lieu').addEventListener('blur', () => setTimeout(() => { fermerAdr(); maj(); }, 200));   // le message « choisis dans la liste » n'apparaît qu'en quittant le champ
+  $('bk-lieu').addEventListener('focus', () => { if (adrRes.length && !(ADR && ADR.label === $('bk-lieu').value.trim())) montrerAdr(); });
+  $('bk-lieu').addEventListener('keydown', e => {
+    if ($('bk-adr-liste').hidden || !adrRes.length) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); adrSel = (adrSel + (e.key === 'ArrowDown' ? 1 : adrRes.length - 1)) % adrRes.length; montrerAdr(); }
+    else if (e.key === 'Enter' && adrSel >= 0) { e.preventDefault(); e.stopPropagation(); choisirAdresse(adrRes[adrSel]); }
+    else if (e.key === 'Escape') fermerAdr();
+  });
+  // pointerdown (avant le blur du champ) : choisir une suggestion au doigt ou à la souris
+  $('bk-adr-liste').addEventListener('pointerdown', e => { const li = e.target.closest('li[data-i]'); if (li) { e.preventDefault(); choisirAdresse(adrRes[Number(li.dataset.i)]); } });
   document.querySelectorAll('input[name="bk-mode"]').forEach(r => r.addEventListener('change', () => { document.querySelectorAll('.a-remplir').forEach(x => x.classList.remove('a-remplir')); maj(); }));
-  $('bk-lieu').addEventListener('change', () => { const v = villeDe($('bk-lieu').value); if (v) $('bk-lieu').value = v; maj(); });
-  // arrivée depuis une page de ville (?ville=Istres#reserver) : commune de livraison déjà remplie
-  try { const vq = new URLSearchParams(location.search).get('ville'); if (vq && VILLES[vq] != null) { $('bk-lieu').value = vq; maj(); history.replaceState(history.state, '', location.pathname + location.hash); } } catch (e) {}
+  // arrivée depuis une page de ville (?ville=Istres#reserver) : la ville est pré-écrite, le client complète avec sa rue
+  try { const vq = new URLSearchParams(location.search).get('ville'); if (vq && VILLES[vq] != null) { $('bk-lieu').value = vq; $('bk-lieu').placeholder = 'ex. 12 rue des Lilas, ' + vq; maj(); history.replaceState(history.state, '', location.pathname + location.hash); } } catch (e) {}
   $('bk-veille').addEventListener('change', async () => { aide(''); await verifVeille(); maj(); dessiner(); majHeures(); });
   $('cal-prev').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()-1, 1); dessiner(); });
   $('cal-next').addEventListener('click', ()=>{ vue = new Date(vue.getFullYear(), vue.getMonth()+1, 1); dessiner(); });
@@ -2211,12 +2295,13 @@
     if (!p) return message('Choisis d\'abord une date dans le calendrier.');
     const heure = $('bk-heure').value;
     if (!heure) { $('bk-heure').focus(); return message(l.retrait ? 'Choisis l\'heure de retrait.' : 'Choisis l\'heure de livraison (sous le calendrier).'); }
-    if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique la ville ou le code postal de livraison (sous le calendrier).'); }
-    if (l.etat === 'choix') { $('bk-lieu').focus(); return message('Le ' + l.cp + ' correspond à plusieurs communes (' + l.liste.join(', ') + ') : écris ou choisis la tienne.'); }
+    if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique l\'adresse de livraison.'); }
+    if (l.etat === 'choisir' || l.etat === 'calcul') { $('bk-lieu').focus(); return message('Choisis ton adresse de livraison dans la liste des suggestions.'); }
     if (l.etat === 'loin') { $('bk-lieu').focus(); return message('On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
-    const data = { nom, tel, email:$('bk-email').value.trim(), lieu:l.nom, mode: l.retrait ? 'retrait' : 'livraison', invites:$('bk-invites').value,
+    const data = { nom, tel, email:$('bk-email').value.trim(), lieu: l.retrait ? l.nom : (l.ville || l.nom), mode: l.retrait ? 'retrait' : 'livraison', invites:$('bk-invites').value,
+                   adresse: !l.retrait && ADR ? { label: ADR.label, ville: ADR.ville, lat: ADR.lat, lon: ADR.lon } : null,
                    fete:$('bk-fete').value, message:(window.sansPrise ? '[Pas de prise électrique sur place] ' : '') + (window.avecFumee && window.parfum ? '[Fumée parfumée : ' + window.parfum + '] ' : '') + $('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
                    creerCompte: !$('bk-compte-zone').hidden && $('bk-compte').checked, offres: $('bk-offres').checked };
@@ -2364,7 +2449,7 @@
       if (!debut || pas === 5) return;
       const k = cleOffre();
       const s = { k, offre: offreSel.value, panier: k === 'perso' ? Object.assign({}, panier) : null, debut, fin, veille: $('bk-veille').checked,
-                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, retrait: enRetrait(), pas: Math.min(pas, 3), ts: Date.now() };
+                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, adr: ADR && !ADR.calcul ? ADR : null, retrait: enRetrait(), pas: Math.min(pas, 3), ts: Date.now() };
       try { localStorage.setItem(CLE_RESA, JSON.stringify(s)); } catch (e) {}
     }, 400);
   }
@@ -2385,6 +2470,7 @@
     await dessiner(); majHeures();
     if (s.heure && [...$('bk-heure').options].some(o => o.value === s.heure && !o.disabled)) $('bk-heure').value = s.heure;
     if (s.lieu) $('bk-lieu').value = s.lieu;
+    if (s.adr && s.adr.label === s.lieu && s.adr.lat) ADR = s.adr;
     if (s.retrait) document.querySelector('input[name="bk-mode"][value="retrait"]').checked = true;
     maj();
     let n = 1; while (n < (s.pas || 1) && !manque(n)) n++;
