@@ -2309,6 +2309,7 @@
                    adresse: !l.retrait && ADR ? { label: ADR.label, ville: ADR.ville, lat: ADR.lat, lon: ADR.lon } : null,
                    fete:$('bk-fete').value, message:(window.sansPrise ? '[Pas de prise électrique sur place] ' : '') + (window.avecFumee && window.parfum ? '[Fumée parfumée : ' + window.parfum + '] ' : '') + $('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
+                   src: (() => { try { return sessionStorage.getItem('mistraloc_src') || ''; } catch (e) { return ''; } })(),
                    creerCompte: !$('bk-compte-zone').hidden && $('bk-compte').checked, offres: $('bk-offres').checked };
     const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : '+(l.retrait?'retrait':'livraison')+' le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+(l.retrait?', retrait à Salon-de-Provence':', à '+l.nom)+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
@@ -2867,9 +2868,20 @@
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
   (() => {
+    // 18/11 : d'où vient le visiteur quand le lien est marqué (?src=gads pour Google Ads, fb, ig, tt, gbp ; gclid = clic Google Ads)
+    // gardé seulement pour l'onglet en cours (sessionStorage), envoyé avec la demande de réservation → colonne Source du CRM
+    let src = '';
+    try {
+      const q = new URLSearchParams(location.search);
+      src = (q.get('src') || '').toLowerCase();
+      if (!src && (q.get('gclid') || q.get('gbraid') || q.get('wbraid'))) src = 'gads';
+      if (!/^(gads|fb|ig|tt|gbp)$/.test(src)) src = '';
+      if (src) sessionStorage.setItem('mistraloc_src', src);
+    } catch (e) {}
     try { if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}
     let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
     let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+    if (src) s = 'src.' + src;
     fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
   })();
 </script>
