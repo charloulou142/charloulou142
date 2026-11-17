@@ -272,9 +272,9 @@
       if (c.possible) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3>' + info +
         '<p>Bloque-la par carte en 1 minute : <b>rien n\'est débité</b>, le montant est seulement bloqué sur ta carte pendant la location, puis libéré quand tu rends le matériel en bon état.</p>' +
         '<button type="button" id="b-caution">Bloquer ma caution par carte →</button>' +
-        '<p class="petit">Paiement sécurisé par Stripe : on ne voit jamais ton numéro de carte. Tu préfères les espèces ou un chèque ? Pas de souci, ça se règle à la livraison.</p><p class="erreur" id="m-caution" hidden></p></div>';
-      if (c.longue) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3><p>Pour une location de plus de ' + esc(c.nuitsMax || 4) + ' soirées, la caution se règle par <b>chèque ou en espèces</b> à la livraison (un blocage par carte ne dure que 7 jours).</p></div>';
-      if (c.des) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3><p>Tu pourras la bloquer par carte à partir du <b>' + esc(c.des) + '</b> (on t\'enverra un e-mail la veille). Rien n\'est débité. Sinon : espèces ou chèque à la livraison.</p></div>';
+        '<p class="petit">Paiement sécurisé par Stripe : on ne voit jamais ton numéro de carte. Tu préfères les espèces ? Pas de souci, ça se règle à la livraison.</p><p class="erreur" id="m-caution" hidden></p></div>';
+      if (c.longue) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3><p>Pour une location de plus de ' + esc(c.nuitsMax || 4) + ' soirées, la caution se règle <b>en espèces</b> à la livraison (un blocage par carte ne dure que 7 jours).</p></div>';
+      if (c.des) return '<div class="caution" id="caution"><h3>💳 Ta caution : ' + m + test + '</h3><p>Tu pourras la bloquer par carte à partir du <b>' + esc(c.des) + '</b> (on t\'enverra un e-mail la veille). Rien n\'est débité. Sinon : en espèces à la livraison.</p></div>';
       return '';
     }
     function brancherCaution() {

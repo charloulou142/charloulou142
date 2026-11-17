@@ -789,7 +789,7 @@
       <li><span aria-hidden="true">📍</span><span><b>25 km autour de Salon</b> · <a href="livraison.html">les villes</a></span></li>
       <li><span aria-hidden="true">📱</span><span><b>Lumières pilotées</b> au téléphone · <a href="#effet">vidéo</a></span></li>
       <li><span aria-hidden="true">🔋</span><span><b>Sans prise ?</b> 18 h sur batterie (Pack Apéro)</span></li>
-      <li><span aria-hidden="true">🔒</span><span><b>Caution</b> par carte (rien débité), chèque ou espèces</span></li>
+      <li><span aria-hidden="true">🔒</span><span><b>Caution</b> par carte (rien débité) ou espèces</span></li>
     </ul>
     <p class="go-tel">Une question ? <a href="tel:+33622123963">06 22 12 39 63</a> · <a href="https://wa.me/33622123963?text=Bonjour%20Mistraloc%2C%20j%27ai%20une%20question." target="_blank" rel="noopener">WhatsApp</a></p>
     <p class="go-cadeau"><a href="offrir.html">🎁 Offrir une soirée en cadeau →</a></p>
@@ -1099,7 +1099,7 @@
   <h2>Questions fréquentes</h2>
   <div class="faq" style="text-align:left;margin-top:30px">
     <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : en livraison, on installe tout chez toi et on vérifie que ça marche ; en retrait, on t'explique tout sur place. Ensuite tu connectes ton téléphone en Bluetooth.</p></details>
-    <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui, environ la moitié de la valeur du matériel : 200 € par PartyBox 320 ou 710, 350 € par PartyBox Ultimate, 50 € pour la machine à fumée ou les micros, 100 € par trépied lumière. Pour un pack, on additionne (Pack Club : 400 €). Tu peux la bloquer par carte depuis ton lien de suivi, quelques jours avant (le montant est seulement bloqué, rien n'est débité), ou la laisser par chèque ou en espèces. Elle t'est rendue (ou le blocage levé) au retour du matériel.</p></details>
+    <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui, environ la moitié de la valeur du matériel : 200 € par PartyBox 320 ou 710, 350 € par PartyBox Ultimate, 50 € pour la machine à fumée ou les micros, 100 € par trépied lumière. Pour un pack, on additionne (Pack Club : 400 €). Tu peux la bloquer par carte depuis ton lien de suivi, quelques jours avant (le montant est seulement bloqué, rien n'est débité), ou la laisser en espèces. Elle t'est rendue (ou le blocage levé) au retour du matériel.</p></details>
     <details name="faq"><summary>Vous livrez ?</summary><p>Oui : on livre, on installe et on reprend le matériel le lendemain, jusqu'à 25 km de Salon-de-Provence. Prix : 10 € + 1,80 € par km depuis le centre de Salon (environ 10 à 15 € dans Salon, 24 € à Pélissanne, 32 € à Miramas, environ 50 € à Istres), et <b>moitié prix dès 150 € de location</b>. Le prix exact s'affiche dès que tu choisis ton adresse. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
@@ -1998,7 +1998,7 @@
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, puis ' + texteDegressif() + '. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Prix confirmé avec toi par téléphone ou WhatsApp.</small>' +
-        (cautionOffre() ? '<div class="caution-info">🔒 <b>Caution à prévoir : ' + enEuros(cautionOffre()) + '</b> par carte (bloquée, rien n\'est débité), chèque ou espèces, rendue au retour du matériel.</div>' : '');
+        (cautionOffre() ? '<div class="caution-info">🔒 <b>Caution à prévoir : ' + enEuros(cautionOffre()) + '</b> par carte (bloquée, rien n\'est débité) ou en espèces, rendue au retour du matériel.</div>' : '');
       // le total « saute » quand il change
       const tb = box.querySelector('.tot b');
       if (tb && box.dataset.total && box.dataset.total !== tb.textContent) { tb.classList.remove('bump'); void tb.offsetWidth; tb.classList.add('bump'); }
