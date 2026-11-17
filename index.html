@@ -1224,12 +1224,12 @@
     ptl:[svgUri(trepSvg(SLOTS_PACK.ptl))],ptm:[svgUri(trepSvg(SLOTS_PACK.ptm))],
     pamb:['partybox-stage-320','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],psshow:['partybox-710','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pclas:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl))],pscene:['partybox-710','partybox-710',svgUri(trepSvg(SLOTS_PACK.ptl)),svgUri(trepSvg(SLOTS_PACK.ptl))],
     pults:['partybox-ultimate','machine-fumee',svgUri(trepSvg(SLOTS_PACK.ptm))],pmar:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg(SLOTS_PACK.ptm))],
-    ppres:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg()),svgUri(trepSvg())],pcult:['partybox-ultimate','partybox-ultimate'],micro:[svgUri(microSvg)],creer:[svgUri(trepSvg())]};
+    ppres:['partybox-ultimate','partybox-ultimate',svgUri(trepSvg()),svgUri(trepSvg())],pcult:['partybox-ultimate','partybox-ultimate'],micro:['micros-jbl'],creer:[svgUri(trepSvg())]};
   // Panier personnalisé : nombre maximum de chaque appareil (stock)
   const VU=t=>String(t==null?'':t).replace(/JBL PartyBox 310/g,'JBL PartyBox 320');   // nom montré au client
   const STOCK={p310:2,p710:2,pult:2,fumee:1,micro:1,trep:2}; // valeurs de secours : remplacées par le stock de l'espace admin au chargement
   const panier={p310:0,p710:0,pult:0,fumee:0,micro:0,trep:0};
-  const IMG1={p310:'partybox-stage-320',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee',micro:svgUri(microSvg),trep:svgUri(trepSvg([]))};
+  const IMG1={p310:'partybox-stage-320',p710:'partybox-710',pult:'partybox-ultimate',fumee:'machine-fumee',micro:'micros-jbl',trep:svgUri(trepSvg([]))};
   // place de chaque lumière sur le trépied (le panier garde les quantités, SLOTS garde les places)
   let SLOTS=[], accChoisie=null, noteConf='';
   const nbLum=()=>LUM.reduce((t,a)=>t+(panier[a]||0),0);
@@ -2628,7 +2628,7 @@
       const k = CLE[it.dataset.article]; if (!k) return;
       if (CAP[k] > 0) { it.dataset.cap = k; it.querySelector('h3').insertAdjacentHTML('afterend', '<span class="item-inv">👥 Conseillé jusqu\'à ~' + CAP[k] + ' invités</span>'); }
       const ph = it.querySelector('.ph[data-dessin]');
-      if (ph) { const img = new Image(); img.alt = it.dataset.article; img.src = k === 'trep' ? svgUri(trepSvg()) : IMG1[k]; ph.textContent = ''; ph.appendChild(img); }
+      if (ph) { const img = new Image(); img.alt = it.dataset.article; img.src = k === 'trep' ? svgUri(trepSvg()) : imgSrc(IMG1[k]); ph.textContent = ''; ph.appendChild(img); }
       const lum = LUM.indexOf(k) >= 0;
       it.querySelector('h3').insertAdjacentHTML('afterend', k === 'p310' ? '<span class="item-tag bat">🔋 Sur batterie (~18 h)</span>' : k === 'micro' ? '<span class="item-tag bat">🔋 Sur batterie</span>' : '<span class="item-tag">🔌 Prise nécessaire</span>');
       it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions">' + (
