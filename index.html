@@ -759,6 +759,7 @@
   .fiche-pack .fp-x{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:12px;z-index:2;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:24px;cursor:pointer}
   .fiche-pack .fp-in{max-width:640px;margin:-70px auto 0;position:relative;padding:0 18px calc(env(safe-area-inset-bottom) + 28px)}
   .fiche-pack h2{font-family:"Bebas Neue";font-weight:400;font-size:clamp(38px,9vw,56px);line-height:1;margin:0 0 6px}
+  .fiche-pack .fp-note{position:relative;z-index:1;margin:0 0 10px;font-size:13px;color:var(--muted)}
   .fiche-pack .fp-titre{font-size:19px;font-weight:700;margin:0 0 10px;color:var(--pink)}
   .fiche-pack .fp-acc{font-size:17px;margin:0 0 14px}
   .fiche-pack .fp-pour{display:inline-block;margin:0 0 14px;padding:6px 12px;border-radius:999px;background:color-mix(in srgb,var(--cyan) 15%,var(--card));font-weight:600;font-size:15px}
@@ -2672,13 +2673,13 @@
       soiree: { v: 'p710', t: 'Gros son pour une vraie soirée', a: 'La PartyBox 710 et ses 800 W, avec ses lumières intégrées qui suivent la musique : de quoi faire danser tout le salon.', p: 'Anniversaire, crémaillère, soirée' },
       club: { v: 'p710', t: 'Deux enceintes, toute la salle danse', a: 'Deux PartyBox 710 reliées entre elles : le son couvre toute la pièce, sans pousser le volume à fond.', p: 'Grandes fêtes, 18 ans, soirées d\'asso' },
       pcult: { v: 'pult', t: 'Le niveau au-dessus', a: 'Deux PartyBox Ultimate, le haut de gamme JBL (1100 W chacune), avec leur show lumineux intégré. Pour les fêtes où on attend beaucoup de monde.', p: 'Très grandes fêtes, salles des fêtes' },
-      pamb: { v: 'couleurs', t: 'Une petite fête, un rendu de grande soirée', a: 'La PartyBox 320, un trépied de 6 têtes mobiles (faisceaux, lasers, stroboscope) et la fumée qui rend les faisceaux visibles.', p: 'Anniversaire, soirée entre amis', l: 1 },
-      psshow: { v: 'show', t: 'L\'effet concert à la maison', a: 'Gros son, fumée et faisceaux qui balaient la piste : la fumée capte les lumières, et la pièce change complètement.', p: 'Anniversaire, soirée à thème', l: 1 },
-      pclas: { v: 'effet', t: 'L\'ambiance boîte de nuit', a: 'Deux PartyBox 710, le trépied lumière avec ses lasers rouge et vert, et la fumée : une vraie piste de danse.', p: 'Grandes fêtes, 18 ans', l: 1 },
+      pamb: { v: 'f-pamb', n: 'Vidéo : l\'enceinte de ce pack, puis nos lumières en démonstration (2 trépieds et des PartyBox 710). Ce pack contient la PartyBox 320 et 1 trépied.', t: 'Une petite fête, un rendu de grande soirée', a: 'La PartyBox 320, un trépied de 6 têtes mobiles (faisceaux, lasers, stroboscope) et la fumée qui rend les faisceaux visibles.', p: 'Anniversaire, soirée entre amis', l: 1 },
+      psshow: { v: 'f-psshow', n: 'Vidéo : l\'enceinte de ce pack, puis nos lumières en démonstration (2 trépieds). Ce pack contient 1 trépied.', t: 'L\'effet concert à la maison', a: 'Gros son, fumée et faisceaux qui balaient la piste : la fumée capte les lumières, et la pièce change complètement.', p: 'Anniversaire, soirée à thème', l: 1 },
+      pclas: { v: 'f-pclas', n: 'Vidéo : l\'enceinte de ce pack, puis nos lumières en démonstration (2 trépieds). Ce pack contient 1 trépied.', t: 'L\'ambiance boîte de nuit', a: 'Deux PartyBox 710, le trépied lumière avec ses lasers rouge et vert, et la fumée : une vraie piste de danse.', p: 'Grandes fêtes, 18 ans', l: 1 },
       pscene: { v: 'scene', t: 'Comme une scène', a: 'Deux PartyBox 710 et deux trépieds de lumière (12 têtes mobiles) de chaque côté, plus la fumée : c\'est exactement ce que tu vois dans la vidéo.', p: 'Grandes fêtes, soirées à thème', l: 1 },
-      pults: { v: 'show', t: 'Discours, puis la piste', a: 'La PartyBox Ultimate (1100 W), le trépied lumière, la fumée et 2 micros sans fil : pour les discours, le karaoké, puis la danse.', p: 'Anniversaire, fête de famille', l: 1 },
-      pmar: { v: 'show', t: 'Tout ton mariage, de l\'entrée des mariés à la fin de la nuit', a: 'Deux PartyBox Ultimate, le trépied lumière, la fumée et 2 micros sans fil : discours, première danse, puis la fête.', p: 'Mariage', l: 1 },
-      ppres: { v: 'scene', t: 'Le maximum de son et de lumière', a: 'Le Pack Mariage avec deux trépieds de lumière : deux PartyBox Ultimate, 12 têtes mobiles, la fumée et 2 micros sans fil.', p: 'Mariages, très grandes fêtes', l: 1 }
+      pults: { v: 'f-pult-show', n: 'Vidéo : l\'enceinte de ce pack, puis nos lumières en démonstration (2 trépieds et des PartyBox 710). Ce pack contient la PartyBox Ultimate et 1 trépied.', t: 'Discours, puis la piste', a: 'La PartyBox Ultimate (1100 W), le trépied lumière, la fumée et 2 micros sans fil : pour les discours, le karaoké, puis la danse.', p: 'Anniversaire, fête de famille', l: 1 },
+      pmar: { v: 'f-pult-show', n: 'Vidéo : l\'enceinte de ce pack, puis nos lumières en démonstration (2 trépieds et des PartyBox 710). Ce pack contient 2 PartyBox Ultimate et 1 trépied.', t: 'Tout ton mariage, de l\'entrée des mariés à la fin de la nuit', a: 'Deux PartyBox Ultimate, le trépied lumière, la fumée et 2 micros sans fil : discours, première danse, puis la fête.', p: 'Mariage', l: 1 },
+      ppres: { v: 'f-ppres', n: 'Vidéo : l\'enceinte de ce pack, puis nos lumières en démonstration (avec des PartyBox 710). Ce pack contient 2 PartyBox Ultimate et 2 trépieds.', t: 'Le maximum de son et de lumière', a: 'Le Pack Mariage avec deux trépieds de lumière : deux PartyBox Ultimate, 12 têtes mobiles, la fumée et 2 micros sans fil.', p: 'Mariages, très grandes fêtes', l: 1 }
     };
     const fp = document.createElement('div'); fp.className = 'fiche-pack'; fp.hidden = true; fp.setAttribute('role', 'dialog'); fp.setAttribute('aria-modal', 'true');
     document.body.appendChild(fp);
@@ -2701,9 +2702,10 @@
       const ul = carte.querySelector('ul'), prix = carte.querySelector('.in > b'), inv = carte.querySelector('.item-inv');
       fp.setAttribute('aria-label', carte.dataset.article);
       fp.innerHTML = '<div class="fp-media"><video playsinline muted loop preload="metadata" poster="videos/' + f.v + '.jpg"' + (doux ? ' autoplay' : ' controls') + ' src="videos/' + f.v + '.mp4"></video>' +
-        '<button type="button" class="fp-x" aria-label="Fermer">×</button></div><div class="fp-in"><h2></h2><p class="fp-titre"></p><p class="fp-acc"></p><span class="fp-pour"></span>' +
+        '<button type="button" class="fp-x" aria-label="Fermer">×</button></div><div class="fp-in"><p class="fp-note" hidden></p><h2></h2><p class="fp-titre"></p><p class="fp-acc"></p><span class="fp-pour"></span>' +
         '<ul class="fp-dedans"></ul><ul class="fp-plus"></ul><p class="fp-prix"></p><a class="btn fp-go" href="#trouver">Je veux ce pack →</a></div>';
       fp.querySelector('h2').textContent = carte.dataset.article;
+      if (f.n) { const no = fp.querySelector('.fp-note'); no.textContent = 'ℹ️ ' + f.n; no.hidden = false; }
       fp.querySelector('.fp-titre').textContent = f.t;
       fp.querySelector('.fp-acc').textContent = f.a;
       fp.querySelector('.fp-pour').textContent = '🎉 ' + f.p + (inv ? ' · ' + inv.textContent.replace(/^👥\s*Conseillé jusqu'à\s*/, '').replace(/^~/, '~') : '');
