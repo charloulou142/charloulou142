@@ -169,6 +169,13 @@
   .day.a_confirmer{border:2px dashed #A78BFA;background:color-mix(in srgb,#A78BFA 16%,var(--bg))}
   .day.complet{border:1px solid rgba(248,113,113,.55);background:repeating-linear-gradient(135deg,rgba(248,113,113,.22) 0 6px,transparent 6px 12px),var(--bg);color:var(--muted);text-decoration:line-through;opacity:.85;cursor:not-allowed}
   .day.passe{opacity:.2;cursor:not-allowed}
+  .day.dernier{position:relative}
+  .day.dernier::after{content:"";position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#FACC15;box-shadow:0 0 6px #FACC15}
+  .legend i.lg-dernier{border:0;width:9px;height:9px;border-radius:50%;background:#FACC15;box-shadow:0 0 6px #FACC15;vertical-align:0}
+  #reserver .legend i.lg-dernier{width:9px;height:9px;vertical-align:0}
+  .cal-dernier{margin:8px 0 0;font-size:14px;font-weight:700;color:#FACC15}
+  :root[data-theme=light] .cal-dernier{color:#A16207}
+  @media (prefers-color-scheme:light){ :root:not([data-theme=dark]) .cal-dernier{color:#A16207} }
   .day.sel{background:var(--pink);color:#1A0B00;border-color:var(--pink);box-shadow:0 0 18px rgba(255,122,26,.5)}
   .day:not(.complet):not(.passe):hover{transform:scale(1.06)}
   .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--text)}
@@ -743,6 +750,29 @@
     #materiel .pack-groupe small.glisse[hidden]{display:none}
   }
   .reprise-accueil{padding-top:18px}
+  /* 18/11 : fiche « Voir le pack » en plein écran (vraie vidéo du matériel + texte + prix) */
+  .fiche-pack{position:fixed;inset:0;z-index:90;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .fiche-pack[hidden]{display:none}
+  .fiche-pack .fp-media{position:relative;height:min(58vh,560px);background:#000}
+  .fiche-pack video{width:100%;height:100%;object-fit:cover;display:block}
+  .fiche-pack .fp-media::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+  .fiche-pack .fp-x{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:12px;z-index:2;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:24px;cursor:pointer}
+  .fiche-pack .fp-in{max-width:640px;margin:-70px auto 0;position:relative;padding:0 18px calc(env(safe-area-inset-bottom) + 28px)}
+  .fiche-pack h2{font-family:"Bebas Neue";font-weight:400;font-size:clamp(38px,9vw,56px);line-height:1;margin:0 0 6px}
+  .fiche-pack .fp-titre{font-size:19px;font-weight:700;margin:0 0 10px;color:var(--pink)}
+  .fiche-pack .fp-acc{font-size:17px;margin:0 0 14px}
+  .fiche-pack .fp-pour{display:inline-block;margin:0 0 14px;padding:6px 12px;border-radius:999px;background:color-mix(in srgb,var(--cyan) 15%,var(--card));font-weight:600;font-size:15px}
+  .fiche-pack ul{margin:0 0 14px;padding-left:20px}
+  .fiche-pack .fp-plus{list-style:none;padding:0;color:var(--muted);font-size:15px}
+  .fiche-pack .fp-prix{font-size:17px;margin:0 0 18px}
+  .fiche-pack .fp-go{width:100%;font-size:18px;padding:16px}
+  .item-actions .btn.voir-pack{flex:0 1 auto}
+  /* 18/11 : bandeau Noël / Nouvel An (affiché du 1er au 31 décembre) */
+  .fetes{margin:18px 0 0;padding:14px 16px;border-radius:16px;border:1px solid color-mix(in srgb,#FACC15 55%,transparent);background:linear-gradient(135deg,color-mix(in srgb,#DC2626 16%,var(--card)),color-mix(in srgb,#FACC15 12%,var(--card)));max-width:560px}
+  .fetes b.t{display:block;font-size:17px;margin-bottom:4px}
+  .fetes ul{list-style:none;margin:6px 0 10px;padding:0;font-size:15px}
+  .fetes li{margin:2px 0}
+  .fetes .btn{padding:11px 20px;font-size:15px}
   .cta-centre{text-align:center;margin-top:30px}
   /* « Le matériel » rangé par catégories (01/11) : une seule catégorie affichée à la fois */
   .mat-onglets{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 0 18px;padding:2px 2px 6px}
@@ -782,6 +812,7 @@
     <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
     <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · réservation en 2 minutes</p>
+    <div class="fetes" id="fetes" hidden><b class="t" id="fetes-t">🎄 Noël et 🎆 Nouvel An : les soirées partent vite</b><ul id="fetes-l"></ul><a class="btn" href="#trouver" data-esp-go>Réserver ma soirée de fête →</a></div>
     <!-- 17/11 : bloc condensé (demande de l'utilisateur) : 6 pastilles courtes sur 2 colonnes -->
     <ul class="go-plus">
       <li><span aria-hidden="true">👥</span><span><b>On te conseille</b> selon ton nombre d'invités</span></li>
@@ -910,7 +941,8 @@
       <div class="cal-head"><button class="cal-nav" id="cal-prev" type="button" aria-label="Mois précédent">‹</button><b id="cal-titre"></b><button class="cal-nav" id="cal-next" type="button" aria-label="Mois suivant">›</button></div>
       <div class="cal-zone"><div class="cal" id="cal" aria-live="polite"></div>
         <div class="cal-charge" id="cal-charge" hidden><svg viewBox="0 0 100 80" aria-hidden="true"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44"/><circle cx="92" cy="30" r="6.5"/></svg><span>Chargement des disponibilités…</span></div></div>
-      <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span></div>
+      <div class="legend"><span><i class="lg-libre"></i>Disponible</span><span><i class="lg-conf"></i>À confirmer</span><span><i class="lg-complet"></i>Complet</span><span id="lg-dernier" hidden><i class="lg-dernier"></i>Plus qu'un dispo</span></div>
+      <p class="cal-dernier" id="cal-dernier" hidden></p>
       <p class="cal-aide" id="bk-cal-aide"></p>
       <div class="att-box" id="bk-liste-attente" hidden>
         <p><b id="att-titre"></b><br>Laisse ton e-mail : on te prévient si cette date se libère (un seul e-mail ; ton adresse est effacée une fois la date passée).</p>
@@ -1682,6 +1714,21 @@
     }
     return inconnu ? 'a_confirmer' : 'libre';
   }
+  // 18/11 : « plus qu'un disponible » : il ne reste qu'un seul exemplaire de l'offre choisie ce soir-là, alors qu'il y en a plusieurs d'habitude
+  function dernierDe(data, k){
+    if (!data || !data.reste || !data.reste[k] || !data.compos || !data.stock) return false;
+    let ov = offreSel.value; if (ov.endsWith(MICRO_SUF)) ov = ov.slice(0, -MICRO_SUF.length);
+    let compo = data.compos[ov];
+    if (!compo && ov.indexOf('Panier perso : ') === 0) { compo = {}; for (const a in panier) if (panier[a]) compo[PACK_CLE[a]] = panier[a]; }
+    if (!compo) return false;
+    let reste = Infinity, max = Infinity;
+    for (const a in compo) {
+      const r = data.reste[k][a], s = data.stock[a];
+      if (r == null || s == null || !compo[a]) continue;
+      reste = Math.min(reste, Math.floor(r / compo[a])); max = Math.min(max, Math.floor(s / compo[a]));
+    }
+    return reste === 1 && max > 1;
+  }
   const passe = k => k < isoJ(auj) || (k === isoJ(auj) && !heuresPossibles(k).length);
   async function statutK(k){ return passe(k) ? 'complet' : statutDe(await dispoMois(k.slice(0, 7)), k); }
   async function periodeLibre(start, n){ for (let i = 0; i < n; i++) if (await statutK(plusJ(start, i)) === 'complet') return false; return true; }
@@ -1760,12 +1807,17 @@
     if (!(cle in cache)) setTimeout(() => { if (vCal === dessiner.v && !(cle in cache)) $('cal-charge').hidden = false; }, 250);
     const data = await dispoMois(cle);
     if (vCal === dessiner.v) $('cal-charge').hidden = true;
+    let derniers = 0;
     boutons.forEach(b=>{
       if (b.disabled) return;
-      const s = statutDe(data, b.dataset.k);
-      b.classList.add(s);
-      b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible':s==='complet'?'complet (touche pour être prévenu si ça se libère)':'à confirmer'));
+      const s = statutDe(data, b.dataset.k), dern = s === 'libre' && dernierDe(data, b.dataset.k);
+      b.classList.add(s); if (dern) { b.classList.add('dernier'); derniers++; }
+      b.setAttribute('aria-label', b.textContent+' '+MOIS[vue.getMonth()]+' : '+(s==='libre'?'disponible'+(dern?', plus qu’un seul':''):s==='complet'?'complet (touche pour être prévenu si ça se libère)':'à confirmer'));
     });
+    $('lg-dernier').hidden = !derniers;
+    const bSel = debut && boutons.find(x => x.dataset.k === debut);
+    $('cal-dernier').hidden = !(bSel && bSel.classList.contains('dernier'));
+    if (!$('cal-dernier').hidden) $('cal-dernier').textContent = '⚡ C’est le dernier disponible pour ce soir-là : réserve vite !';
     // l'offre a changé et une soirée choisie n'est plus libre : on efface la sélection
     if (p && !(await periodeLibre(p.start, p.nuits))) { debut = fin = null; $('bk-veille').checked = false; aide('Ce matériel n\'est plus libre sur ces dates : choisis une autre date.'); maj(); majHeures(); dessiner(); }
   }
@@ -2613,6 +2665,52 @@
     const CLE = { 'JBL PartyBox 310': 'p310', 'JBL PartyBox 710': 'p710', 'JBL PartyBox Ultimate': 'pult', 'Machine à fumée 2000 W RGB': 'fumee',
                   'Trépied à lumières': 'trep', 'Lyre WZYBUTA 150 W': 'wzy', 'Lyre Betopper LM0740': 'beto', 'Laser KeoBin 3D RGB': 'laser', 'Paire de micros sans fil JBL': 'micro' };
     const zone = document.getElementById('materiel'); if (!zone) return;
+    // 18/11 : fiches « Voir le pack » (textes vrais : capacités et contenu du site au 18/11 ; vidéos = vraies vidéos du matériel de Mistraloc)
+    const LIV = '🚐 Livré, installé et repris le lendemain (dès 10 €), ou retrait gratuit à Salon', APPLI = '📱 Les lumières se pilotent depuis ton téléphone : on te montre tout';
+    const FICHES = {
+      apero: { v: 'enceintes', t: 'Le son qui suit la fête, même sans prise', a: 'Une JBL PartyBox 320, ton téléphone en Bluetooth, et la soirée démarre. Sur batterie jusqu\'à 18 h : terrasse, jardin, bord de piscine.', p: 'Apéro, petit anniversaire, soirée entre amis' },
+      soiree: { v: 'enceintes', t: 'Gros son pour une vraie soirée', a: 'La PartyBox 710 et ses 800 W, avec ses lumières intégrées qui suivent la musique : de quoi faire danser tout le salon.', p: 'Anniversaire, crémaillère, soirée' },
+      club: { v: 'enceintes', t: 'Deux enceintes, toute la salle danse', a: 'Deux PartyBox 710 reliées entre elles : le son couvre toute la pièce, sans pousser le volume à fond.', p: 'Grandes fêtes, 18 ans, soirées d\'asso' },
+      pcult: { v: 'enceintes', t: 'Le niveau au-dessus', a: 'Deux PartyBox Ultimate, le haut de gamme JBL (1100 W chacune), avec leur show lumineux intégré. Pour les fêtes où on attend beaucoup de monde.', p: 'Très grandes fêtes, salles des fêtes' },
+      pamb: { v: 'couleurs', t: 'Une petite fête, un rendu de grande soirée', a: 'La PartyBox 320, un trépied de 6 têtes mobiles (faisceaux, lasers, stroboscope) et la fumée qui rend les faisceaux visibles.', p: 'Anniversaire, soirée entre amis', l: 1 },
+      psshow: { v: 'show', t: 'L\'effet concert à la maison', a: 'Gros son, fumée et faisceaux qui balaient la piste : la fumée capte les lumières, et la pièce change complètement.', p: 'Anniversaire, soirée à thème', l: 1 },
+      pclas: { v: 'effet', t: 'L\'ambiance boîte de nuit', a: 'Deux PartyBox 710, le trépied lumière avec ses lasers rouge et vert, et la fumée : une vraie piste de danse.', p: 'Grandes fêtes, 18 ans', l: 1 },
+      pscene: { v: 'scene', t: 'Comme une scène', a: 'Deux PartyBox 710 et deux trépieds de lumière (12 têtes mobiles) de chaque côté, plus la fumée : c\'est exactement ce que tu vois dans la vidéo.', p: 'Grandes fêtes, soirées à thème', l: 1 },
+      pults: { v: 'show', t: 'Discours, puis la piste', a: 'La PartyBox Ultimate (1100 W), le trépied lumière, la fumée et 2 micros sans fil : pour les discours, le karaoké, puis la danse.', p: 'Anniversaire, fête de famille', l: 1 },
+      pmar: { v: 'show', t: 'Tout ton mariage, de l\'entrée des mariés à la fin de la nuit', a: 'Deux PartyBox Ultimate, le trépied lumière, la fumée et 2 micros sans fil : discours, première danse, puis la fête.', p: 'Mariage', l: 1 },
+      ppres: { v: 'scene', t: 'Le maximum de son et de lumière', a: 'Le Pack Mariage avec deux trépieds de lumière : deux PartyBox Ultimate, 12 têtes mobiles, la fumée et 2 micros sans fil.', p: 'Mariages, très grandes fêtes', l: 1 }
+    };
+    const fp = document.createElement('div'); fp.className = 'fiche-pack'; fp.hidden = true; fp.setAttribute('role', 'dialog'); fp.setAttribute('aria-modal', 'true');
+    document.body.appendChild(fp);
+    let fpCarte = null, fpAvant = null;
+    const fermerFiche = () => { const v = fp.querySelector('video'); if (v) v.pause(); fp.hidden = true; fp.innerHTML = ''; document.body.style.overflow = ''; if (fpAvant) fpAvant.focus(); };
+    function ouvrirFiche(k, carte) {
+      const f = FICHES[k]; if (!f) return;
+      fpCarte = carte; fpAvant = document.activeElement;
+      const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const ul = carte.querySelector('ul'), prix = carte.querySelector('.in > b'), inv = carte.querySelector('.item-inv');
+      fp.setAttribute('aria-label', carte.dataset.article);
+      fp.innerHTML = '<div class="fp-media"><video playsinline muted loop preload="metadata" poster="videos/' + f.v + '.jpg"' + (doux ? ' autoplay' : ' controls') + ' src="videos/' + f.v + '.mp4"></video>' +
+        '<button type="button" class="fp-x" aria-label="Fermer">×</button></div><div class="fp-in"><h2></h2><p class="fp-titre"></p><p class="fp-acc"></p><span class="fp-pour"></span>' +
+        '<ul class="fp-dedans"></ul><ul class="fp-plus"></ul><p class="fp-prix"></p><a class="btn fp-go" href="#trouver">Je veux ce pack →</a></div>';
+      fp.querySelector('h2').textContent = carte.dataset.article;
+      fp.querySelector('.fp-titre').textContent = f.t;
+      fp.querySelector('.fp-acc').textContent = f.a;
+      fp.querySelector('.fp-pour').textContent = '🎉 ' + f.p + (inv ? ' · ' + inv.textContent.replace(/^👥\s*Conseillé jusqu'à\s*/, '').replace(/^~/, '~') : '');
+      if (ul) fp.querySelector('.fp-dedans').innerHTML = ul.innerHTML;
+      fp.querySelector('.fp-plus').innerHTML = ['<li>' + LIV + '</li>', f.l ? '<li>' + APPLI + '</li>' : '', '<li>🔒 Caution par carte (rien n\'est débité) ou en espèces</li>'].join('');
+      if (prix) fp.querySelector('.fp-prix').innerHTML = prix.innerHTML;
+      fp.hidden = false; document.body.style.overflow = 'hidden'; fp.scrollTop = 0;
+      fp.querySelector('.fp-x').focus();
+    }
+    fp.addEventListener('click', e => {
+      if (e.target.closest('.fp-x')) return fermerFiche();
+      const go = e.target.closest('.fp-go'); if (!go) return;
+      e.preventDefault(); const c = fpCarte; fermerFiche();
+      const lien = c && c.querySelector('[data-esp-go]'); if (lien) lien.click();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !fp.hidden) fermerFiche(); });
+    zone.addEventListener('click', e => { const bt = e.target.closest('button[data-voir-pack]'); if (bt) ouvrirFiche(bt.dataset.voirPack, bt.closest('.item.pack')); });
     // packs : petites images du contenu + bouton qui ouvre la réservation (comme les autres boutons du catalogue, sans présélection)
     zone.querySelectorAll('.item.pack[data-pack]').forEach(it => {
       // une image par appareil du pack (2 × 710 = 2 images), dans l'ordre son → fumée → lumière → micros
@@ -2623,7 +2721,8 @@
       if (cap > 0) it.querySelector('h3').insertAdjacentHTML('afterend', '<span class="item-inv">👥 Conseillé jusqu\'à ~' + cap + ' invités</span>');
       // micros : option proposée sur les packs avec PartyBox qui ne les incluent pas (case à cocher pendant la réservation)
       const opt = !c.micro && (c.p310 || c.p710 || c.pult) ? '<p class="pack-opt">🎤 En option : <b>2 micros sans fil</b>, +<span data-prix-micro>' + PACKS.micro.sem + '</span> en semaine</p>' : '';
-      it.querySelector('.in').insertAdjacentHTML('beforeend', opt + '<div class="item-actions"><a class="btn" href="#trouver" data-esp-go>Choisir ce pack →</a></div>');
+      it.querySelector('.in').insertAdjacentHTML('beforeend', opt + '<div class="item-actions"><a class="btn" href="#trouver" data-esp-go>Choisir ce pack →</a>' +
+        (FICHES[it.dataset.pack] ? '<button type="button" class="btn ghost voir-pack" data-voir-pack="' + it.dataset.pack + '">▶ Voir</button>' : '') + '</div>');
     });
     zone.querySelectorAll('.item[data-article]').forEach(it => {
       const k = CLE[it.dataset.article]; if (!k) return;
@@ -2688,8 +2787,20 @@
       $e('esp-choix').innerHTML = '<span>🎉 ' + echap(f ? f.textContent.trim() : 'Fête') + '</span><span>👥 ' + (+g.value >= 200 ? '200+' : g.value) + ' invités</span>' +
         '<span>' + (p && p.dataset.prise === 'non' ? '🌳 Sans prise' : '🔌 Prise sur place') + '</span><button type="button" data-esp-fq="1">Modifier</button>';
     }
+    // 18/11 : entonnoir — chaque étape atteinte est comptée une fois par onglet (anonyme ; jamais Mistraloc ni les robots / tests)
+    function etapeVue(n){
+      try {
+        if (localStorage.getItem('audioloc_moi') || navigator.webdriver || /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent || '')) return;
+        const deja = (sessionStorage.getItem('mistraloc_et') || '').split(',');
+        if (deja.indexOf(String(n)) >= 0) return;
+        deja.push(n); sessionStorage.setItem('mistraloc_et', deja.join(','));
+        const src = sessionStorage.getItem('mistraloc_src') || '';
+        fetch(API + '?action=etape&n=' + n + (src ? '&src=' + encodeURIComponent(src) : '')).catch(() => {});
+      } catch (e) {}
+    }
     function majTete(){
       const p = pasResa(), fini = phase === 'resa' && p === 5, n = phase === 'pack' ? fq : 4 + Math.min(p, 4);
+      if (ouvert) etapeVue(fini ? 9 : n);
       $e('esp-num').textContent = fini ? 'C\'est envoyé' : 'Étape ' + n + ' sur 8';
       $e('esp-nom').textContent = fini ? 'Demande envoyée ✓' : NOMS[n - 1];
       $e('esp-tete').style.setProperty('--av', (fini ? 100 : n / 8 * 100) + '%');
@@ -2867,6 +2978,23 @@
   })();
 
   // Compteur de visites anonyme (sans cookie) : page vue + nouvelle visite + site d'origine (ex. instagram.com)
+  // 18/11 : bandeau Noël / Nouvel An, du 1er au 31 décembre : enceintes encore libres le 24 et le 31 (lu dans le calendrier en direct)
+  (() => {
+    const now = new Date(), y = now.getFullYear();
+    if (now.getMonth() !== 11) return;
+    const jours = [['24', '🎄 Le 24 décembre (réveillon de Noël)'], ['31', '🎆 Le 31 décembre (Nouvel An)']].filter(([j]) => now.getDate() <= +j);
+    if (!jours.length) return;
+    const ENC = ['JBL PartyBox 310', 'JBL PartyBox 710', 'JBL PartyBox Ultimate'];
+    fetch(API + '?action=dispo&mois=' + y + '-12').then(r => r.json()).then(d => {
+      if (!d || !d.ok || !d.reste) return;
+      const l = jours.map(([j, txt]) => {
+        const r = d.reste[y + '-12-' + j] || {}; const n = ENC.reduce((t, a) => t + (Number(r[a]) || 0), 0);
+        return '<li>' + txt + ' : ' + (n === 0 ? '<b>complet</b>' : n <= 2 ? '<b>⚡ plus que ' + n + ' enceinte' + (n > 1 ? 's' : '') + '</b>' : 'encore ' + n + ' enceintes disponibles') + '</li>';
+      });
+      document.getElementById('fetes-l').innerHTML = l.join('');
+      document.getElementById('fetes').hidden = false;
+    }).catch(() => {});
+  })();
   (() => {
     // 18/11 : d'où vient le visiteur quand le lien est marqué (?src=gads pour Google Ads, fb, ig, tt, gbp ; gclid = clic Google Ads)
     // gardé seulement pour l'onglet en cours (sessionStorage), envoyé avec la demande de réservation → colonne Source du CRM
