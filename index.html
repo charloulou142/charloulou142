@@ -753,7 +753,7 @@
   /* 18/11 : fiche « Voir le pack » en plein écran (vraie vidéo du matériel + texte + prix) */
   .fiche-pack{position:fixed;inset:0;z-index:90;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
   .fiche-pack[hidden]{display:none}
-  .fiche-pack .fp-media{position:relative;height:min(58vh,560px);background:#000}
+  .fiche-pack .fp-media{position:relative;height:min(58vh,560px);background:#000;overflow:hidden}
   .fiche-pack video{width:100%;height:100%;object-fit:cover;display:block}
   .fiche-pack .fp-media::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(transparent,var(--bg));pointer-events:none}
   .fiche-pack .fp-x{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:12px;z-index:2;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:24px;cursor:pointer}
@@ -2683,7 +2683,17 @@
     const fp = document.createElement('div'); fp.className = 'fiche-pack'; fp.hidden = true; fp.setAttribute('role', 'dialog'); fp.setAttribute('aria-modal', 'true');
     document.body.appendChild(fp);
     let fpCarte = null, fpAvant = null;
-    const fermerFiche = () => { const v = fp.querySelector('video'); if (v) v.pause(); fp.hidden = true; fp.innerHTML = ''; document.body.style.overflow = ''; if (fpAvant) fpAvant.focus(); };
+    // 18/11 : petite animation à l'ouverture (fondu + la fiche monte un peu, la vidéo se pose) et à la fermeture (l'inverse, plus court)
+    const fpDoux = () => !matchMedia('(prefers-reduced-motion: reduce)').matches && fp.animate;
+    let fpFerme = false;
+    const fermerFiche = () => {
+      if (fp.hidden || fpFerme) return;
+      const fin = () => { fpFerme = false; const v = fp.querySelector('video'); if (v) v.pause(); fp.hidden = true; fp.innerHTML = ''; document.body.style.overflow = ''; if (fpAvant) fpAvant.focus(); };
+      if (!fpDoux()) return fin();
+      fpFerme = true;
+      const a = fp.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(18px) scale(.985)' }], { duration: 200, easing: 'cubic-bezier(.4,0,1,1)' });
+      a.onfinish = fin; setTimeout(() => { if (fpFerme) fin(); }, 400);   // sécurité si l'animation ne se termine pas
+    };
     function ouvrirFiche(k, carte) {
       const f = FICHES[k]; if (!f) return;
       fpCarte = carte; fpAvant = document.activeElement;
@@ -2701,6 +2711,11 @@
       fp.querySelector('.fp-plus').innerHTML = ['<li>' + LIV + '</li>', f.l ? '<li>' + APPLI + '</li>' : '', '<li>🔒 Caution par carte (rien n\'est débité) ou en espèces</li>'].join('');
       if (prix) fp.querySelector('.fp-prix').innerHTML = prix.innerHTML;
       fp.hidden = false; document.body.style.overflow = 'hidden'; fp.scrollTop = 0;
+      if (fpDoux()) {
+        fp.animate([{ opacity: 0, transform: 'translateY(26px) scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.8,.2,1)' });
+        const m = fp.querySelector('.fp-media video'); if (m) m.animate([{ transform: 'scale(1.06)' }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.2,.8,.2,1)' });
+        fp.querySelectorAll('.fp-in > *').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: 90 + i * 35, easing: 'ease-out', fill: 'backwards' }));
+      }
       fp.querySelector('.fp-x').focus();
     }
     fp.addEventListener('click', e => {
