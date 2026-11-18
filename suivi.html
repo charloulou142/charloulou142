@@ -521,23 +521,52 @@
       const joli = s => s.toLowerCase().replace(/(^|[ '-])([a-z])/g, (x, a, b) => a + b.toUpperCase());
       return { nom: nom, prenom: joli(prenom), mrz };
     }
-    // 18/11 : 2e lecture, seulement sur le bas de la carte (bande MRZ : lignes de lettres, chiffres et <<<), agrandie, en gris contrasté,
-    // avec uniquement les caractères possibles : la lecture générale rate souvent ces lignes (testé sur une vraie carte 2021)
-    async function lireBandeMrz(w, c) {
-      const h0 = Math.round(c.height * 0.6), hh = c.height - h0, W = 1600, H = Math.max(40, Math.round(hh * W / c.width));
+    // 18/11 : lecture du bas de la carte (bande MRZ : lignes de lettres, chiffres et <<<). La lecture générale la rate souvent, et une seule
+    // lecture de la bande se trompe parfois sur quelques lettres (testé sur une vraie carte 2021 : « DEL », « PEL », « QUET »…).
+    // → plusieurs lectures courtes avec des réglages d'image différents, puis vote : le nom et le prénom lus le plus souvent gagnent.
+    function imageBande(c, haut, W, mode, gx) {
+      const h0 = Math.round(c.height * haut), hh = c.height - h0, x0 = Math.round(c.width * gx), H = Math.max(40, Math.round(hh * W / (c.width - x0)));
       const b = document.createElement('canvas'); b.width = W; b.height = H;
-      const g = b.getContext('2d', { willReadFrequently: true }); g.drawImage(c, 0, h0, c.width, hh, 0, 0, W, H);
-      const im = g.getImageData(0, 0, W, H), px = im.data; let mn = 255, mx = 0;
-      for (let p = 0; p < px.length; p += 4) { const v = 0.299 * px[p] + 0.587 * px[p + 1] + 0.114 * px[p + 2]; px[p] = v; if (v < mn) mn = v; if (v > mx) mx = v; }
-      const k = 255 / Math.max(40, mx - mn);
-      for (let p = 0; p < px.length; p += 4) { const v = Math.max(0, Math.min(255, (px[p] - mn) * k * 1.15 - 10)); px[p] = px[p + 1] = px[p + 2] = v; }
+      const g = b.getContext('2d', { willReadFrequently: true }); g.drawImage(c, x0, h0, c.width - x0, hh, 0, 0, W, H);
+      const im = g.getImageData(0, 0, W, H), px = im.data, n = W * H, gr = new Float32Array(n);
+      for (let p = 0; p < n; p++) gr[p] = 0.299 * px[4 * p] + 0.587 * px[4 * p + 1] + 0.114 * px[4 * p + 2];
+      if (mode === 'c') {   // contraste étiré
+        let mn = 255, mx = 0; for (let p = 0; p < n; p++) { if (gr[p] < mn) mn = gr[p]; if (gr[p] > mx) mx = gr[p]; }
+        const k = 255 / Math.max(40, mx - mn); for (let p = 0; p < n; p++) gr[p] = Math.max(0, Math.min(255, (gr[p] - mn) * k * 1.15 - 10));
+      } else {   // noir et blanc « adaptatif » : chaque point comparé à la moyenne autour de lui (efface le fond de sécurité de la carte)
+        const R = 25, L = W + 1, I = new Float64Array(L * (H + 1));
+        for (let y = 0; y < H; y++) { let s = 0; for (let x = 0; x < W; x++) { s += gr[y * W + x]; I[(y + 1) * L + x + 1] = I[y * L + x + 1] + s; } }
+        const o = new Uint8ClampedArray(n);
+        for (let y = 0; y < H; y++) { const y0 = Math.max(0, y - R), y1 = Math.min(H - 1, y + R);
+          for (let x = 0; x < W; x++) { const xa = Math.max(0, x - R), xb = Math.min(W - 1, x + R);
+            const m = (I[(y1 + 1) * L + xb + 1] - I[y0 * L + xb + 1] - I[(y1 + 1) * L + xa] + I[y0 * L + xa]) / ((xb - xa + 1) * (y1 - y0 + 1));
+            o[y * W + x] = gr[y * W + x] < m - 12 ? 0 : 255; } }
+        for (let p = 0; p < n; p++) gr[p] = o[p];
+      }
+      for (let p = 0; p < n; p++) px[4 * p] = px[4 * p + 1] = px[4 * p + 2] = gr[p];
       g.putImageData(im, 0, 0);
+      return b;
+    }
+    async function lireBandeMrz(w, c) {
+      const REGLAGES = [[.6, 1800, 'a', 0], [.6, 1600, 'c', 0], [.6, 2200, 'a', 0], [.6, 1600, 'c', .06], [.55, 1800, 'a', 0]];
+      const noms = {}, prenoms = {}, textes = [];
       try {
         await w.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<', tessedit_pageseg_mode: '6' });
-        const r = await Promise.race([w.recognize(b), delai(20000, null)]);
-        return r ? r.data.text : '';
-      } catch (e) { return ''; }
+        const fin = Date.now() + 6000;   // pas plus de ~6 s en tout
+        for (const [haut, W, mode, gx] of REGLAGES) {
+          if (Date.now() > fin) break;
+          const r = await Promise.race([w.recognize(imageBande(c, haut, W, mode, gx)), delai(8000, null)]);
+          if (!r) continue;
+          const t = r.data.text.split('\n').map(l => l.trim().replace(/ +/g, '<')).join('\n');   // un espace au milieu de la bande = un « < » mal lu
+          textes.push(t);
+          const n = extraireNom(t);
+          if (n && n.mrz) { noms[n.nom] = (noms[n.nom] || 0) + 1; prenoms[n.prenom] = (prenoms[n.prenom] || 0) + 1; }
+        }
+      } catch (e) {}
       finally { try { await w.setParameters({ tessedit_char_whitelist: '', tessedit_pageseg_mode: '3' }); } catch (e) {} }
+      const top = o => Object.keys(o).sort((a, b) => o[b] - o[a])[0] || '';   // à égalité : le 1er réglage (le plus fiable) gagne
+      const nom = top(noms), prenom = top(prenoms);
+      return { texte: textes.join('\n'), nom: nom && prenom ? { nom, prenom, mrz: true, voix: noms[nom] } : null };
     }
     function classerPiece(texte) {
       const T = String(texte || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[«‹]/g, '<');
@@ -571,10 +600,10 @@
         const r = await Promise.race([w.recognize(c), delai(25000, null)]);
         const v = r ? classerPiece(r.data.text) : { verdict: 'non lue' };
         // 2e lecture de la bande du bas (nom, prénom) si la 1re n'a pas trouvé la bande MRZ
-        if (r && v.verdict !== 'interdit' && !(v.nom && v.nom.mrz)) {
-          const t2 = await lireBandeMrz(w, c), n2 = extraireNom(t2);
-          if (n2 && (n2.mrz || !v.nom)) v.nom = n2;
-          if (v.verdict === 'illisible' && /IDFRA|P<FRA|<{5,}/.test(t2)) v.verdict = 'ok';
+        if (r && v.verdict !== 'interdit') {
+          const b2 = await lireBandeMrz(w, c);
+          if (b2.nom) v.nom = b2.nom;   // le vote sur la bande du bas est plus fiable que la lecture générale
+          if (v.verdict === 'illisible' && /IDFRA|P<FRA|<{5,}/.test(b2.texte)) v.verdict = 'ok';
         }
         // aucune mention de pièce d'identité lue + carte surtout verte = carte Vitale (les pièces d'identité sont de tons pâles)
         if (v.verdict !== 'ok' && v.verdict !== 'interdit' && partVerte(c) > 0.35) return { verdict: 'interdit', quoi: 'une carte Vitale' };
