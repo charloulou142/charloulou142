@@ -2878,11 +2878,13 @@
       if (!/^(gads|fb|ig|tt|gbp)$/.test(src)) src = '';
       if (src) sessionStorage.setItem('mistraloc_src', src);
     } catch (e) {}
-    try { if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}
+    try { if (new URLSearchParams(location.search).get('moi') === 'mx7k2p') { localStorage.setItem('audioloc_moi', '1'); history.replaceState(null, '', location.pathname + location.hash); } if (localStorage.getItem('audioloc_moi')) return; } catch (e) {}   // lien secret du propriétaire : cet appareil n'est plus compté
+    if (navigator.webdriver || /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|inspectiontool|facebookexternalhit|phantom|selenium|puppeteer|playwright/i.test(navigator.userAgent || '')) return;   // robots et navigateurs automatiques (tests) : pas comptés
+    let nv = '0'; try { const d = +localStorage.getItem('mistraloc_deja') || 0; if (!d || Date.now() - d > 395 * 864e5) { nv = '1'; localStorage.setItem('mistraloc_deja', String(Date.now())); } } catch (e) {}   // nouveau visiteur ? (repère sans identifiant, 13 mois max)
     let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
     let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
     if (src) s = 'src.' + src;
-    fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s)).catch(() => {});
+    fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s) + '&nv=' + nv + '&m=' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 1 : 0)).catch(() => {});
   })();
 </script>
 
