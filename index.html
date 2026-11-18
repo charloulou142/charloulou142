@@ -3044,6 +3044,12 @@
     let nv = '0'; try { const d = +localStorage.getItem('mistraloc_deja') || 0; if (!d || Date.now() - d > 395 * 864e5) { nv = '1'; localStorage.setItem('mistraloc_deja', String(Date.now())); } } catch (e) {}   // nouveau visiteur ? (repère sans identifiant, 13 mois max)
     let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
     let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+    // 18/11 : clic sur « Appeler » ou WhatsApp = compté (anonyme : juste +1 du jour, et si le visiteur vient de la pub Google)
+    document.addEventListener('click', e => {
+      const a = e.target.closest && e.target.closest('a[href^="tel:"], a[href*="wa.me/"], #aide-wa'); if (!a) return;
+      let src = ''; try { src = sessionStorage.getItem('mistraloc_src') || ''; } catch (x) {}
+      fetch(API + '?action=contact&t=' + (/^tel:/.test(a.getAttribute('href') || '') ? 'tel' : 'wa') + (src === 'gads' ? '&src=gads' : ''), { keepalive: true, mode: 'no-cors' }).catch(() => {});
+    }, true);
     if (src) s = 'src.' + src;
     fetch(API + '?action=visite&p=accueil&n=' + n + '&s=' + encodeURIComponent(s) + '&nv=' + nv + '&m=' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 1 : 0)).catch(() => {});
   })();
