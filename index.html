@@ -1619,7 +1619,9 @@
   window.effetVoulu = false; window.effetManuel = false;
   const EFFET_1T = { pscene: 'pclas', ppres: 'pmar' }, EFFET_2T = { pclas: 'pscene', pmar: 'ppres' };
   function effetPack(){ return reco0() === 'pcult' ? 'ppres' : 'pscene'; }
+  window.packVoulu = null;
   window.effetAuto = function(){
+    if (window.packVoulu && !window.effetManuel && !CACHES.has(window.packVoulu) && PACKS[window.packVoulu]) { show(window.packVoulu, true); return; }
     if (!window.effetVoulu || window.effetManuel) return;
     const k = effetPack(); if (CACHES.has(k)) return;
     show(k, true); majEffet();
@@ -2723,8 +2725,10 @@
     fp.addEventListener('click', e => {
       if (e.target.closest('.fp-x')) return fermerFiche();
       const go = e.target.closest('.fp-go'); if (!go) return;
-      e.preventDefault(); const c = fpCarte; fermerFiche();
-      const lien = c && c.querySelector('[data-esp-go]'); if (lien) lien.click();
+      // 18/11 : la fiche se ferme tout de suite (sans revenir sur la page) et l'espace de réservation repart de l'étape 1 ; le pack sera choisi à l'étape « Ton pack »
+      e.preventDefault(); const c = fpCarte; fpAvant = null;
+      const v = fp.querySelector('video'); if (v) v.pause(); fp.hidden = true; fp.innerHTML = ''; document.body.style.overflow = '';
+      if (window.espDebut) window.espDebut(c && c.dataset.pack, e.clientX || null, e.clientY || null);
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !fp.hidden) fermerFiche(); });
     zone.addEventListener('click', e => { const bt = e.target.closest('button[data-voir-pack]'); if (bt) ouvrirFiche(bt.dataset.voirPack, bt.closest('.item.pack')); });
@@ -2835,6 +2839,15 @@
     const aller = (c, sil) => c === 'resa' ? allerResa(sil) : allerFq(c, sil);
     window.espResa = () => { if (ouvert) allerResa(); };
     window.espPack = () => { if (ouvert) allerFq(4); };
+    // 18/11 : « Je veux ce pack » (fiche) / « Choisir ce pack » (catalogue) : on repart TOUJOURS de l'étape 1 (fête, invités, prise),
+    // aucune réponse cochée d'avance ; à l'étape 4 le pack voulu est mis en avant (le client peut en changer)
+    window.espDebut = (k, x, y) => {
+      if (anime) return;
+      window.packVoulu = k || null; window.effetVoulu = false; window.effetManuel = false;
+      document.querySelectorAll('#trouver .choice, #trouver .choice-p').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      if (pasResa() === 5) $e('bk-encore').click();
+      ouvrir(1, x, y);
+    };
     const reprendre = () => {
       if (!vu) return 1;
       if (pasResa() === 5) { $e('bk-encore').click(); return 1; }   // demande déjà envoyée : on repart du début
@@ -2904,6 +2917,7 @@
     document.addEventListener('click', e => {
       if (passe) return;
       const t = e.target;
+      if (t.closest('.fiche-pack')) return;   // la fiche « Voir » gère elle-même son bouton « Je veux ce pack »
       // « Déjà client ? Connecte-toi » / « Mon compte » pendant la réservation : on enregistre la réservation, puis retour ici après la connexion
       const lc = t.closest('#reserver a[href^="compte.html"]');
       if (lc) { e.preventDefault(); if (typeof sauverResa === 'function') sauverResa(); setTimeout(() => { location.href = 'compte.html?retour=resa'; }, 500); return; }
@@ -2911,10 +2925,12 @@
       if (!ouvert) {
         const cat = t.closest('#materiel [data-reserver], #materiel [data-panier], #materiel [data-creer]'), autre = t.closest('#bk-reprise-ok, #offre-go');
         let cible = null;
+        const pk = t.closest('#materiel .item.pack [data-esp-go]');
+        if (pk) { e.preventDefault(); e.stopPropagation(); window.espDebut(pk.closest('.item.pack').dataset.pack, e.clientX || null, e.clientY || null); return; }
         if (cat) cible = 1;   // bouton du catalogue : on commence à l'étape 1, sans rien choisir à la place du client
         else if (autre) cible = autre.id === 'bk-reprise-ok' ? 'resa' : reprendre();
         else if (a) cible = reprendre();
-        if (a && !cat && !autre) { window.effetVoulu = a.hasAttribute('data-effet'); window.effetManuel = false; }
+        if (a && !cat && !autre) { window.effetVoulu = a.hasAttribute('data-effet'); window.effetManuel = false; window.packVoulu = null; }
         if (cible == null) return;
         e.preventDefault(); e.stopPropagation();
         if (anime) return;   // animation d'ouverture / fermeture en cours
