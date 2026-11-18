@@ -499,8 +499,8 @@
       const lignes = T.split(/\n/).map(l => l.replace(/\s/g, '').replace(/«/g, '<<').replace(/[‹(\[{]/g, '<')).filter(l => /<</.test(l) && /^[A-Z0-9<]{18,}$/.test(l));
       for (const l of lignes) {
         let m = /^P<[A-Z]{3}([A-Z]+(?:<[A-Z]+)*)<<([A-Z]+(?:<[A-Z]+)*)/.exec(l);   // passeport
-        if (!m) m = /^([A-Z]{2,}(?:<[A-Z]+)*)<<([A-Z]{2,}(?:<{1,2}[A-Z]+)*)<*$/.exec(l);  // carte 2021, titre de séjour, permis : 3e ligne NOM<<PRENOM<PRENOM2<<<
-        if (m) { nom = m[1]; prenom = m[2]; break; }
+        if (!m) m = /^([A-Z]{2,}(?:<[A-Z]+)*)<<([A-Z]{2,}(?:<{1,2}[A-Z]+)*)(?:<|$)/.exec(l);  // carte 2021, titre de séjour, permis : 3e ligne NOM<<PRENOM<PRENOM2<<<
+        if (m && !nom) { nom = m[1]; prenom = m[2]; }
       }
       if (!nom) {   // ancienne carte : IDFRA + NOM sur la 1re ligne, prénoms après les 13 chiffres de la 2e
         const l1 = lignes.find(l => /^IDFRA[A-Z]/.test(l)), l2 = lignes.find(l => /^\d{12,13}[A-Z]{2,}/.test(l));
@@ -520,6 +520,24 @@
       if (!nom || !prenom) return null;
       const joli = s => s.toLowerCase().replace(/(^|[ '-])([a-z])/g, (x, a, b) => a + b.toUpperCase());
       return { nom: nom, prenom: joli(prenom), mrz };
+    }
+    // 18/11 : 2e lecture, seulement sur le bas de la carte (bande MRZ : lignes de lettres, chiffres et <<<), agrandie, en gris contrasté,
+    // avec uniquement les caractères possibles : la lecture générale rate souvent ces lignes (testé sur une vraie carte 2021)
+    async function lireBandeMrz(w, c) {
+      const h0 = Math.round(c.height * 0.6), hh = c.height - h0, W = 1600, H = Math.max(40, Math.round(hh * W / c.width));
+      const b = document.createElement('canvas'); b.width = W; b.height = H;
+      const g = b.getContext('2d', { willReadFrequently: true }); g.drawImage(c, 0, h0, c.width, hh, 0, 0, W, H);
+      const im = g.getImageData(0, 0, W, H), px = im.data; let mn = 255, mx = 0;
+      for (let p = 0; p < px.length; p += 4) { const v = 0.299 * px[p] + 0.587 * px[p + 1] + 0.114 * px[p + 2]; px[p] = v; if (v < mn) mn = v; if (v > mx) mx = v; }
+      const k = 255 / Math.max(40, mx - mn);
+      for (let p = 0; p < px.length; p += 4) { const v = Math.max(0, Math.min(255, (px[p] - mn) * k * 1.15 - 10)); px[p] = px[p + 1] = px[p + 2] = v; }
+      g.putImageData(im, 0, 0);
+      try {
+        await w.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<', tessedit_pageseg_mode: '6' });
+        const r = await Promise.race([w.recognize(b), delai(20000, null)]);
+        return r ? r.data.text : '';
+      } catch (e) { return ''; }
+      finally { try { await w.setParameters({ tessedit_char_whitelist: '', tessedit_pageseg_mode: '3' }); } catch (e) {} }
     }
     function classerPiece(texte) {
       const T = String(texte || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[«‹]/g, '<');
@@ -552,6 +570,12 @@
         c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
         const r = await Promise.race([w.recognize(c), delai(25000, null)]);
         const v = r ? classerPiece(r.data.text) : { verdict: 'non lue' };
+        // 2e lecture de la bande du bas (nom, prénom) si la 1re n'a pas trouvé la bande MRZ
+        if (r && v.verdict !== 'interdit' && !(v.nom && v.nom.mrz)) {
+          const t2 = await lireBandeMrz(w, c), n2 = extraireNom(t2);
+          if (n2 && (n2.mrz || !v.nom)) v.nom = n2;
+          if (v.verdict === 'illisible' && /IDFRA|P<FRA|<{5,}/.test(t2)) v.verdict = 'ok';
+        }
         // aucune mention de pièce d'identité lue + carte surtout verte = carte Vitale (les pièces d'identité sont de tons pâles)
         if (v.verdict !== 'ok' && v.verdict !== 'interdit' && partVerte(c) > 0.35) return { verdict: 'interdit', quoi: 'une carte Vitale' };
         return v;
