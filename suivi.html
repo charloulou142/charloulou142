@@ -485,6 +485,39 @@
       return ocrPret;
     }
     const delai = (ms, v) => new Promise(ok => setTimeout(() => ok(v), ms));
+    // 18/11 : nom et prénom lus sur la pièce (bande MRZ en bas de la carte en priorité, sinon les mentions « Nom » / « Prénoms »)
+    function extraireNom(texte) {
+      const T = String(texte || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+      const ETIQ = /^(NOM|NOMS|SURNAME|PRENOMS?|GIVEN|NAMES?|SEXE|SEX|NATIONALITE|NATIONALITY|CARTE|NATIONALE|IDENTITE|IDENTITY|CARD|REPUBLIQUE|FRANCAISE|FRANCE|FRA|DATE|NAISSANCE|LIEU|USAGE|EPOUSE|PERMIS|CONDUIRE|PASSEPORT|PASSPORT|TITRE|SEJOUR|TYPE|CODE|DOCUMENT|AUTORITE|SIGNATURE|TAILLE|ADRESSE)$/;
+      const bon = (s, min, max) => { s = String(s || '').replace(/[^A-Z' -]/g, ' ').replace(/\s+/g, ' ').trim(); const mots = s.split(/[ -]/).filter(Boolean);
+        return s.length >= min && s.length <= max && mots.length <= 4 && mots.every(m => m.replace(/'/g, '').length >= 2 && !ETIQ.test(m)) ? s : ''; };
+      let nom = '', prenom = '', mrz = false;
+      // 1) bande MRZ : lignes de lettres, chiffres et « < » (l'OCR lit parfois « < » comme « « », « K » ou « ( »)
+      const lignes = T.split(/\n/).map(l => l.replace(/\s/g, '').replace(/«/g, '<<').replace(/[‹(\[{]/g, '<')).filter(l => /<</.test(l) && /^[A-Z0-9<]{18,}$/.test(l));
+      for (const l of lignes) {
+        let m = /^P<[A-Z]{3}([A-Z]+(?:<[A-Z]+)*)<<([A-Z]+(?:<[A-Z]+)*)/.exec(l);   // passeport
+        if (!m) m = /^([A-Z]{2,}(?:<[A-Z]+)*)<<([A-Z]{2,}(?:<{1,2}[A-Z]+)*)<*$/.exec(l);  // carte 2021, titre de séjour, permis : 3e ligne NOM<<PRENOM<PRENOM2<<<
+        if (m) { nom = m[1]; prenom = m[2]; break; }
+      }
+      if (!nom) {   // ancienne carte : IDFRA + NOM sur la 1re ligne, prénoms après les 13 chiffres de la 2e
+        const l1 = lignes.find(l => /^IDFRA[A-Z]/.test(l)), l2 = lignes.find(l => /^\d{12,13}[A-Z]{2,}/.test(l));
+        if (l1) nom = (/^IDFRA([A-Z]+(?:<[A-Z]+)*)/.exec(l1) || [])[1] || '';
+        if (l1 && l2) prenom = (/^\d{12,13}([A-Z]+(?:<[A-Z]+)*)/.exec(l2) || [])[1] || '';
+      }
+      nom = bon(nom.replace(/<+/g, ' '), 2, 40); prenom = bon(prenom.split('<<')[0].split('<')[0], 2, 30);
+      mrz = !!(nom && prenom);
+      // 2) mentions écrites : « NOM / Surname », « Prénoms / Given names », « Nom : », « 1. NOM » « 2. PRÉNOM » (permis)
+      if (!mrz) {
+        const cherche = (re, min, max, prem) => { for (const m of T.matchAll(re)) { let v = m[1]; if (prem) v = v.split(/[,]/)[0].trim().split(' ')[0]; v = bon(v, min, max); if (v) return v; } return ''; };
+        const n2 = cherche(/\bNOMS?\b(?!\s*D.?\s*USAGE)[ \t]*(?:\(?S\)?)?[ \t]*(?:\/[ \t]*SURNAME)?[ \t]*[:.]?[ \t]*\n?[ \t]*([A-Z][A-Z' -]{1,40})/g, 2, 40, false);
+        const p2 = cherche(/\bPRENOMS?\b[ \t]*(?:\(S\))?[ \t]*(?:\/[ \t]*GIVEN[ \t]*NAMES?)?[ \t]*[:.]?[ \t]*\n?[ \t]*([A-Z][A-Z' ,-]{1,60})/g, 2, 30, true);
+        const pm = /(?:^|\n)[ \t]*1[ \t]*[.,][ \t]*([A-Z][A-Z' -]{1,40})[ \t]*\n[ \t]*2[ \t]*[.,][ \t]*([A-Z][A-Z' -]{1,40})/.exec(T);
+        nom = nom || n2 || (pm ? bon(pm[1], 2, 40) : ''); prenom = prenom || p2 || (pm ? bon(pm[2].split(' ')[0], 2, 30) : '');
+      }
+      if (!nom || !prenom) return null;
+      const joli = s => s.toLowerCase().replace(/(^|[ '-])([a-z])/g, (x, a, b) => a + b.toUpperCase());
+      return { nom: nom, prenom: joli(prenom), mrz };
+    }
     function classerPiece(texte) {
       const T = String(texte || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[«‹]/g, '<');
       const INTERDIT = [[/VITALE|ASSURANCE\s*MALADIE|AMELI|C\.?P\.?A\.?M/, 'une carte Vitale'], [/MUTUELLE|TIERS[\s-]*PAYANT|ORGANISME\s*COMPLEMENTAIRE/, 'une carte de mutuelle'],
@@ -492,7 +525,7 @@
         [/MASTERCARD|MAESTRO|AMERICAN\s*EXPRESS|PAYMENT|DEBIT/, 'une carte bancaire'], [/CARTE\s*(DE\s*)?FIDELITE|CARTE\s*ETUDIANT|STUDENT\s*CARD/, 'une carte de fidélité ou d\'étudiant']];
       for (const [re, quoi] of INTERDIT) if (re.test(T)) return { verdict: 'interdit', quoi };
       const OK = /IDENTIT|REPUBLIQUE|CARTE\s*NATIONALE|PASSEPORT|PASSPORT|TITRE\s*DE\s*SEJOUR|RESIDENCE\s*PERMIT|PERMIS\s*DE\s*CONDUIRE|DRIVING\s*LICEN|<{3,}|IDFRA|P<FRA|NATIONALIT|DATE\s*DE\s*NAISS|LIEU\s*DE\s*NAISS|DATE\s*D.?EXPIR|DATE\s*DE\s*DELIVR|AUTORITE|PREFECTURE|PREFET/;
-      return { verdict: OK.test(T) ? 'ok' : 'illisible' };
+      return { verdict: OK.test(T) ? 'ok' : 'illisible', nom: extraireNom(texte) };
     }
     // part des pixels d'un vert franc (teinte 80°-170°, bien saturés) dans la partie centrale de la photo
     function partVerte(src) {
@@ -586,7 +619,7 @@
       function envoyerFace(face) {
         const ph = photos[face];
         etat(face, 'cours', '⏳ Envoi en cours…');
-        const p = post('docs_cni', { face, image: ph.data, piece: $('cni-piece').value, lecture: ph.lecture || 'non lue' })
+        const p = post('docs_cni', { face, image: ph.data, piece: $('cni-piece').value, lecture: ph.lecture || 'non lue', nomLu: nomLu ? nomLu.texte : '' })
           .then(r => { if (!r.ok) throw new Error(r.erreur || 'erreur'); if (photos[face] === ph) etat(face, 'ok', ph.lecture === 'ok' ? '✓ Pièce reconnue, bien envoyée' : '✓ Photo bien envoyée'); return r; })
           .catch(err => { if (photos[face] === ph) etat(face, 'ko', '⚠ Envoi raté : ' + esc(msgErr(err, 'réseau')) + '. On réessaiera au moment d\'envoyer.'); throw err; });
         p.catch(() => {});
@@ -646,6 +679,7 @@
           return;
         }
         ph.lecture = v.verdict === 'ok' ? 'ok' : v.verdict === 'illisible' ? 'illisible' : 'non lue';
+        if (v.nom) noterNomLu(v.nom);
         ph.accepte = true; zone.classList.remove('bof'); zone.classList.add('ok'); envoyerFace(face);
       }
       $('cni-photos').addEventListener('click', e => {
@@ -663,6 +697,17 @@
         }
         return '';
       }
+      // 18/11 : nom et prénom lus sur la pièce → mis tout seuls dans « Ton nom et prénom » du contrat (modifiable ; jamais par-dessus ce que le client a tapé)
+      let nomLu = null;
+      function noterNomLu(n) {
+        if (nomLu && nomLu.mrz && !n.mrz) return;   // la bande de code en bas de la carte est plus fiable que le texte imprimé
+        nomLu = { nom: n.nom, prenom: n.prenom, mrz: n.mrz, texte: n.prenom + ' ' + n.nom };
+        const ch = $('sg-nom'); if (!ch || ch.dataset.touche) return;
+        ch.value = nomLu.texte; ch.classList.remove('a-remplir');
+        const l = document.querySelector('label[for="sg-nom"]');
+        if (l) l.innerHTML = 'Ton nom et prénom <small>(lu sur ta pièce d’identité : vérifie et corrige si besoin)</small>';
+      }
+      if ($('sg-nom')) $('sg-nom').addEventListener('input', e => { e.target.dataset.touche = '1'; });
       // --- contrat ---
       let pad = null;
       if (besoin.ctr) {
