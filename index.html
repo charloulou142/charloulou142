@@ -756,6 +756,34 @@
   .hero p.go-sous b{font-weight:600;color:#FF8A33}
   @media (prefers-color-scheme:light){:root:not([data-theme=dark]) .hero p.hero-lead{text-shadow:none}}
   :root[data-theme=light] .hero p.hero-lead{text-shadow:none}
+  /* 19/11 (test 30 visiteurs) : ville, invités, confiance */
+  .ville-test{max-width:460px;margin:18px auto 0;text-align:center}
+  .ville-test label{display:block;font-family:'Outfit',system-ui,sans-serif;font-weight:600;font-size:15px;margin-bottom:8px;color:var(--text)}
+  .ville-test input{width:100%;padding:12px 16px;border-radius:999px;border:1px solid rgba(244,114,182,.45);background:color-mix(in srgb,var(--bg) 70%,transparent);color:var(--text);font:inherit;font-size:16px;text-align:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .ville-test input:focus{outline:none;border-color:#FF7A1A;box-shadow:0 0 0 3px rgba(255,122,26,.25)}
+  .hero p.vt-out{margin:10px auto 0;max-width:460px;font-size:14.5px;line-height:1.45;color:var(--muted);min-height:1.45em}
+  .vt-out b{color:var(--text)}
+  .vt-out .vt-ex{display:block;margin-top:3px;font-size:13.5px}
+  .vt-out a{color:var(--cyan)}
+  .cat-packs>.invites-q{grid-column:1/-1}
+  .invites-q{margin:0 0 22px;padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--card)}
+  .iq-t{margin:0 0 10px;font-family:'Outfit',system-ui,sans-serif;font-weight:600;font-size:17px;color:var(--text)}
+  .iq-b{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .iq-b button{padding:11px 6px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text);font:600 14.5px 'Outfit',system-ui,sans-serif;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+  .iq-b button[aria-pressed=true]{border-color:#FF7A1A;background:rgba(255,122,26,.14)}
+  .iq-r{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;font-size:15px;color:var(--muted)}
+  .iq-r[hidden]{display:none}
+  .iq-r b{color:var(--text)}
+  .item.pack.iq-on{outline:2px solid #FF7A1A;outline-offset:3px;border-radius:18px}
+  @media (max-width:560px){.iq-b{grid-template-columns:1fr 1fr}}
+  section.confiance{padding:26px 0 6px}
+  .cf-l{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  .cf-l li{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--card);font-size:14px;line-height:1.4;color:var(--muted)}
+  .cf-l li>span:first-child{font-size:20px;line-height:1.2}
+  .cf-l b{color:var(--text);font-family:'Outfit',system-ui,sans-serif;font-weight:600}
+  .cf-l a{color:var(--cyan)}
+  @media (max-width:1000px){.cf-l{grid-template-columns:1fr 1fr}}
+  @media (max-width:520px){.cf-l{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 6px;scrollbar-width:none}.cf-l::-webkit-scrollbar{display:none}.cf-l li{flex:0 0 72%;scroll-snap-align:start}}
   .fond-video{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 60%,transparent 98%);mask-image:linear-gradient(to bottom,#000 60%,transparent 98%)}
   .fond-video video{width:100%;height:100%;object-fit:cover;display:block}
   .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 52%,transparent)}
@@ -878,6 +906,8 @@
     <p class="hero-lead">Anniversaire, mariage ou soirée entre amis&nbsp;: réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
     <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · réservation en 2 minutes</p>
+    <!-- 19/11 (test 30 visiteurs) : « Livré chez toi ? » + exemple de prix total, livraison comprise -->
+    <div class="ville-test"><label for="vt-in"><span aria-hidden="true">📍</span> Livré chez toi ?</label><input id="vt-in" list="vt-liste" autocomplete="off" placeholder="Ta ville ou ton code postal"><datalist id="vt-liste"></datalist><p id="vt-out" class="vt-out" aria-live="polite"></p></div>
     <div class="fetes" id="fetes" hidden><b class="t" id="fetes-t">🎄 Noël et 🎆 Nouvel An : les soirées partent vite</b><ul id="fetes-l"></ul><a class="btn" href="#trouver" data-esp-go>Réserver ma soirée de fête →</a></div>
     <!-- 17/11 : bloc condensé (demande de l'utilisateur) : 6 pastilles courtes sur 2 colonnes -->
     <ul class="go-plus">
@@ -1108,12 +1138,17 @@
   <p class="effet-cta"><a class="btn" href="#trouver" data-esp-go data-effet>Je veux le même effet →</a></p>
 </div></section>
 
+<!-- 19/11 (test 30 visiteurs) : preuves, uniquement des faits vrais (en attendant 3 vrais avis) -->
+<section class="confiance" aria-label="Pourquoi nous faire confiance"><div class="wrap"><ul class="cf-l"><li><span aria-hidden="true">🏢</span><span><b>Entreprise déclarée</b> à Salon-de-Provence · <a href="mentions-legales.html">mentions légales</a></span></li><li><span aria-hidden="true">🎬</span><span><b>Notre vrai matériel</b>, filmé chez nous · <a href="#effet">les vidéos</a></span></li><li><span aria-hidden="true">🔧</span><span><b>Installé et testé</b> devant toi à la livraison</span></li><li><span aria-hidden="true">💳</span><span><b>Caution par carte</b> : rien n'est débité</span></li><li><span aria-hidden="true">✍️</span><span><b>Contrat et facture</b> envoyés par e-mail</span></li></ul></div></section>
+
 <section id="materiel"><div class="wrap">
   <h2>Le matériel</h2>
   <p class="lead">Du matériel pro, entretenu et testé avant chaque location.</p>
   <div class="mat-onglets" id="mat-onglets" role="tablist" aria-label="Catégories de matériel"></div>
   <!-- packs (10/11, test « visiteurs ») : les prix suivent l'admin, comme le reste du catalogue -->
   <div class="cat cat-packs">
+    <!-- 19/11 (test 30 visiteurs) : le bon pack selon le nombre d'invités, avant les 11 packs -->
+    <div class="invites-q"><p class="iq-t">👥 Combien d'invités ?</p><div class="iq-b" role="group" aria-label="Nombre d'invités"><button type="button" data-iq="apero" aria-pressed="false">Jusqu'à 20</button><button type="button" data-iq="soiree" aria-pressed="false">20 à 45</button><button type="button" data-iq="club" aria-pressed="false">45 à 90</button><button type="button" data-iq="pcult" aria-pressed="false">Plus de 90</button></div><div class="iq-r" id="iq-r" hidden></div></div>
     <h3 class="pack-groupe"><span>🔊 Avec la PartyBox 320</span> <small>240 W · petites fêtes</small><small class="glisse" aria-hidden="true">glisse →</small></h3>
     <div class="pack-rang">
     <article class="item pack" data-article="Pack Apéro" data-pack="apero"><div class="ph"></div><div class="in"><h3>Pack Apéro</h3><ul><li>1 JBL PartyBox 320 (240 W, sur batterie)</li></ul><b>dès <span class="prixsem">39,90 €</span> / soirée en semaine<br><small><span class="prix">49,90 €</span> le week-end (ven. et sam.)</small></b></div></article>
@@ -3222,6 +3257,53 @@
     });
   }, { threshold: 0.35 });
   vids.forEach(function(v){ io.observe(v); });
+})();
+</script>
+<script>
+/* 19/11 (test 30 visiteurs) : « Livré chez toi ? » (prix approximatif de la commune) et « Combien d'invités ? » */
+(() => {
+  const inp = document.getElementById('vt-in'), out = document.getElementById('vt-out');
+  if (inp && typeof VILLES !== 'undefined') {
+    const zone = () => Object.keys(VILLES).filter(v => VILLES[v] <= LIVR.maxKm);
+    document.getElementById('vt-liste').innerHTML = zone().map(v => '<option value="' + (v + (CODES[v] ? ' (' + CODES[v].join(', ') + ')' : '')).replace(/"/g, '&quot;') + '">').join('');
+    const prixSoiree = () => { try { return prixNum('soiree') || 79.9; } catch (e) { return 79.9; } };
+    const ex = (ville, livr) => '<span class="vt-ex">Ex. : Pack Soirée un samedi' + (ville ? ' à ' + esc(ville) : '') + ' = ' + enEuros(prixSoiree()) + ' + ' + enEuros(livr) + ' = <b>' + enEuros(prixSoiree() + livr) + '</b></span>';
+    const montrer = () => {
+      const t = inp.value.replace(/\s*\(.*$/, '').trim();
+      if (!t) { out.innerHTML = 'Livraison et installation dès <b>' + enEuros(LIVR.base) + '</b>, moitié prix dès ' + LIVR.demi + ' € de location, ou retrait gratuit.' + ex('Salon-de-Provence', LIVR.base); return; }
+      const r = chercheVille(t);
+      if (Array.isArray(r)) { out.innerHTML = 'Ce code postal couvre ' + r.map(esc).join(' et ') + ' : tape le nom de ta ville.'; return; }
+      if (!r || VILLES[r] == null) { out.innerHTML = t.length < 3 ? '' : 'On ne trouve pas cette commune : <a href="https://wa.me/33622123963" target="_blank" rel="noopener">demande-nous sur WhatsApp</a>.'; return; }
+      const km = VILLES[r];
+      if (km > LIVR.maxKm) { out.innerHTML = '📍 <b>' + esc(r) + '</b> est hors de notre zone (' + km + ' km) : le <b>retrait est gratuit</b> à Salon-de-Provence.'; return; }
+      const p = Math.round(LIVR.base + LIVR.km * km);
+      out.innerHTML = '✅ <b>' + esc(r) + '</b> : livré et installé pour environ <b>' + enEuros(p) + '</b> (' + enEuros(Math.round(p / 2)) + ' dès ' + LIVR.demi + ' € de location), ou retrait gratuit.' + ex(r, p);
+    };
+    inp.addEventListener('input', montrer); inp.addEventListener('change', montrer);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
+    montrer(); setTimeout(montrer, 2500);
+  }
+  const q = document.querySelector('.invites-q'); if (!q) return;
+  const res = document.getElementById('iq-r');
+  q.addEventListener('click', e => {
+    const bt = e.target.closest('[data-iq]');
+    if (bt) {
+      const k = bt.dataset.iq, carte = document.querySelector('#materiel .item.pack[data-pack="' + k + '"]');
+      q.querySelectorAll('[data-iq]').forEach(x => x.setAttribute('aria-pressed', String(x === bt)));
+      document.querySelectorAll('#materiel .item.pack.iq-on').forEach(x => x.classList.remove('iq-on'));
+      if (!carte || typeof PACKS === 'undefined' || !PACKS[k]) return;
+      carte.classList.add('iq-on');
+      const c = carte.querySelector('.in li'), contenu = c ? c.textContent : '';
+      res.innerHTML = '<span>👉 Pour toi : <b>' + esc(PACKS[k].name) + '</b>' + (contenu ? ' · ' + esc(contenu) : '') + ' · dès <b>' + esc(PACKS[k].sem || PACKS[k].price) + '</b> / soirée</span>' +
+        '<span><button type="button" class="btn ghost" data-iq-voir>Voir le pack</button> <button type="button" class="btn" data-iq-go>Choisir ce pack →</button></span>';
+      res.hidden = false; res.dataset.k = k;
+      return;
+    }
+    const k = res.dataset.k, carte = k && document.querySelector('#materiel .item.pack[data-pack="' + k + '"]');
+    if (!carte) return;
+    if (e.target.closest('[data-iq-voir]')) carte.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    if (e.target.closest('[data-iq-go]')) { e.preventDefault(); e.stopPropagation(); const a = carte.querySelector('.item-actions a.btn'); if (a) a.click(); }
+  }, true);
 })();
 </script>
 </body>
