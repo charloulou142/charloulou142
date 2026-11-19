@@ -513,6 +513,18 @@
   .effet-c video{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:#0B0714}
   .effet-c figcaption{padding:10px 12px 12px;font-size:14px;line-height:1.4}
   .effet-c figcaption b{display:block;font-size:15px;margin-bottom:2px}
+  /* 19/11 : cartes vidéo plus élégantes : contour néon (mêmes couleurs que le trait de l'en-tête), vidéo entière, texte posé dessus en fondu */
+  .effet-c{position:relative;padding:1.5px;border:0;border-radius:20px;background:linear-gradient(140deg,rgba(255,122,26,.85),rgba(244,114,182,.75) 35%,rgba(167,139,250,.75) 65%,rgba(34,211,238,.8));box-shadow:0 14px 34px -18px rgba(167,139,250,.55);transition:transform .35s ease,box-shadow .35s ease}
+  .effet-c video{border-radius:18.5px}
+  .effet-c figcaption{position:absolute;left:1.5px;right:1.5px;bottom:1.5px;padding:46px 14px 14px;border-radius:0 0 18.5px 18.5px;pointer-events:none;color:#F4EEFF;font-size:13.5px;background:linear-gradient(to top,rgba(8,5,16,.92) 0%,rgba(8,5,16,.7) 55%,transparent);text-shadow:0 1px 8px rgba(0,0,0,.6);opacity:0;transform:translateY(10px);transition:opacity .9s ease .25s,transform .9s cubic-bezier(.2,.8,.2,1) .25s}
+  .effet-c figcaption b{color:#fff;font-size:15.5px}
+  .effet-c.vu figcaption{opacity:1;transform:none}
+  @media (min-width:761px){.effet-rang{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.effet-c figcaption{font-size:13px;padding:40px 12px 12px}}
+  @media (hover:hover){.effet-c:hover{transform:translateY(-4px);box-shadow:0 22px 44px -18px rgba(244,114,182,.6)}}
+  @media (prefers-reduced-motion:reduce){.effet-c figcaption{opacity:1;transform:none;transition:none}}
+  /* petit trait néon sous les grands titres de l'accueil */
+  #effet h2::after,#materiel>.wrap>h2::after,section.alt>.wrap>h2::after,#avis h2::after,#faq>.wrap>h2::after,#contact h2::after{content:"";display:block;width:64px;height:3px;border-radius:3px;margin:12px 0 0;background:linear-gradient(90deg,#FF7A1A,#F472B6,#A78BFA,#22D3EE);opacity:.9}
+  .center h2::after,.center>.wrap>h2::after{margin-left:auto!important;margin-right:auto!important}
   .effet-cta{text-align:center;margin-top:14px}
   .effet-note{color:var(--muted);font-size:13px;text-align:center;margin:8px 0 0}
   @media (max-width:760px){
@@ -3121,11 +3133,12 @@
   var vids = document.querySelectorAll('#effet video');
   if (!vids.length) return;
   var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (calme) { vids.forEach(function(v){ v.controls = true; }); return; }
-  if (!('IntersectionObserver' in window)) { vids.forEach(function(v){ v.preload = 'metadata'; v.play().catch(function(){}); }); return; }
+  if (calme) { vids.forEach(function(v){ v.controls = true; var f = v.closest('.effet-c'); if (f) f.classList.add('vu'); }); return; }
+  if (!('IntersectionObserver' in window)) { vids.forEach(function(v){ var f = v.closest('.effet-c'); if (f) f.classList.add('vu'); v.preload = 'metadata'; v.play().catch(function(){}); }); return; }
   var io = new IntersectionObserver(function(es){
     es.forEach(function(e){
       var v = e.target;
+      if (e.isIntersecting) { var f = v.closest('.effet-c'); if (f) f.classList.add('vu'); }
       if (e.isIntersecting && !document.body.classList.contains('esp')) { if (v.preload === 'none') v.preload = 'auto'; var p = v.play(); if (p) p.catch(function(){}); }
       else v.pause();
     });
