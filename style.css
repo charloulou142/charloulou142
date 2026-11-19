@@ -138,3 +138,9 @@ nav.top .wrap{gap:10px}
   .theme-btn,.navlinks a.compte-btn{width:34px!important;height:34px!important}
   .theme-btn svg,.compte-btn svg{width:18px;height:18px}
 }
+/* 19/11 : Outfit (la police du logo) pour les accroches : sous-titres, boutons, menu, prix, titres du bas. Les textes longs gardent Source Sans 3. */
+@font-face{font-family:'Outfit';font-style:normal;font-weight:300 600;font-display:swap;src:url(fonts/outfit-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+.lead,main .intro{font-family:'Outfit',system-ui,sans-serif;font-weight:300;letter-spacing:.005em}
+.btn,.navlinks a{font-family:'Outfit',system-ui,sans-serif;font-weight:600;letter-spacing:.01em}
+.item .prix,.item .prixsem{font-family:'Outfit',system-ui,sans-serif;font-weight:600}
+.pied h4,.ct-suis{font-family:'Outfit',system-ui,sans-serif;font-weight:600}
