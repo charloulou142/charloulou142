@@ -223,7 +223,7 @@
   .barre-total .bt-txt span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .barre-total .bt-txt b{font-size:20px;color:var(--text);white-space:nowrap}
   .barre-total .btn{flex:none;padding:12px 20px;white-space:nowrap}
-  body.avec-barre{padding-bottom:84px}
+  body.esp.avec-barre{padding-bottom:84px}   /* 19/11 : seulement dans l'espace de réservation (la barre n'existe pas sur l'accueil) */
   /* bulle d'aide WhatsApp (en bas à droite, au-dessus de la barre du total sur téléphone) */
   .aide-wa{position:fixed;right:14px;bottom:16px;z-index:61;display:flex;align-items:center;gap:8px;padding:10px 16px 10px 12px;border-radius:999px;background:#25D366;color:#06301A;font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:bottom .25s,opacity .25s,transform .25s;animation:aideIn .45s cubic-bezier(.3,1.5,.5,1)}
   .aide-wa[hidden]{display:none}
@@ -231,7 +231,7 @@
   .aide-wa:hover{transform:translateY(-2px)}
   .aide-wa:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
   @keyframes aideIn{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:none}}
-  @media (max-width:900px){ body.avec-barre .aide-wa{bottom:86px} }
+  @media (max-width:900px){ body.esp.avec-barre .aide-wa{bottom:86px} }
   @media (max-width:520px){ .aide-wa{padding:12px;right:12px} .aide-wa span{display:none} }
   @media (prefers-reduced-motion:reduce){ .aide-wa{animation:none;transition:none} }
   @media (prefers-reduced-motion:reduce){.barre-total{transition:none}}
