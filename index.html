@@ -708,6 +708,18 @@
   .go-plus li{display:flex;gap:7px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--card) 70%,transparent);min-width:0}
   .go-plus li > span:first-child{font-size:15px;line-height:1.2}
   .go-plus li > span:last-child{min-width:0}
+  /* 19/11 : en-tête transparent posé sur la vidéo de l'accueil ; en verre dépoli avec un filet néon dès qu'on descend */
+  body{--navh:64px}
+  @media (max-width:720px){body{--navh:60px}}
+  body>nav.top:not(.defile){background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  body>nav.top{border-bottom-color:transparent;transition:background .35s ease,border-color .35s ease,box-shadow .35s ease,backdrop-filter .35s ease}
+  body>nav.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,#FF7A1A 20%,#F472B6 45%,#A78BFA 65%,#22D3EE 85%,transparent);opacity:0;transition:opacity .35s ease}
+  body>nav.top.defile{background:rgba(11,7,20,.55);backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6);box-shadow:0 10px 30px -12px rgba(0,0,0,.6)}
+  body>nav.top.defile::after{opacity:.85}
+  @media (prefers-color-scheme:light){:root:not([data-theme=dark]) body>nav.top.defile{background:rgba(243,239,248,.62);box-shadow:0 10px 30px -14px rgba(60,30,90,.25)}}
+  :root[data-theme=light] body>nav.top.defile{background:rgba(243,239,248,.62);box-shadow:0 10px 30px -14px rgba(60,30,90,.25)}
+  body>header.hero{margin-top:calc(-1 * var(--navh) - 1px);padding-top:calc(80px + var(--navh))}
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){body>nav.top.defile{background:rgba(11,7,20,.92)}}
   .fond-video{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 60%,transparent 98%);mask-image:linear-gradient(to bottom,#000 60%,transparent 98%)}
   .fond-video video{width:100%;height:100%;object-fit:cover;display:block}
   .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 52%,transparent)}
@@ -1195,6 +1207,10 @@
 </div>
 
 <script>
+  // 19/11 : en-tête transparent en haut de page, verre dépoli dès qu'on descend
+  (() => { const n = document.querySelector('body>nav.top'); if (!n) return; let f = 0;
+    const m = () => { f = 0; n.classList.toggle('defile', scrollY > 12); };
+    m(); addEventListener('scroll', () => { if (!f) { f = 1; requestAnimationFrame(m); } }, { passive: true }); })();
   // 19/11 : fond vidéo de l'accueil (chargé une fois la page affichée, jamais si « réduire les animations » ou économie de données)
   window.addEventListener('load', () => { try {
     const h = document.querySelector('header.hero'), v = h && h.querySelector('.fond-video video');
