@@ -200,12 +200,12 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
     window.__mistralocEtat = j.etat || null;
     const s = document.createElement('script'); s.textContent = j.js; document.body.appendChild(s);
   }
-  async function ouvrir(depuis) {
+  async function ouvrir(depuis, deja) {
     // pas d'écran de bienvenue (retiré à la demande de l'utilisateur, 05/11) : juste la vague de chargement
     const v = !!depuis;
     if (v) { $('v-charge').hidden = false; $('v-login').hidden = true; $('v-setup').hidden = true; window.scrollTo(0, 0); }
     try {
-      const j = await appel('admin_app');
+      const j = deja && deja.ok ? deja : await appel('admin_app');   // 19/11 : le panneau arrive déjà avec la connexion
       if (!j.ok) {
         if (j.erreur === 'session') { garder(null); await accueil(); return false; }
         throw new Error(j.erreur || 'Ouverture impossible.');
@@ -230,9 +230,9 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   $('f-login').addEventListener('submit', e => { e.preventDefault(); const b = e.submitter || e.target.querySelector('button[type=submit]'); occupe(b, async () => {
     msg('m-login', '');
     try {
-      const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value });
+      const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value, app: true });
       if (!j.ok) { msg('m-login', 'Connexion refusée : ' + j.erreur + '.'); if (j.parMail) { $('l-mdp').value = ''; $('f-login-mail').hidden = false; $('f-login-mail').scrollIntoView({ block: 'nearest' }); } return; }
-      garder(j.token); $('l-mdp').value = ''; await ouvrir(b);
+      garder(j.token); $('l-mdp').value = ''; await ouvrir(b, j.app);
     } catch (err) { msg('m-login', err.message || 'Erreur réseau.'); }
   }); });
   // remplissage automatique (Face ID, trousseau, gestionnaire de mots de passe) : la connexion part toute seule.
@@ -266,9 +266,9 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   }));
   $('f-login-mail').addEventListener('submit', e => { e.preventDefault(); const b = e.target.querySelector('button[type=submit]'); occupe(b, async () => {
     try {
-      const j = await appel('admin_login', { code: $('lc-code').value.trim() });
+      const j = await appel('admin_login', { code: $('lc-code').value.trim(), app: true });
       if (!j.ok) return msg('m-lmail', 'Refusé : ' + j.erreur + '.');
-      garder(j.token); $('lc-code').value = ''; msg('m-login', ''); $('f-login-mail').hidden = true; await ouvrir(b);
+      garder(j.token); $('lc-code').value = ''; msg('m-login', ''); $('f-login-mail').hidden = true; await ouvrir(b, j.app);
     } catch (err) { msg('m-lmail', err.message || 'Erreur réseau.'); }
   }); });
   $('b-oubli').addEventListener('click', () => { $('setup-titre').textContent = 'Changer ton mot de passe'; $('retour-login').hidden = false; vue('setup'); });
