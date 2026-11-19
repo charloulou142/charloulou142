@@ -423,6 +423,7 @@
   .recap-offre{padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin-bottom:16px;line-height:1.5}
   .note320{margin:-6px 0 12px;padding:9px 12px;border-radius:12px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.35);font-size:14px;line-height:1.45}
   .note320[hidden]{display:none}
+  .bientot{margin:2px 0 6px;font-size:13px;font-weight:600;color:#E8630A}
   .recap-offre b{color:var(--text)} .recap-offre span{color:var(--muted)} .recap-offre a{color:var(--cyan);margin-left:6px;white-space:nowrap}
   .field[hidden]{display:none}
   .field.heure{margin-top:16px} .field.heure small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
@@ -447,7 +448,7 @@
   .urgence[hidden]{display:none}
   .urgence p{margin:0 0 10px}
   .urgence .btn{display:inline-block;padding:10px 16px;font-size:15px}
-  .astuce-nuit .lien-plus{margin-left:4px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);border-radius:999px;padding:3px 10px;font:inherit;font-weight:700;cursor:pointer}
+  .astuce-nuit .lien-plus,#bk-noteult .lien-plus{margin-left:4px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);border-radius:999px;padding:3px 10px;font:inherit;font-weight:700;cursor:pointer}
   .astuce-nuit .lien-plus:hover{background:color-mix(in srgb,var(--cyan) 15%,transparent)}
   .veille{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:14px;cursor:pointer}
   .veille input{width:18px;height:18px;margin-top:2px;accent-color:var(--pink);flex:none}
@@ -931,6 +932,7 @@
       </div>
       <div class="recap-offre" id="bk-recap">Tu réserves : <b id="bk-recap-nom">Pack Soirée</b> <span id="bk-recap-prix"></span> <a href="#trouver">Détails</a></div>
       <p class="note320" id="bk-note320" hidden></p>
+      <p class="note320" id="bk-noteult" hidden></p>
       <div class="field" hidden><label for="bk-offre">Offre</label>
         <select id="bk-offre">
           <option>Pack Apéro</option><option selected>Pack Soirée</option><option>Pack Club</option>
@@ -1177,6 +1179,12 @@
 </div>
 
 <script>
+  // 19/11/2026 : une seule PartyBox Ultimate jusqu'au 30/11 (l'autre part en remboursement) : packs à 2 Ultimate réservables à partir du 1er décembre
+  window.ULT2_DES = '2026-12-01';
+  document.addEventListener('DOMContentLoaded', () => { if (!(Date.now() < new Date(2026, 11, 1).getTime())) return;
+    ['pcult', 'pmar', 'ppres'].forEach(k => { const h = document.querySelector('#materiel .item.pack[data-pack="' + k + '"] h3');
+      if (h && !h.parentNode.querySelector('.bientot')) h.insertAdjacentHTML('afterend', '<p class="bientot">⏳ Dispo à partir du 1er décembre</p>'); }); });
+  window.ult2Attente = () => Date.now() < new Date(2026, 11, 1).getTime();
   // Les seuils d'invités sont des exemples : à ajuster selon la puissance réelle du matériel.
   const PACKS={
     apero:{name:'Pack Apéro',price:'49,90 €',sem:'39,90 €',items:['1 JBL PartyBox 320 (240 W, sur batterie)','Lumières intégrées','Connexion Bluetooth à ton téléphone'],why:'Idéal pour un petit comité : du bon son, même sans prise.'},
@@ -1451,7 +1459,7 @@
     if(c.trep) l.push(c.trep>1?c.trep+' trépieds lumière':'lumières');
     if(c.fumee) l.push('fumée'); if(c.micro) l.push('micros');
     const inv=Object.keys(CAP_C).reduce((t,a)=>t+CAP_C[a]*(c[a]||0),0);
-    return l.join(' + ')+(inv?' · ~'+inv+' invités':'');
+    return l.join(' + ')+(inv?' · ~'+inv+' invités':'')+((c.pult||0)>=2&&window.ult2Attente()?' · ⏳ dispo dès le 1er décembre':'');
   }
   function majCartes(){
     rail.querySelectorAll('.cp').forEach(c=>{
@@ -1992,6 +2000,17 @@
       ? 'ℹ️ Ce soir-là, les PartyBox 320 sont déjà réservées : tu auras ' + (besoin > 1 ? besoin + ' PartyBox 310' : 'une PartyBox 310') + ', même son, même prix.'
       : 'ℹ️ Ce soir-là, il ne reste qu\'une PartyBox 320 : tu auras 1 PartyBox 320 + ' + (besoin - 1) + ' PartyBox 310, même son, même prix.';
   }
+  function majNoteUlt(p, k){
+    const n = $('bk-noteult'); if (!n) return;
+    const besoin = k === 'perso' ? (panier.pult || 0) : ((typeof COMPO_K !== 'undefined' && COMPO_K[k] && COMPO_K[k].pult) || 0);
+    const avant = !p || p.start < window.ULT2_DES;
+    n.hidden = !(window.ult2Attente() && besoin >= 2 && avant);
+    if (n.hidden) return;
+    const enNov = vue < new Date(2026, 11, 1);
+    n.innerHTML = '⏳ Notre 2e PartyBox Ultimate arrive bientôt : ' + (k === 'perso' ? 'les 2 Ultimate sont' : 'ce pack est') + ' <b>réservable à partir du 1er décembre</b>. Avant, tu peux prendre un pack avec une seule Ultimate.'
+      + (enNov ? ' <button type="button" class="lien-plus" id="bk-voir-dec">Voir décembre →</button>' : '');
+  }
+  document.addEventListener('click', e => { if (e.target && e.target.id === 'bk-voir-dec') { vue = new Date(2026, 11, 1); dessiner(); maj(); } });
   function maj(){
     const h = $('bk-heure') && $('bk-heure').value, p = periode(), ret = enRetrait();
     $('bk-date-txt').classList.toggle('ok', !!p);
@@ -2020,6 +2039,7 @@
     const mic = micOffre();
     $('bk-recap-nom').textContent = VU(perso ? (o === 'Panier personnalisé' ? 'Mon panier (vide)' : o.replace('Panier perso : ', 'Mon panier : ')) : o.replace(MICRO_SUF, ' + 2 micros sans fil'));
     majNote320(p, k);
+    majNoteUlt(p, k);
     $('bk-recap-prix').textContent = k && PACKS[k] ? (mic ? '· ' + enEuros(prixNum(k) + prixNum('micro')) + '/soirée le week-end, ' + enEuros(semNum(k) + semNum('micro')) + ' en semaine'
       : '· ' + PACKS[k].price + '/soirée le week-end' + (PACKS[k].sem && semNum(k) < prixNum(k) ? ', ' + PACKS[k].sem + ' en semaine' : '')) : '';
     // rangée de packs : bouton actif + le garder visible dans la ligne (sans faire bouger la page)
