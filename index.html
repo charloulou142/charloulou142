@@ -756,6 +756,8 @@
   .hero p.go-sous b{font-weight:600;color:#FF8A33}
   @media (prefers-color-scheme:light){:root:not([data-theme=dark]) .hero p.hero-lead{text-shadow:none}}
   :root[data-theme=light] .hero p.hero-lead{text-shadow:none}
+  @media (prefers-color-scheme:light){:root:not([data-theme=dark]) .hero p.go-sous b{color:#C2410C}}
+  :root[data-theme=light] .hero p.go-sous b{color:#C2410C}
   /* 19/11 (test 30 visiteurs) : ville, invités, confiance */
   .ville-test{max-width:460px;margin:18px auto 0;text-align:center}
   .ville-test label{display:block;font-family:'Outfit',system-ui,sans-serif;font-weight:600;font-size:15px;margin-bottom:8px;color:var(--text)}
@@ -786,7 +788,7 @@
   @media (max-width:520px){.cf-l{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 6px;scrollbar-width:none}.cf-l::-webkit-scrollbar{display:none}.cf-l li{flex:0 0 72%;scroll-snap-align:start}}
   .fond-video{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 60%,transparent 98%);mask-image:linear-gradient(to bottom,#000 60%,transparent 98%)}
   .fond-video video{width:100%;height:100%;object-fit:cover;display:block}
-  .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 52%,transparent)}
+  .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 44%,transparent)}
   .hero.video-ok .fond-video{opacity:1}
   .hero.video-ok .beam{opacity:.28}
   .hero p.go-tel{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
