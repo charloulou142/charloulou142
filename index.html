@@ -528,6 +528,9 @@
   #effet h2::after,#materiel>.wrap>h2::after,section.alt>.wrap>h2::after,#avis h2::after,#faq>.wrap>h2::after,#contact h2::after{content:"";display:block;width:64px;height:3px;border-radius:3px;margin:12px 0 0;background:linear-gradient(90deg,#FF7A1A,#F472B6,#A78BFA,#22D3EE);opacity:.9}
   .center h2::after,.center>.wrap>h2::after{margin-left:auto!important;margin-right:auto!important}
   .effet-cta{text-align:center;margin-top:14px}
+  /* 19/11 : sur ordinateur, la vidéo dont le bouton parle est mise en avant */
+  @media (min-width:761px){.effet-c{cursor:pointer}.effet-rang.choix .effet-c:not(.effet-choisie){opacity:.62}.effet-c.effet-choisie{transform:translateY(-4px);box-shadow:0 18px 40px -16px rgba(255,122,26,.6)}}
+  .effet-c{transition:opacity .3s ease,transform .35s ease,box-shadow .35s ease}
   .effet-note{color:var(--muted);font-size:13px;text-align:center;margin:8px 0 0}
   @media (max-width:760px){
     .effet-rang{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:14px -16px 6px;padding:0 16px 6px;scrollbar-width:none}
@@ -1147,7 +1150,7 @@
 <section id="effet" class="effet"><div class="wrap">
   <h2>En vrai, ça donne ça 🎬</h2>
   <p class="lead">Filmé chez nous, avec notre matériel : les PartyBox, les trépieds lumière, les lasers et la fumée.</p>
-  <div class="effet-rang"><figure class="effet-c"><video src="videos/ultimate-show.mp4" poster="videos/ultimate-show.jpg" muted loop playsinline preload="none" aria-label="2 PartyBox Ultimate et 2 trépieds lumière"></video><figcaption><b>👑 2 Ultimate + 2 trépieds</b>2 PartyBox Ultimate, 12 têtes de lumière et la fumée : la config des mariages et des grandes fêtes.</figcaption></figure><figure class="effet-c"><video src="videos/effet.mp4" poster="videos/effet.jpg" muted loop playsinline preload="none" aria-label="Un clic sur le téléphone et le show démarre"></video><figcaption><b>📱 Un clic sur ton téléphone… et le show démarre</b>Ambiances, couleurs, « Entrée des mariés », « Gâteau », effets qui suivent la musique… tout se pilote depuis l'appli.</figcaption></figure><figure class="effet-c"><video src="videos/couleurs.mp4" poster="videos/couleurs.jpg" muted loop playsinline preload="none" aria-label="🎨 Une couleur, un clic"></video><figcaption><b>🎨 Une couleur, un clic</b>Tu choisis la couleur ou l'effet, toute la salle change.</figcaption></figure><figure class="effet-c"><video src="videos/show.mp4" poster="videos/show.jpg" muted loop playsinline preload="none" aria-label="💨 Fumée + lasers"></video><figcaption><b>💨 Fumée + lasers</b>La machine à fumée fait ressortir les faisceaux et les lasers.</figcaption></figure><figure class="effet-c"><video src="videos/scene.mp4" poster="videos/scene.jpg" muted loop playsinline preload="none" aria-label="✨ 2 enceintes + 2 trépieds"></video><figcaption><b>✨ 2 enceintes + 2 trépieds</b>La configuration des grandes fêtes et des mariages.</figcaption></figure></div>
+  <div class="effet-rang"><figure class="effet-c" data-effet-pack="ppres"><video src="videos/ultimate-show.mp4" poster="videos/ultimate-show.jpg" muted loop playsinline preload="none" aria-label="2 PartyBox Ultimate et 2 trépieds lumière"></video><figcaption><b>👑 2 Ultimate + 2 trépieds</b>2 PartyBox Ultimate, 12 têtes de lumière et la fumée : la config des mariages et des grandes fêtes.</figcaption></figure><figure class="effet-c" data-effet-pack="pscene"><video src="videos/effet.mp4" poster="videos/effet.jpg" muted loop playsinline preload="none" aria-label="Un clic sur le téléphone et le show démarre"></video><figcaption><b>📱 Un clic sur ton téléphone… et le show démarre</b>Ambiances, couleurs, « Entrée des mariés », « Gâteau », effets qui suivent la musique… tout se pilote depuis l'appli.</figcaption></figure><figure class="effet-c" data-effet-pack="pscene"><video src="videos/couleurs.mp4" poster="videos/couleurs.jpg" muted loop playsinline preload="none" aria-label="🎨 Une couleur, un clic"></video><figcaption><b>🎨 Une couleur, un clic</b>Tu choisis la couleur ou l'effet, toute la salle change.</figcaption></figure><figure class="effet-c" data-effet-pack="pscene"><video src="videos/show.mp4" poster="videos/show.jpg" muted loop playsinline preload="none" aria-label="💨 Fumée + lasers"></video><figcaption><b>💨 Fumée + lasers</b>La machine à fumée fait ressortir les faisceaux et les lasers.</figcaption></figure><figure class="effet-c" data-effet-pack="pscene"><video src="videos/scene.mp4" poster="videos/scene.jpg" muted loop playsinline preload="none" aria-label="✨ 2 enceintes + 2 trépieds"></video><figcaption><b>✨ 2 enceintes + 2 trépieds</b>La configuration des grandes fêtes et des mariages.</figcaption></figure></div>
   <p class="effet-note">L'appli marche avec nos trépieds lumière : on te montre tout à la livraison.</p>
   <p class="effet-cta"><a class="btn" href="#trouver" data-esp-go data-effet>Je veux le même effet →</a></p>
 </div></section>
@@ -1803,7 +1806,7 @@
   // Pack Scène (2 × 710 + 2 trépieds) ou Pack Prestige (2 Ultimate + 2 trépieds) pour les grandes fêtes ; un seul trépied possible (Club Laser / Mariage).
   window.effetVoulu = false; window.effetManuel = false;
   const EFFET_1T = { pscene: 'pclas', ppres: 'pmar' }, EFFET_2T = { pclas: 'pscene', pmar: 'ppres' };
-  function effetPack(){ return reco0() === 'pcult' ? 'ppres' : 'pscene'; }
+  function effetPack(){ if (window.effetCible === 'ppres') return 'ppres'; return reco0() === 'pcult' ? 'ppres' : 'pscene'; }   // 19/11 : vidéo des Ultimate = Pack Prestige
   window.packVoulu = null;
   window.effetAuto = function(){
     if (window.packVoulu && !window.effetManuel && !CACHES.has(window.packVoulu) && PACKS[window.packVoulu]) { show(window.packVoulu, true); return; }
@@ -3358,6 +3361,42 @@
     if (e.target.closest('[data-iq-voir]')) carte.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     if (e.target.closest('[data-iq-go]')) { e.preventDefault(); e.stopPropagation(); const a = carte.querySelector('.item-actions a.btn'); if (a) a.click(); }
   }, true);
+})();
+</script>
+<script>
+/* 19/11 : « Je veux cet effet » suit la vidéo regardée : vidéo des Ultimate -> Pack Prestige, les autres -> Pack Scène */
+(() => {
+  const rang = document.querySelector('#effet .effet-rang'), bt = document.querySelector('#effet .effet-cta [data-effet]');
+  if (!rang || !bt) return;
+  const cartes = [...rang.querySelectorAll('.effet-c[data-effet-pack]')]; if (!cartes.length) return;
+  const ordi = matchMedia('(min-width:761px)');
+  const nom = k => (typeof PACKS !== 'undefined' && PACKS[k] && PACKS[k].name) || (k === 'ppres' ? 'Pack Prestige' : 'Pack Scène');
+  let choisie = cartes[0];
+  const maj = () => {
+    const k = choisie.dataset.effetPack;
+    window.effetCible = k;
+    bt.textContent = 'Je veux cet effet · ' + nom(k) + ' →';
+    cartes.forEach(c => c.classList.toggle('effet-choisie', c === choisie));
+    rang.classList.toggle('choix', ordi.matches);
+  };
+  const choisir = c => { if (c && c !== choisie) { choisie = c; maj(); } };
+  // téléphone : la vidéo la plus au centre de la rangée qui glisse
+  let raf = 0;
+  rang.addEventListener('scroll', () => {
+    if (ordi.matches || raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const r = rang.getBoundingClientRect(), mil = r.left + r.width / 2;
+      let best = null, d = 1e9;
+      cartes.forEach(c => { const q = c.getBoundingClientRect(), x = Math.abs(q.left + q.width / 2 - mil); if (x < d) { d = x; best = c; } });
+      choisir(best);
+    });
+  }, { passive: true });
+  // ordinateur : survol ; partout : toucher une vidéo la choisit
+  rang.addEventListener('mouseover', e => { if (ordi.matches) choisir(e.target.closest('.effet-c[data-effet-pack]')); });
+  rang.addEventListener('click', e => choisir(e.target.closest('.effet-c[data-effet-pack]')));
+  ordi.addEventListener && ordi.addEventListener('change', maj);
+  maj();
 })();
 </script>
 </body>
