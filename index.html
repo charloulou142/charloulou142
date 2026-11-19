@@ -1356,7 +1356,7 @@
     const h = document.querySelector('header.hero'), v = h && h.querySelector('.fond-video video');
     if (!v || matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData)) return;
     v.addEventListener('playing', () => h.classList.add('video-ok'), { once: true });
-    v.src = 'videos/fond-accueil.mp4'; v.load(); const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+    v.src = innerWidth < 760 ? 'videos/fond-accueil-tel.mp4' : 'videos/fond-accueil.mp4';   // 19/11 : version légère (720p, ~2 Mo) pour les téléphones v.load(); const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
     // 19/11 : au retour sur la page (autre appli, autre onglet, bouton retour), Safari iPhone ne relance pas toujours la vidéo :
     // on la relance au retour, quand la page réapparaît, et sinon au premier toucher / défilement
     let attente = false;
