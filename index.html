@@ -708,6 +708,11 @@
   .go-plus li{display:flex;gap:7px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--card) 70%,transparent);min-width:0}
   .go-plus li > span:first-child{font-size:15px;line-height:1.2}
   .go-plus li > span:last-child{min-width:0}
+  .fond-video{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 60%,transparent 98%);mask-image:linear-gradient(to bottom,#000 60%,transparent 98%)}
+  .fond-video video{width:100%;height:100%;object-fit:cover;display:block}
+  .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 52%,transparent)}
+  .hero.video-ok .fond-video{opacity:1}
+  .hero.video-ok .beam{opacity:.28}
   .hero p.go-tel{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
   .go-tel a{color:var(--cyan);font-weight:700}
   .go-plus b{color:var(--text);font-weight:700}
@@ -817,6 +822,8 @@
 </nav>
 
 <header class="hero">
+  <!-- 19/11 : vraie vidéo du jeu de lumières (mode Dynamique 1) en fond, ralentie et floutée ; chargée après la page -->
+  <div class="fond-video" aria-hidden="true"><video muted loop playsinline preload="none" disablepictureinpicture></video></div>
   <div class="beams" aria-hidden="true"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="smoke"></div></div>
   <div class="wrap" style="position:relative">
     <h1><span class="eyebrow">Location d'enceintes &amp; lumière · <span style="white-space:nowrap">Salon-de-Provence</span> <span style="white-space:nowrap">et alentours</span></span> Ta fête,<br><em>en grand.</em></h1>
@@ -1188,6 +1195,14 @@
 </div>
 
 <script>
+  // 19/11 : fond vidéo de l'accueil (chargé une fois la page affichée, jamais si « réduire les animations » ou économie de données)
+  window.addEventListener('load', () => { try {
+    const h = document.querySelector('header.hero'), v = h && h.querySelector('.fond-video video');
+    if (!v || matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData)) return;
+    v.addEventListener('playing', () => h.classList.add('video-ok'), { once: true });
+    v.src = 'videos/fond-accueil.mp4'; v.load(); const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.hidden) v.pause(); else if (h.classList.contains('video-ok')) v.play().catch(() => {}); });
+  } catch (e) {} });
   // 19/11/2026 : une seule PartyBox Ultimate jusqu'au 30/11 (l'autre part en remboursement) : packs à 2 Ultimate réservables à partir du 1er décembre
   window.ULT2_DES = '2026-12-01';
   document.addEventListener('DOMContentLoaded', () => { if (!(Date.now() < new Date(2026, 11, 1).getTime())) return;
