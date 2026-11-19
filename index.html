@@ -1357,7 +1357,22 @@
     if (!v || matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData)) return;
     v.addEventListener('playing', () => h.classList.add('video-ok'), { once: true });
     v.src = 'videos/fond-accueil.mp4'; v.load(); const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
-    document.addEventListener('visibilitychange', () => { if (document.hidden) v.pause(); else if (h.classList.contains('video-ok')) v.play().catch(() => {}); });
+    // 19/11 : au retour sur la page (autre appli, autre onglet, bouton retour), Safari iPhone ne relance pas toujours la vidéo :
+    // on la relance au retour, quand la page réapparaît, et sinon au premier toucher / défilement
+    let attente = false;
+    const relancer = () => {
+      if (document.hidden || !v.paused || !v.src) return;
+      const pr = v.play();
+      if (pr && pr.catch) pr.catch(() => {
+        if (attente) return; attente = true;
+        const go = () => { attente = false; ['touchstart', 'scroll', 'click'].forEach(t => removeEventListener(t, go, true)); relancer(); };
+        ['touchstart', 'scroll', 'click'].forEach(t => addEventListener(t, go, { capture: true, passive: true }));
+      });
+    };
+    document.addEventListener('visibilitychange', () => { if (document.hidden) v.pause(); else setTimeout(relancer, 60); });
+    addEventListener('pageshow', () => setTimeout(relancer, 60));
+    addEventListener('focus', () => setTimeout(relancer, 60));
+    v.addEventListener('pause', () => { if (!document.hidden) setTimeout(relancer, 400); });   // mise en pause par le système alors que la page est visible
   } catch (e) {} });
   // 19/11/2026 : une seule PartyBox Ultimate jusqu'au 30/11 (l'autre part en remboursement) : packs à 2 Ultimate réservables à partir du 1er décembre
   window.ULT2_DES = '2026-12-01';
