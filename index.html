@@ -10,9 +10,11 @@
 <!-- polices hébergées sur le site (licence SIL OFL, voir fonts/) : plus d'attente des serveurs de Google avant l'affichage -->
 <link rel="preload" href="fonts/source-sans-3-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style id="polices">
 @font-face{font-family:'Bebas Neue';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/bebas-neue-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Source Sans 3';font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/source-sans-3-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:300 600;font-display:swap;src:url(fonts/outfit-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 </style>
 <script>
   // Thème choisi par le visiteur (bouton lune / soleil), sinon celui de l'appareil
@@ -748,6 +750,12 @@
   .ct-reseaux a:hover{transform:translateY(-2px);border-color:#A78BFA}
   .ct-reseaux svg{width:18px;height:18px}
   @media (max-width:560px){.ct-cartes{grid-template-columns:1fr;gap:10px}.ct-c{flex-direction:row;flex-wrap:wrap;column-gap:12px;text-align:left;padding:14px 16px}.ct-c .ct-i{margin:0;width:42px;height:42px}.ct-c b{flex:1}.ct-c small{flex-basis:100%;padding-left:54px;margin-top:-22px}}
+  /* 19/11 : texte sous le titre et ligne de prix en Outfit (la police du logo), plus lisibles sur la vidéo */
+  .hero p.hero-lead{font-family:'Outfit',system-ui,sans-serif;font-weight:300;font-size:clamp(18px,2.3vw,21px);line-height:1.5;letter-spacing:.005em;color:color-mix(in srgb,var(--text) 90%,transparent);text-shadow:0 2px 14px rgba(0,0,0,.45);max-width:540px}
+  .hero p.go-sous{font-family:'Outfit',system-ui,sans-serif;font-weight:400;letter-spacing:.02em;color:color-mix(in srgb,var(--text) 72%,transparent)}
+  .hero p.go-sous b{font-weight:600;color:#FF8A33}
+  @media (prefers-color-scheme:light){:root:not([data-theme=dark]) .hero p.hero-lead{text-shadow:none}}
+  :root[data-theme=light] .hero p.hero-lead{text-shadow:none}
   .fond-video{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 60%,transparent 98%);mask-image:linear-gradient(to bottom,#000 60%,transparent 98%)}
   .fond-video video{width:100%;height:100%;object-fit:cover;display:block}
   .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 52%,transparent)}
@@ -867,7 +875,7 @@
   <div class="beams" aria-hidden="true"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="smoke"></div></div>
   <div class="wrap" style="position:relative">
     <h1><span class="eyebrow">Location d'enceintes &amp; lumière · <span style="white-space:nowrap">Salon-de-Provence</span> <span style="white-space:nowrap">et alentours</span></span> Ta fête,<br><em>en grand.</em></h1>
-    <p>Anniversaire, mariage ou soirée entre amis : réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
+    <p class="hero-lead">Anniversaire, mariage ou soirée entre amis&nbsp;: réserve ton matériel en 2&nbsp;minutes, on s'occupe du reste.</p>
     <div class="ctas"><a class="btn btn-go" href="#trouver" data-esp-go>Réserver ma soirée →</a><a class="btn ghost" href="#materiel">Voir le matériel</a></div>
     <p class="go-sous">Dès <b data-prix-sem="apero">39,90 €</b> la soirée · réservation en 2 minutes</p>
     <div class="fetes" id="fetes" hidden><b class="t" id="fetes-t">🎄 Noël et 🎆 Nouvel An : les soirées partent vite</b><ul id="fetes-l"></ul><a class="btn" href="#trouver" data-esp-go>Réserver ma soirée de fête →</a></div>
