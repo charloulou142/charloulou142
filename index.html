@@ -879,6 +879,14 @@
   .fiche-pack .fp-prix{font-size:17px;margin:0 0 18px}
   .fiche-pack .fp-go{width:100%;font-size:18px;padding:16px}
   .item-actions .btn.voir-pack{flex:0 1 auto}
+  .fiche-pack .fp-media.fp-app{height:auto;aspect-ratio:9/16;width:min(100%,calc(82vh * 9 / 16));margin:0 auto}
+  .fiche-pack .fp-media.fp-app video{object-fit:contain}
+  .fiche-pack .fp-media.fp-app::after{display:none}
+  .fiche-pack .fp-media.fp-app + .fp-in{margin-top:14px}
+  .voir-appli{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin:2px 0 8px;padding:6px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--cyan) 55%,transparent);background:color-mix(in srgb,var(--cyan) 12%,transparent);color:var(--text);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+  .voir-appli span{color:var(--cyan)}
+  #materiel .ph[data-voir-appli]{cursor:pointer}
+  .ph-play{position:absolute;right:8px;bottom:8px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.6);color:#fff;font-size:13px;border:1px solid rgba(255,255,255,.5);pointer-events:none}
   /* 18/11 : bandeau Noël / Nouvel An (affiché du 1er au 31 décembre) */
   .fetes{margin:18px 0 0;padding:14px 16px;border-radius:16px;border:1px solid color-mix(in srgb,#FACC15 55%,transparent);background:linear-gradient(135deg,color-mix(in srgb,#DC2626 16%,var(--card)),color-mix(in srgb,#FACC15 12%,var(--card)));max-width:560px}
   .fetes b.t{display:block;font-size:17px;margin-bottom:4px}
@@ -2899,6 +2907,7 @@
       pscene: { v: 'scene', t: 'Comme une scène', a: 'Deux PartyBox 710 et deux trépieds de lumière (12 têtes mobiles) de chaque côté, plus la fumée : c\'est exactement ce que tu vois dans la vidéo.', p: 'Grandes fêtes, soirées à thème', l: 1 },
       pults: { v: 'f-pults', t: 'Discours, puis la piste', a: 'La PartyBox Ultimate (1100 W), le trépied lumière, la fumée et 2 micros sans fil : pour les discours, le karaoké, puis la danse.', p: 'Anniversaire, fête de famille', l: 1 },
       pmar: { v: 'f-pmar', t: 'Tout ton mariage, de l\'entrée des mariés à la fin de la nuit', a: 'Deux PartyBox Ultimate, le trépied lumière, la fumée et 2 micros sans fil : discours, première danse, puis la fête.', p: 'Mariage', l: 1 },
+      trep: { v: 'appli-lumieres', app: 1, t: 'Tes lumières, pilotées depuis ton téléphone', a: 'Une appli simple : tu touches une ambiance (apéro, soirée, club…) et tout le trépied change d’un coup. Les lumières peuvent suivre ta musique, et le bouton NOIR éteint tout. Pas besoin d’internet : le trépied a son propre Wi-Fi.', p: 'Toutes les fêtes', l: 1 },
       ppres: { v: 'f-ppres', t: 'Le maximum de son et de lumière', a: 'Le Pack Mariage avec deux trépieds de lumière : deux PartyBox Ultimate, 12 têtes mobiles, la fumée et 2 micros sans fil.', p: 'Mariages, très grandes fêtes', l: 1 }
     };
     const fp = document.createElement('div'); fp.className = 'fiche-pack'; fp.hidden = true; fp.setAttribute('role', 'dialog'); fp.setAttribute('aria-modal', 'true');
@@ -2921,10 +2930,10 @@
       const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
       const ul = carte.querySelector('ul'), prix = carte.querySelector('.in > b'), inv = carte.querySelector('.item-inv');
       fp.setAttribute('aria-label', carte.dataset.article);
-      fp.innerHTML = '<div class="fp-media"><img class="fp-flou" alt="" src="videos/' + f.v + '.jpg"><video playsinline muted loop preload="metadata" poster="videos/' + f.v + '.jpg"' + (doux ? ' autoplay' : ' controls') + ' src="videos/' + f.v + '.mp4"></video>' +
+      fp.innerHTML = '<div class="fp-media' + (f.app ? ' fp-app' : '') + '"><img class="fp-flou" alt="" src="videos/' + f.v + '.jpg"><video playsinline muted loop preload="metadata" poster="videos/' + f.v + '.jpg"' + (doux ? ' autoplay' : ' controls') + ' src="videos/' + f.v + '.mp4"></video>' +
         '<span class="fp-poignee" aria-hidden="true"></span><button type="button" class="fp-x" aria-label="Fermer">×</button></div><div class="fp-in"><p class="fp-note" hidden></p><h2></h2><p class="fp-titre"></p><p class="fp-acc"></p><span class="fp-pour"></span>' +
-        '<ul class="fp-dedans"></ul><ul class="fp-plus"></ul><p class="fp-prix"></p><a class="btn fp-go" href="#trouver">Je veux ce pack →</a></div>';
-      fp.querySelector('h2').textContent = carte.dataset.article;
+        '<ul class="fp-dedans"></ul><ul class="fp-plus"></ul><p class="fp-prix"></p><a class="btn fp-go" href="#trouver">' + (k === 'trep' ? 'Réserver ce trépied →' : 'Je veux ce pack →') + '</a></div>';
+      fp.querySelector('h2').textContent = (k === 'trep' && carte.querySelector('h3')) ? carte.querySelector('h3').textContent : carte.dataset.article;
       if (f.n) { const no = fp.querySelector('.fp-note'); no.textContent = 'ℹ️ ' + f.n; no.hidden = false; }
       fp.querySelector('.fp-titre').textContent = f.t;
       fp.querySelector('.fp-acc').textContent = f.a;
@@ -2946,6 +2955,7 @@
       // 18/11 : la fiche se ferme tout de suite (sans revenir sur la page) et l'espace de réservation repart de l'étape 1 ; le pack sera choisi à l'étape « Ton pack »
       e.preventDefault(); const c = fpCarte; fpAvant = null;
       const v = fp.querySelector('video'); if (v) v.pause(); fp.hidden = true; fp.innerHTML = ''; document.body.style.overflow = '';
+      const res = c && !c.dataset.pack && c.querySelector('[data-reserver]'); if (res) { res.click(); return; }
       if (window.espDebut) window.espDebut(c && c.dataset.pack, e.clientX || null, e.clientY || null);
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !fp.hidden) fermerFiche(); });
@@ -2989,7 +2999,7 @@
       };
       fp.addEventListener('touchend', fin); fp.addEventListener('touchcancel', fin);
     })();
-    zone.addEventListener('click', e => { const bt = e.target.closest('button[data-voir-pack]'); if (bt) ouvrirFiche(bt.dataset.voirPack, bt.closest('.item.pack')); });
+    zone.addEventListener('click', e => { const bt = e.target.closest('button[data-voir-pack]'); if (bt) ouvrirFiche(bt.dataset.voirPack, bt.closest('.item.pack')); const va = e.target.closest('[data-voir-appli]'); if (va) { e.preventDefault(); ouvrirFiche('trep', va.closest('.item')); } });
     // packs : petites images du contenu + bouton qui ouvre la réservation (comme les autres boutons du catalogue, sans présélection)
     zone.querySelectorAll('.item.pack[data-pack]').forEach(it => {
       // une image par appareil du pack (2 × 710 = 2 images), dans l'ordre son → fumée → lumière → micros
@@ -3007,13 +3017,17 @@
       const k = CLE[it.dataset.article]; if (!k) return;
       if (CAP[k] > 0) { it.dataset.cap = k; it.querySelector('h3').insertAdjacentHTML('afterend', '<span class="item-inv">👥 Conseillé jusqu\'à ~' + CAP[k] + ' invités</span>'); }
       const ph = it.querySelector('.ph[data-dessin]');
-      if (ph) { const img = new Image(); img.alt = it.dataset.article; if (k === 'trep') { img.className = 'photo3d'; img.loading = 'lazy'; } img.src = k === 'trep' ? imgSrc('trepied-3d') : imgSrc(IMG1[k]); ph.textContent = ''; ph.appendChild(img); }
+      if (ph) { const img = new Image(); img.alt = it.dataset.article; if (k === 'trep') { img.className = 'photo3d'; img.loading = 'lazy'; } img.src = k === 'trep' ? imgSrc('trepied-vrai') : imgSrc(IMG1[k]); ph.textContent = ''; ph.appendChild(img); }
       const lum = LUM.indexOf(k) >= 0;
       it.querySelector('h3').insertAdjacentHTML('afterend', k === 'p310' ? '<span class="item-tag bat">🔋 Sur batterie (~18 h)</span>' : k === 'micro' ? '<span class="item-tag bat">🔋 Sur batterie</span>' : '<span class="item-tag">🔌 Prise nécessaire</span>');
       it.querySelector('.in').insertAdjacentHTML('beforeend', '<div class="item-actions">' + (
         lum ? '<button type="button" class="btn" data-panier="' + k + '">+ Ajouter au trépied</button>'
         : '<a class="btn" href="#reserver" data-reserver="' + k + '"><span>Réserver<span class="long"> ' + (k === 'fumee' ? 'cette machine' : k === 'micro' ? 'ces micros' : k === 'trep' ? 'ce trépied' : 'cette enceinte') + '</span></span></a>' +
           '<button type="button" class="btn ghost" data-panier="' + k + '"><span>+ <span class="long">Ajouter au </span>panier</span></button>') + '</div>');
+      if (k === 'trep') {   // 21/11 : vraie photo + vidéo de l'appli au clic
+        it.querySelector('.in > p').insertAdjacentHTML('afterend', '<button type="button" class="voir-appli" data-voir-appli>📱 Voir l’appli en vidéo <span aria-hidden="true">▶</span></button>');
+        if (ph) { ph.setAttribute('data-voir-appli', ''); ph.setAttribute('role', 'button'); ph.setAttribute('tabindex', '0'); ph.setAttribute('aria-label', 'Voir l’appli des lumières en vidéo'); ph.insertAdjacentHTML('beforeend', '<span class="ph-play" aria-hidden="true">▶</span>'); ph.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ph.click(); } }); }
+      }
     });
     const briller = el => { if (!el) return; el.classList.remove('surbrille'); void el.offsetWidth; el.classList.add('surbrille'); };
     zone.addEventListener('click', e => {
