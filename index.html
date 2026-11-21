@@ -1603,7 +1603,8 @@
     if(window.bkSync) window.bkSync();
   }
   // carte active de la rangée : « Crée ton trépied » quand « Mon panier » contient le trépied
-  const carteActive=()=>current;
+  // 21/11 : panier « trépied seul » = la carte « Trépied lumière » de l'onglet Lumière est celle qui est choisie
+  const carteActive=()=>current==='perso'&&panier.trep>0&&Object.keys(panier).every(k=>k==='trep'||!panier[k])&&!CACHES.has('creer')?'creer':current;
   function majPresse(){ rail.querySelectorAll('.cp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pack===carteActive())); }
   const offreSelect=()=>document.getElementById('bk-offre');
   let bullesDepuis=0;
@@ -1800,6 +1801,7 @@
       if(!panier.trep&&STOCK.trep>0) panier.trep=1;
       bullesDepuis=Date.now();
       key='perso';
+      if(ONGLET!=='lum'&&GROUPES.some(g=>g[0]==='lum')){ ONGLET='lum'; renderRail(); }   // 21/11 : on montre l'onglet Lumière
       if(current==='perso'){ majPanier(); majAlerte(); majSitu(); return; }
     }
     show0(key,isReco); majAlerte(); majSitu();
@@ -2971,6 +2973,7 @@
       // 18/11 : la fiche se ferme tout de suite (sans revenir sur la page) et l'espace de réservation repart de l'étape 1 ; le pack sera choisi à l'étape « Ton pack »
       e.preventDefault(); const c = fpCarte; fpAvant = null;
       const v = fp.querySelector('video'); if (v) v.pause(); fp.hidden = true; fp.innerHTML = ''; document.body.style.overflow = '';
+      if (c && c.dataset.article === 'Trépied à lumières' && window.espDebut) { window.espDebut('creer', e.clientX || null, e.clientY || null); return; }
       const res = c && !c.dataset.pack && c.querySelector('[data-reserver]'); if (res) { res.click(); return; }
       if (window.espDebut) window.espDebut(c && c.dataset.pack, e.clientX || null, e.clientY || null);
     });
@@ -3215,6 +3218,8 @@
         let cible = null;
         const pk = t.closest('#materiel .item.pack [data-esp-go]');
         if (pk) { e.preventDefault(); e.stopPropagation(); window.espDebut(pk.closest('.item.pack').dataset.pack, e.clientX || null, e.clientY || null); return; }
+        const tr = t.closest('#materiel [data-reserver="trep"]');   // 21/11 : « Réserver ce trépied » → le trépied est déjà choisi à l'étape « Ton pack »
+        if (tr) { e.preventDefault(); e.stopPropagation(); window.espDebut('creer', e.clientX || null, e.clientY || null); return; }
         if (cat) cible = 1;   // bouton du catalogue : on commence à l'étape 1, sans rien choisir à la place du client
         else if (autre) cible = autre.id === 'bk-reprise-ok' ? 'resa' : reprendre();
         else if (a) cible = reprendre();
