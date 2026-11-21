@@ -880,7 +880,9 @@
   .fiche-pack .fp-go{width:100%;font-size:18px;padding:16px}
   .item-actions .btn.voir-pack{flex:0 1 auto}
   .fiche-pack .fp-media.fp-app{height:auto;aspect-ratio:9/16;width:min(100%,calc(82vh * 9 / 16));margin:0 auto}
-  .fiche-pack .fp-media.fp-app video{object-fit:contain}
+  .fiche-pack .fp-media.fp-app video{object-fit:contain;-webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 93%,transparent);mask-composite:intersect;box-shadow:none}
+  .fiche-pack .fp-media.fp-app{background:transparent}
+  .fiche-pack .fp-media.fp-app .fp-flou{display:none}
   .fiche-pack .fp-media.fp-app::after{display:none}
   .fiche-pack .fp-media.fp-app + .fp-in{margin-top:14px}
   .voir-appli{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin:2px 0 8px;padding:6px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--cyan) 55%,transparent);background:color-mix(in srgb,var(--cyan) 12%,transparent);color:var(--text);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
