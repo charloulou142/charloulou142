@@ -1100,7 +1100,7 @@
         <div class="adr-boite"><input id="bk-lieu" maxlength="120" placeholder="ex. 12 rue des Lilas, Pélissanne" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="bk-adr-liste">
         <ul class="adr-liste" id="bk-adr-liste" role="listbox" hidden></ul></div>
         <datalist id="bk-villes"></datalist>
-        <small class="livr-txt" id="bk-livr-txt">Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès 150 € de location), jusqu'à 25 km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18 €, Istres 26 €.</small></div>
+        <small class="livr-txt" id="bk-livr-txt">Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès 150 € de location), jusqu'à 25 km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18-19 €, Istres 26 €.</small></div>
       <div class="devis" id="bk-devis" hidden></div>
      </div>
      <div class="wiz-pas" data-pas="3" hidden>
@@ -1267,7 +1267,7 @@
   <div class="faq" style="text-align:left;margin-top:30px">
     <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : en livraison, on installe tout chez toi et on vérifie que ça marche ; en retrait, on t'explique tout sur place. Ensuite tu connectes ton téléphone en Bluetooth.</p></details>
     <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui, environ la moitié de la valeur du matériel : 200 € par PartyBox 320 ou 710, 350 € par PartyBox Ultimate, 50 € pour la machine à fumée ou les micros, 100 € par trépied lumière. Pour un pack, on additionne (Pack Club : 400 €). Tu peux la bloquer par carte depuis ton lien de suivi, quelques jours avant (le montant est seulement bloqué, rien n'est débité), ou la laisser en espèces. Elle t'est rendue (ou le blocage levé) au retour du matériel.</p></details>
-    <details name="faq"><summary>Vous livrez ?</summary><p>Oui : on livre, on installe et on reprend le matériel le lendemain, jusqu'à 25 km de Salon-de-Provence. Prix : 10 € + 0,70 € par km depuis le centre de Salon (environ 10 à 13 € dans Salon, 16 € à Pélissanne, 18 € à Miramas, 26 € à Istres, jamais plus de 29 €), et <b>moitié prix dès 150 € de location</b>. Le prix exact s'affiche dès que tu choisis ton adresse. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
+    <details name="faq"><summary>Vous livrez ?</summary><p>Oui : on livre, on installe et on reprend le matériel le lendemain, jusqu'à 25 km de Salon-de-Provence. Prix : 10 € + 0,70 € par km depuis le centre de Salon (environ 10 à 13 € dans Salon, 16 € à Pélissanne, 18-19 € à Miramas, 26 € à Istres, jamais plus de 29 €), et <b>moitié prix dès 150 € de location</b>. Le prix exact s'affiche dès que tu choisis ton adresse. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
@@ -2264,7 +2264,7 @@
     if (actif && (actif.offsetLeft < choix.scrollLeft || actif.offsetLeft + actif.offsetWidth > choix.scrollLeft + choix.clientWidth)) choix.scrollLeft = actif.offsetLeft - 8;
     // livraison + total
     const l = livraison(), t = $('bk-livr-txt');
-    const bareme = 'Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès ' + (LIVR.demi || 150) + ' € de location), jusqu\'à ' + LIVR.maxKm + ' km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18 €, Istres 26 €.';
+    const bareme = 'Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès ' + (LIVR.demi || 150) + ' € de location), jusqu\'à ' + LIVR.maxKm + ' km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18-19 €, Istres 26 €.';
     t.textContent = l.etat === 'ok' ? '✅ Livraison, installation et reprise (' + String(l.km).replace('.', ',') + ' km de Salon) : ' + enEuros(l.prix) + (l.demi ? ' (moitié prix 🎉)' : '') + '.'
                   : l.etat === 'calcul' ? 'Calcul de la distance…'
                   : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km. Le retrait à Salon reste gratuit.'
