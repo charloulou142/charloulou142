@@ -163,6 +163,13 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
     if (nAtt++ === 0) tAtt = setTimeout(() => bloquer(true), 350);
     try { return await f(); } finally { if (--nAtt === 0) { clearTimeout(tAtt); bloquer(false); } }
   }
+  function idAppareil() {   // 23/11 : identifiant aléatoire de ce navigateur (pas d'e-mail de connexion pour un appareil déjà connu)
+    try {
+      let a = localStorage.getItem('mistraloc_appareil');
+      if (!/^[a-f0-9]{32}$/.test(a || '')) { a = Array.from(crypto.getRandomValues(new Uint8Array(16)), o => o.toString(16).padStart(2, '0')).join(''); localStorage.setItem('mistraloc_appareil', a); }
+      return a;
+    } catch (e) { return ''; }
+  }
   async function appel(action, donnees) {
     const f = async () => {
       const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -230,7 +237,7 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   $('f-login').addEventListener('submit', e => { e.preventDefault(); const b = e.submitter || e.target.querySelector('button[type=submit]'); occupe(b, async () => {
     msg('m-login', '');
     try {
-      const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value, app: true });
+      const j = await appel('admin_login', { identifiant: $('l-id').value, motdepasse: $('l-mdp').value, appareil: idAppareil(), app: true });
       if (!j.ok) { msg('m-login', 'Connexion refusée : ' + j.erreur + '.'); if (j.parMail) { $('l-mdp').value = ''; $('f-login-mail').hidden = false; $('f-login-mail').scrollIntoView({ block: 'nearest' }); } return; }
       garder(j.token); $('l-mdp').value = ''; await ouvrir(b, j.app);
     } catch (err) { msg('m-login', err.message || 'Erreur réseau.'); }
@@ -266,7 +273,7 @@ main > section:not(#v-admin){animation:arrivee .8s cubic-bezier(.2,.8,.2,1) back
   }));
   $('f-login-mail').addEventListener('submit', e => { e.preventDefault(); const b = e.target.querySelector('button[type=submit]'); occupe(b, async () => {
     try {
-      const j = await appel('admin_login', { code: $('lc-code').value.trim(), app: true });
+      const j = await appel('admin_login', { code: $('lc-code').value.trim(), appareil: idAppareil(), app: true });
       if (!j.ok) return msg('m-lmail', 'Refusé : ' + j.erreur + '.');
       garder(j.token); $('lc-code').value = ''; msg('m-login', ''); $('f-login-mail').hidden = true; await ouvrir(b, j.app);
     } catch (err) { msg('m-lmail', err.message || 'Erreur réseau.'); }
