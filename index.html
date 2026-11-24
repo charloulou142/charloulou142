@@ -716,6 +716,23 @@
   body.esp #trouver .result.vue-choix .r-intro{display:block;order:0;margin:0 0 10px;font-size:16px;font-weight:600;color:var(--muted)}
   body.esp #trouver .result.vue-choix .r-top>*:not(.swl):not(.cp-zone):not(.note-puissance){display:none!important}
   body.esp #trouver .result.vue-choix .r-changer{order:9}
+  /* 24/11 : vidéo du pack à l'étape 4 (à la place des photos) + choix de l'odeur bien visible */
+  .r-video{display:none;margin:4px auto 14px;text-align:center}
+  body.esp #trouver .result.vue-pack .r-video:not([hidden]){display:block;order:3}
+  body.esp #trouver .result.vue-pack.avec-video .rImg{display:none}
+  .r-video video{display:block;margin:0 auto;height:min(52vh,460px);max-width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:18px;background:#0B0714;border:1px solid rgba(139,92,246,.45);box-shadow:0 0 0 1px rgba(255,122,26,.15),0 14px 34px rgba(0,0,0,.45),0 0 28px rgba(139,92,246,.25)}
+  .r-video figcaption{margin:8px auto 0;font-size:13px;color:var(--muted);line-height:1.4;max-width:420px}
+  .parfum{border:1.5px solid rgba(34,211,238,.55);border-radius:16px;padding:12px 12px 10px;background:color-mix(in srgb,var(--cyan) 7%,transparent)}
+  .parfum .pf-titre{font-size:16px}.parfum .pf-offert{display:inline;margin:0;color:var(--cyan)}
+  .pf-choix{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
+  .pf-choix button{text-decoration:none;font:inherit;font-weight:600;font-size:15px;padding:11px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg2);color:var(--text);cursor:pointer;transition:border-color .2s,background .2s,transform .1s}
+  .pf-choix button:active{transform:scale(.97)}
+  .pf-choix button[aria-pressed="true"]{border-color:var(--cyan);background:color-mix(in srgb,var(--cyan) 18%,var(--bg2));box-shadow:0 0 14px rgba(34,211,238,.35)}
+  .pf-choix button[aria-pressed="true"]::after{content:" ✓"}
+  .pf-alerte{display:block;margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--pink) 14%,transparent);font-weight:600;line-height:1.45}
+  .pf-alerte[hidden]{display:none}
+  .pf-alerte button{font:inherit;font-weight:700;color:var(--pink);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+  @media (min-width:720px){ .pf-choix{grid-template-columns:repeat(4,1fr)} }
   .esp-tete{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .esp-tete[hidden]{display:none}
   .esp-tete .wrap{display:flex;align-items:center;gap:12px;height:62px}
@@ -1042,7 +1059,7 @@
         <p class="effet-info" id="rEffet" role="status" hidden></p>
         <p class="alerte-inv" id="rAlerte" role="status" hidden></p>
         <p class="plus-fumee" id="rPlus" hidden></p>
-        <p class="plus-fumee parfum" id="rParfum" hidden><label for="sel-parfum">💨 <b>Parfum de la fumée</b> (offert, un seul par soirée) :</label><br><select id="sel-parfum"><option value="">Sans odeur</option><option>Tutti frutti</option><option>Vanille</option><option>Menthe</option></select><small>Des invités allergiques ou asthmatiques ? Garde « Sans odeur ».</small></p>
+        <p class="plus-fumee parfum" id="rParfum" hidden><b class="pf-titre">💨 Choisis l’odeur de ta fumée</b> <small class="pf-offert">offerte · une seule par soirée</small><span class="pf-choix" role="group" aria-label="Odeur de la fumée"><button type="button" data-pf="" aria-pressed="false">🚫 Sans odeur</button><button type="button" data-pf="Tutti frutti" aria-pressed="false">🍓 Tutti frutti</button><button type="button" data-pf="Vanille" aria-pressed="false">🍦 Vanille</button><button type="button" data-pf="Menthe" aria-pressed="false">🌿 Menthe</button></span><select id="sel-parfum" hidden><option value="">Sans odeur</option><option>Tutti frutti</option><option>Vanille</option><option>Menthe</option></select><span class="pf-alerte" id="pfAlerte" role="alert" hidden>👃 Tu n’as pas encore choisi l’odeur de la fumée. Touche une odeur juste au-dessus, ou <button type="button" id="pfSans">continue sans odeur →</button></span><small>Des invités allergiques ou asthmatiques ? Prends « Sans odeur ».</small></p>
         <div class="r-tarif">
           <div>
             <p class="price"><span class="des" id="rDes">dès</span><span id="rPrice"></span><i id="rUnite">/ soirée en semaine</i><small id="rSem"></small></p>
@@ -1051,6 +1068,7 @@
           <a class="btn" id="rBook" href="#reserver">Choisir ma date →</a>
         </div>
       </div>
+      <figure class="r-video" id="rVideo" hidden><video muted loop playsinline preload="none" aria-label="Vidéo du pack"></video><figcaption id="rVideoTxt"></figcaption></figure>
       <div class="rImg" id="rImg" aria-hidden="true"></div>
       <figure class="r-situ" id="rSitu" hidden><img alt="Notre matériel en soirée" loading="lazy"><figcaption>📸 Notre matériel en soirée</figcaption></figure>
       <span class="tag" id="rTag">Recommandé pour toi</span>
@@ -1933,6 +1951,50 @@
     window.avecFumee = !!c.fumee; el.hidden = !window.avecFumee;
   }
   document.getElementById('sel-parfum').addEventListener('change', e => { window.parfum = e.target.value; });
+  // 24/11 (demande de Mistraloc) : l'odeur se choisit avec de gros boutons ; si le client continue sans avoir choisi, on lui demande
+  window.parfumChoisi = false;
+  const pfBoutons = [...document.querySelectorAll('.pf-choix button')], pfAlerte = document.getElementById('pfAlerte');
+  function choisirParfum(v){
+    window.parfum = v; window.parfumChoisi = true; document.getElementById('sel-parfum').value = v;
+    pfBoutons.forEach(b => b.setAttribute('aria-pressed', b.dataset.pf === v));
+    pfAlerte.hidden = true; document.getElementById('rParfum').classList.remove('a-remplir');
+  }
+  pfBoutons.forEach(b => b.addEventListener('click', () => choisirParfum(b.dataset.pf)));
+  document.getElementById('pfSans').addEventListener('click', () => { choisirParfum(''); document.getElementById('rBook').click(); });
+  window.addEventListener('click', e => {
+    if (!e.target.closest || !e.target.closest('#rBook')) return;
+    const box = document.getElementById('rParfum');
+    if (!window.avecFumee || window.parfumChoisi || box.hidden || document.getElementById('rBook').classList.contains('off')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    pfAlerte.hidden = false; box.classList.remove('a-remplir'); void box.offsetWidth; box.classList.add('a-remplir');
+    box.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  }, true);
+
+  // 24/11 (demande de Mistraloc) : à l'étape « Ton pack », la VRAIE vidéo du pack à la place des photos
+  const VID_PACK = { apero:'p320', soiree:'p710', club:'p710', pcult:'f-pcult', pamb:'f-pamb', psshow:'f-psshow', pclas:'f-pclas', pscene:'scene', pults:'f-pults', pmar:'f-pmar', ppres:'f-ppres', p310:'p320', p710:'p710', pult:'pult', trep:'trepied-action' };
+  const VID_NOTE = { pamb:'la PartyBox 320 de ce pack, puis nos lumières en démonstration (ce pack contient 1 trépied)', psshow:'la PartyBox 710 de ce pack, puis nos lumières en démonstration (ce pack contient 1 trépied)', pclas:'les PartyBox 710 de ce pack, puis nos lumières en démonstration (ce pack contient 1 trépied)', club:'une PartyBox 710 (ce pack en contient 2)' };
+  const rVid = document.getElementById('rVideo'), rV = rVid.querySelector('video'), sansAnim = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let vidCle = null;
+  function lireVid(){
+    const voir = !rVid.hidden && document.body.classList.contains('esp') && RES.classList.contains('vue-pack') && !document.hidden && rVid.getClientRects().length > 0;
+    if (voir && !sansAnim) { const p = rV.play(); if (p && p.catch) p.catch(() => {}); } else rV.pause();
+  }
+  function majVideo(){
+    const v = VID_PACK[current] || null;
+    if (v !== vidCle) {
+      vidCle = v;
+      if (v) { rV.poster = 'videos/' + v + '.jpg'; rV.src = 'videos/' + v + '.mp4'; rV.controls = sansAnim; }
+      else { rV.pause(); rV.removeAttribute('src'); rV.removeAttribute('poster'); }
+    }
+    rVid.hidden = !v; RES.classList.toggle('avec-video', !!v);
+    document.getElementById('rVideoTxt').textContent = v ? '🎬 Notre vrai matériel, filmé chez nous' + (VID_NOTE[current] ? ' : ' + VID_NOTE[current] + '.' : '.') : '';
+    setTimeout(lireVid, 60);
+  }
+  { const s2 = show; show = function(k, r){ s2(k, r); try { majVideo(); } catch (e) {} }; }
+  document.addEventListener('visibilitychange', lireVid);
+  new MutationObserver(lireVid).observe(RES, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(lireVid).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  try { majVideo(); } catch (e) {}
   { const a0 = majAlerte; majAlerte = function(){ a0.apply(this, arguments); try { majParfum(); } catch (e) {} }; }
   function update(){g.style.setProperty('--p',((g.value-g.min)/(g.max-g.min)*100)+'%');gOut.textContent=g.value>=200?'200+':g.value; manual=null; show(recommend(),true);}
   document.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed',x===c));kind=c.dataset.k;update();}));
