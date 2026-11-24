@@ -698,6 +698,24 @@
   body.esp[data-fq="4"] .esp-choix{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;max-width:720px;margin:0 auto 14px;font-size:14px}
   .esp-choix span{padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
   .esp-choix button{border:0;background:none;color:var(--cyan);font:inherit;font-weight:700;cursor:pointer;padding:6px 4px;text-decoration:underline;text-underline-offset:3px}
+  /* 24/11 (demande de Mistraloc) : étape « Ton pack » plus simple = UN pack en grand (choisi sur l'accueil ou conseillé) + bouton « Changer de pack » qui ouvre la grille */
+  .r-intro,.r-changer,.r-inv{display:none}
+  body.esp #trouver .result.vue-pack .r-intro{display:block;order:0;margin:0 0 4px;font-size:17px;font-weight:700;line-height:1.35}
+  body.esp #trouver .result.vue-pack .tag{display:none}
+  body.esp #trouver .result.vue-pack h3{order:2}
+  body.esp #trouver .result.vue-pack .rImg{order:3}
+  body.esp #trouver .result.vue-pack .r-situ{order:4}
+  body.esp #trouver .result.vue-pack .why{order:5;margin-bottom:6px}
+  body.esp #trouver .result.vue-pack .r-inv:not([hidden]){display:block;order:5;margin:0 0 14px;font-weight:700;color:var(--cyan)}
+  body.esp #trouver .result.vue-pack .checks,body.esp #trouver .result.vue-pack .panier{order:6}
+  body.esp #trouver .result.vue-pack .r-top{order:7;margin:4px 0 0}
+  body.esp #trouver .result.vue-pack .r-top>.swl,body.esp #trouver .result.vue-pack .cp-zone,body.esp #trouver .result.vue-pack .note-puissance{display:none}
+  body.esp #trouver .result .r-changer{display:block;order:8;width:100%;margin:14px 0 0;padding:13px 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+  body.esp #trouver .result .r-changer:hover{border-color:var(--cyan)}
+  body.esp #trouver .result.vue-choix>*:not(.r-top):not(.r-changer):not(.r-intro){display:none!important}
+  body.esp #trouver .result.vue-choix .r-intro{display:block;order:0;margin:0 0 10px;font-size:16px;font-weight:600;color:var(--muted)}
+  body.esp #trouver .result.vue-choix .r-top>*:not(.swl):not(.cp-zone):not(.note-puissance){display:none!important}
+  body.esp #trouver .result.vue-choix .r-changer{order:9}
   .esp-tete{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .esp-tete[hidden]{display:none}
   .esp-tete .wrap{display:flex;align-items:center;gap:12px;height:62px}
@@ -1011,6 +1029,7 @@
     </div>
     <div class="result" aria-live="polite">
       <!-- haut de la carte : rangée de formules qui défile au doigt + prix + bouton (28/10) -->
+      <p class="r-intro" id="rIntro"></p>
       <div class="r-top">
         <p class="swl">Choisis ta formule</p>
         <div class="cp-zone">
@@ -1036,9 +1055,10 @@
       <figure class="r-situ" id="rSitu" hidden><img alt="Notre matériel en soirée" loading="lazy"><figcaption>📸 Notre matériel en soirée</figcaption></figure>
       <span class="tag" id="rTag">Recommandé pour toi</span>
       <h3 id="rName">Pack Soirée</h3>
-      <p class="why" id="rWhy"></p>
+      <p class="why" id="rWhy"></p><p class="r-inv" id="rInv" hidden></p>
       <ul class="checks" id="rList"></ul>
       <div class="panier" id="rPanier" hidden></div>
+      <button type="button" class="r-changer" id="rChanger">🔄 Changer de pack</button>
     </div>
   </div>
 </div></section>
@@ -1875,6 +1895,35 @@
   ongBar.addEventListener('click', () => { window.effetManuel = true; setTimeout(majEffet, 0); });
   { const s0 = show; show = function(k, r){ s0(k, r); try { majEffet(); } catch (e) {} }; }
   { const u0 = update; update = function(){ window.effetManuel = false; u0(); }; }
+  // 24/11 : vue « un seul pack » / vue « choisir un autre pack »
+  const RES = document.querySelector('#trouver .result');
+  function majIntro(){
+    const k = current, n = +g.value, nb = (n >= 200 ? '200+' : n) + ' invités', el = document.getElementById('rIntro');
+    if (RES.classList.contains('vue-choix')) { el.textContent = '👇 Touche un pack pour voir ce qu’il contient.'; }
+    else if (k === 'perso') el.textContent = '🛠️ Compose ta soirée : choisis chaque appareil ci-dessous.';
+    else if (window.packVoulu === k) el.textContent = '✅ Le pack que tu as choisi :';
+    else if (window.effetVoulu && !window.effetManuel) el.textContent = '🎬 Le pack de la vidéo, pour ta fête (' + nb + ') :';
+    else if (estReco(k) && !window.effetManuel) el.textContent = '👉 Pour ta fête (' + nb + '), on te conseille :';
+    else el.textContent = '✅ Ta formule :';
+    const inv = k && k !== 'perso' ? capacite(k) : 0, ri = document.getElementById('rInv');
+    ri.hidden = !inv; ri.textContent = inv ? '👥 Idéal jusqu’à ~' + inv + ' invités' : '';
+  }
+  function vueChoix(on){
+    RES.classList.toggle('vue-choix', on); RES.classList.toggle('vue-pack', !on);
+    document.getElementById('rChanger').textContent = on ? '← Revenir à mon pack' : '🔄 Changer de pack';
+    majIntro();
+    if (on) { try { majFleches(); centrerCarte(false); } catch (e) {} }
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+  }
+  window.vuePack = () => vueChoix(false);
+  RES.classList.add('vue-pack');
+  let packAvant = null;
+  document.getElementById('rChanger').addEventListener('click', () => {
+    if (RES.classList.contains('vue-choix')) { if (packAvant && current !== packAvant) show(packAvant, estReco(packAvant)); vueChoix(false); }
+    else { packAvant = current; vueChoix(true); }
+  });
+  rail.addEventListener('click', e => { if (e.isTrusted && e.target.closest('.cp') && RES.classList.contains('vue-choix')) vueChoix(false); });   // un pack touché = on le montre en grand
+  { const s1 = show; show = function(k, r){ s1(k, r); try { majIntro(); } catch (e) {} }; }
   { const r0 = estReco; estReco = function(k){ if (!window.effetVoulu) return r0(k); const e = effetPack(); return grpDe(e) === ONGLET ? k === e : r0(k); }; }   // « Conseillé » sur le pack de la vidéo   // nouvelles réponses : on repropose le pack de la vidéo
 
   // 16/11 (demande de Mistraloc) : parfum de la fumée, OFFERT, un seul par soirée ; « Sans odeur » par défaut
@@ -3137,6 +3186,7 @@
       const sens = phase === 'resa' || n < fq ? -1 : 1;
       phase = 'pack'; fq = n; majTete(); window.scrollTo(0, 0);
       if (n === 4 && window.effetAuto) window.effetAuto();
+      if (n === 4 && window.vuePack) window.vuePack();
       if (!sil) entree(n === 4 ? document.querySelector('#trouver .result') : document.querySelector('#trouver .fq[data-fq="' + n + '"]'), sens);
     }
     function allerResa(sil){ phase = 'resa'; fq = 4; majTete(); window.scrollTo(0, 0); if (!sil) entree($e('wiz'), 1); }
