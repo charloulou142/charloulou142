@@ -1977,8 +1977,20 @@
   let vidCle = null;
   function lireVid(){
     const voir = !rVid.hidden && document.body.classList.contains('esp') && RES.classList.contains('vue-pack') && !document.hidden && rVid.getClientRects().length > 0;
-    if (voir && !sansAnim) { const p = rV.play(); if (p && p.catch) p.catch(() => {}); } else rV.pause();
+    if (voir && !sansAnim) { if (rV.paused) { const p = rV.play(); if (p && p.catch) p.catch(() => attendreGeste()); } } else if (!rV.paused) rV.pause();
   }
+  // 24/11 (signalé : on quitte la page, on revient, la vidéo ne repart plus) : on relance au retour,
+  // et si le téléphone refuse (Safari, économie d'énergie), au premier toucher / défilement
+  let gesteEnAttente = false;
+  function attendreGeste(){
+    if (gesteEnAttente) return; gesteEnAttente = true;
+    const go = () => { gesteEnAttente = false; ['touchstart', 'pointerdown', 'scroll', 'keydown'].forEach(t => removeEventListener(t, go, true)); lireVid(); };
+    ['touchstart', 'pointerdown', 'scroll', 'keydown'].forEach(t => addEventListener(t, go, { capture: true, passive: true }));
+  }
+  const relancer = () => { lireVid(); setTimeout(lireVid, 350); setTimeout(lireVid, 1200); };
+  addEventListener('pageshow', relancer); addEventListener('focus', relancer);
+  rV.addEventListener('pause', () => { if (!document.hidden) setTimeout(lireVid, 400); });
+  rV.addEventListener('stalled', () => { if (!document.hidden && !rVid.hidden) { const t = rV.currentTime; rV.load(); try { rV.currentTime = t; } catch (e) {} lireVid(); } });
   function majVideo(){
     const v = VID_PACK[current] || null;
     if (v !== vidCle) {
@@ -1991,7 +2003,7 @@
     setTimeout(lireVid, 60);
   }
   { const s2 = show; show = function(k, r){ s2(k, r); try { majVideo(); } catch (e) {} }; }
-  document.addEventListener('visibilitychange', lireVid);
+  document.addEventListener('visibilitychange', relancer);
   new MutationObserver(lireVid).observe(RES, { attributes: true, attributeFilter: ['class'] });
   new MutationObserver(lireVid).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   try { majVideo(); } catch (e) {}
