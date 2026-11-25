@@ -89,15 +89,15 @@ footer.end .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:w
 
 /* Thème clair : suit le réglage de l'appareil, sauf si le visiteur a choisi avec le bouton (data-theme) */
 @media (prefers-color-scheme:light){
-  :root:not([data-theme=dark]){--bg:#F3EFF8;--bg2:#EAE4F2;--card:#F9F7FC;--line:rgba(40,20,80,.13);--text:#1E1433;--muted:#5A5072;--violet:#7C3AED;--pink:#F26A0A;--cyan:#0891B2}
-  :root:not([data-theme=dark]) nav.top{background:rgba(243,239,248,.85)}
+  :root:not([data-theme=dark]){--bg:#F6F4FA;--bg2:#EEEAF5;--card:#FFFFFF;--line:rgba(40,20,80,.10);--text:#1E1433;--muted:#5A5072;--violet:#7C3AED;--pink:#F26A0A;--cyan:#0891B2}
+  :root:not([data-theme=dark]) nav.top{background:rgba(246,244,250,.88)}
   :root:not([data-theme=dark]) .hero h1 em{background:linear-gradient(90deg,#7C3AED,#DB2777 50%,#F26A0A);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 6px 18px rgba(219,39,119,.35))}
   :root:not([data-theme=dark]) .easy > div:nth-child(4) b{background:#1E1433;color:#fff}
   :root:not([data-theme=dark]) .smoke{opacity:.5}
   :root:not([data-theme=dark]) .todo{color:#9A3F00}
 }
-:root[data-theme=light]{--bg:#F3EFF8;--bg2:#EAE4F2;--card:#F9F7FC;--line:rgba(40,20,80,.13);--text:#1E1433;--muted:#5A5072;--violet:#7C3AED;--pink:#F26A0A;--cyan:#0891B2}
-:root[data-theme=light] nav.top{background:rgba(243,239,248,.85)}
+:root[data-theme=light]{--bg:#F6F4FA;--bg2:#EEEAF5;--card:#FFFFFF;--line:rgba(40,20,80,.10);--text:#1E1433;--muted:#5A5072;--violet:#7C3AED;--pink:#F26A0A;--cyan:#0891B2}
+:root[data-theme=light] nav.top{background:rgba(246,244,250,.88)}
 :root[data-theme=light] .hero h1 em{background:linear-gradient(90deg,#7C3AED,#DB2777 50%,#F26A0A);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 6px 18px rgba(219,39,119,.35))}
 :root[data-theme=light] .easy > div:nth-child(4) b{background:#1E1433;color:#fff}
 :root[data-theme=light] .smoke{opacity:.5}
@@ -144,3 +144,12 @@ nav.top .wrap{gap:10px}
 .btn,.navlinks a{font-family:'Outfit',system-ui,sans-serif;font-weight:600;letter-spacing:.01em}
 .item .prix,.item .prixsem{font-family:'Outfit',system-ui,sans-serif;font-weight:600}
 .pied h4,.ct-suis{font-family:'Outfit',system-ui,sans-serif;font-weight:600}
+
+/* 26/11/2026 : thème clair plus net = cartes blanches qui se détachent du fond (ombre douce) */
+@media (prefers-color-scheme:light){
+  :root:not([data-theme=dark]) .item,:root:not([data-theme=dark]) .bloc,:root:not([data-theme=dark]) .ct-c,:root:not([data-theme=dark]) .faq,:root:not([data-theme=dark]) .cadeau-bloc,:root:not([data-theme=dark]) .easy>div,:root:not([data-theme=dark]) .panel,:root:not([data-theme=dark]) .cp,:root:not([data-theme=dark]) .result{box-shadow:0 1px 2px rgba(30,20,60,.05),0 10px 28px -14px rgba(70,35,130,.22)}
+  :root:not([data-theme=dark]) .item:hover,:root:not([data-theme=dark]) .ct-c:hover{box-shadow:0 2px 4px rgba(30,20,60,.06),0 16px 36px -14px rgba(70,35,130,.30)}
+}
+:root[data-theme=light] .item,:root[data-theme=light] .bloc,:root[data-theme=light] .ct-c,:root[data-theme=light] .faq,:root[data-theme=light] .cadeau-bloc,:root[data-theme=light] .easy>div,:root[data-theme=light] .panel,:root[data-theme=light] .cp,:root[data-theme=light] .result{box-shadow:0 1px 2px rgba(30,20,60,.05),0 10px 28px -14px rgba(70,35,130,.22)}
+:root[data-theme=light] .item:hover,:root[data-theme=light] .ct-c:hover{box-shadow:0 2px 4px rgba(30,20,60,.06),0 16px 36px -14px rgba(70,35,130,.30)}
+

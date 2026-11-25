@@ -840,6 +840,26 @@
   .fond-video video{width:100%;height:100%;object-fit:cover;display:block}
   .fond-video::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 44%,transparent)}
   .hero.video-ok .fond-video{opacity:1}
+  /* 26/11/2026 : en thème clair, le haut de la page reste SOMBRE (la vidéo des soirées n'est plus délavée par un voile blanc) :
+     on redonne les couleurs du thème sombre au seul bandeau du haut et au menu tant qu'il est transparent au-dessus */
+  @media (prefers-color-scheme:light){
+    :root:not([data-theme=dark]) header.hero,:root:not([data-theme=dark]) body>nav.top:not(.defile){--bg:#0B0714;--bg2:#120B20;--card:#1A1229;--line:rgba(255,255,255,.14);--text:#F4EEFF;--muted:#C9BFE3;--violet:#A78BFA;--cyan:#22D3EE;--pink:#FF7A1A;color:var(--text)}
+    :root:not([data-theme=dark]) header.hero{background:#0B0714}
+    :root:not([data-theme=dark]) header.hero::after{height:170px;background:linear-gradient(to bottom,transparent,#F6F4FA)}
+    :root:not([data-theme=dark]) .hero h1 em{filter:drop-shadow(0 6px 22px rgba(219,39,119,.45))}
+    :root:not([data-theme=dark]) .hero p.hero-lead{text-shadow:0 2px 14px rgba(0,0,0,.55)}
+    :root:not([data-theme=dark]) .hero p.go-sous b{color:#FF8A33}
+    :root:not([data-theme=dark]) header.hero .go-plus li{background:rgba(26,18,41,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+    :root:not([data-theme=dark]) header.hero a:not(.btn){color:#67E8F9}
+  }
+  :root[data-theme=light] header.hero,:root[data-theme=light] body>nav.top:not(.defile){--bg:#0B0714;--bg2:#120B20;--card:#1A1229;--line:rgba(255,255,255,.14);--text:#F4EEFF;--muted:#C9BFE3;--violet:#A78BFA;--cyan:#22D3EE;--pink:#FF7A1A;color:var(--text)}
+  :root[data-theme=light] header.hero{background:#0B0714}
+  :root[data-theme=light] header.hero::after{height:170px;background:linear-gradient(to bottom,transparent,#F6F4FA)}
+  :root[data-theme=light] .hero h1 em{filter:drop-shadow(0 6px 22px rgba(219,39,119,.45))}
+  :root[data-theme=light] .hero p.hero-lead{text-shadow:0 2px 14px rgba(0,0,0,.55)}
+  :root[data-theme=light] .hero p.go-sous b{color:#FF8A33}
+  :root[data-theme=light] header.hero .go-plus li{background:rgba(26,18,41,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  :root[data-theme=light] header.hero a:not(.btn){color:#67E8F9}
   .hero.video-ok .beam{opacity:.28}
   .hero p.go-tel{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
   .go-tel a{color:var(--cyan);font-weight:700}
