@@ -65,6 +65,9 @@
   .aide{margin-top:22px;color:var(--muted);font-size:15px}
   .aide a{color:var(--cyan)}
   .chargement{color:var(--muted)}
+  .lum{margin-top:22px;padding:16px 18px;border-radius:16px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3)}
+  .lum h2{font-size:19px;margin:0 0 6px}.lum p{margin:0 0 12px;color:var(--muted);font-size:15px}
+  .lum a{display:inline-block;background:#22D3EE;color:#062028;font-weight:700;padding:11px 20px;border-radius:999px;text-decoration:none}
   .annul{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
   .annul button{background:none;border:1px solid #F87171;color:#F87171;border-radius:999px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
   .annul button:hover{background:rgba(248,113,113,.12)}
@@ -232,6 +235,7 @@
       <li><a href="livraison.html">Zone de livraison</a></li>
       <li><a href="avant-ta-fete.html">Avant ta fête</a></li>
       <li><a href="offrir.html">Offrir une soirée</a></li>
+      <li><a href="lumieres.html">Guide des lumières</a></li>
     </ul></div>
     <div><h4>On livre à</h4><ul class="pied-villes"><li><a href="location-sono-salon-de-provence.html">Salon-de-Provence</a></li><li><a href="location-sono-istres.html">Istres</a></li><li><a href="location-sono-miramas.html">Miramas</a></li><li><a href="location-sono-pelissanne.html">Pélissanne</a></li><li><a href="location-sono-lancon-provence.html">Lançon-Provence</a></li><li><a href="location-sono-berre-l-etang.html">Berre-l'Étang</a></li><li><a href="location-sono-saint-martin-de-crau.html">Saint-Martin-de-Crau</a></li><li><a href="location-sono-lambesc.html">Lambesc</a></li><li><a href="location-sono-eyguieres.html">Eyguières</a></li><li><a href="location-sono-saint-chamas.html">Saint-Chamas</a></li><li><a href="location-sono-grans.html">Grans</a></li><li><a href="location-sono-rognac.html">Rognac</a></li></ul></div>
     <div class="pied-contact"><h4>Contact</h4><ul>
@@ -286,6 +290,7 @@
           (j.prix ? '<dt>Location</dt><dd>' + esc(j.prix) + '</dd><dt>' + (j.retrait ? 'Retrait' : 'Livraison') + '</dt><dd>' + (j.retrait ? 'gratuit (à Salon-de-Provence)' : j.livraison ? esc(j.livraison) : 'à confirmer') + '</dd>' : '') +
           (j.total ? '<dt>Total</dt><dd>' + esc(j.total) + ' <small style="font-weight:400;color:var(--muted)">hors caution</small></dd>' : '') + '</dl>' +
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
+          (aLumieres(j) ? htmlLumieres() : '') +
           (j.parrain ? htmlParrain(j.parrain) : '') +
           (j.caution ? htmlCaution(j.caution) : '') +
           (j.docs ? htmlDocs(j) : '') +
@@ -402,6 +407,14 @@
     }
     const SEUIL_NETTETE = 60;   // en dessous : photo jugée floue (réglé sur des images de test : texte difficile à lire ; à ajuster avec de vraies photos)
     // code de parrainage (location terminée, parrainage activé par Mistraloc)
+    // 25/11 : guide des lumières (mistraloc.fr/lumieres.html) pour les locations avec un trépied lumière
+    function aLumieres(j) {
+      return j.etape >= 0 && j.etape < 3 && /tr[ée]pied|Pack (Ambiance|Soirée Show|Club Laser|Scène|Ultimate Show|Mariage|Prestige)/i.test(String(j.offre || ''));
+    }
+    function htmlLumieres() {
+      return '<div class="lum"><h2>💡 Tes lumières, étape par étape</h2><p>Le jour J, ce guide te montre comment allumer le trépied et piloter les lumières depuis ton téléphone. Garde-le ouvert pendant ta soirée.</p>' +
+        '<a href="lumieres.html">Ouvrir le guide des lumières →</a></div>';
+    }
     function htmlParrain(p) {
       const txt = 'Je loue mes enceintes de soirée chez Mistraloc (Salon-de-Provence) : avec mon code ' + p.code + ', tu as -' + p.remise + ' % sur ta 1re location 👉 https://mistraloc.fr';
       return '<div class="parrain"><h3>🎁 Fais découvrir Mistraloc</h3><p class="petit" style="margin:0">Ton code personnel :</p><span class="code-p">' + esc(p.code) + '</span>' +
