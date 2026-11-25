@@ -1,0 +1,290 @@
+<!doctype html>
+<!-- © 2026 Mistraloc – Tous droits réservés. Le code, le design, les textes et le fonctionnement de ce site sont protégés par le droit d’auteur (Code de la propriété intellectuelle, art. L.122-4 et L.335-2). Toute copie, même partielle, est interdite sans autorisation écrite. -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mistraloc Lumières · allume et pilote tes lumières</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Les étapes pour allumer le trépied lumière Mistraloc et le piloter depuis ton téléphone.">
+<meta name="theme-color" content="#0B0714">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:Outfit;font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/outfit-latin.woff2) format('woff2')}
+:root{--bg:#0B0714;--bg2:#140C24;--card:#1B1230;--line:rgba(255,255,255,.10);--txt:#F4EEFF;--mut:#B9AECF;--or:#FF7A1A;--cy:#22D3EE;--vi:#8B5CF6;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font:400 17px/1.5 Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(120% 60% at 50% -10%,#2a1446 0%,transparent 60%),var(--bg)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cy);outline-offset:3px}
+.haut{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px;max-width:560px;width:100%;margin:0 auto}
+.haut .logo svg{height:28px;width:auto;display:block;color:var(--txt)}
+.haut .tag{font-size:13px;font-weight:600;color:var(--cy);letter-spacing:.06em;text-transform:uppercase}
+.prog{max-width:560px;width:100%;margin:6px auto 0;padding:0 18px;display:flex;gap:6px}
+.prog i{flex:1;height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;position:relative}
+.prog i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--or),var(--cy));transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.prog i.fait::after{transform:scaleX(1)}
+main{flex:1;max-width:560px;width:100%;margin:0 auto;padding:10px 18px 0;position:relative}
+.etape{display:none;flex-direction:column;gap:14px;animation:entree .45s cubic-bezier(.2,.8,.2,1)}
+.etape.active{display:flex}
+.etape.retour{animation-name:entreeG}
+@keyframes entree{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes entreeG{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.num{font-size:14px;font-weight:600;color:var(--mut)}
+h1{font-size:clamp(26px,7vw,34px);line-height:1.1;font-weight:800;letter-spacing:-.01em}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--or),#FF5E8A 50%,var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent}
+.anim{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:22px;padding:10px;display:grid;place-items:center;min-height:200px;overflow:hidden}
+.anim svg{width:100%;max-width:420px;height:auto;max-height:40vh;display:block}
+p.expl{color:var(--mut);font-size:17px}
+p.expl b{color:var(--txt);font-weight:600}
+.astuce{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);border-radius:14px;padding:10px 14px;font-size:15px;color:var(--mut)}
+.astuce b{color:var(--txt)}
+.wifi{display:grid;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.wifi .l{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.wifi .l span{color:var(--mut);font-size:15px}
+.wifi .l b{font-size:20px;font-weight:700;letter-spacing:.01em}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;border-radius:999px;padding:16px 22px;font:700 18px Outfit,system-ui,sans-serif;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .2s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn.or{background:var(--or);color:#1A0B00;box-shadow:0 0 26px rgba(255,122,26,.45)}
+.btn.cy{background:var(--cy);color:#062028;box-shadow:0 0 26px rgba(34,211,238,.4)}
+.btn.cy.ok{background:#22C55E;box-shadow:0 0 26px rgba(34,197,94,.45);color:#04210f}
+.btn.gros{font-size:20px;padding:20px 22px}
+.pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(255,122,26,.35)}50%{box-shadow:0 0 38px rgba(255,122,26,.75)}}
+.liste{display:grid;gap:8px}
+.liste div{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:15.5px;color:var(--mut)}
+.liste div b{color:var(--txt)}
+.liste .ic{flex:0 0 34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:13px;background:rgba(255,255,255,.08);color:var(--txt)}
+.bas{position:sticky;bottom:0;max-width:560px;width:100%;margin:0 auto;padding:14px 18px calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.bas button{flex:1;border-radius:999px;padding:15px 16px;font:700 17px Outfit,system-ui,sans-serif;cursor:pointer;border:0}
+#prec{flex:0 0 auto;background:transparent;color:var(--mut);border:1px solid var(--line);padding:15px 18px}
+#prec[hidden]{display:none}
+#suiv{background:linear-gradient(90deg,var(--or),#FF5E8A);color:#1A0B00;box-shadow:0 0 22px rgba(255,122,26,.4)}
+.aide{text-align:center;font-size:14px;color:var(--mut);padding:2px 18px 8px}
+.aide a{color:var(--cy);font-weight:600;text-decoration:none}
+
+/* ===== Étape 1 : la prise ===== */
+.p-fiche{animation:fiche 3.6s cubic-bezier(.6,0,.3,1) infinite}
+@keyframes fiche{0%,12%{transform:translateX(0)}42%,82%{transform:translateX(52px)}96%,100%{transform:translateX(0)}}
+.p-eclair{opacity:0;animation:eclair 3.6s infinite}
+@keyframes eclair{0%,42%{opacity:0}48%{opacity:1}75%{opacity:1}84%,100%{opacity:0}}
+/* ===== Étape 2 : l'interrupteur ===== */
+.i-doigt{animation:doigt 3.4s cubic-bezier(.5,0,.3,1) infinite}
+@keyframes doigt{0%,10%{transform:translateY(-70px);opacity:0}28%{transform:translateY(-14px);opacity:1}38%,46%{transform:translateY(0);opacity:1}62%{transform:translateY(-60px);opacity:0}100%{transform:translateY(-70px);opacity:0}}
+.i-bouton{animation:bouton 3.4s infinite}
+@keyframes bouton{0%,37%{fill:#4a1d1d}40%,92%{fill:#FF4D1A}100%{fill:#4a1d1d}}
+.i-lumiere{opacity:0;animation:lumiere 3.4s infinite}
+@keyframes lumiere{0%,40%{opacity:0}48%,90%{opacity:1}100%{opacity:0}}
+.i-faisceau{transform-origin:160px 54px;animation:balaye 1.7s ease-in-out infinite alternate}
+@keyframes balaye{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+/* ===== Étape 4 : le téléphone ===== */
+.t-doigt{animation:tdoigt 6s ease-in-out infinite}
+@keyframes tdoigt{0%,8%{transform:translate(60px,120px);opacity:0}20%{transform:translate(0,0);opacity:1}24%{transform:translate(0,3px)}28%{transform:translate(0,0);opacity:1}38%{transform:translate(40px,80px);opacity:0}100%{transform:translate(40px,80px);opacity:0}}
+.t-rond{transform-origin:118px 150px;transform:scale(0);opacity:0;animation:trond 6s infinite}
+@keyframes trond{0%,23%{transform:scale(0);opacity:0}25%{transform:scale(.4);opacity:.7}34%{transform:scale(1.4);opacity:0}100%{opacity:0}}
+.t-ligne{animation:tligne 6s infinite}
+@keyframes tligne{0%,23%{fill:#241a39}25%,100%{fill:#3b2a5c}}
+.t-feuille{transform:translateY(240px);animation:tfeuille 6s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes tfeuille{0%,32%{transform:translateY(240px)}42%,72%{transform:translateY(0)}80%,100%{transform:translateY(240px)}}
+.t-points{opacity:0;animation:tpoints 6s infinite}
+@keyframes tpoints{0%,48%{opacity:0}54%,72%{opacity:1}80%,100%{opacity:0}}
+.t-coche{opacity:0;animation:tcoche 6s infinite}
+@keyframes tcoche{0%,78%{opacity:0}84%,98%{opacity:1}100%{opacity:0}}
+/* ===== Étape 5 : l'appli ===== */
+.a-barre{transform-box:fill-box;transform-origin:center bottom;animation:abarre 1.1s ease-in-out infinite alternate}
+@keyframes abarre{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}
+  .p-fiche{transform:translateX(52px)}.p-eclair,.i-lumiere,.t-points,.t-coche{opacity:1}.i-doigt,.t-doigt{opacity:0}.t-feuille{transform:none}}
+</style>
+</head>
+<body>
+<header class="haut">
+  <a class="logo" href="./" aria-label="Mistraloc, accueil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 683 210" aria-hidden="true" aria-label="mistraloc"><g transform="translate(25.00 12.20) scale(2.0000)"><path d="M8 56 C22 30 36 30 46 50 S70 70 82 44" fill="none" stroke="#FF7A1A" stroke-width="10" stroke-linecap="round"/><circle cx="92" cy="30" r="6.5" fill="#22D3EE"/></g><g fill="currentColor"><path transform="translate(263.00 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM380 0V286Q380 334 350.0 360.5Q320 387 276 387Q246 387 222.5 375.0Q199 363 185.0 340.5Q171 318 171 286L128 310Q128 365 152.0 405.0Q176 445 217.0 467.5Q258 490 309 490Q360 490 401.0 468.0Q442 446 466.0 406.0Q490 366 490 310V0ZM699 0V286Q699 334 669.0 360.5Q639 387 595 387Q566 387 542.0 375.0Q518 363 504.0 340.5Q490 318 490 286L428 310Q433 365 460.0 405.0Q487 445 529.5 467.5Q572 490 623 490Q675 490 717.0 468.0Q759 446 784.0 406.0Q809 366 809 310V0Z"/><path transform="translate(346.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0Z"/><path transform="translate(366.30 140.50) scale(0.10000 -0.10000)" d="M218 -10Q178 -10 141.0 0.5Q104 11 73.0 30.5Q42 50 19 78L89 148Q114 119 146.5 104.5Q179 90 220 90Q257 90 276.0 101.0Q295 112 295 133Q295 155 277.0 167.0Q259 179 230.5 187.5Q202 196 170.5 205.0Q139 214 110.5 229.5Q82 245 64.0 272.0Q46 299 46 342Q46 388 67.5 421.0Q89 454 128.5 472.0Q168 490 223 490Q281 490 325.5 469.5Q370 449 400 408L330 338Q309 364 282.0 377.0Q255 390 220 390Q187 390 169.0 380.0Q151 370 151 351Q151 331 169.0 320.0Q187 309 215.5 301.0Q244 293 275.5 283.5Q307 274 335.5 257.5Q364 241 382.0 213.5Q400 186 400 142Q400 72 351.0 31.0Q302 -10 218 -10Z"/><path transform="translate(406.30 140.50) scale(0.10000 -0.10000)" d="M134 0V680H244V0ZM19 380V480H359V380Z"/><path transform="translate(441.10 140.50) scale(0.10000 -0.10000)" d="M61 0V480H171V0ZM171 267 133 286Q133 377 173.5 433.5Q214 490 296 490Q332 490 361.0 477.0Q390 464 415 435L343 361Q330 375 314.0 381.0Q298 387 277 387Q231 387 201.0 358.0Q171 329 171 267Z"/><path transform="translate(480.60 140.50) scale(0.10000 -0.10000)" d="M262 -10Q197 -10 144.5 23.0Q92 56 61.5 112.5Q31 169 31 239Q31 310 61.5 366.5Q92 423 144.5 456.5Q197 490 262 490Q317 490 359.5 466.5Q402 443 427.0 402.0Q452 361 452 309V171Q452 119 427.5 78.0Q403 37 360.0 13.5Q317 -10 262 -10ZM280 94Q341 94 378.5 135.0Q416 176 416 240Q416 283 399.0 316.0Q382 349 351.5 367.5Q321 386 280 386Q240 386 209.5 367.5Q179 349 161.5 316.0Q144 283 144 240Q144 197 161.5 164.0Q179 131 209.5 112.5Q240 94 280 94ZM409 0V129L428 246L409 362V480H519V0Z"/><path transform="translate(535.60 140.50) scale(0.10000 -0.10000)" d="M61 0V720H171V0Z"/><path transform="translate(555.80 140.50) scale(0.10000 -0.10000)" d="M281 -10Q211 -10 154.0 23.5Q97 57 63.5 114.0Q30 171 30 241Q30 311 63.5 367.0Q97 423 154.0 456.5Q211 490 281 490Q352 490 409.0 457.0Q466 424 499.5 367.5Q533 311 533 241Q533 171 499.5 114.0Q466 57 409.0 23.5Q352 -10 281 -10ZM281 96Q322 96 353.5 114.5Q385 133 402.5 166.0Q420 199 420 241Q420 283 402.0 315.0Q384 347 353.0 365.5Q322 384 281 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 241Q143 199 160.5 166.0Q178 133 209.5 114.5Q241 96 281 96Z"/><path transform="translate(609.10 140.50) scale(0.10000 -0.10000)" d="M282 -10Q211 -10 153.5 23.0Q96 56 63.0 113.0Q30 170 30 240Q30 311 63.0 367.5Q96 424 153.5 457.0Q211 490 282 490Q338 490 386.5 468.5Q435 447 469 407L397 334Q376 359 346.5 371.5Q317 384 282 384Q241 384 209.5 365.5Q178 347 160.5 315.0Q143 283 143 240Q143 198 160.5 165.5Q178 133 209.5 114.5Q241 96 282 96Q317 96 346.5 108.5Q376 121 397 146L469 73Q435 33 386.5 11.5Q338 -10 282 -10Z"/></g><circle cx="357.80" cy="77.10" r="6.50" fill="#22D3EE"/></svg></a>
+  <span class="tag">Lumières</span>
+</header>
+<div class="prog" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
+<main>
+  <!-- 1 -->
+  <section class="etape active" aria-labelledby="t1">
+    <p class="num">Étape 1 sur 5</p>
+    <h1 id="t1">Branche la <em>multiprise</em> du trépied</h1>
+    <div class="anim" aria-hidden="true">
+      <svg viewBox="0 0 320 170">
+        <rect x="262" y="0" width="58" height="170" fill="#2a2140"/>
+        <rect x="248" y="40" width="20" height="90" rx="6" fill="#E9E4F2"/>
+        <rect x="252" y="70" width="6" height="8" rx="2" fill="#2a2140"/><rect x="252" y="92" width="6" height="8" rx="2" fill="#2a2140"/>
+        <g class="p-eclair">
+          <circle cx="252" cy="85" r="34" fill="none" stroke="#22D3EE" stroke-width="3" opacity=".55"/>
+          <path d="M232 30l-10 18h9l-6 16 16-22h-10l7-12z" fill="#FFD84D"/>
+        </g>
+        <g class="p-fiche">
+          <path d="M-60 125 C 20 160, 80 90, 132 85" fill="none" stroke="#FF7A1A" stroke-width="9" stroke-linecap="round"/>
+          <rect x="128" y="60" width="62" height="50" rx="12" fill="#3b2a5c" stroke="#FF7A1A" stroke-width="3"/>
+          <rect x="140" y="70" width="10" height="30" rx="3" fill="#2a2140"/>
+          <rect x="190" y="72" width="22" height="6" rx="3" fill="#C9C2D6"/>
+          <rect x="190" y="92" width="22" height="6" rx="3" fill="#C9C2D6"/>
+        </g>
+      </svg>
+    </div>
+    <p class="expl">La multiprise est <b>déjà sur le trépied</b> et tout est branché dessus. Branche-la simplement sur une prise murale (ou une rallonge).</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="etape" aria-labelledby="t2">
+    <p class="num">Étape 2 sur 5</p>
+    <h1 id="t2">Allume <em>l'interrupteur</em> de la multiprise</h1>
+    <div class="anim" aria-hidden="true">
+      <svg viewBox="0 0 320 190">
+        <g class="i-lumiere">
+          <g class="i-faisceau"><path d="M160 54 L110 -10 L210 -10 Z" fill="url(#gF)" opacity=".8"/></g>
+          <circle cx="160" cy="54" r="9" fill="#22D3EE"/>
+        </g>
+        <defs><linearGradient id="gF" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#22D3EE" stop-opacity=".9"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient></defs>
+        <rect x="20" y="110" width="280" height="56" rx="16" fill="#E9E4F2"/>
+        <g fill="#C9C2D6"><circle cx="66" cy="138" r="17"/><circle cx="122" cy="138" r="17"/><circle cx="178" cy="138" r="17"/></g>
+        <g fill="#2a2140"><circle cx="60" cy="138" r="3"/><circle cx="72" cy="138" r="3"/><circle cx="116" cy="138" r="3"/><circle cx="128" cy="138" r="3"/></g>
+        <circle cx="178" cy="138" r="14" fill="#3b2a5c"/><path d="M178 124 V 70" stroke="#3b2a5c" stroke-width="7" stroke-linecap="round"/>
+        <rect x="226" y="120" width="54" height="36" rx="8" fill="#2a2140"/>
+        <rect class="i-bouton" x="232" y="125" width="42" height="26" rx="6" fill="#4a1d1d"/>
+        <text x="253" y="143" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="Outfit,sans-serif">I</text>
+        <g class="i-doigt">
+          <path d="M243 118 V 52 a10 10 0 0 1 20 0 V 118 Z" fill="#F3C9A6" stroke="#C98E66" stroke-width="2"/>
+          <path d="M247 112 a6 6 0 0 1 12 0 v4 h-12 z" fill="#FBE3D2"/>
+        </g>
+      </svg>
+    </div>
+    <p class="expl">Appuie sur <b>l'interrupteur de la multiprise</b> : il s'allume, et le trépied aussi. Attends <b>une dizaine de secondes</b> que le Wi-Fi des lumières démarre.</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="etape" aria-labelledby="t3">
+    <p class="num">Étape 3 sur 5</p>
+    <h1 id="t3">Copie le <em>mot de passe</em></h1>
+    <div class="wifi">
+      <div class="l"><span>Wi-Fi</span><b>Mistraloc-Lumieres</b></div>
+      <div class="l"><span>Mot de passe</span><b id="mdp">mistraloc13</b></div>
+    </div>
+    <button class="btn cy gros" id="copier" type="button">📋 Copier le mot de passe</button>
+    <p class="expl">Touche le bouton : le mot de passe est copié. À l'étape suivante, tu n'auras qu'à le <b>coller</b>.</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="etape" aria-labelledby="t4">
+    <p class="num">Étape 4 sur 5</p>
+    <h1 id="t4">Connecte-toi au <em>Wi-Fi des lumières</em></h1>
+    <div class="anim" aria-hidden="true">
+      <svg viewBox="0 0 240 300">
+        <rect x="40" y="6" width="160" height="290" rx="26" fill="#0e0a18" stroke="#3b2a5c" stroke-width="4"/>
+        <rect x="96" y="16" width="48" height="8" rx="4" fill="#3b2a5c"/>
+        <text x="58" y="56" font-size="15" font-weight="800" fill="#F4EEFF" font-family="Outfit,sans-serif">Wi-Fi</text>
+        <rect x="150" y="44" width="30" height="16" rx="8" fill="#22C55E"/><circle cx="172" cy="52" r="6" fill="#fff"/>
+        <rect x="52" y="76" width="136" height="30" rx="8" fill="#241a39"/>
+        <text x="62" y="96" font-size="11" fill="#B9AECF" font-family="Outfit,sans-serif">Box-Maison</text>
+        <rect class="t-ligne" x="52" y="134" width="136" height="32" rx="8" fill="#241a39" stroke="#FF7A1A" stroke-width="2"/>
+        <text x="62" y="155" font-size="11.5" font-weight="700" fill="#F4EEFF" font-family="Outfit,sans-serif">Mistraloc-Lumieres</text>
+        <path class="t-coche" d="M170 150 l5 5 l9 -11" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="52" y="110" width="136" height="20" rx="6" fill="none"/>
+        <text x="58" y="124" font-size="9" fill="#7d7296" font-family="Outfit,sans-serif">RÉSEAUX</text>
+        <rect x="52" y="172" width="136" height="30" rx="8" fill="#241a39"/>
+        <text x="62" y="192" font-size="11" fill="#B9AECF" font-family="Outfit,sans-serif">Livebox-4F2A</text>
+        <circle class="t-rond" cx="118" cy="150" r="22" fill="#FF7A1A"/>
+        <g class="t-feuille">
+          <rect x="44" y="150" width="152" height="140" rx="18" fill="#1B1230" stroke="#3b2a5c"/>
+          <text x="120" y="176" text-anchor="middle" font-size="11" font-weight="700" fill="#F4EEFF" font-family="Outfit,sans-serif">Mot de passe</text>
+          <rect x="58" y="188" width="124" height="28" rx="8" fill="#0e0a18" stroke="#22D3EE"/>
+          <text class="t-points" x="68" y="207" font-size="15" letter-spacing="2" fill="#F4EEFF" font-family="Outfit,sans-serif">•••••••••••</text>
+          <rect x="70" y="232" width="100" height="28" rx="14" fill="#FF7A1A"/>
+          <text x="120" y="251" text-anchor="middle" font-size="12" font-weight="800" fill="#1A0B00" font-family="Outfit,sans-serif">Rejoindre</text>
+        </g>
+        <g class="t-doigt"><path d="M112 150 a8 8 0 0 1 16 0 v60 h-16 z" fill="#F3C9A6" stroke="#C98E66" stroke-width="2"/></g>
+      </svg>
+    </div>
+    <div class="liste">
+      <div><span class="ic">1</span><span>Ouvre les <b>Réglages</b> de ton téléphone, puis <b>Wi-Fi</b>.</span></div>
+      <div><span class="ic">2</span><span>Touche <b>Mistraloc-Lumieres</b>.</span></div>
+      <div><span class="ic">3</span><span>Appui long dans la case du mot de passe › <b>Coller</b>, puis <b>Rejoindre</b> (ou Connexion).</span></div>
+      <div><span class="ic">4</span><span><b>Reviens sur cette page</b> pour la dernière étape.</span></div>
+    </div>
+    <p class="astuce">Ton téléphone dit « <b>pas d'internet</b> » ? C'est normal : choisis <b>« Rester connecté »</b>. Les lumières marchent sans internet.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="etape" aria-labelledby="t5">
+    <p class="num">Étape 5 sur 5</p>
+    <h1 id="t5">Ouvre <em>l'appli des lumières</em></h1>
+    <div class="anim" aria-hidden="true">
+      <svg viewBox="0 0 320 150">
+        <g transform="translate(90 20)">
+          <rect class="a-barre" x="0" y="30" width="18" height="80" rx="6" fill="#FF7A1A"/>
+          <rect class="a-barre" x="30" y="10" width="18" height="100" rx="6" fill="#FF5E8A" style="animation-delay:-.4s"/>
+          <rect class="a-barre" x="60" y="40" width="18" height="70" rx="6" fill="#8B5CF6" style="animation-delay:-.8s"/>
+          <rect class="a-barre" x="90" y="0" width="18" height="110" rx="6" fill="#22D3EE" style="animation-delay:-.2s"/>
+          <rect class="a-barre" x="120" y="25" width="18" height="85" rx="6" fill="#FF7A1A" style="animation-delay:-.6s"/>
+        </g>
+      </svg>
+    </div>
+    <a class="btn or gros pulse" id="ouvrir" href="http://192.168.4.1/">💡 Ouvrir l'appli des lumières</a>
+    <p class="expl">Dans l'appli, dis ce que tu as loué (<b>1 ou 2 trépieds</b>, fumée) et réponds aux questions de sécurité. Ensuite, choisis une ambiance !</p>
+    <div class="liste">
+      <div><span class="ic">✨</span><span><b>Ambiances</b> : un bouton = une ambiance.</span></div>
+      <div><span class="ic">🎵</span><span><b>Musique</b> : les lumières suivent la musique toutes seules.</span></div>
+      <div><span class="ic" style="background:#000;border:1px solid var(--line)">●</span><span><b>NOIR</b> : éteint toutes les lumières d'un coup.</span></div>
+      <div><span class="ic">💨</span><span><b>Fumée &amp; laser</b> : rafale de fumée, lasers.</span></div>
+    </div>
+    <p class="astuce">L'appli ne s'ouvre pas ? Vérifie que ton téléphone est bien sur le Wi-Fi <b>Mistraloc-Lumieres</b> (étape 4), puis réessaie. Astuce : dans l'appli, « <b>Ajouter à l'écran d'accueil</b> » pour la retrouver en un geste.</p>
+  </section>
+</main>
+
+<p class="aide">Un souci ? <a id="wa" href="https://wa.me/33622123963?text=Bonjour%2C%20j%27ai%20besoin%20d%27aide%20pour%20les%20lumi%C3%A8res%20Mistraloc">WhatsApp 06 22 12 39 63</a></p>
+<nav class="bas">
+  <button id="prec" type="button" hidden>←</button>
+  <button id="suiv" type="button">Étape suivante →</button>
+</nav>
+
+<script>
+(function(){
+  var etapes = [].slice.call(document.querySelectorAll('.etape'));
+  var barres = [].slice.call(document.querySelectorAll('.prog i'));
+  var prec = document.getElementById('prec'), suiv = document.getElementById('suiv');
+  var CLE = 'mistraloc_lumieres_etape', n = 0;
+  // Reprend à la même étape si la page est rechargée (retour des réglages Wi-Fi), pendant 6 h
+  try { var m = JSON.parse(localStorage.getItem(CLE) || 'null');
+        if (m && Date.now() - m.t < 6 * 3600e3 && m.n >= 0 && m.n < etapes.length) n = m.n; } catch (e) {}
+  function montrer(i, retour){
+    n = Math.max(0, Math.min(etapes.length - 1, i));
+    etapes.forEach(function(e, k){ e.classList.toggle('active', k === n); e.classList.toggle('retour', !!retour); });
+    barres.forEach(function(b, k){ b.classList.toggle('fait', k <= n); });
+    prec.hidden = n === 0;
+    suiv.textContent = n === etapes.length - 1 ? '↺ Recommencer' : 'Étape suivante →';
+    try { localStorage.setItem(CLE, JSON.stringify({ n: n, t: Date.now() })); } catch (e) {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  suiv.addEventListener('click', function(){ montrer(n === etapes.length - 1 ? 0 : n + 1, false); });
+  prec.addEventListener('click', function(){ montrer(n - 1, true); });
+  // Glisser du doigt vers la gauche / la droite
+  var x0 = null, y0 = 0;
+  document.querySelector('main').addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  document.querySelector('main').addEventListener('touchend', function(e){
+    if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) montrer(dx < 0 ? n + 1 : n - 1, dx > 0);
+  });
+  // Copier le mot de passe
+  var bc = document.getElementById('copier'), mdp = document.getElementById('mdp').textContent;
+  function copie(){ bc.textContent = '✓ Mot de passe copié'; bc.classList.add('ok');
+    setTimeout(function(){ bc.textContent = '📋 Copier le mot de passe'; bc.classList.remove('ok'); }, 4000); }
+  function secours(){ var t = document.createElement('textarea'); t.value = mdp; t.setAttribute('readonly', '');
+    t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); t.setSelectionRange(0, 99);
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} document.body.removeChild(t); return ok; }
+  bc.addEventListener('click', function(){
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(mdp).then(copie, function(){ if (secours()) copie(); });
+    else if (secours()) copie();
+  });
+  montrer(n, false);
+})();
+</script>
+</body>
+</html>
