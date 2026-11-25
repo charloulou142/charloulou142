@@ -280,6 +280,7 @@
         const j = info ? await patienter('Mise à jour…', lire) : await lire();
         if (!j.ok) throw new Error(j.erreur || 'introuvable');
         const etapes = ['Demande reçue', 'Confirmée', 'Livrée', 'Terminée'];
+        window.__retrait = !!j.retrait;
         carte.innerHTML = (info ? '<p style="margin-bottom:14px;font-weight:600">' + esc(info) + '</p>' : '') +
           '<span class="statut">' + esc(j.statut) + '</span><p class="explic">' + esc(j.explication) + '</p>' +
           '<ol class="etapes' + (j.etape < 0 ? ' annule' : '') + '">' + etapes.map((e, i) => '<li class="' + (j.etape >= i ? 'ok' : '') + '">' + e + '</li>').join('') + '</ol>' +
@@ -292,11 +293,13 @@
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
           (aLumieres(j) ? htmlLumieres() : '') +
           (j.parrain ? htmlParrain(j.parrain) : '') +
+          (j.paiement ? htmlPaiement(j.paiement) : '') +
           (j.caution ? htmlCaution(j.caution) : '') +
           (j.docs ? htmlDocs(j) : '') +
           (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
         if (j.docs) brancherDocs(j);
         brancherCaution();
+        brancherPaiement();
         const bp = document.getElementById('p-copier');
         if (bp) bp.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(j.parrain.code); bp.textContent = 'Code copié ✓'; } catch (e) { window.prompt('Copie ton code :', j.parrain.code); }
@@ -319,6 +322,39 @@
       } catch (e) {
         carte.innerHTML = '<p>Réservation introuvable pour ce lien. Contacte-nous et on vérifie tout de suite.</p>';
       }
+    }
+    /* ----- paiement de la location par carte (Stripe, 25/11/2026) : après la signature du contrat ; sinon espèces à la remise ----- */
+    const retourPaiement = new URLSearchParams(location.search).get('paiement');
+    const eurosP = v => esc(String(Math.round(Number(v) * 100) / 100).replace('.', ',')).replace(/,(\d)$/, ',$10') + ' €';
+    function htmlPaiement(p) {
+      const m = eurosP(p.montant), test = p.test ? ' <small class="petit">(mode test)</small>' : '', quand = (window.__retrait ? 'au retrait' : 'à la livraison');
+      if (p.etat === 'payee') return '<div class="caution ok" id="paiement"><h3>💶 Location payée ✓' + test + '</h3><p><b>' + m + '</b> payés par carte' + (p.payeLe ? ' le ' + esc(p.payeLe) : '') + '. Merci ! Rien à régler ' + quand + ' (à part la caution).</p>' +
+        (p.reste > 0 ? '<p>Ta réservation a changé depuis : il reste <b>' + eurosP(p.reste) + '</b> à régler ' + quand + '.</p>' : '') + '</div>';
+      if (p.etat === 'remboursee') return '<div class="caution" id="paiement"><h3>💶 Paiement remboursé' + test + '</h3><p>Ta réservation est annulée : les ' + m + ' payés par carte t\'ont été remboursés (5 à 10 jours selon ta banque).</p></div>';
+      if (p.etat === 'deja') return '<div class="caution ok" id="paiement"><h3>💶 Location réglée ✓</h3></div>';
+      const info = retourPaiement === 'annule' ? '<p class="erreur">Le paiement n\'a pas été fait. Tu peux réessayer quand tu veux, ou payer en espèces ' + quand + '.</p>' : '';
+      if (p.attendreContrat) return '<div class="caution" id="paiement"><h3>💶 Paiement de ta location : ' + m + test + '</h3><p>Dès que ton contrat est signé (ci-dessous), tu pourras payer par carte ici. Tu préfères les espèces ? Tu paies ' + quand + '.</p></div>';
+      if (p.possible) return '<div class="caution" id="paiement"><h3>💶 Paiement de ta location : ' + m + test + '</h3>' + info +
+        '<p>Paie maintenant par carte en 1 minute, ou en <b>espèces ' + quand + '</b> : comme tu préfères.</p>' +
+        '<button type="button" id="b-paiement">Payer ' + m + ' par carte →</button>' +
+        '<p class="petit">Paiement sécurisé par Stripe : on ne voit jamais ton numéro de carte. Si ta réservation est annulée, tu es remboursé.</p><p class="erreur" id="m-paiement" hidden></p></div>';
+      return '';
+    }
+    function brancherPaiement() {
+      const b = document.getElementById('b-paiement');
+      if (b) { const txt = b.textContent; b.addEventListener('click', async () => {
+        b.disabled = true; b.textContent = 'Ouverture du paiement sécurisé…';
+        try {
+          const r = await patienter('Ouverture du paiement sécurisé…', async () => (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'paiement_ouvrir', t }) })).json());
+          if (!r.ok || !/^https:\/\/checkout\.stripe\.com\//.test(r.url || '')) throw new Error(r.erreur || 'erreur');
+          location.href = r.url;
+        } catch (err) {
+          b.disabled = false; b.textContent = txt;
+          const m = document.getElementById('m-paiement'); m.hidden = false;
+          m.textContent = err.message && err.message !== 'erreur' ? err.message : 'Le paiement sécurisé ne répond pas. Réessaie dans un instant, ou paie en espèces.';
+        }
+      }); }
+      if (retourPaiement && document.getElementById('paiement')) document.getElementById('paiement').scrollIntoView({ behavior: 'smooth' });
     }
     /* ----- caution par carte (Stripe, 16/11/2026) : l'argent est seulement bloqué, puis libéré au retour du matériel ----- */
     const retourCaution = new URLSearchParams(location.search).get('caution');
