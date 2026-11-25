@@ -81,6 +81,7 @@
   .caution p{margin:6px 0}
   .caution button{margin-top:8px;border:0;border-radius:999px;padding:13px 20px;font:inherit;font-weight:700;background:var(--pink);color:#1A0B00;cursor:pointer;width:100%;max-width:360px}
   .caution button:disabled{opacity:.6;cursor:default}
+  .caution button.lien-simple{width:auto;max-width:none;margin:0;padding:0;background:none;border:0;border-radius:0;color:var(--cyan);font-weight:600;text-decoration:underline}
   /* documents : pièce d'identité + contrat signé (27/10/2026) */
   .docs{margin-top:24px;padding-top:20px;border-top:1px solid var(--line);scroll-margin-top:90px}
   .docs h2{font-size:22px;margin:0 0 2px}
@@ -293,13 +294,15 @@
           (j.avis ? '<p style="margin-top:22px"><a href="' + esc(j.avis) + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#1A0B00;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none">⭐ Laisser un avis Google</a></p>' : '') +
           (aLumieres(j) ? htmlLumieres() : '') +
           (j.parrain ? htmlParrain(j.parrain) : '') +
-          (j.paiement ? htmlPaiement(j.paiement) : '') +
-          (j.caution ? htmlCaution(j.caution) : '') +
+          (j.paiement && j.paiement.possible && j.caution && j.caution.possible ? htmlDuo(j.paiement, j.caution) :
+            (j.paiement ? htmlPaiement(j.paiement) : '') + (j.caution ? htmlCaution(j.caution) : '')) +
           (j.docs ? htmlDocs(j) : '') +
           (j.annulable ? '<div class="annul"><button type="button" id="b-annul">Annuler ma réservation</button><p>Possible jusqu\'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p><p class="erreur" id="m-annul" hidden></p></div>' : '');
         if (j.docs) brancherDocs(j);
         brancherCaution();
         brancherPaiement();
+        brancherDuo();
+        if (enchainerCaution(j)) return;
         const bp = document.getElementById('p-copier');
         if (bp) bp.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(j.parrain.code); bp.textContent = 'Code copié ✓'; } catch (e) { window.prompt('Copie ton code :', j.parrain.code); }
@@ -355,6 +358,49 @@
         }
       }); }
       if (retourPaiement && document.getElementById('paiement')) document.getElementById('paiement').scrollIntoView({ behavior: 'smooth' });
+    }
+    /* ----- 25/11/2026 : « Payer et bloquer ma caution » en un bouton (dès que la caution peut être bloquée, 2 jours avant) :
+       1) paiement de la location (Stripe), 2) au retour sur cette page (&suite=caution), ouverture automatique du blocage de la caution ----- */
+    const suiteCaution = new URLSearchParams(location.search).get('suite') === 'caution';
+    function htmlDuo(p, c) {
+      const mp = eurosP(p.montant), mc = eurosP(c.montant), test = p.test ? ' <small class="petit">(mode test)</small>' : '', quand = (window.__retrait ? 'au retrait' : 'à la livraison');
+      const info = retourPaiement === 'annule' ? '<p class="erreur">Le paiement n\'a pas été fait. Tu peux réessayer quand tu veux, ou tout régler en espèces ' + quand + '.</p>' : '';
+      return '<div class="caution" id="paiement"><h3>💳 Tout régler en une fois' + test + '</h3>' + info +
+        '<p>1. <b>Payer ta location : ' + mp + '</b><br>2. <b>Bloquer ta caution : ' + mc + '</b> (rien n\'est débité, elle est libérée quand tu rends le matériel en bon état)</p>' +
+        '<button type="button" id="b-duo">Payer ' + mp + ' et bloquer ma caution →</button>' +
+        '<p class="petit">Deux écrans de paiement sécurisé Stripe s\'enchaînent tout seuls. Tu préfères les espèces ? Tu règles tout ' + quand + '.</p>' +
+        '<p class="petit"><button type="button" class="lien-simple" id="b-duo-loc">Payer seulement la location</button> · <button type="button" class="lien-simple" id="b-duo-caut">Bloquer seulement la caution</button></p>' +
+        '<p class="erreur" id="m-paiement" hidden></p></div>';
+    }
+    async function ouvrirStripe(action, extra, b, txt) {
+      if (b) { b.disabled = true; b.textContent = 'Ouverture du paiement sécurisé…'; }
+      try {
+        const r = await patienter('Ouverture du paiement sécurisé…', async () => (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, t }, extra || {})) })).json());
+        if (!r.ok || !/^https:\/\/checkout\.stripe\.com\//.test(r.url || '')) throw new Error(r.erreur || 'erreur');
+        location.href = r.url; return true;
+      } catch (err) {
+        if (b) { b.disabled = false; b.textContent = txt; }
+        const m = document.getElementById('m-paiement') || document.getElementById('m-caution'); if (m) { m.hidden = false;
+        m.textContent = err.message && err.message !== 'erreur' ? err.message : 'Le paiement sécurisé ne répond pas. Réessaie dans un instant, ou règle en espèces.'; }
+        return false;
+      }
+    }
+    function brancherDuo() {
+      const b = document.getElementById('b-duo'); if (!b) return;
+      const txt = b.textContent;
+      b.addEventListener('click', () => ouvrirStripe('paiement_ouvrir', { suite: 'caution' }, b, txt));
+      document.getElementById('b-duo-loc').addEventListener('click', e => ouvrirStripe('paiement_ouvrir', {}, e.currentTarget, e.currentTarget.textContent));
+      document.getElementById('b-duo-caut').addEventListener('click', e => ouvrirStripe('caution_ouvrir', {}, e.currentTarget, e.currentTarget.textContent));
+      if (retourPaiement) document.getElementById('paiement').scrollIntoView({ behavior: 'smooth' });
+    }
+    // retour du paiement de la location : on ouvre tout de suite le blocage de la caution (une seule fois)
+    function enchainerCaution(j) {
+      if (!suiteCaution || retourPaiement !== 'ok' || !j.paiement || j.paiement.etat !== 'payee' || !j.caution || !j.caution.possible) return false;
+      try { if (sessionStorage.getItem('mistraloc_suite_' + t)) return false; sessionStorage.setItem('mistraloc_suite_' + t, '1'); } catch (e) {}
+      const zone = document.getElementById('paiement');
+      if (zone) zone.insertAdjacentHTML('afterbegin', '<p style="font-weight:700;color:#34D399">✓ Location payée. Étape 2 sur 2 : blocage de ta caution…</p>');
+      ouvrirStripe('caution_ouvrir', {}, document.getElementById('b-caution'), 'Bloquer ma caution par carte →');
+      return true;
     }
     /* ----- caution par carte (Stripe, 16/11/2026) : l'argent est seulement bloqué, puis libéré au retour du matériel ----- */
     const retourCaution = new URLSearchParams(location.search).get('caution');
