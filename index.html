@@ -1159,6 +1159,9 @@
         <ul class="adr-liste" id="bk-adr-liste" role="listbox" hidden></ul></div>
         <datalist id="bk-villes"></datalist>
         <small class="livr-txt" id="bk-livr-txt">Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès 150 € de location), jusqu'à 25 km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18-19 €, Istres 26 €.</small></div>
+      <div class="field" id="bk-fete-lieu-champ" hidden><label for="bk-fete-lieu">Où a lieu ta fête ? *</label>
+        <input id="bk-fete-lieu" maxlength="120" list="bk-villes" placeholder="ex. Pélissanne, ou le nom de la salle" autocomplete="off">
+        <small class="livr-txt">La ville suffit (ou le nom de la salle) : ça nous aide à préparer ta location.</small></div>
       <div class="devis" id="bk-devis" hidden></div>
      </div>
      <div class="wiz-pas" data-pas="3" hidden>
@@ -2378,6 +2381,7 @@
       : 'Clique sur une date du calendrier.';
     // étape 2 : champs et textes selon livraison / retrait
     $('bk-lieu-champ').hidden = ret;
+    $('bk-fete-lieu-champ').hidden = !ret;
     $('bk-heure-lbl').textContent = ret ? 'Heure de retrait *' : 'Heure de livraison *';
     $('bk-heure-txt').textContent = ret
       ? 'Retrait gratuit à Salon-de-Provence entre 17h00 et 19h30 (adresse exacte envoyée à la confirmation). Tu rapportes le matériel le lendemain de la dernière soirée, avant 12h00.'
@@ -2502,6 +2506,7 @@
     if (n === 2 && $('bk-heure').value && periode() && heuresPossibles(periode().start).indexOf(Number($('bk-heure').value.slice(0, 2)) * 60 + Number($('bk-heure').value.slice(3))) < 0) return { el: $('bk-heure'), txt: 'Cette heure est trop proche (il faut au moins 2 h) : choisis-en une autre ou appelle-nous au 06 22 12 39 63.' };
     if (n === 2) {
       if (!$('bk-heure').value) return { el: $('bk-heure'), txt: 'Choisis l\'heure de livraison.' };
+      if (l.retrait && $('bk-fete-lieu').value.trim().length < 2) return { el: $('bk-fete-lieu'), txt: 'Indique où a lieu ta fête (la ville suffit).' };
       if (l.etat === 'vide') return { el: $('bk-lieu'), txt: 'Indique l\'adresse de livraison (numéro, rue et ville).' };
       if (l.etat === 'choisir') return { el: $('bk-lieu'), txt: 'Choisis ton adresse dans la liste des suggestions (sinon on ne peut pas calculer la livraison).' };
       if (l.etat === 'calcul') return { el: $('bk-lieu'), txt: 'Un instant, on calcule la distance…' };
@@ -2570,7 +2575,7 @@
     const blocs = [
       ['Matériel', esc($('bk-recap-nom').textContent) + (window.avecFumee ? '<br><small>💨 Fumée : ' + esc(window.parfum ? 'parfum ' + window.parfum.toLowerCase() + ' (offert)' : 'sans odeur') + '</small>' : '') + ($('bk-note320') && !$('bk-note320').hidden ? '<br><small>' + esc($('bk-note320').textContent) + '</small>' : ''), 'pack'],
       ['Dates', p ? esc((l.retrait ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + (l.retrait ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
-      l.retrait ? ['Retrait', 'Gratuit, à Salon-de-Provence (adresse envoyée à la confirmation)', 2]
+      l.retrait ? ['Retrait', 'Gratuit, à Salon-de-Provence (adresse envoyée à la confirmation)' + ($('bk-fete-lieu').value.trim() ? '<br><small>🎉 Fête à ' + esc($('bk-fete-lieu').value.trim()) + '</small>' : ''), 2]
                 : ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
       ['Tes infos', [$('bk-nom').value.trim(), $('bk-tel').value.trim(), $('bk-email').value.trim(), $('bk-fete').value + ($('bk-invites').value ? ' · ' + ($('bk-invites').value >= 200 ? '200+' : $('bk-invites').value) + ' invités' : '')].filter(Boolean).map(esc).join('<br>') +
         ($('bk-message').value.trim() ? '<br><i>« ' + esc($('bk-message').value.trim()) + ' »</i>' : ''), 3]
@@ -2632,7 +2637,7 @@
     }
     const o = offreSel.value; if (o && o !== 'Panier personnalisé') l.push('• Formule : ' + VU(o.replace('Panier perso : ', 'Mon panier : ')));
     const p = periode(); if (p) l.push('• Date : ' + jourTxt(p.start) + ' (' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + ')');
-    const v = $('bk-lieu').value.trim(); if (enRetrait()) l.push('• Retrait à Salon-de-Provence'); else if (v) l.push('• Livraison : ' + v);
+    const v = $('bk-lieu').value.trim(); if (enRetrait()) l.push('• Retrait à Salon-de-Provence' + ($('bk-fete-lieu').value.trim() ? ' (fête à ' + $('bk-fete-lieu').value.trim() + ')' : '')); else if (v) l.push('• Livraison : ' + v);
     const f = document.querySelector('.choice[aria-pressed="true"]'), g2 = document.getElementById('g');
     if (f && g2) l.push('• Fête : ' + f.textContent.trim() + ', ' + (g2.value >= 200 ? '200+' : g2.value) + ' invités' + (window.sansPrise ? ', sans prise électrique' : ''));
     l.push('Ma question : ');
@@ -2736,11 +2741,12 @@
     const heure = $('bk-heure').value;
     if (!heure) { $('bk-heure').focus(); return message(l.retrait ? 'Choisis l\'heure de retrait.' : 'Choisis l\'heure de livraison (sous le calendrier).'); }
     if (l.etat === 'vide') { $('bk-lieu').focus(); return message('Indique l\'adresse de livraison.'); }
+    if (l.retrait && $('bk-fete-lieu').value.trim().length < 2) { allerA(2); $('bk-fete-lieu').focus(); return message('Indique où a lieu ta fête (la ville suffit).'); }
     if (l.etat === 'choisir' || l.etat === 'calcul') { $('bk-lieu').focus(); return message('Choisis ton adresse de livraison dans la liste des suggestions.'); }
     if (l.etat === 'loin') { $('bk-lieu').focus(); return message('On livre seulement jusqu\'à ' + LIVR.maxKm + ' km de Salon-de-Provence (' + l.nom + ' est à ' + l.km + ' km). Une question ? <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Écris-nous sur WhatsApp</a>.'); }
     if (!nom || !tel) return message('Indique ton nom et ton téléphone.');
     if (!$('bk-ok').checked) return message('Coche la case d\'accord pour qu\'on puisse traiter ta demande.');
-    const data = { nom, tel, email:$('bk-email').value.trim(), lieu: l.retrait ? l.nom : (l.ville || l.nom), mode: l.retrait ? 'retrait' : 'livraison', invites:$('bk-invites').value,
+    const data = { nom, tel, email:$('bk-email').value.trim(), lieu: l.retrait ? l.nom : (l.ville || l.nom), mode: l.retrait ? 'retrait' : 'livraison', lieuFete: l.retrait ? $('bk-fete-lieu').value.trim() : '', invites:$('bk-invites').value,
                    adresse: !l.retrait && ADR ? { label: ADR.label, ville: ADR.ville, lat: ADR.lat, lon: ADR.lon } : null,
                    fete:$('bk-fete').value, message:(window.sansPrise ? '[Pas de prise électrique sur place] ' : '') + (window.avecFumee && window.parfum ? '[Fumée parfumée : ' + window.parfum + '] ' : '') + $('bk-message').value.trim(), date:p.start, nuits:p.nuits, veille:p.veille, heure, offre:offreSel.value,
                    consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
@@ -2890,7 +2896,7 @@
       if (!debut || pas === 5) return;
       const k = cleOffre();
       const s = { k, offre: offreSel.value, panier: k === 'perso' ? Object.assign({}, panier) : null, debut, fin, veille: $('bk-veille').checked,
-                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, adr: ADR && !ADR.calcul ? ADR : null, retrait: enRetrait(), pas: Math.min(pas, 3), ts: Date.now() };
+                  heure: $('bk-heure').value, lieu: $('bk-lieu').value, feteLieu: $('bk-fete-lieu').value, adr: ADR && !ADR.calcul ? ADR : null, retrait: enRetrait(), pas: Math.min(pas, 3), ts: Date.now() };
       try { localStorage.setItem(CLE_RESA, JSON.stringify(s)); } catch (e) {}
     }, 400);
   }
@@ -2911,6 +2917,7 @@
     await dessiner(); majHeures();
     if (s.heure && [...$('bk-heure').options].some(o => o.value === s.heure && !o.disabled)) $('bk-heure').value = s.heure;
     if (s.lieu) $('bk-lieu').value = s.lieu;
+    if (s.feteLieu) $('bk-fete-lieu').value = s.feteLieu;
     if (s.adr && s.adr.label === s.lieu && s.adr.lat) ADR = s.adr;
     if (s.retrait) document.querySelector('input[name="bk-mode"][value="retrait"]').checked = true;
     maj();
