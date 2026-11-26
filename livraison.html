@@ -247,7 +247,8 @@
       <li><a href="comment-ca-marche.html">Comment ça marche</a></li>
       <li><a href="livraison.html">Zone de livraison</a></li>
       <li><a href="avant-ta-fete.html">Avant ta fête</a></li>
-      <li><a href="offrir.html">Offrir une soirée</a></li><li><a href="lumieres.html">Guide des lumières</a></li>
+      <li><a href="offrir.html">Offrir une soirée</a></li>
+      <li><a href="lumieres.html">Guide des lumières</a></li>
     </ul></div>
     <div><h4>On livre à</h4><ul class="pied-villes"><li><a href="location-sono-salon-de-provence.html">Salon-de-Provence</a></li><li><a href="location-sono-istres.html">Istres</a></li><li><a href="location-sono-miramas.html">Miramas</a></li><li><a href="location-sono-pelissanne.html">Pélissanne</a></li><li><a href="location-sono-lancon-provence.html">Lançon-Provence</a></li><li><a href="location-sono-berre-l-etang.html">Berre-l'Étang</a></li><li><a href="location-sono-saint-martin-de-crau.html">Saint-Martin-de-Crau</a></li><li><a href="location-sono-lambesc.html">Lambesc</a></li><li><a href="location-sono-eyguieres.html">Eyguières</a></li><li><a href="location-sono-saint-chamas.html">Saint-Chamas</a></li><li><a href="location-sono-grans.html">Grans</a></li><li><a href="location-sono-rognac.html">Rognac</a></li></ul></div>
     <div class="pied-contact"><h4>Contact</h4><ul>
@@ -318,11 +319,13 @@
     document.addEventListener('click', e => {
       const a = e.target.closest && e.target.closest('a[href^="tel:"], a[href*="wa.me/"], #aide-wa'); if (!a) return;
       let src = ''; try { src = sessionStorage.getItem('mistraloc_src') || ''; } catch (x) {}
-      fetch('https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec?action=contact&t=' + (/^tel:/.test(a.getAttribute('href') || '') ? 'tel' : 'wa') + (src === 'gads' ? '&src=gads' : ''), { keepalive: true, mode: 'no-cors' }).catch(() => {});
+      fetch('https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec?action=contact&t=' + (/^tel:/.test(a.getAttribute('href') || '') ? 'tel' : 'wa') + (src === 'gads' ? '&src=gads' : '') + (() => { try { const v = sessionStorage.getItem('mistraloc_vid'); return v ? '&id=' + v : ''; } catch (x) { return ''; } })(), { keepalive: true, mode: 'no-cors' }).catch(() => {});
     }, true);
     let n = '1'; try { if (sessionStorage.getItem('audioloc_v')) n = '0'; else sessionStorage.setItem('audioloc_v', '1'); } catch (e) {}
     let s = ''; try { s = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
-    fetch('https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec?action=visite&p=livraison&n=' + n + '&s=' + encodeURIComponent(s) + '&nv=' + nv + '&m=' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 1 : 0)).catch(() => {});
+    let vid = ''; try { vid = sessionStorage.getItem('mistraloc_vid') || ''; if (!/^[a-z0-9]{8,12}$/.test(vid)) { vid = (Math.random().toString(36).slice(2) + '0000000000').slice(0, 10); sessionStorage.setItem('mistraloc_vid', vid); } } catch (e) {}   // 26/11 : identifiant aléatoire de la visite (cet onglet seulement) : pages vues dans l'ordre
+    const vu = z => fetch('https://script.google.com/macros/s/AKfycbwqR6HDTI4lbDZxqtruraOBJUklTni0lYWXLAFTAqC_xQABtG40MJ0W2dYDp7xZK0hs/exec?action=visite&p=livraison&n=' + n + '&s=' + encodeURIComponent(s) + '&nv=' + nv + '&m=' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 1 : 0) + '&id=' + vid + '&u=' + encodeURIComponent(location.pathname.slice(0, 60)) + (z ? '&v=' + encodeURIComponent(z) : '')).catch(() => {});
+    if (n === '1') { const c = new AbortController(); setTimeout(() => c.abort(), 2500); fetch('https://get.geojs.io/v1/ip/geo.json', { signal: c.signal }).then(r => r.json()).then(g => vu([g.city, g.region].filter(Boolean).join(', ') + (g.country_code && g.country_code !== 'FR' ? ' (' + g.country_code + ')' : ''))).catch(() => vu('')); } else vu('');   // 26/11 : zone approximative (ville de l'opérateur internet) ; l'adresse IP n'est jamais enregistrée
   })();
 </script>
 </body>
