@@ -6,7 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Location d'enceintes à Salon-de-Provence · Mistraloc</title>
-<meta name="description" content="Location d'enceintes JBL PartyBox, jeux de lumière et machine à fumée à Salon-de-Provence et alentours. Réserve en ligne en 2 minutes, livraison ou retrait gratuit.">
+<meta name="description" content="Location d'enceintes JBL PartyBox, jeux de lumière et machine à fumée à Salon-de-Provence et alentours. Réserve en ligne en 2 minutes, livraison et installation dès 5 €.">
 <!-- polices hébergées sur le site (licence SIL OFL, voir fonts/) : plus d'attente des serveurs de Google avant l'affichage -->
 <link rel="preload" href="fonts/source-sans-3-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -56,7 +56,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mistraloc.fr/">
 <meta property="og:title" content="Location d'enceintes à Salon-de-Provence · Mistraloc">
-<meta property="og:description" content="Location d'enceintes JBL PartyBox, jeux de lumière et machine à fumée à Salon-de-Provence et alentours. Réserve en ligne en 2 minutes, livraison ou retrait gratuit.">
+<meta property="og:description" content="Location d'enceintes JBL PartyBox, jeux de lumière et machine à fumée à Salon-de-Provence et alentours. Réserve en ligne en 2 minutes, livraison et installation dès 5 €.">
 <meta property="og:locale" content="fr_FR">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Mistraloc","description":"Location d'enceintes JBL PartyBox, de lumières et de machine à fumée à Salon-de-Provence et alentours, avec livraison et installation.","url":"https://mistraloc.fr/","logo":"https://mistraloc.fr/favicon-192.png","image":"https://mistraloc.fr/apple-touch-icon.png","telephone":"+33622123963","email":"contact@mistraloc.fr","priceRange":"€€","areaServed":[{"@type":"City","name":"Salon-de-Provence"},{"@type":"City","name":"Pélissanne"},{"@type":"City","name":"Lançon-Provence"},{"@type":"City","name":"Miramas"},{"@type":"City","name":"Istres"},{"@type":"City","name":"Grans"},{"@type":"City","name":"Eyguières"},{"@type":"City","name":"Lambesc"},{"@type":"City","name":"Berre-l'Étang"},{"@type":"City","name":"Rognac"},{"@type":"City","name":"Saint-Chamas"},{"@type":"City","name":"Saint-Martin-de-Crau"}],"address":{"@type":"PostalAddress","addressLocality":"Salon-de-Provence","postalCode":"13300","addressCountry":"FR"},"sameAs":["https://www.instagram.com/mistraloc/","https://www.tiktok.com/@mistraloc","https://www.facebook.com/mistraloc"]}</script>
 <style>
@@ -267,6 +267,7 @@
   #reserver .adr-liste li:hover,#reserver .adr-liste li[aria-selected="true"]{background:color-mix(in srgb,var(--pink) 18%,transparent)}
   /* retrait gratuit ou livraison (étape 2) */
   #reserver .mode{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px}
+  #reserver .mode[hidden]{display:none}
   #reserver .mode label{display:flex;flex-direction:column;gap:2px;padding:12px;border:1.5px solid var(--line,rgba(255,255,255,.14));border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s}
   #reserver .mode input{position:absolute;opacity:0;pointer-events:none}
   #reserver .mode b{font-size:15px}
@@ -1000,7 +1001,7 @@
     <!-- 17/11 : bloc condensé (demande de l'utilisateur) : 6 pastilles courtes sur 2 colonnes -->
     <ul class="go-plus">
       <li><span aria-hidden="true">👥</span><span><b>On te conseille</b> selon ton nombre d'invités</span></li>
-      <li><span aria-hidden="true">🚐</span><span><b>Livré et installé</b> dès 10 €, ou retrait gratuit</span></li>
+      <li><span aria-hidden="true">🚐</span><span><b>Livré et installé</b> dès 5 € à Salon</span></li>
       <li class="vt-case"><button type="button" class="vt-ouvre" aria-expanded="false" aria-controls="vt-panneau"><span aria-hidden="true">📍</span><span><b>25 km autour de Salon</b> · <span class="vt-lien">ta ville ?</span></span></button></li>
       <li><span aria-hidden="true">📱</span><span><b>Lumières pilotées</b> au téléphone · <a href="#effet">vidéo</a></span></li>
       <li><span aria-hidden="true">🔋</span><span><b>Sans prise ?</b> 18 h sur batterie (Pack Apéro)</span></li>
@@ -1145,11 +1146,11 @@
       <label class="veille"><input type="checkbox" id="bk-veille"> <span>Ma fête est <b>en journée</b> : livrez-moi la veille au soir (la veille compte comme une soirée en plus, avec la réduction plusieurs soirées).</span></label>
      </div>
      <div class="wiz-pas" data-pas="2" hidden>
-      <h3>Livraison ou retrait</h3>
+      <h3 id="bk-pas2-t">Livraison</h3>
       <p class="sous" id="bk-pas2-date"></p>
-      <div class="mode" role="radiogroup" aria-label="Livraison ou retrait">
-        <label><input type="radio" name="bk-mode" value="livraison" checked><b>🚗 Livraison</b><small>Livrée et installée chez toi · <em>dès 10 €</em></small></label>
-        <label><input type="radio" name="bk-mode" value="retrait"><b>📍 Retrait</b><small>Tu viens le chercher à Salon-de-Provence · <em>gratuit</em></small></label>
+      <div class="mode" id="bk-modes" role="radiogroup" aria-label="Livraison ou retrait" hidden>
+        <label><input type="radio" name="bk-mode" value="livraison" checked><b>🚗 Livraison</b><small>Livrée et installée chez toi · <em>dès 5 €</em></small></label>
+        <label id="bk-mode-retrait"><input type="radio" name="bk-mode" value="retrait"><b>📍 Retrait</b><small>Tu viens le chercher à <span class="ret-ville">Salon-de-Provence</span> · <em>gratuit</em></small></label>
       </div>
       <div class="field"><label for="bk-heure" id="bk-heure-lbl">Heure de livraison *</label>
         <select id="bk-heure" disabled><option value="">Choisis d'abord une date</option></select>
@@ -1158,7 +1159,7 @@
         <div class="adr-boite"><input id="bk-lieu" maxlength="120" placeholder="ex. 12 rue des Lilas, Pélissanne" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="bk-adr-liste">
         <ul class="adr-liste" id="bk-adr-liste" role="listbox" hidden></ul></div>
         <datalist id="bk-villes"></datalist>
-        <small class="livr-txt" id="bk-livr-txt">Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès 150 € de location), jusqu'à 25 km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18-19 €, Istres 26 €.</small></div>
+        <small class="livr-txt" id="bk-livr-txt">Livraison, installation et reprise : 5 € dans Salon ; ailleurs 10 € + 0,70 € par km, jusqu'à 25 km. Dès 150 € de location : offerte jusqu'à 15 km, moitié prix au-delà.</small></div>
       <div class="field" id="bk-fete-lieu-champ" hidden><label for="bk-fete-lieu">Où a lieu ta fête ? *</label>
         <input id="bk-fete-lieu" maxlength="120" list="bk-villes" placeholder="ex. Pélissanne, ou le nom de la salle" autocomplete="off">
         <small class="livr-txt">La ville suffit (ou le nom de la salle) : ça nous aide à préparer ta location.</small></div>
@@ -1284,7 +1285,7 @@
   <p class="lead">Pas besoin d'être DJ ni technicien.</p>
   <div class="easy" style="text-align:left">
     <div><b>1</b><h3>Tu choisis</h3><p>Ton pack, en deux questions.</p></div>
-    <div><b>2</b><h3>On te livre (ou tu passes le prendre)</h3><p>Livraison chez toi ou sur le lieu de la fête selon la distance, ou retrait gratuit à Salon-de-Provence.</p></div>
+    <div><b>2</b><h3>On te livre et on installe</h3><p>Chez toi ou sur le lieu de la fête, jusqu'à 25 km de Salon-de-Provence. 5 € dans Salon, offerte dès 150 € de location tout près.</p></div>
     <div><b>3</b><h3>Tu branches</h3><p>Une prise, ton téléphone en Bluetooth.</p></div>
     <div><b>4</b><h3>Tu rends</h3><p>Le lendemain, avant midi.</p></div>
   </div>
@@ -1320,22 +1321,22 @@
 
 <section id="local"><div class="wrap"><div class="seo-local">
   <h2>Location d'enceintes à Salon-de-Provence</h2>
-  <p>Mistraloc loue des enceintes JBL PartyBox (320, 710 et Ultimate), un trépied lumière et une machine à fumée pour tes anniversaires, mariages et soirées à <a href="location-sono-salon-de-provence.html">Salon-de-Provence</a> et jusqu'à 25 km autour : Pélissanne, Lançon, Miramas, Istres, Grans, Eyguières, Lambesc… La location se fait à la soirée, dès <b data-prix-sem="apero">39,90 €</b> en semaine. On te livre et on installe chez toi (dès 10 €, moitié prix dès 150 € de location), ou tu viens chercher le matériel gratuitement. Tu dis combien vous serez, on te conseille la bonne enceinte, et tu réserves en ligne en 2 minutes. <a href="livraison.html">Voir la zone de livraison →</a></p>
+  <p>Mistraloc loue des enceintes JBL PartyBox (320, 710 et Ultimate), un trépied lumière et une machine à fumée pour tes anniversaires, mariages et soirées à <a href="location-sono-salon-de-provence.html">Salon-de-Provence</a> et jusqu'à 25 km autour : Pélissanne, Lançon, Miramas, Istres, Grans, Eyguières, Lambesc… La location se fait à la soirée, dès <b data-prix-sem="apero">39,90 €</b> en semaine. On te livre et on installe chez toi : 5 € dans Salon, et dès 150 € de location la livraison est offerte jusqu'à 15 km (moitié prix plus loin). Tu dis combien vous serez, on te conseille la bonne enceinte, et tu réserves en ligne en 2 minutes. <a href="livraison.html">Voir la zone de livraison →</a></p>
 </div></div></section>
 
 <section id="faq"><div class="wrap center">
   <h2>Questions fréquentes</h2>
   <div class="faq" style="text-align:left;margin-top:30px">
-    <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : en livraison, on installe tout chez toi et on vérifie que ça marche ; en retrait, on t'explique tout sur place. Ensuite tu connectes ton téléphone en Bluetooth.</p></details>
+    <details name="faq"><summary>Je n'y connais rien, c'est grave ?</summary><p>Pas du tout : on installe tout chez toi et on vérifie avec toi que ça marche. Ensuite tu connectes ton téléphone en Bluetooth.</p></details>
     <details name="faq"><summary>Faut-il laisser une caution ?</summary><p>Oui, environ la moitié de la valeur du matériel : 200 € par PartyBox 320 ou 710, 350 € par PartyBox Ultimate, 50 € pour la machine à fumée ou les micros, 100 € par trépied lumière. Pour un pack, on additionne (Pack Club : 400 €). Tu peux la bloquer par carte depuis ton lien de suivi, quelques jours avant (le montant est seulement bloqué, rien n'est débité), ou la laisser en espèces. Elle t'est rendue (ou le blocage levé) au retour du matériel.</p></details>
-    <details name="faq"><summary>Vous livrez ?</summary><p>Oui : on livre, on installe et on reprend le matériel le lendemain, jusqu'à 25 km de Salon-de-Provence. Prix : 10 € + 0,70 € par km depuis le centre de Salon (environ 10 à 13 € dans Salon, 16 € à Pélissanne, 18-19 € à Miramas, 26 € à Istres, jamais plus de 29 €), et <b>moitié prix dès 150 € de location</b>. Le prix exact s'affiche dès que tu choisis ton adresse. Tu préfères venir le chercher ? Le retrait à Salon-de-Provence est gratuit.</p></details>
+    <details name="faq"><summary>Vous livrez ?</summary><p>Oui : on livre, on installe et on reprend le matériel le lendemain, jusqu'à 25 km de Salon-de-Provence. Prix : <b>5 € dans Salon</b> ; ailleurs 10 € + 0,70 € par km depuis le centre de Salon (16 € à Pélissanne, 18 € à Miramas, 26 € à Istres, jamais plus de 28 €). <b>Dès 150 € de location, la livraison est offerte</b> jusqu'à 15 km de Salon (Pélissanne, Grans, Miramas, Lançon, Eyguières…) et à moitié prix au-delà. Le prix exact s'affiche dès que tu choisis ton adresse.</p></details>
     <details name="faq"><summary>Je peux venir chercher le matériel moi-même ?</summary><p>Oui, et c'est gratuit : choisis « Retrait » en réservant. Tu le récupères à Salon-de-Provence le jour J entre 17h00 et 19h30, et tu le rapportes le lendemain de la dernière soirée avant 12h00. L'adresse exacte t'est envoyée quand on confirme ta réservation.</p></details>
     <details name="faq"><summary>Je peux louer plusieurs jours ?</summary><p>Oui, jusqu'à 7 soirées d'affilée, et plus tu le gardes longtemps, moins chaque soirée coûte : la plus chère est au prix plein, puis <span data-degressif>2e soirée −20 %, 3e et 4e −35 %, dès la 5e −50 %</span>. En semaine (dimanche → jeudi soir), les prix sont plus bas que le vendredi et le samedi.</p></details>
     <details name="faq"><summary>La fumée déclenche-t-elle les alarmes ?</summary><p>Elle peut déclencher certains détecteurs : vérifie le lieu avant.</p></details>
     <details name="faq" class="plus"><summary>La fumée est-elle dangereuse ? Peut-on la parfumer ?</summary><p>La fumée est faite avec un liquide prévu pour les machines à fumée : utilisée normalement, dans une pièce aérée, elle ne présente pas de danger. Elle peut quand même gêner les personnes asthmatiques ou sensibles : dans ce cas, utilise-la peu, ou pas du tout. Tu peux choisir un <b>parfum offert</b> (tutti frutti, vanille ou menthe) au moment de réserver, ou rester « sans odeur ».</p></details>
     <details name="faq"><summary>Quelle enceinte pour combien d'invités ?</summary><p>En gros : la PartyBox 320 (Pack Apéro) pour un petit comité jusqu'à une vingtaine de personnes, le Pack Soirée pour une vraie fête, le Pack Club ou l'Ultimate pour les grandes fêtes et les mariages, et le Pack Club Ultimate (2 Ultimate) au-delà de 90 personnes (45 pour un mariage). Réponds aux deux questions de <a href="#trouver" style="color:var(--cyan)">Trouve ton pack</a> pour avoir notre conseil.</p></details>
     <details name="faq" class="plus"><summary>Il faut une prise électrique ?</summary><p>Pour la PartyBox 320 (et la 310), non : elle a une batterie (jusqu'à 18 h selon le volume), parfaite en extérieur. La 710 et l'Ultimate se branchent sur une prise secteur, comme la machine à fumée, les lyres et le laser. Les micros sans fil sont rechargeables.</p></details>
-    <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. En retrait, mêmes horaires : tu le récupères entre 17h00 et 19h30 et tu le rapportes avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
+    <details name="faq" class="plus"><summary>À quelle heure vous livrez et vous reprenez ?</summary><p>On livre le jour J entre 17h00 et 19h30, à l'heure que tu choisis en réservant. On reprend le matériel le lendemain de la dernière soirée, avant 12h00. Ta fête est en journée ? Coche l'option au moment de réserver : on te livre la veille au soir.</p></details>
     <details name="faq" class="plus"><summary>Combien de temps à l'avance faut-il réserver ?</summary><p>Le plus tôt possible, surtout pour les week-ends et les mariages. Si le calendrier affiche ta date en disponible, tu peux réserver, même pour le jour même (au moins 2 heures avant la livraison ; sinon, appelle-nous au 06 22 12 39 63).</p></details>
     <details name="faq" class="plus"><summary>Et s'il pleut ?</summary><p>Les enceintes doivent rester à l'abri : sous un auvent, une tonnelle ou à l'intérieur. Elles ne doivent pas rester sous la pluie.</p></details>
     <details name="faq" class="plus"><summary>Je peux annuler ?</summary><p>Oui, directement depuis ton lien de suivi, jusqu'à la veille de la date. Le jour même, appelle-nous au 06 22 12 39 63.</p></details>
@@ -2045,7 +2046,8 @@
   const auj = new Date(); auj.setHours(0,0,0,0);
   let vue = new Date(auj.getFullYear(), auj.getMonth(), 1), cache = {};
   let debut = null, fin = null;             // première et dernière soirée de la fête (aaaa-mm-jj)
-  let LIVR = { base: 10, km: 0.7, maxKm: 25, demi: 150 }, REMISE = 0.2, DEGR = { r2: 20, r3: 35, r5: 50 };   // remplacés par les réglages du script au chargement
+  let RETRAIT = null;   // 27/11 : { ville } si le retrait est proposé (réglage de l'admin), sinon livraison seulement
+  let LIVR = { salon: 5, base: 10, km: 0.7, maxKm: 25, demi: 150, gratuitKm: 15 }, REMISE = 0.2, DEGR = { r2: 20, r3: 35, r5: 50 };   // remplacés par les réglages du script au chargement
   const NUITS_MAX = 7;
   const $ = id => document.getElementById(id);
   const offreSel = $('bk-offre');
@@ -2236,19 +2238,28 @@
   }
   const villeDe = txt => { const r = chercheVille(txt); return typeof r === 'string' ? r : null; };
   // retrait gratuit à Salon-de-Provence (demande de Mistraloc, 31/10) : l'adresse exacte est envoyée à la confirmation
-  const enRetrait = () => { const m = document.querySelector('input[name="bk-mode"]:checked'); return !!m && m.value === 'retrait'; };
-  const LIEU_RETRAIT = 'Retrait à Salon-de-Provence';
+  const enRetrait = () => { if (!RETRAIT) return false; const m = document.querySelector('input[name="bk-mode"]:checked'); return !!m && m.value === 'retrait'; };
+  const villeRetrait = () => (RETRAIT && RETRAIT.ville) || 'Salon-de-Provence';
+  // 27/11 : affiche ou cache le choix « Retrait » selon le réglage de l'admin
+  window.majModes = function () {
+    const on = !!RETRAIT; window.RETRAIT_ON = on;
+    $('bk-modes').hidden = !on; $('bk-pas2-t').textContent = on ? 'Livraison ou retrait' : 'Livraison';
+    document.querySelectorAll('.ret-ville').forEach(e => { e.textContent = villeRetrait(); });
+    if (!on) { const l = document.querySelector('input[name="bk-mode"][value="livraison"]'); if (l) l.checked = true; }
+  };
   // 17/11 : ADRESSE EXACTE (Base Adresse Nationale, service public) + distance par la route depuis le centre de Salon (OSRM) ;
   // 24/11/2026 : 10 € + 0,70 €/km (sous 30 € partout), moitié prix dès 150 € de location. Le script recalcule tout lui-même.
   const CENTRE = { lat: 43.6403, lon: 5.0973 };
   let ADR = null;   // { label, ville, lat, lon, km, src, calcul }
-  function prixLivr(km){
+  // 27/11 : Salon à prix fixe ; dès LIVR.demi € de location : offerte jusqu'à LIVR.gratuitKm km, moitié prix au-delà (même calcul que le script)
+  function prixLivr(km, ville){
     const p = periode(), l0 = p ? prixLocation(p) : null, loc = l0 == null ? null : l0 - remiseSur(l0);
-    const plein = LIVR.base + LIVR.km * km, demi = loc != null && loc >= (LIVR.demi || 150);
-    return { prix: Math.round(demi ? plein / 2 : plein), demi };
+    const plein = ville === 'Salon-de-Provence' ? LIVR.salon : LIVR.base + LIVR.km * km, rem = loc != null && loc >= (LIVR.demi || 150);
+    const offert = rem && km <= (LIVR.gratuitKm || 0);
+    return { prix: offert ? 0 : Math.round(rem ? plein / 2 : plein), demi: rem && !offert, offert };
   }
   function livraison(){
-    if (enRetrait()) return { etat: 'ok', retrait: true, nom: LIEU_RETRAIT, km: 0, prix: 0 };
+    if (enRetrait()) return { etat: 'ok', retrait: true, nom: 'Retrait à ' + villeRetrait(), km: 0, prix: 0 };
     const txt = $('bk-lieu').value.trim();
     if (!txt) return { etat: 'vide' };
     if (!ADR || ADR.label !== txt) return { etat: 'choisir', nom: txt };   // adresse tapée mais pas choisie dans la liste
@@ -2256,8 +2267,8 @@
     const zone = VILLES[ADR.ville] != null ? VILLES[ADR.ville] <= LIVR.maxKm : ADR.km != null && ADR.km <= LIVR.maxKm + 2;
     if (!zone) return { etat: 'loin', nom: ADR.ville || ADR.label, km: VILLES[ADR.ville] != null ? VILLES[ADR.ville] : Math.round(ADR.km) };
     if (ADR.km == null) return { etat: 'devis', nom: ADR.label };
-    const pr = prixLivr(ADR.km);
-    return { etat: 'ok', nom: ADR.label, ville: ADR.ville, km: Math.round(ADR.km * 10) / 10, prix: pr.prix, demi: pr.demi };
+    const pr = prixLivr(ADR.km, ADR.ville);
+    return { etat: 'ok', nom: ADR.label, ville: ADR.ville, km: Math.round(ADR.km * 10) / 10, prix: pr.prix, demi: pr.demi, offert: pr.offert };
   }
   async function kmRoute(lat, lon){
     try {
@@ -2384,7 +2395,7 @@
     $('bk-fete-lieu-champ').hidden = !ret;
     $('bk-heure-lbl').textContent = ret ? 'Heure de retrait *' : 'Heure de livraison *';
     $('bk-heure-txt').textContent = ret
-      ? 'Retrait gratuit à Salon-de-Provence entre 17h00 et 19h30 (adresse exacte envoyée à la confirmation). Tu rapportes le matériel le lendemain de la dernière soirée, avant 12h00.'
+      ? 'Retrait gratuit à ' + villeRetrait() + ' entre 17h00 et 19h30 (adresse exacte envoyée à la confirmation). Tu rapportes le matériel le lendemain de la dernière soirée, avant 12h00.'
       : 'On livre entre 17h00 et 19h30, et on reprend le matériel le lendemain de la dernière soirée, avant 12h00.';
     $('bk-pas2-date').textContent = p ? $('bk-date-txt').textContent : '';
     // moins de 2 h avant les livraisons de ce soir : on propose d'appeler
@@ -2411,10 +2422,11 @@
     if (actif && (actif.offsetLeft < choix.scrollLeft || actif.offsetLeft + actif.offsetWidth > choix.scrollLeft + choix.clientWidth)) choix.scrollLeft = actif.offsetLeft - 8;
     // livraison + total
     const l = livraison(), t = $('bk-livr-txt');
-    const bareme = 'Livraison, installation et reprise : 10 € + 0,70 € par km depuis Salon (moitié prix dès ' + (LIVR.demi || 150) + ' € de location), jusqu\'à ' + LIVR.maxKm + ' km. Ex. : Salon ≈ 10-13 €, Pélissanne 16 €, Miramas 18-19 €, Istres 26 €.';
-    t.textContent = l.etat === 'ok' ? '✅ Livraison, installation et reprise (' + String(l.km).replace('.', ',') + ' km de Salon) : ' + enEuros(l.prix) + (l.demi ? ' (moitié prix 🎉)' : '') + '.'
+    const eu = x => enEuros(x).replace(',00', '');
+    const bareme = 'Livraison, installation et reprise : ' + eu(LIVR.salon) + ' dans Salon ; ailleurs ' + eu(LIVR.base) + ' + ' + enEuros(LIVR.km) + ' par km, jusqu\'à ' + LIVR.maxKm + ' km. Dès ' + LIVR.demi + ' € de location : offerte jusqu\'à ' + LIVR.gratuitKm + ' km, moitié prix au-delà.';
+    t.textContent = l.etat === 'ok' ? '✅ Livraison, installation et reprise (' + String(l.km).replace('.', ',') + ' km de Salon) : ' + (l.offert ? 'offerte 🎉 (location de ' + LIVR.demi + ' € ou plus)' : enEuros(l.prix) + (l.demi ? ' (moitié prix 🎉)' : '')) + '.'
                   : l.etat === 'calcul' ? 'Calcul de la distance…'
-                  : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km. Le retrait à Salon reste gratuit.'
+                  : l.etat === 'loin' ? 'Désolé, on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon, et ' + l.nom + ' est à ' + l.km + ' km.' + (RETRAIT ? ' Le retrait à ' + villeRetrait() + ' reste gratuit.' : '')
                   : l.etat === 'choisir' && adrAucun ? 'Adresse pas trouvée : écris le numéro, la rue PUIS la ville (ex. 12 rue des Lilas, Pélissanne).'
                   : l.etat === 'choisir' && document.activeElement === $('bk-lieu') ? 'Continue d\'écrire puis choisis ton adresse dans la liste.'
                   : l.etat === 'choisir' ? 'Choisis ton adresse dans la liste qui s\'affiche (tape le numéro, la rue et la ville).'
@@ -2430,8 +2442,8 @@
       box.innerHTML = ligne('Location · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : ''), enEuros(red > 0 ? plein : loc0)) +
         (red > 0 ? ligne('Réduction ' + p.nuits + ' soirées', '−' + enEuros(red), 'promo') : '') +
         (rem ?ligne('Code ' + esc(promoActif.code) + ' (' + esc(promoActif.libelle) + ')', '−' + enEuros(rem), 'promo') : '') +
-        (l.retrait ? ligne('Retrait à Salon-de-Provence', 'gratuit')
-                   : ligne('Livraison, installation et reprise' + (l.etat === 'ok' && l.demi ? ' (moitié prix)' : ''), l.etat === 'ok' ? enEuros(l.prix) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : l.etat === 'calcul' ? 'calcul…' : 'indique ton adresse')) +
+        (l.retrait ? ligne('Retrait à ' + esc(villeRetrait()), 'gratuit')
+                   : ligne('Livraison, installation et reprise' + (l.etat === 'ok' && l.demi ? ' (moitié prix)' : ''), l.etat === 'ok' ? (l.offert ? 'offerte 🎉' : enEuros(l.prix)) : l.etat === 'devis' ? 'à confirmer' : l.etat === 'loin' ? 'hors zone' : l.etat === 'calcul' ? 'calcul…' : 'indique ton adresse')) +
         ligne('Total', l.etat === 'ok' ? enEuros(loc + l.prix) : enEuros(loc) + (l.etat === 'devis' ? ' + livraison' : ''), 'tot') +
         '<small>' + (p.nuits > 1 ? 'Plusieurs soirées : la plus chère au prix plein, puis ' + texteDegressif() + '. ' : '') +
         'Vendredi et samedi soir : tarif week-end ; dimanche → jeudi : tarif semaine. Prix confirmé avec toi par téléphone ou WhatsApp.</small>' +
@@ -2575,7 +2587,7 @@
     const blocs = [
       ['Matériel', esc($('bk-recap-nom').textContent) + (window.avecFumee ? '<br><small>💨 Fumée : ' + esc(window.parfum ? 'parfum ' + window.parfum.toLowerCase() + ' (offert)' : 'sans odeur') + '</small>' : '') + ($('bk-note320') && !$('bk-note320').hidden ? '<br><small>' + esc($('bk-note320').textContent) + '</small>' : ''), 'pack'],
       ['Dates', p ? esc((l.retrait ? 'Retrait le ' : 'Livraison le ') + jourTxt(p.start) + ' à ' + h.replace(':', 'h') + ' · ' + p.nuits + ' soirée' + (p.nuits > 1 ? 's' : '') + (p.veille ? ' (dont la veille, fête en journée)' : '') + (l.retrait ? ' · retour le ' : ' · reprise le ') + jourTxt(plusJ(p.start, p.nuits)) + ' avant 12h00') : '', 1],
-      l.retrait ? ['Retrait', 'Gratuit, à Salon-de-Provence (adresse envoyée à la confirmation)' + ($('bk-fete-lieu').value.trim() ? '<br><small>🎉 Fête à ' + esc($('bk-fete-lieu').value.trim()) + '</small>' : ''), 2]
+      l.retrait ? ['Retrait', 'Gratuit, à ' + esc(villeRetrait()) + ' (adresse envoyée à la confirmation)' + ($('bk-fete-lieu').value.trim() ? '<br><small>🎉 Fête à ' + esc($('bk-fete-lieu').value.trim()) + '</small>' : ''), 2]
                 : ['Livraison', esc(l.nom || '') + (l.etat === 'ok' ? ' · ' + (l.km ? l.km + ' km de Salon · ' : '') + enEuros(l.prix) : ' · prix à confirmer'), 2],
       ['Tes infos', [$('bk-nom').value.trim(), $('bk-tel').value.trim(), $('bk-email').value.trim(), $('bk-fete').value + ($('bk-invites').value ? ' · ' + ($('bk-invites').value >= 200 ? '200+' : $('bk-invites').value) + ' invités' : '')].filter(Boolean).map(esc).join('<br>') +
         ($('bk-message').value.trim() ? '<br><i>« ' + esc($('bk-message').value.trim()) + ' »</i>' : ''), 3]
@@ -2752,7 +2764,7 @@
                    consentement:true, site:$('bk-site').value, code: promoActif ? promoActif.code : '',
                    src: (() => { try { return sessionStorage.getItem('mistraloc_src') || ''; } catch (e) { return ''; } })(),
                    creerCompte: !$('bk-compte-zone').hidden && $('bk-compte').checked, offres: $('bk-offres').checked };
-    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : '+(l.retrait?'retrait':'livraison')+' le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+(l.retrait?', retrait à Salon-de-Provence':', à '+l.nom)+'. '+nom);
+    const wa = 'https://wa.me/33622123963?text='+encodeURIComponent('Bonjour Mistraloc, je voudrais réserver le '+data.offre+' : '+(l.retrait?'retrait':'livraison')+' le '+new Date(p.start+'T12:00').toLocaleDateString('fr-FR')+' à '+heure.replace(':','h')+', '+p.nuits+' soirée'+(p.nuits>1?'s':'')+(l.retrait?', retrait à '+villeRetrait():', à '+l.nom)+'. '+nom);
     if (!API.startsWith('https://')) return message('La réservation en ligne arrive bientôt. En attendant, <a href="'+wa+'" target="_blank" rel="noopener">envoie ta demande sur WhatsApp</a>.');
     const btn=$('bk-submit'); btn.disabled=true; btn.textContent='Envoi en cours…';
     attente(true); const t0 = Date.now();
@@ -2919,7 +2931,7 @@
     if (s.lieu) $('bk-lieu').value = s.lieu;
     if (s.feteLieu) $('bk-fete-lieu').value = s.feteLieu;
     if (s.adr && s.adr.label === s.lieu && s.adr.lat) ADR = s.adr;
-    if (s.retrait) document.querySelector('input[name="bk-mode"][value="retrait"]').checked = true;
+    if (s.retrait && RETRAIT) document.querySelector('input[name="bk-mode"][value="retrait"]').checked = true;
     maj();
     let n = 1; while (n < (s.pas || 1) && !manque(n)) n++;
     allerA(n);
@@ -2959,12 +2971,14 @@
     document.querySelectorAll('.item[data-article]').forEach(it => { const v = prixSem[it.dataset.article], s = it.querySelector('.prixsem'); if (v != null && s) s.textContent = euros(v); });
     let change = false;
     Object.keys(PACK_CLE).forEach(k => {
+      if (!PACKS[k]) return;   // 27/11 : lyres et laser retirés du site (avant : erreur qui coupait la suite des réglages)
       if (prix[PACK_CLE[k]] != null) { PACKS[k].price = euros(prix[PACK_CLE[k]]); change = true; }
       if (prixSem[PACK_CLE[k]] != null) { PACKS[k].sem = euros(prixSem[PACK_CLE[k]]); change = true; }
     });
     document.querySelectorAll('[data-prix-we]').forEach(e => { const k = e.dataset.prixWe; if (PACKS[k]) e.textContent = PACKS[k].price; });
     document.querySelectorAll('[data-prix-sem]').forEach(e => { const k = e.dataset.prixSem; if (PACKS[k]) e.textContent = PACKS[k].sem; });
-    if (c.livraison) LIVR = c.livraison;
+    if (c.livraison) LIVR = Object.assign({}, LIVR, c.livraison);
+    RETRAIT = c.retrait || null; window.majModes(); if (typeof maj === 'function') try { maj(); } catch (e) {}
     // offre du moment (cachée si le visiteur l'a fermée pendant cette visite)
     if (c.offre && c.offre.texte) {
       let ferme = false; try { ferme = sessionStorage.getItem('mistraloc_offre_x') === c.offre.texte; } catch (e) {}
@@ -3056,7 +3070,7 @@
                   'Trépied à lumières': 'trep', 'Lyre WZYBUTA 150 W': 'wzy', 'Lyre Betopper LM0740': 'beto', 'Laser KeoBin 3D RGB': 'laser', 'Paire de micros sans fil JBL': 'micro' };
     const zone = document.getElementById('materiel'); if (!zone) return;
     // 18/11 : fiches « Voir le pack » (textes vrais : capacités et contenu du site au 18/11 ; vidéos = vraies vidéos du matériel de Mistraloc)
-    const LIV = '🚐 Livré, installé et repris le lendemain (dès 10 €), ou retrait gratuit à Salon', APPLI = '📱 Les lumières se pilotent depuis ton téléphone : on te montre tout';
+    const LIV = '🚐 Livré, installé et repris le lendemain : 5 € dans Salon, offert dès 150 € de location tout près', APPLI = '📱 Les lumières se pilotent depuis ton téléphone : on te montre tout';
     const FICHES = {
       apero: { v: 'p320', t: 'Le son qui suit la fête, même sans prise', a: 'Une JBL PartyBox 320, ton téléphone en Bluetooth, et la soirée démarre. Sur batterie jusqu\'à 18 h : terrasse, jardin, bord de piscine.', p: 'Apéro, petit anniversaire, soirée entre amis' },
       soiree: { v: 'p710', t: 'Gros son pour une vraie soirée', a: 'La PartyBox 710 et ses 800 W, avec ses lumières intégrées qui suivent la musique : de quoi faire danser tout le salon.', p: 'Anniversaire, crémaillère, soirée' },
@@ -3276,7 +3290,7 @@
       const p = pasResa(), fini = phase === 'resa' && p === 5, n = phase === 'pack' ? fq : 4 + Math.min(p, 4);
       if (ouvert) etapeVue(fini ? 9 : n);
       $e('esp-num').textContent = fini ? 'C\'est envoyé' : 'Étape ' + n + ' sur 8';
-      $e('esp-nom').textContent = fini ? 'Demande envoyée ✓' : NOMS[n - 1];
+      $e('esp-nom').textContent = fini ? 'Demande envoyée ✓' : n === 6 && !window.RETRAIT_ON ? 'Livraison' : NOMS[n - 1];
       $e('esp-tete').style.setProperty('--av', (fini ? 100 : n / 8 * 100) + '%');
       $e('esp-retour').disabled = fini;
       B.dataset.phase = phase; B.dataset.fq = phase === 'resa' ? 4 : fq;
@@ -3544,14 +3558,14 @@
     const ex = (ville, livr) => '<span class="vt-ex">Ex. : Pack Soirée un samedi' + (ville ? ' à ' + esc(ville) : '') + ' = ' + enEuros(prixSoiree()) + ' + ' + enEuros(livr) + ' = <b>' + enEuros(prixSoiree() + livr) + '</b></span>';
     const montrer = () => {
       const t = inp.value.replace(/\s*\(.*$/, '').trim();
-      if (!t) { out.innerHTML = 'Livraison et installation dès <b>' + enEuros(LIVR.base) + '</b>, moitié prix dès ' + LIVR.demi + ' € de location, ou retrait gratuit.' + ex('Salon-de-Provence', LIVR.base); return; }
+      if (!t) { out.innerHTML = 'Livraison et installation : <b>' + enEuros(LIVR.salon) + '</b> dans Salon, offerte dès ' + LIVR.demi + ' € de location jusqu\'à ' + LIVR.gratuitKm + ' km (moitié prix plus loin).' + ex('Salon-de-Provence', LIVR.salon); return; }
       const r = chercheVille(t);
       if (Array.isArray(r)) { out.innerHTML = 'Ce code postal couvre ' + r.map(esc).join(' et ') + ' : tape le nom de ta ville.'; return; }
       if (!r || VILLES[r] == null) { out.innerHTML = t.length < 3 ? '' : 'On ne trouve pas cette commune : <a href="https://wa.me/33622123963" target="_blank" rel="noopener">demande-nous sur WhatsApp</a>.'; return; }
       const km = VILLES[r];
-      if (km > LIVR.maxKm) { out.innerHTML = '📍 <b>' + esc(r) + '</b> est hors de notre zone (' + km + ' km) : le <b>retrait est gratuit</b> à Salon-de-Provence.'; return; }
-      const p = Math.round(LIVR.base + LIVR.km * km);
-      out.innerHTML = '✅ <b>' + esc(r) + '</b> : livré et installé pour environ <b>' + enEuros(p) + '</b> (' + enEuros(Math.round(p / 2)) + ' dès ' + LIVR.demi + ' € de location), ou retrait gratuit.' + ex(r, p);
+      if (km > LIVR.maxKm) { out.innerHTML = '📍 <b>' + esc(r) + '</b> est hors de notre zone (' + km + ' km) : ' + (RETRAIT ? 'le <b>retrait est gratuit</b> à ' + esc(RETRAIT.ville || 'Salon-de-Provence') + '.' : 'pour l\'instant on livre jusqu\'à ' + LIVR.maxKm + ' km de Salon. <a href="https://wa.me/33622123963" target="_blank" rel="noopener">Demande-nous sur WhatsApp</a>.'); return; }
+      const p = Math.round(r === 'Salon-de-Provence' ? LIVR.salon : LIVR.base + LIVR.km * km), proche = km <= LIVR.gratuitKm;
+      out.innerHTML = '✅ <b>' + esc(r) + '</b> : livré et installé pour environ <b>' + enEuros(p) + '</b> (' + (proche ? '<b>offert</b>' : enEuros(Math.round(p / 2))) + ' dès ' + LIVR.demi + ' € de location).' + ex(r, p);
     };
     inp.addEventListener('input', montrer); inp.addEventListener('change', montrer);
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
