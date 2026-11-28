@@ -2807,7 +2807,7 @@
     if (loc0 == null || !API.startsWith('https://')) return;
     indice('bk-promo-txt', 'Vérification du code…');
     try {
-      const j = await (await fetch(API + '?action=code&cp=' + encodeURIComponent(v) + '&m=' + loc0)).json();
+      const j = await (await fetch(API + '?action=code&cp=' + encodeURIComponent(v) + '&m=' + loc0 + '&tl=' + encodeURIComponent($('bk-tel').value || '') + '&em=' + encodeURIComponent($('bk-email').value || ''))).json();
       if (j.ok && j.code && (j.type === '%' || j.type === '€') && j.valeur > 0) { promoActif = { code: j.code, type: j.type, valeur: j.valeur, libelle: j.libelle }; indice('bk-promo-txt', '✓ Code ' + j.code + ' appliqué : −' + enEuros(remiseSur(loc0)) + ' sur la location', true); }
       else { promoActif = null; indice('bk-promo-txt', j.erreur || 'Ce code n\'est pas valable.'); }
     } catch (e) { indice('bk-promo-txt', 'Impossible de vérifier le code pour l\'instant : réessaie dans un instant.'); }
